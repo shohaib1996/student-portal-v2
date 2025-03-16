@@ -203,7 +203,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                         err?.response?.data?.error || 'Something went wrong',
                     );
                     dispatchSafely(logout());
-                    window.location.href = `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/login`;
+                    window.location.href = `/auth/login`;
                 }
             } else {
                 setTimeout(async () => {
@@ -212,7 +212,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                     await persistor.purge();
                 }, 200);
 
-                window.location.href = `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/login`;
+                window.location.href = `/auth/login`;
             }
         };
 
