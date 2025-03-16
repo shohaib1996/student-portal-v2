@@ -72,6 +72,9 @@ export default {
                 'primary-light': {
                     DEFAULT: 'hsl(var(--primary-light))',
                 },
+                'border-primary-light': {
+                    DEFAULT: 'hsl(var(--border-primary-light))',
+                },
                 warning: {
                     DEFAULT: 'hsl(var(--warning))',
                 },
