@@ -1,21 +1,103 @@
 import * as React from 'react';
-
 import { cn } from '@/lib/utils';
 
-function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
-    return (
-        <input
-            type={type}
-            data-slot='input'
-            className={cn(
-                'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
-                'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
-                'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
-                className,
-            )}
-            {...props}
-        />
-    );
+interface InputProps
+    extends Omit<
+        React.InputHTMLAttributes<HTMLInputElement>,
+        'prefix' | 'suffix'
+    > {
+    suffix?: React.ReactNode;
+    prefix?: React.ReactNode;
+    removeSuffixOnHover?: boolean;
+    inputClassName?: string;
 }
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+    (
+        {
+            className,
+            inputClassName,
+            suffix,
+            prefix,
+            removeSuffixOnHover,
+            type,
+            ...props
+        },
+        ref,
+    ) => {
+        const [isFocused, setIsFocused] = React.useState(false);
+
+        const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+            setIsFocused(true);
+            if (props.onFocus) {
+                props.onFocus(e);
+            }
+        };
+
+        const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+            setIsFocused(false);
+            if (props.onBlur) {
+                props.onBlur(e);
+            }
+        };
+
+        if (suffix || prefix) {
+            return (
+                <div
+                    className={cn(
+                        'flex items-center w-full rounded-lg bg-background transition-colors group border border-input',
+                        isFocused &&
+                            'ring-2 ring-blue-700/30 border-transparent',
+                        className,
+                    )}
+                >
+                    {prefix && (
+                        <div className='pl-3 flex items-center'>{prefix}</div>
+                    )}
+                    <input
+                        ref={ref}
+                        type={type}
+                        className={cn(
+                            'flex h-10 text-gray w-full bg-transparent outline-none px-3 py-1 text-base file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus:outline-none border-none focus:ring-0',
+                            {
+                                'pl-2': prefix,
+                                'pr-2': suffix,
+                            },
+                            inputClassName,
+                        )}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                        {...props}
+                    />
+                    {suffix && (
+                        <div
+                            className={cn(
+                                'pr-3 flex items-center',
+                                removeSuffixOnHover &&
+                                    'group-focus-within:hidden',
+                            )}
+                        >
+                            {suffix}
+                        </div>
+                    )}
+                </div>
+            );
+        } else {
+            return (
+                <input
+                    ref={ref}
+                    type={type}
+                    className={cn(
+                        'flex h-10 w-full bg-background text-gray rounded-md border border-input px-3 py-1 text-base file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700/30',
+                        className,
+                    )}
+                    {...props}
+                />
+            );
+        }
+    },
+);
+
+Input.displayName = 'Input';
 
 export { Input };

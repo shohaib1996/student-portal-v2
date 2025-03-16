@@ -3,17 +3,30 @@ import React, { ReactNode } from 'react';
 import { AppSidebar } from '../shared/AppSidebar';
 import SelectActiveCompany from '../shared/SelectActiveCompany';
 import Cookies from 'js-cookie';
+import {
+    SidebarInset,
+    SidebarProvider,
+    SidebarTrigger,
+    useSidebar,
+} from '../ui/sidebar';
+import Navbar from '../shared/Navbar';
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
     const activeCompany = Cookies.get('activeCompany');
+    const { state } = useSidebar();
     return (
         <>
             {activeCompany ? (
                 <>
                     <AppSidebar />
-                    <main className='mx-auto max-w-[1300px] p-common pt-0 md:p-common 2xl:p-0 2xl:pb-common'>
-                        {children}
-                    </main>
+                    <SidebarInset>
+                        <main className={`relative bg-background w-full`}>
+                            <Navbar />
+                            <div className='px-2 min-h-[calc(100vh-55px)]'>
+                                {children}
+                            </div>
+                        </main>
+                    </SidebarInset>
                 </>
             ) : (
                 <SelectActiveCompany />
