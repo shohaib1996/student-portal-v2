@@ -128,7 +128,7 @@ const tasks: Task[] = [
 
 const TechnicalTest = () => {
     return (
-        <div className='container py-6'>
+        <div className='container py-6 mx-auto'>
             <div className='border-b'>
                 <div className='flex'>
                     <Tabs defaultValue='tasks' className='w-full'>
