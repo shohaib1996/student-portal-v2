@@ -1,5 +1,18 @@
 'use client';
-import React from 'react';
+
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import {
+    ChevronRight,
+    FolderOpen,
+    GalleryVerticalEnd,
+    Search,
+} from 'lucide-react';
+
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
     Sidebar,
     SidebarContent,
@@ -14,22 +27,69 @@ import {
     SidebarMenuSubItem,
     SidebarRail,
 } from '@/components/ui/sidebar';
-import { ChevronRight, FolderOpen, GalleryVerticalEnd } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Input } from '../ui/input';
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from '../ui/collapsible';
-import { cn } from '@/lib/utils';
-import { useTheme } from 'next-themes';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
+import { useTheme } from 'next-themes';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import { Input } from '../ui/input';
+import { useRouter } from 'nextjs-toploader/app';
 
-const AppSidebar = () => {
-    const { theme } = useTheme();
+export type TLoookup = {
+    data: any;
+    id: string;
+    parent: number | string;
+    text?: string;
+    children: TLoookup[];
+};
+
+export function AppSidebar() {
+    const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+    const [wordEntered, setWordEntered] = useState('');
+    const [filteredData, setFilteredData] = useState([]);
+    const dispatch = useAppDispatch();
     const pathname = usePathname();
+    const router = useRouter();
+    const searchRef = useRef<HTMLDivElement>(null);
+
+    // Helper function to convert text to title case
+    function toTitleCase(str: string | undefined): string {
+        if (!str) {
+            return '';
+        }
+
+        return str
+            .toLowerCase()
+            .split(' ')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+
+    if (!isAuthenticated) {
+        return <></>;
+    }
+    const getPathName = () => {
+        const parts = pathname?.split('/').filter(Boolean); // Remove empty strings
+
+        return parts.length > 0 ? parts[parts.length - 1] : '';
+    };
+
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            if (searchRef.current && filteredData.length > 0) {
+                if (!searchRef.current.contains(e.target as Node)) {
+                    setFilteredData([]);
+                }
+            }
+        };
+        document.addEventListener('click', handleClick);
+
+        return () => document.removeEventListener('click', handleClick);
+    }, []);
+
+    const { theme } = useTheme();
+
     return (
         <Sidebar collapsible='icon'>
             <SidebarHeader>
@@ -55,6 +115,16 @@ const AppSidebar = () => {
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <div className='relative' ref={searchRef}>
+                            {/* <Input
+                                value={wordEntered}
+                                onChange={handleFilter}
+                                className='bg-background text-dark-gray h-9'
+                                prefix={<Search size={18} />}
+                            /> */}
+                        </div>
+                    </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
@@ -62,6 +132,7 @@ const AppSidebar = () => {
                     <SidebarGroup>
                         <SidebarGroupContent>
                             <SidebarMenu>
+                                {/* zoom */}
                                 <SidebarMenuItem>
                                     <Collapsible className='group/collapsible'>
                                         <CollapsibleTrigger asChild>
@@ -209,6 +280,4 @@ const AppSidebar = () => {
             <SidebarRail />
         </Sidebar>
     );
-};
-
-export default AppSidebar;
+}
