@@ -1,0 +1,16 @@
+{
+    "extends": "stylelint-config-standard",
+    "files": [
+        "src/**/*.css",
+        "src/**/*.scss"
+    ],
+    "ignoreFiles": [
+        "**/*.js",
+        "**/*.json",
+        "**/*.md",
+        "**/package*.json",
+        ".vscode/*",
+        ".husky/*",
+        "node_modules"
+    ]
+}

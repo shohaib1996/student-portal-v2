@@ -1,27 +1,54 @@
 {
-  "name": "ms-student-portal-v2",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.2.2"
-  },
-  "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.2.2",
-    "@eslint/eslintrc": "^3"
-  }
+    "name": "ms-student-portal-v2",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "next dev --turbopack",
+        "build:staging": "env-cmd -f .env.staging next build",
+        "build:prod": "env-cmd -f .env.prod next build",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint",
+        "dev:staging": "env-cmd -f .env.staging next dev -p 4001",
+        "dev:prod": "env-cmd -f .env.prod next dev -p 4001",
+        "dev:test": "env-cmd -f .env.testing next dev -p 4001",
+        "lint:fix": "next lint --fix",
+        "lint:strict": "next lint '*/**/*.{js,jsx,ts,tsx}'",
+        "prettier": "prettier --write */**/*.{js,jsx,json,ts,tsx,scss,css,md}",
+        "prepare": "husky"
+    },
+    "dependencies": {
+        "@radix-ui/react-dialog": "^1.1.6",
+        "@radix-ui/react-separator": "^1.1.2",
+        "@radix-ui/react-slot": "^1.1.2",
+        "@radix-ui/react-tooltip": "^1.1.8",
+        "@typescript-eslint/eslint-plugin": "^8.26.1",
+        "@typescript-eslint/parser": "^8.26.1",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "eslint-config-prettier": "^10.1.1",
+        "eslint-plugin-prettier": "^5.2.3",
+        "husky": "^9.1.7",
+        "lint-staged": "^15.5.0",
+        "lucide-react": "^0.482.0",
+        "next": "15.2.2",
+        "prettier": "^3.5.3",
+        "prettier-plugin-tailwindcss": "^0.6.11",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "tailwind-merge": "^3.0.2",
+        "tailwindcss-animate": "^1.0.7"
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "^3",
+        "@tailwindcss/postcss": "^4",
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "eslint": "^9.22.0",
+        "eslint-config-next": "^15.2.2",
+        "tailwindcss": "^4",
+        "typescript": "^5"
+    }
 }
