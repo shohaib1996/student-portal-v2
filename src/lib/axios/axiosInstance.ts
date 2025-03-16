@@ -1,5 +1,6 @@
 import axios from 'axios';
-import CookiesHandler from './CookiesHandler';
+import storage from '../../utils/storage';
+import Cookies from 'js-cookie';
 
 // Axios instance setup
 const instance = axios.create({
@@ -19,26 +20,25 @@ export const refreshInstance = axios.create({
 
 // Request interceptor
 instance.interceptors.request.use(async (config) => {
-    const accessToken = await CookiesHandler(
-        'get',
+    const token = Cookies.get(
         process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,
     );
-    const enrollment = await CookiesHandler('get', 'enrollment');
-    const organization = await CookiesHandler(
-        'get',
-        process.env.NEXT_PUBLIC_AUTH_ACTIVE_COMPANY_NAME as string,
-    );
 
-    if (accessToken?.value) {
-        config.headers['Authorization'] = `${accessToken.value}`;
+    if (token) {
+        config.headers['Authorization'] = `${token}`;
     }
 
-    if (enrollment?.value) {
-        config.headers['enrollment'] = `${enrollment.value}`;
+    const enroll = await storage.getItem('active_enrolment');
+    const enrollId = enroll?._id;
+
+    if (enrollId) {
+        axios.defaults.headers.common['enrollment'] = enrollId;
     }
 
-    if (organization?.value) {
-        config.headers['organization'] = `${organization.value}`;
+    const selectedOrganization = Cookies.get('activeCompany');
+
+    if (selectedOrganization) {
+        config.headers['organization'] = `${selectedOrganization}`;
     }
 
     return config;
