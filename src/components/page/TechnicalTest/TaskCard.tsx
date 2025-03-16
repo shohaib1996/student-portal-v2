@@ -2,8 +2,9 @@ import { Eye } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import TaskModal from './TaskModal';
+import { useState } from 'react';
 
 export interface Task {
     id: string;
@@ -21,6 +22,19 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ task }: TaskCardProps) {
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState<'test' | 'result'>('test');
+
+    const handleTestNowClick = () => {
+        setModalMode('test');
+        setModalOpen(true);
+    };
+
+    const handleSeeResultClick = () => {
+        setModalMode('result');
+        setModalOpen(true);
+    };
+
     const getStatusBadge = (status: TaskStatus) => {
         switch (status) {
             case 'completed':
@@ -188,85 +202,101 @@ export default function TaskCard({ task }: TaskCardProps) {
     };
 
     return (
-        <Card className='overflow-hidden rounded-lg border border-blue-100 bg-blue-50'>
-            <div className='grid grid-cols-3 gap-3 p-[10px]'>
-                <div className='relative rounded-lg h-full'>
-                    {getStatusBadge(task.status)}
-                    <Image
-                        src='/tech.png'
-                        alt='Task document'
-                        width={740}
-                        height={740}
-                        className='object-cover h-full rounded-lg'
-                    />
-                </div>
+        <>
+            <Card className='overflow-hidden rounded-lg border border-blue-100 bg-blue-50'>
+                <div className='grid grid-cols-3 gap-3 p-[10px]'>
+                    <div className='relative rounded-lg h-full'>
+                        {getStatusBadge(task.status)}
+                        <Image
+                            src='/tech.png'
+                            alt='Task document'
+                            width={740}
+                            height={740}
+                            className='object-cover h-full rounded-lg'
+                        />
+                    </div>
 
-                <div className='col-span-2'>
-                    <h3 className='text-xl font-semibold text-[#2A2E2F] mb-1.5 leading-normal'>
-                        {task.title}
-                    </h3>
+                    <div className='col-span-2'>
+                        <h3 className='text-xl font-semibold text-[#2A2E2F] mb-1.5 leading-normal'>
+                            {task.title}
+                        </h3>
 
-                    <div className='space-y-1 mb-2'>
-                        <div className='flex items-center gap-2'>
+                        <div className='space-y-1 mb-2'>
+                            <div className='flex items-center gap-2'>
+                                <div>
+                                    <p className='font-medium text-[#2A2E2F]'>
+                                        ID:{' '}
+                                        <span className='text-[#5C5958] font-normal'>
+                                            #{task.id}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className='font-medium text-[#2A2E2F]'>
+                                        Total Marks:{' '}
+                                        <span className='text-[#5C5958] font-normal'>
+                                            {task.marks}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
                             <div>
                                 <p className='font-medium text-[#2A2E2F]'>
-                                    ID:{' '}
+                                    Deadline:{' '}
                                     <span className='text-[#5C5958] font-normal'>
-                                        #{task.id}
+                                        {task.deadline}
                                     </span>
                                 </p>
                             </div>
                             <div>
                                 <p className='font-medium text-[#2A2E2F]'>
-                                    Total Marks:{' '}
+                                    Workshop:{' '}
                                     <span className='text-[#5C5958] font-normal'>
-                                        {task.marks}
+                                        {task.workshop}
                                     </span>
                                 </p>
                             </div>
                         </div>
-                        <div>
-                            <p className='font-medium text-[#2A2E2F]'>
-                                Deadline:{' '}
-                                <span className='text-[#5C5958] font-normal'>
-                                    {task.deadline}
-                                </span>
-                            </p>
-                        </div>
-                        <div>
-                            <p className='font-medium text-[#2A2E2F]'>
-                                Workshop:{' '}
-                                <span className='text-[#5C5958] font-normal'>
-                                    {task.workshop}
-                                </span>
-                            </p>
-                        </div>
-                    </div>
 
-                    <div className='border-t border-[#546A7E26] pt-1.5 mt-auto'>
-                        <div className='flex gap-4'>
-                            <Button
-                                disabled={
-                                    task.status === 'completed' ||
-                                    task.status === 'pending' ||
-                                    task.status === 'rejected'
-                                }
-                                className='bg-[#0736D1] hover:bg-blue-500 text-white rounded-md px-3.5 py-2.5 h-auto'
-                            >
-                                Test Now <span className='ml-1'>→</span>
-                            </Button>
-                            <Button
-                                disabled={task.status === 'not_answered'}
-                                variant='outline'
-                                className='text-[#5C5958] bg-pure-white border-gray-200 hover:bg-gray-50 rounded-md px-3.5 py-2 h-auto flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
-                            >
-                                <Eye className='h-5 w-5' />
-                                See Result
-                            </Button>
+                        <div className='border-t border-[#546A7E26] pt-1.5 mt-auto'>
+                            <div className='flex gap-4'>
+                                <Button
+                                    disabled={
+                                        task.status === 'completed' ||
+                                        task.status === 'pending' ||
+                                        task.status === 'rejected'
+                                    }
+                                    onClick={handleTestNowClick}
+                                    className='bg-[#0736D1] hover:bg-blue-500 text-white rounded-md px-3.5 py-2.5 h-auto'
+                                >
+                                    Test Now <span className='ml-1'>→</span>
+                                </Button>
+                                <Button
+                                    disabled={task.status === 'not_answered'}
+                                    onClick={handleSeeResultClick}
+                                    variant='outline'
+                                    className='text-[#5C5958] bg-pure-white border-gray-200 hover:bg-gray-50 rounded-md px-3.5 py-2 h-auto flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
+                                >
+                                    <Eye className='h-5 w-5' />
+                                    See Result
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </Card>
+            </Card>
+            <TaskModal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                mode={modalMode}
+                taskData={{
+                    id: task.id,
+                    title: task.title,
+                    marks: task.marks,
+                    deadline: 'Mar 20, 2025',
+                    workshop: 'Mar 20, 2025',
+                }}
+            />
+        </>
     );
 }
