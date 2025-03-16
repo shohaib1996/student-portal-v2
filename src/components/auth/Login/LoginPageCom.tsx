@@ -11,9 +11,9 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import logo1 from '../../../../public/logo.png';
 import PortalInput from '@/components/global/Form/Inputs/PortalInput';
-import CookiesHandler from '@/lib/axios/CookiesHandler';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Cookies from 'js-cookie';
 interface LoginFormValues {
     email: string;
     password: string;
@@ -45,27 +45,10 @@ const LoginPageCom = () => {
             console.log({ response });
 
             if (response?.isVerified && response?.success) {
-                const token = await CookiesHandler(
-                    'get',
+                Cookies.set(
                     process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,
+                    `Bearer ${response?.token}`,
                 );
-                if (token) {
-                    CookiesHandler(
-                        'remove',
-                        process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,
-                    );
-                    await CookiesHandler(
-                        'add',
-                        process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,
-                        `Bearer ${response?.token}`,
-                    );
-                } else {
-                    await CookiesHandler(
-                        'add',
-                        process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,
-                        `Bearer ${response?.token}`,
-                    );
-                }
 
                 router.push(`/dashboard`);
             } else {

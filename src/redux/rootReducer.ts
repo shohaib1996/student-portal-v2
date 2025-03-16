@@ -10,6 +10,11 @@ import {
     REGISTER,
 } from 'redux-persist';
 import { baseApi } from './api/baseApi';
+import communityReducer from './features/communityReducer';
+import comapnyReducer from './features/comapnyReducer';
+import notificationReducer from './features/notificationReducer';
+import navigationReducer from './features/navigationReducer';
+import programReducer from './features/programReducer';
 
 // Create a noop storage for SSR
 const createNoopStorage = () => {
@@ -39,6 +44,11 @@ const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
 export const reducer = {
     [baseApi.reducerPath]: baseApi.reducer,
     auth: persistedAuthReducer,
+    community: communityReducer,
+    company: comapnyReducer,
+    notification: notificationReducer,
+    navigations: navigationReducer,
+    program: programReducer,
 };
 
 // Middleware configuration
