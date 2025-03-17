@@ -25,7 +25,7 @@ export function GlobalAttachedFilesSection({
                 {files.map((file) => (
                     <div
                         key={file.id}
-                        className='flex items-center gap-2 rounded-md border bg-muted/40 p-2 text-sm'
+                        className='bg-background flex items-center gap-2 rounded-md border p-2 text-sm'
                     >
                         <div className='flex h-8 w-8 items-center justify-center rounded bg-muted'>
                             <FileText className='h-4 w-4 text-muted-foreground' />

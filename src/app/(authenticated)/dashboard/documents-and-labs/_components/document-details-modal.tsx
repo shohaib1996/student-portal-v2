@@ -1,21 +1,15 @@
 'use client';
 
 import Image from 'next/image';
-import {
-    ArrowLeft,
-    ArrowRight,
-    Calendar,
-    FileText,
-    Upload,
-    X,
-} from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ArrowLeft, ArrowRight, FileText, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GlobalAttachedFilesSection } from '@/components/global/GlobalAttachedFilesSection';
 import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
 import { GlobalDocumentDetailsModal } from '@/components/global/documents/GlobalDocumentDetailsModal';
+import { GlobalDetailsBanner } from '@/components/global/documents/GlobalDetailsBanner';
+import { useGetContentDetailsQuery } from '@/redux/api/documents/documentsApi';
 
 export interface DocumentDetailsProps {
     isOpen: boolean;
@@ -28,57 +22,28 @@ export function DocumentDetailsModal({
     onClose,
     documentId,
 }: DocumentDetailsProps) {
-    // Mock document data - in a real app, you would fetch this based on documentId
-    const document = documentId
-        ? {
-              id: documentId,
-              title: 'Test Document - For Upload File',
-              author: 'John Doe',
-              uploadDate: 'Jan 20, 2024 | 12:30 PM',
-              lastUpdate: 'Jan 20, 2024 | 12:30 PM',
-              tags: ['development', 'technical test', 'web development'],
-              content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+    const { data, error, isLoading } = useGetContentDetailsQuery(
+        documentId || '',
+    );
 
-Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum`,
-              imageUrl: '/images/documents-and-labs-thumbnail.png',
-              attachedFiles: [
-                  {
-                      id: 'file-1',
-                      name: 'ab-bg-Groups.jpg',
-                      type: 'image',
-                      size: '1.2 MB',
-                  },
-                  {
-                      id: 'file-2',
-                      name: 'Group - Image 2023',
-                      type: 'image',
-                      size: '0.8 MB',
-                  },
-              ],
-              comments: [
-                  {
-                      id: 'comment-1',
-                      author: 'John Doe',
-                      avatar: '/images/author.png',
-                      time: '10:00 PM',
-                      content:
-                          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard du",
-                      additionalText: 'How are you? I hope you are doing well.',
-                      likes: 20,
-                      replies: 2,
-                  },
-                  {
-                      id: 'comment-2',
-                      author: 'Brooklyn Simmons',
-                      avatar: '/placeholder.svg?height=40&width=40',
-                      time: '10:00 PM',
-                      content: 'Excellent! I really appreciate you.',
-                      likes: 20,
-                      replies: 0,
-                  },
-              ],
-          }
-        : null;
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Something went wrong!</div>;
+    }
+
+    const content = data?.content;
+    const {
+        name,
+        description,
+        tags,
+        createdAt,
+        updatedAt,
+        createdBy,
+        thumbnail,
+    } = content || {};
 
     // All available tags
     const allTags = [
@@ -105,21 +70,12 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
         readTime: 12,
     }));
 
-    // Bullet points for the document
-    const bulletPoints = [
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        'Nulla facilisi, sed ut perspiciatis unde omnis error.',
-        'Accusantium doloremque laudantium, totam rem aperiam.',
-        'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
-        'Duis aute irure dolor in reprehenderit in voluptate velit esse.',
-    ];
-
     const handleCommentSubmit = (content: string) => {
         console.log('New comment:', content);
     };
 
-    if (!document) {
-        return null;
+    if (!data) {
+        return 'not found';
     }
 
     return (
@@ -127,19 +83,22 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
             <div className='flex h-full flex-col'>
                 {/* Header with navigation */}
                 <div className='sticky top-0 z-10 flex items-center justify-between border-b bg-background p-4'>
-                    <div className='flex items-center gap-2'>
-                        <Button variant='outline' size='icon' onClick={onClose}>
-                            <ArrowLeft className='h-4 w-4' />
-                            <span className='sr-only'>Back</span>
-                        </Button>
-                        <div>
-                            <h1 className='text-xl font-semibold'>
-                                Document Details
-                            </h1>
-                            <p className='text-sm text-muted-foreground'>
-                                View your documents with ease
-                            </p>
-                        </div>
+                    <div>
+                        <h1 className='flex items-center gap-1 text-xl font-semibold'>
+                            <Button
+                                variant='ghost'
+                                size='icon'
+                                onClick={onClose}
+                                className='h-auto w-auto p-0'
+                            >
+                                <ArrowLeft className='h-4 w-4' />
+                                <span className='sr-only'>Back</span>
+                            </Button>
+                            Document Details
+                        </h1>
+                        <p className='text-sm text-muted-foreground'>
+                            View your documents with ease
+                        </p>
                     </div>
                     <div className='flex items-center gap-2'>
                         <Button variant='outline' size='sm' className='gap-1'>
@@ -172,92 +131,45 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                 </div>
 
                 {/* Main content */}
-                <div className='flex-1 overflow-y-auto p-4 document-container'>
+                <div className='flex-1 overflow-y-auto p-4 document-container bg-foreground my-3 rounded-lg'>
                     {/* Main content with sidebar */}
                     <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
                         {/* Main content area - 2/3 width on large screens */}
                         <div className='lg:col-span-2'>
                             {/* Document image with overlay title */}
-                            <div className='relative mb-4 overflow-hidden rounded-lg border'>
-                                <Image
-                                    src={
-                                        document.imageUrl ||
-                                        '/images/documents-and-labs-thumbnail.png'
-                                    }
-                                    alt={document.title}
-                                    width={800}
-                                    height={400}
-                                    className='h-auto w-full object-cover'
-                                />
-                                <div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-white'>
-                                    <h2 className='text-2xl font-bold'>
-                                        {document.title}
-                                    </h2>
-                                    <div className='mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm'>
-                                        <div className='flex items-center gap-1'>
-                                            <Avatar className='h-5 w-5'>
-                                                <AvatarImage
-                                                    src='/placeholder.svg?height=20&width=20'
-                                                    alt={document.author}
-                                                />
-                                                <AvatarFallback>
-                                                    {document.author[0]}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <span>{document.author}</span>
-                                        </div>
-                                        <div className='flex items-center gap-1'>
-                                            <Upload className='h-4 w-4' />
-                                            <span>
-                                                Uploaded: {document.uploadDate}
-                                            </span>
-                                        </div>
-                                        <div className='flex items-center gap-1'>
-                                            <Calendar className='h-4 w-4' />
-                                            <span>
-                                                Last Update:{' '}
-                                                {document.lastUpdate}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className='mt-2 flex flex-wrap gap-1'>
-                                        {document.tags.map((tag, index) => (
-                                            <Badge
-                                                key={index}
-                                                variant='secondary'
-                                                className='bg-white/20 hover:bg-white/30'
-                                            >
-                                                {tag}
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
+                            <GlobalDetailsBanner
+                                title={name || 'Title'}
+                                author={createdBy || 'Author'}
+                                uploadDate={createdAt || ''}
+                                lastUpdate={updatedAt || ''}
+                                tags={tags || []}
+                                imageUrl={
+                                    thumbnail ||
+                                    '/images/documents-and-labs-thumbnail.png'
+                                }
+                            />
 
                             {/* Document content */}
-                            <div className='rounded-lg border bg-card shadow'>
+                            <div className=''>
                                 <Tabs defaultValue='documents'>
-                                    <TabsList className='border-b px-4'>
+                                    <TabsList className='bg-background'>
                                         <TabsTrigger
                                             value='documents'
-                                            className='gap-2 data-[state=active]:bg-transparent'
+                                            className='gap-2 data-[state=active]:bg-primary'
                                         >
                                             <FileText className='h-4 w-4' />
                                             Documents
                                         </TabsTrigger>
                                         <TabsTrigger
                                             value='slide'
-                                            className='gap-2 data-[state=active]:bg-transparent'
+                                            className='gap-2 data-[state=active]:bg-primary'
                                         >
                                             <FileText className='h-4 w-4' />
                                             Slide
                                         </TabsTrigger>
                                     </TabsList>
-                                    <TabsContent
-                                        value='documents'
-                                        className='p-4'
-                                    >
-                                        <div className='space-y-4'>
+                                    <TabsContent value='documents' className=''>
+                                        {/* <div className='space-y-4'>
                                             <p className='text-sm text-muted-foreground'>
                                                 {document.content}
                                             </p>
@@ -293,47 +205,20 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                                                 Excepteur sint occaecat
                                                 cupidatat non proident, sunt in
                                             </p>
+                                        </div> */}
+
+                                        <div className='pt-2'>
+                                            {description}
                                         </div>
 
                                         {/* Attached files */}
-                                        {/* <div className='mt-6 border-t pt-4'>
-                                                <h3 className='mb-3 text-sm font-medium'>
-                                                    Attached Files (
-                                                    {
-                                                        document.attachedFiles
-                                                            .length
-                                                    }
-                                                    )
-                                                </h3>
-                                                <div className='flex flex-wrap gap-4'>
-                                                    {document.attachedFiles.map(
-                                                        (file) => (
-                                                            <div
-                                                                key={file.id}
-                                                                className='flex items-center gap-2 rounded-md border bg-muted/40 p-2 text-sm'
-                                                            >
-                                                                <div className='flex h-8 w-8 items-center justify-center rounded bg-muted'>
-                                                                    <FileText className='h-4 w-4 text-muted-foreground' />
-                                                                </div>
-                                                                <div>
-                                                                    <p className='text-xs font-medium'>
-                                                                        {
-                                                                            file.name
-                                                                        }
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        ),
-                                                    )}
-                                                </div>
-                                            </div> */}
                                         <GlobalAttachedFilesSection
-                                            files={document.attachedFiles}
+                                            files={[]}
                                         />
 
                                         {/* Comments section */}
                                         <GlobalCommentsSection
-                                            comments={document.comments}
+                                            documentId={documentId || ''}
                                             onCommentSubmit={
                                                 handleCommentSubmit
                                             }
@@ -351,7 +236,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                         </div>
 
                         {/* Sidebar - 1/3 width on large screens */}
-                        <div className='space-y-6'>
+                        <div className='space-y-3'>
                             {/* Tags section */}
                             <div className='rounded-lg border bg-card p-4 shadow'>
                                 <h3 className='mb-3 text-sm font-medium'>
