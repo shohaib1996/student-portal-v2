@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { GlobalHeader } from '@/components/global/global-header';
 import { DocumentCard } from './_components/document-card';
 import { GlobalPagination } from '@/components/global/global-pagination';
 import { DocumentDetailsModal } from './_components/document-details-modal';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import GlobalHeader from '@/components/global/GlobalHeader';
 
 // Mock data for documents
 const documents = Array.from({ length: 20 }, (_, i) => ({
@@ -52,20 +52,21 @@ export default function DocumentsPage() {
         <div className='py-4'>
             <GlobalHeader
                 title='Documents & Labs'
-                subtitle='View your documents with ease'
-            >
-                <div className='flex items-center gap-4'>
-                    <Button variant='outline' size='sm'>
-                        Filters
-                    </Button>
-                    <Button size='sm' className='gap-1' asChild>
-                        <Link href='/dashboard'>
-                            Go to Dashboard
-                            <ChevronRight className='h-4 w-4' />
-                        </Link>
-                    </Button>
-                </div>
-            </GlobalHeader>
+                subTitle='View your documents with ease'
+                buttons={
+                    <div className='flex items-center gap-4'>
+                        <Button variant='outline' size='sm'>
+                            Filters
+                        </Button>
+                        <Button size='sm' className='gap-1' asChild>
+                            <Link href='/dashboard'>
+                                Go to Dashboard
+                                <ChevronRight className='h-4 w-4' />
+                            </Link>
+                        </Button>
+                    </div>
+                }
+            />
 
             <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
                 {paginatedDocuments.map((doc) => (

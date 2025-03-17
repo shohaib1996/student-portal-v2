@@ -15,6 +15,7 @@ export default [
   },
   {
     rules: {
+      "react/jsx-pascal-case": ["error", { "allowNamespace": true }],
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       'no-unused-vars': 'off',
