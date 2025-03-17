@@ -90,6 +90,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
             dispatchSafely(getServices());
 
             const selectedOrganization = Cookies.get('activeCompany');
+            console.log(selectedOrganization);
 
             if (token) {
                 setIsLoading(true);
@@ -108,6 +109,8 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                         setUserData(res.data.user);
                         setIsLoading(false);
                         dispatchSafely(setUser(res.data.user));
+
+                        console.log(res);
 
                         if (selectedOrganization) {
                             axios.defaults.headers.common['organization'] =
@@ -138,6 +141,8 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                                         x?.status === 'trial',
                                 );
 
+                            console.log(findActive, approved);
+
                             // Extract the approved IDs for easier checks later
                             const approvedIds: string[] = approved?.map(
                                 (x: Enrollment) => x?._id,
@@ -155,7 +160,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                                     'active_enrolment',
                                     approved[0],
                                 );
-                                // window.location.pathname = "/dashboard";
+                                window.location.pathname = '/dashboard';
                                 return; // Exit here
                             }
 
@@ -178,17 +183,24 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                                 !approvedIds?.includes(findActive._id)
                             ) {
                                 await storage.setItem('active_enrolment', {});
-                                // if (window.location.pathname !== "/enrollment-status") {
-                                //     window.location.pathname = `/enrollment-status`;
-                                // }
+                                if (
+                                    window.location.pathname !==
+                                    '/enrollment-status'
+                                ) {
+                                    window.location.pathname = `/enrollment-status`;
+                                }
                                 return; // Exit here
                             }
 
                             // 5. If there are multiple approved and no findActive is found
                             if (approved?.length > 0 && !findActive?._id) {
-                                // if (window.location.pathname !== "/enrollment-status") {
-                                //     window.location.pathname = "/enrollment-status";
-                                // }
+                                if (
+                                    window.location.pathname !==
+                                    '/enrollment-status'
+                                ) {
+                                    window.location.pathname =
+                                        '/enrollment-status';
+                                }
                                 return;
                             }
                         }
