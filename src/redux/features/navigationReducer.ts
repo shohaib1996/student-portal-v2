@@ -1,8 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = {
-    myPurchasedItem: false,
-};
+const initialState: Record<string, string> = {};
 
 const navigationSlice = createSlice({
     name: 'navigation',

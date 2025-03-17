@@ -17,27 +17,13 @@ import {
 } from '@/components/ui/select';
 import { setActiveCompany } from '@/redux/features/comapnyReducer';
 import { toast } from 'sonner';
-
-// Define interface for company
-interface Company {
-    _id: string;
-    name: string;
-    [key: string]: any;
-}
-
-// Define interface for the Redux state
-interface RootState {
-    company: {
-        activeCompany: Company | null;
-        companies: Company[];
-    };
-}
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 
 const CompanySwitcher: React.FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     // Fix the typo in "companies" and add type annotation
-    const { activeCompany, companies } = useSelector((state: RootState) => ({
+    const { activeCompany, companies } = useAppSelector((state) => ({
         activeCompany: state.company.activeCompany,
         companies: state.company.companies, // Fixed typo from "comapanies"
     }));

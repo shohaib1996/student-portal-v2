@@ -1,3 +1,4 @@
+'use client';
 import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import WithAuth from '@/helper/WithAuth';
 

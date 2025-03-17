@@ -1,5 +1,6 @@
 import { axiosBaseQuery } from '@/lib/axios/axiosBaseQuery';
 import { createApi } from '@reduxjs/toolkit/query/react';
+import { tagTypesList } from './tagType/tagTypes';
 
 export const baseApi = createApi({
     reducerPath: 'baseApi',
@@ -20,6 +21,7 @@ export const baseApi = createApi({
         'Notification',
         'Payment History',
         'Payment History Id',
+        ...tagTypesList,
     ],
     endpoints: () => ({}),
 });

@@ -1,7 +1,15 @@
+import { TUser } from '@/types/auth';
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = {
-    user: {},
+type TInitialState = {
+    user: TUser | null;
+    isAuthenticated: boolean;
+    enrollment: null | string;
+    myEnrollments: any[];
+};
+
+const initialState: TInitialState = {
+    user: null,
     isAuthenticated: false,
     enrollment: null,
     myEnrollments: [],
@@ -24,7 +32,7 @@ export const authSlice = createSlice({
             state.myEnrollments = action.payload;
         },
         logout: (state) => {
-            state.user = {};
+            state.user = null;
             state.isAuthenticated = false;
         },
     },
