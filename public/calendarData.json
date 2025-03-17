@@ -1,0 +1,358 @@
+[
+    {
+        "_id": "event_1",
+        "repeatDays": {
+            "repeatDays": ["Monday", "Wednesday"],
+            "turnOn": true,
+            "repeatPeriod": "week"
+        },
+        "turnOn": true,
+        "timeRange": { "start": "09:00", "end": "10:30" },
+        "eventType": "meeting",
+        "invitations": [],
+        "repeatPeriod": "week",
+        "isAllDay": false,
+        "meetingLink": "https://zoom.us/j/123456789",
+        "actionItems": "Discuss Q1 marketing strategies",
+        "followUp": "<p>Follow up with budget allocations.</p>",
+        "attachments": [],
+        "title": "Marketing Strategy Meeting",
+        "timeZone": "America/New_York",
+        "start": "2025-02-05T09:00:00Z",
+        "end": "2025-02-05T10:30:00Z",
+        "createdBy": { "_id": "user_1", "name": "Alice Johnson" },
+        "createdAt": "2025-01-20T12:00:00Z",
+        "updatedAt": "2025-01-22T14:30:00Z",
+        "participants": [
+            { "_id": "user_2", "name": "Bob Smith" },
+            { "_id": "user_3", "name": "Charlie Brown" }
+        ],
+        "agenda": "Review Q1 goals and plan initiatives",
+        "pinned": false,
+        "myParticipantData": {
+            "user": "user_4",
+            "status": "accepted",
+            "_id": "participant_1"
+        },
+        "ref": {
+            "source": "calendar",
+            "id": "ref_1"
+        }
+    },
+    {
+        "_id": "event_54",
+        "repeatDays": {
+            "repeatDays": ["Monday", "Wednesday"],
+            "turnOn": true,
+            "repeatPeriod": "week"
+        },
+        "turnOn": true,
+        "timeRange": { "start": "09:00", "end": "10:30" },
+        "eventType": "meeting",
+        "invitations": [],
+        "repeatPeriod": "week",
+        "isAllDay": false,
+        "meetingLink": "https://zoom.us/j/123456789",
+        "actionItems": "Discuss Q1 marketing strategies",
+        "followUp": "<p>Follow up with budget allocations.</p>",
+        "attachments": [],
+        "title": "sent meeeting Marketing Strategy Meeting",
+        "timeZone": "America/New_York",
+        "start": "2025-02-05T09:00:00Z",
+        "end": "2025-02-05T10:30:00Z",
+        "createdBy": { "_id": "user_1", "name": "Alice Johnson" },
+        "createdAt": "2025-01-20T12:00:00Z",
+        "updatedAt": "2025-01-22T14:30:00Z",
+        "participants": [
+            { "_id": "user_2", "name": "Bob Smith" },
+            { "_id": "user_3", "name": "Charlie Brown" }
+        ],
+        "agenda": "Review Q1 goals and plan initiatives",
+        "pinned": false,
+        "ref": {
+            "source": "calendar",
+            "id": "ref_1"
+        }
+    },
+    {
+        "_id": "event_2",
+        "turnOn": true,
+        "timeRange": { "start": "14:00", "end": "15:00" },
+        "eventType": "webinar",
+        "repeatPeriod": "day",
+        "isAllDay": false,
+        "meetingLink": "https://meet.google.com/abc-defg-hij",
+        "actionItems": "Product demo for new clients",
+        "followUp": "<p>Send webinar slides to attendees.</p>",
+        "attachments": [],
+        "title": "Client Webinar - New Features",
+        "timeZone": "UTC",
+        "start": "2025-02-10T14:00:00Z",
+        "end": "2025-02-10T15:00:00Z",
+        "createdBy": { "_id": "user_5", "name": "David Miller" },
+        "createdAt": "2025-01-25T11:30:00Z",
+        "updatedAt": "2025-01-28T08:45:00Z",
+        "participants": [
+            { "_id": "user_6", "name": "Emma Davis" },
+            { "_id": "user_7", "name": "Franklin Reed" }
+        ],
+        "agenda": "Demonstrate new product features",
+        "pinned": true,
+        "myParticipantData": {
+            "user": "user_8",
+            "status": "pending"
+        },
+        "ref": {
+            "source": "marketing",
+            "id": "ref_2"
+        }
+    },
+    {
+        "_id": "event_3",
+        "turnOn": true,
+        "isAllDay": true,
+        "eventType": "holiday",
+        "repeatPeriod": "year",
+        "meetingLink": "",
+        "actionItems": "",
+        "followUp": "",
+        "attachments": [],
+        "title": "Company Retreat",
+        "timeZone": "America/Los_Angeles",
+        "start": "2025-03-15T00:00:00Z",
+        "end": "2025-03-15T23:59:59Z",
+        "createdBy": { "_id": "user_9", "name": "Grace Kim" },
+        "createdAt": "2025-02-01T10:15:00Z",
+        "updatedAt": "2025-02-03T13:20:00Z",
+        "participants": [{ "_id": "user_10", "name": "Henry Walker" }],
+        "agenda": "Company bonding and vision setting",
+        "pinned": false,
+        "myParticipantData": {
+            "user": "user_11",
+            "status": "accepted"
+        },
+        "ref": {
+            "source": "hr",
+            "id": "ref_3"
+        }
+    },
+    {
+        "_id": "event_4",
+        "turnOn": true,
+        "timeRange": { "start": "11:00", "end": "12:00" },
+        "eventType": "one-on-one",
+        "repeatPeriod": "none",
+        "isAllDay": false,
+        "meetingLink": "https://teams.microsoft.com/l/meetup-join/...",
+        "actionItems": "Employee performance review",
+        "followUp": "<p>Document feedback and next steps.</p>",
+        "attachments": [],
+        "title": "1-on-1 Performance Review",
+        "timeZone": "Europe/London",
+        "start": "2025-04-05T11:00:00Z",
+        "end": "2025-04-05T12:00:00Z",
+        "createdBy": { "_id": "user_12", "name": "Isabella Clark" },
+        "createdAt": "2025-03-10T09:00:00Z",
+        "updatedAt": "2025-03-12T16:45:00Z",
+        "participants": [{ "_id": "user_13", "name": "Jack Turner" }],
+        "agenda": "Discuss Q1 performance and career growth",
+        "pinned": false,
+        "myParticipantData": {
+            "user": "user_14",
+            "status": "accepted"
+        },
+        "ref": {
+            "source": "hr",
+            "id": "ref_4"
+        }
+    },
+    {
+        "_id": "event_5",
+        "repeatDays": {
+            "repeatDays": ["Monday", "Wednesday"],
+            "turnOn": true,
+            "repeatPeriod": "week"
+        },
+        "turnOn": true,
+        "timeRange": { "start": "09:00", "end": "10:30" },
+        "eventType": "meeting",
+        "invitations": [],
+        "repeatPeriod": "week",
+        "isAllDay": false,
+        "meetingLink": "https://zoom.us/j/123456789",
+        "actionItems": "Discuss Q1 marketing strategies",
+        "followUp": "<p>Follow up with budget allocations.</p>",
+        "attachments": [],
+        "title": "Marketing Strategy Meeting",
+        "timeZone": "America/New_York",
+        "start": "2025-02-06T09:00:00Z",
+        "end": "2025-02-06T10:30:00Z",
+        "createdBy": { "_id": "user_1", "name": "Alice Johnson" },
+        "createdAt": "2025-01-20T12:00:00Z",
+        "updatedAt": "2025-01-22T14:30:00Z",
+        "participants": [
+            { "_id": "user_2", "name": "Bob Smith" },
+            { "_id": "user_3", "name": "Charlie Brown" }
+        ],
+        "agenda": "Review Q1 goals and plan initiatives",
+        "pinned": false,
+        "myParticipantData": {
+            "user": "user_4",
+            "status": "accepted",
+            "_id": "participant_1"
+        },
+        "ref": {
+            "source": "calendar",
+            "id": "ref_1"
+        }
+    },
+    {
+        "_id": "event_6",
+        "turnOn": true,
+        "timeRange": { "start": "14:00", "end": "15:00" },
+        "eventType": "webinar",
+        "repeatPeriod": "day",
+        "isAllDay": false,
+        "meetingLink": "https://meet.google.com/abc-defg-hij",
+        "actionItems": "Product demo for new clients",
+        "followUp": "<p>Send webinar slides to attendees.</p>",
+        "attachments": [],
+        "title": "Client Webinar - New Features",
+        "timeZone": "UTC",
+        "start": "2025-02-15T14:00:00Z",
+        "end": "2025-02-15T15:00:00Z",
+        "createdBy": { "_id": "user_5", "name": "David Miller" },
+        "createdAt": "2025-01-25T11:30:00Z",
+        "updatedAt": "2025-01-28T08:45:00Z",
+        "participants": [
+            { "_id": "user_6", "name": "Emma Davis" },
+            { "_id": "user_7", "name": "Franklin Reed" }
+        ],
+        "agenda": "Demonstrate new product features",
+        "pinned": true,
+        "myParticipantData": {
+            "user": "user_8",
+            "status": "pending"
+        },
+        "ref": {
+            "source": "marketing",
+            "id": "ref_2"
+        }
+    },
+    {
+        "_id": "event_7",
+        "turnOn": true,
+        "isAllDay": true,
+        "eventType": "holiday",
+        "repeatPeriod": "year",
+        "meetingLink": "",
+        "actionItems": "",
+        "followUp": "",
+        "attachments": [],
+        "title": "Company test",
+        "timeZone": "America/Los_Angeles",
+        "start": "2025-03-15T00:00:00Z",
+        "end": "2025-03-15T23:59:59Z",
+        "createdBy": { "_id": "user_9", "name": "Grace Kim" },
+        "createdAt": "2025-02-04T10:15:00Z",
+        "updatedAt": "2025-02-05T13:20:00Z",
+        "participants": [{ "_id": "user_10", "name": "Henry Walker" }],
+        "agenda": "Company bonding and vision setting",
+        "pinned": false,
+        "myParticipantData": {
+            "user": "user_11",
+            "status": "accepted"
+        },
+        "ref": {
+            "source": "hr",
+            "id": "ref_3"
+        }
+    },
+    {
+        "_id": "event_8",
+        "turnOn": true,
+        "isAllDay": true,
+        "eventType": "holiday",
+        "repeatPeriod": "year",
+        "meetingLink": "",
+        "actionItems": "",
+        "followUp": "",
+        "attachments": [],
+        "title": "Company test 2",
+        "timeZone": "America/Los_Angeles",
+        "start": "2025-03-15T00:00:00Z",
+        "end": "2025-03-15T23:59:59Z",
+        "createdBy": { "_id": "user_9", "name": "Grace Kim" },
+        "createdAt": "2025-02-04T10:15:00Z",
+        "updatedAt": "2025-02-05T13:20:00Z",
+        "participants": [{ "_id": "user_10", "name": "Henry Walker" }],
+        "agenda": "Company bonding and vision setting",
+        "pinned": false,
+        "myParticipantData": {
+            "user": "user_11",
+            "status": "denied"
+        },
+        "ref": {
+            "source": "hr",
+            "id": "ref_3"
+        }
+    },
+    {
+        "_id": "event_9",
+        "turnOn": true,
+        "isAllDay": true,
+        "eventType": "holiday",
+        "repeatPeriod": "year",
+        "meetingLink": "",
+        "actionItems": "",
+        "followUp": "",
+        "attachments": [],
+        "title": "Company test 3",
+        "timeZone": "America/Los_Angeles",
+        "start": "2025-03-15T00:00:00Z",
+        "end": "2025-03-15T23:59:59Z",
+        "createdBy": { "_id": "user_9", "name": "Grace Kim" },
+        "createdAt": "2025-02-04T10:15:00Z",
+        "updatedAt": "2025-02-05T13:20:00Z",
+        "participants": [{ "_id": "user_10", "name": "Henry Walker" }],
+        "agenda": "Company bonding and vision setting",
+        "pinned": false,
+        "myParticipantData": {
+            "user": "user_11",
+            "status": "pending"
+        },
+        "ref": {
+            "source": "hr",
+            "id": "ref_3"
+        }
+    },
+    {
+        "_id": "event_10",
+        "turnOn": true,
+        "isAllDay": true,
+        "eventType": "holiday",
+        "repeatPeriod": "year",
+        "meetingLink": "",
+        "actionItems": "",
+        "followUp": "",
+        "attachments": [],
+        "title": "Company test 4",
+        "timeZone": "America/Los_Angeles",
+        "start": "2025-03-15T00:00:00Z",
+        "end": "2025-03-15T23:59:59Z",
+        "createdBy": { "_id": "user_9", "name": "Grace Kim" },
+        "createdAt": "2025-02-04T10:15:00Z",
+        "updatedAt": "2025-02-05T13:20:00Z",
+        "participants": [{ "_id": "user_10", "name": "Henry Walker" }],
+        "agenda": "Company bonding and vision setting",
+        "pinned": false,
+        "myParticipantData": {
+            "user": "user_11",
+            "status": "accepted"
+        },
+        "ref": {
+            "source": "hr",
+            "id": "ref_3"
+        }
+    }
+]

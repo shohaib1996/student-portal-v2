@@ -1,14 +1,17 @@
 'use client';
 import Calendar from '@/components/calendar/Calendar';
+import { CalendarSidebar } from '@/components/calendar/CalendarSidebar';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
 import GlobalHeader from '@/components/global/GlobalHeader';
 import AvailabilityIcon from '@/components/svgs/calendar/Availability';
 import MyInvitationsIcon from '@/components/svgs/calendar/MyInvitationsIcon';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { Plus, UserRoundPlus } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 
 const CalendarPage = () => {
+    const [currentDate, setCurrentDate] = useState(new Date());
     return (
         <div className='pt-2'>
             <GlobalHeader
@@ -39,7 +42,13 @@ const CalendarPage = () => {
                     </div>
                 }
             />
-            <Calendar />
+            <div className='grid grid-cols-[4fr_1fr] gap-2'>
+                <Calendar />
+                <CalendarSidebar
+                    currentDate={currentDate}
+                    onDateSelect={setCurrentDate}
+                />
+            </div>
         </div>
     );
 };
