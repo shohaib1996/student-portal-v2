@@ -19,6 +19,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { GlobalAttachedFilesSection } from '@/components/global/GlobalAttachedFilesSection';
+import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
 
 export interface DocumentDetailsProps {
     isOpen: boolean;
@@ -116,6 +118,10 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
         'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
         'Duis aute irure dolor in reprehenderit in voluptate velit esse.',
     ];
+
+    const handleCommentSubmit = (content: string) => {
+        console.log('New comment:', content);
+    };
 
     if (!document) {
         return null;
@@ -310,7 +316,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                                             </div>
 
                                             {/* Attached files */}
-                                            <div className='mt-6 border-t pt-4'>
+                                            {/* <div className='mt-6 border-t pt-4'>
                                                 <h3 className='mb-3 text-sm font-medium'>
                                                     Attached Files (
                                                     {
@@ -340,144 +346,18 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                                                         ),
                                                     )}
                                                 </div>
-                                            </div>
+                                            </div> */}
+                                            <GlobalAttachedFilesSection
+                                                files={document.attachedFiles}
+                                            />
 
                                             {/* Comments section */}
-                                            <div className='mt-6 border-t pt-4'>
-                                                <h3 className='mb-3 text-sm font-medium'>
-                                                    Comments (
-                                                    {document.comments.length})
-                                                </h3>
-                                                <div className='space-y-4'>
-                                                    {document.comments.map(
-                                                        (comment) => (
-                                                            <div
-                                                                key={comment.id}
-                                                                className='rounded-md border p-4'
-                                                            >
-                                                                <div className='mb-2 flex items-start justify-between'>
-                                                                    <div className='flex items-center gap-2'>
-                                                                        <Avatar className='h-8 w-8'>
-                                                                            <AvatarImage
-                                                                                src={
-                                                                                    comment.avatar
-                                                                                }
-                                                                                alt={
-                                                                                    comment.author
-                                                                                }
-                                                                            />
-                                                                            <AvatarFallback>
-                                                                                {
-                                                                                    comment
-                                                                                        .author[0]
-                                                                                }
-                                                                            </AvatarFallback>
-                                                                        </Avatar>
-                                                                        <div>
-                                                                            <p className='text-sm font-medium'>
-                                                                                {
-                                                                                    comment.author
-                                                                                }
-                                                                            </p>
-                                                                            <p className='text-xs text-muted-foreground'>
-                                                                                {
-                                                                                    comment.time
-                                                                                }
-                                                                            </p>
-                                                                        </div>
-                                                                    </div>
-                                                                    <Button
-                                                                        variant='ghost'
-                                                                        size='icon'
-                                                                        className='h-8 w-8'
-                                                                    >
-                                                                        <MoreVertical className='h-4 w-4' />
-                                                                    </Button>
-                                                                </div>
-                                                                <p className='mb-2 text-sm'>
-                                                                    {
-                                                                        comment.content
-                                                                    }
-                                                                </p>
-                                                                {comment.additionalText && (
-                                                                    <p className='mb-2 text-sm'>
-                                                                        {
-                                                                            comment.additionalText
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                                <div className='flex items-center gap-4 text-xs text-muted-foreground'>
-                                                                    {comment.replies >
-                                                                        0 && (
-                                                                        <Button
-                                                                            variant='ghost'
-                                                                            size='sm'
-                                                                            className='h-6 gap-1 p-0 text-xs font-normal'
-                                                                        >
-                                                                            Replies{' '}
-                                                                            {
-                                                                                comment.replies
-                                                                            }
-                                                                        </Button>
-                                                                    )}
-                                                                    <div className='flex items-center gap-1'>
-                                                                        <Heart className='h-3 w-3 fill-current text-red-500' />
-                                                                        <span>
-                                                                            {
-                                                                                comment.likes
-                                                                            }
-                                                                        </span>
-                                                                    </div>
-                                                                    <div className='flex items-center gap-1'>
-                                                                        <MessageSquare className='h-3 w-3' />
-                                                                        <span>
-                                                                            {
-                                                                                comment.replies
-                                                                            }
-                                                                        </span>
-                                                                    </div>
-                                                                    <Button
-                                                                        variant='ghost'
-                                                                        size='sm'
-                                                                        className='h-6 gap-1 p-0 text-xs font-normal'
-                                                                    >
-                                                                        <Smile className='h-3 w-3' />
-                                                                    </Button>
-                                                                </div>
-                                                            </div>
-                                                        ),
-                                                    )}
-                                                </div>
-
-                                                {/* Comment input */}
-                                                <div className='mt-4 flex items-start gap-2'>
-                                                    <Avatar className='h-8 w-8'>
-                                                        <AvatarImage
-                                                            src='/images/author.png'
-                                                            alt='Your avatar'
-                                                        />
-                                                        <AvatarFallback>
-                                                            YA
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <div className='relative flex-1'>
-                                                        <Textarea
-                                                            placeholder='Write a comment...'
-                                                            className='min-h-[40px] resize-none pr-10'
-                                                        />
-                                                        <Button
-                                                            size='icon'
-                                                            variant='ghost'
-                                                            className='absolute bottom-1 right-1 h-8 w-8 rounded-full'
-                                                        >
-                                                            <Send className='h-4 w-4' />
-                                                            <span className='sr-only'>
-                                                                Send comment
-                                                            </span>
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <GlobalCommentsSection
+                                                comments={document.comments}
+                                                onCommentSubmit={
+                                                    handleCommentSubmit
+                                                }
+                                            />
                                         </TabsContent>
                                         <TabsContent value='slide'>
                                             <div className='flex h-40 items-center justify-center rounded-md border border-dashed p-4'>
