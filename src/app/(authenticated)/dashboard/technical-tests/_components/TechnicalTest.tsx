@@ -1,7 +1,18 @@
 'use client';
-import { FileText, ClipboardList, MessageCircleQuestion } from 'lucide-react';
+import {
+    FileText,
+    ClipboardList,
+    MessageCircleQuestion,
+    BookOpenText,
+    Eye,
+} from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TaskCard, { Task } from './TaskCard';
+import GlobalHeader from '@/components/global/GlobalHeader';
+import { Button } from '@/components/ui/button';
+import { useGetTechnicalTestsQuery } from '@/redux/api/technicalTest/technicalTest';
+import { useState } from 'react';
+import GlobalPagination from '@/components/global/GlobalPagination';
 
 const tasks: Task[] = [
     {
@@ -127,8 +138,38 @@ const tasks: Task[] = [
 ];
 
 const TechnicalTest = () => {
+    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [category, setCategory] = useState<string>('');
+    const [type, setType] = useState<string>('');
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+    const [limit, setLimit] = useState(10);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+
+    const { data, isLoading } = useGetTechnicalTestsQuery({
+        page: currentPage,
+        limit: limit,
+        workshop: selectedDate || null,
+        category: category,
+        query: searchQuery,
+        type: type,
+        status: '',
+    });
+
+    console.log(data);
+
     return (
-        <div className='container my-10 mx-auto'>
+        <>
+            <GlobalHeader
+                title='Technical Test'
+                subTitle='Assess Technical Skills with Accuracy and Speed'
+                buttons={
+                    <div>
+                        <Button variant={'secondary'} icon={<Eye size={18} />}>
+                            View Status
+                        </Button>
+                    </div>
+                }
+            />
             <Tabs defaultValue='tasks' className='w-full'>
                 <TabsList className='h-auto p-0'>
                     <TabsTrigger
@@ -174,7 +215,16 @@ const TechnicalTest = () => {
                     </div>
                 </TabsContent>
             </Tabs>
-        </div>
+            <GlobalPagination
+                totalItems={tasks.length || 0}
+                currentPage={currentPage}
+                itemsPerPage={limit}
+                onPageChange={(page, newLimit) => {
+                    setCurrentPage(page);
+                    setLimit(newLimit);
+                }}
+            />
+        </>
     );
 };
 
