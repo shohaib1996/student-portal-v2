@@ -32,8 +32,9 @@ instance.interceptors.request.use(async (config) => {
     const enrollId = enroll?._id;
 
     if (enrollId) {
-        axios.defaults.headers.common['enrollment'] = enrollId;
+        config.headers['enrollment'] = enrollId;
     }
+    // config.headers['enrollment'] = '6523d8d71eab265c60cf30ce';
 
     const selectedOrganization = Cookies.get('activeCompany');
 
