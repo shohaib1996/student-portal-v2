@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload } from 'lucide-react';
 import { GlobalHeader } from '@/components/global/global-header';
-import { DocumentCard } from './_components/document-card';
 import { GlobalPagination } from '@/components/global/global-pagination';
 import { DocumentDetailsModal } from './_components/document-details-modal';
 import { UploadDocumentModal } from './_components/upload-document-modal';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 
 // Mock data for documents
 const documents = Array.from({ length: 20 }, (_, i) => ({
@@ -30,9 +30,10 @@ export default function DocumentsPage() {
     const searchParams = useSearchParams();
 
     const currentPage = Number(searchParams.get('page')) || 1;
-    const itemsPerPage = 10;
+    const itemsPerPage = Number(searchParams.get('limit')) || 10;
     const totalItems = documents.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const router = useRouter();
 
     const paginatedDocuments = documents.slice(
         (currentPage - 1) * itemsPerPage,
@@ -57,13 +58,13 @@ export default function DocumentsPage() {
     };
 
     return (
-        <div className='py-8'>
-            <div className='mb-8'>
+        <div>
+            <div className='mb-3'>
                 <GlobalHeader
                     title='Upload Documents'
                     subtitle='Securely upload and manage your files with ease'
                 >
-                    <div className='ml-auto flex items-center gap-4'>
+                    <div className='ml-auto flex items-center gap-2'>
                         <Button variant='outline' size='sm'>
                             Filters
                         </Button>
@@ -79,9 +80,9 @@ export default function DocumentsPage() {
                 </GlobalHeader>
             </div>
 
-            <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+            <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
                 {paginatedDocuments.map((doc) => (
-                    <DocumentCard
+                    <GlobalDocumentCard
                         key={doc.id}
                         {...doc}
                         onClick={() => handleDocumentClick(doc.id)}
@@ -94,7 +95,13 @@ export default function DocumentsPage() {
                 totalPages={totalPages}
                 totalItems={totalItems}
                 itemsPerPage={itemsPerPage}
-                baseUrl='/documents'
+                onLimitChange={(number) => {
+                    console.log(number);
+                    router.push(
+                        `/dashboard/my-documents?page=1&limit=${number}`,
+                    );
+                }}
+                baseUrl='/dashboard/my-documents'
             />
 
             <DocumentDetailsModal

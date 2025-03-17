@@ -73,7 +73,7 @@ export function UploadDocumentModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className='h-screen w-screen overflow-y-auto p-0 sm:max-w-[95vw]'>
+            <DialogContent className='h-screen min-w-full overflow-y-auto p-0'>
                 <div className='flex h-full flex-col'>
                     {/* Header */}
                     <div className='sticky top-0 z-10 flex items-center justify-between border-b bg-background p-4'>
@@ -114,7 +114,7 @@ export function UploadDocumentModal({
                     </div>
 
                     {/* Form content */}
-                    <div className='flex-1 overflow-y-auto p-4'>
+                    <div className='flex-1 overflow-y-auto p-4 document-container w-full'>
                         <form
                             id='upload-document-form'
                             onSubmit={handleSubmit}
@@ -227,7 +227,7 @@ export function UploadDocumentModal({
                                             <Textarea
                                                 id='description'
                                                 placeholder='Enter description...'
-                                                className='min-h-[200px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0'
+                                                className='h-[80vh] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0'
                                             />
                                         </div>
                                     </div>

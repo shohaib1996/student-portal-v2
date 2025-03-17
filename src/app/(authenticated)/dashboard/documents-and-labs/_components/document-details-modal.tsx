@@ -190,7 +190,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                     </div>
 
                     {/* Main content */}
-                    <div className='flex-1 overflow-y-auto p-4'>
+                    <div className='flex-1 overflow-y-auto p-4 document-container'>
                         {/* Main content with sidebar */}
                         <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
                             {/* Main content area - 2/3 width on large screens */}

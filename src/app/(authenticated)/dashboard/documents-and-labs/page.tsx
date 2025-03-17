@@ -3,14 +3,13 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { GlobalHeader } from '@/components/global/global-header';
-import { DocumentCard } from './_components/document-card';
 import { GlobalPagination } from '@/components/global/global-pagination';
 import { DocumentDetailsModal } from './_components/document-details-modal';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 
-// Mock data for documents
 const documents = Array.from({ length: 20 }, (_, i) => ({
     id: `doc-${i + 1}`,
     title: 'Test Document - For Upload File',
@@ -54,22 +53,22 @@ export default function DocumentsPage() {
                 title='Documents & Labs'
                 subtitle='View your documents with ease'
             >
-                <div className='flex items-center gap-4'>
+                <div className='flex items-center gap-2'>
                     <Button variant='outline' size='sm'>
                         Filters
                     </Button>
-                    <Button size='sm' className='gap-1' asChild>
-                        <Link href='/dashboard'>
+                    <Link href='/dashboard'>
+                        <Button size='sm' asChild>
                             Go to Dashboard
                             <ChevronRight className='h-4 w-4' />
-                        </Link>
-                    </Button>
+                        </Button>
+                    </Link>
                 </div>
             </GlobalHeader>
 
             <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
                 {paginatedDocuments.map((doc) => (
-                    <DocumentCard
+                    <GlobalDocumentCard
                         key={doc.id}
                         {...doc}
                         onClick={() => handleDocumentClick(doc.id)}
@@ -82,6 +81,9 @@ export default function DocumentsPage() {
                 totalPages={totalPages}
                 totalItems={totalItems}
                 itemsPerPage={itemsPerPage}
+                onLimitChange={(number) => {
+                    console.log(number);
+                }}
                 baseUrl='/dashboard/documents-and-labs'
             />
 
