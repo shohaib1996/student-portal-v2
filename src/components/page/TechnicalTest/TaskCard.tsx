@@ -41,7 +41,7 @@ export default function TaskCard({ task }: TaskCardProps) {
                 return (
                     <Badge
                         variant='outline'
-                        className='bg-white text-blue-800 border-blue-200 rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
+                        className='bg-background text-primary border-border-primary-light rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
                     >
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
@@ -54,16 +54,16 @@ export default function TaskCard({ task }: TaskCardProps) {
                                 d='M11.6673 3.5L5.25065 9.91667L2.33398 7'
                                 stroke='#0736D1'
                                 strokeWidth='2'
-                                stroke-linecap='round'
-                                stroke-linejoin='round'
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
                             />
                             <path
                                 d='M11.6673 3.5L5.25065 9.91667L2.33398 7'
                                 stroke='black'
-                                stroke-opacity='0.2'
+                                strokeOpacity='0.2'
                                 strokeWidth='2'
-                                stroke-linecap='round'
-                                stroke-linejoin='round'
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
                             />
                         </svg>
                         Completed
@@ -73,7 +73,7 @@ export default function TaskCard({ task }: TaskCardProps) {
                 return (
                     <Badge
                         variant='outline'
-                        className='bg-white text-amber-800 border-amber-200 rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
+                        className='bg-background text-amber-800 border-border-primary-light rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
                     >
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
@@ -120,7 +120,7 @@ export default function TaskCard({ task }: TaskCardProps) {
                 return (
                     <Badge
                         variant='outline'
-                        className='bg-white text-red-800 border-red-200 rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
+                        className='bg-background text-red-800 border-border-primary-light rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
                     >
                         <svg
                             className='w-4 h-4'
@@ -155,43 +155,48 @@ export default function TaskCard({ task }: TaskCardProps) {
                 return (
                     <Badge
                         variant='outline'
-                        className='bg-white text-gray-800 border-gray-200 rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
+                        className='bg-background text-black border-border-primary-light rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
                     >
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
                             width='16'
                             height='17'
                             viewBox='0 0 16 17'
-                            fill='none'
+                            className='text-black'
                         >
                             <path
                                 d='M11.9959 8.17477V4.05977C11.9959 3.47977 11.5259 3.00977 10.9459 3.00977H3.05586C2.47586 3.00977 2.00586 3.47977 2.00586 4.05977V10.4548C2.00586 11.0298 2.47586 11.4998 3.05586 11.5048H3.80086L4.60086 12.6448C4.69586 12.7798 4.84586 12.8598 5.01086 12.8598C5.17086 12.8598 5.32586 12.7798 5.41586 12.6498L6.23586 11.5048H8.04586C8.28586 12.9147 9.51586 13.9948 11.0009 13.9948C12.6509 13.9948 13.9959 12.6498 13.9959 10.9998C13.9959 9.69477 13.1609 8.57977 11.9959 8.17477ZM5.97586 10.5048C5.81586 10.5048 5.66086 10.5848 5.57086 10.7148L5.01586 11.4948L4.47086 10.7148C4.37586 10.5848 4.22086 10.5048 4.06086 10.5048H3.05586C3.02586 10.5048 3.00586 10.4798 3.00586 10.4548V4.05977C3.00586 4.02977 3.02586 4.00977 3.05586 4.00977H10.9459C10.9759 4.00977 10.9959 4.02977 10.9959 4.05977V7.99977C9.51086 7.99977 8.28086 9.08477 8.04586 10.5048H5.97586ZM11.0009 12.9948C9.89586 12.9948 9.00586 12.1048 9.00086 11.0048V10.9998C9.00086 9.89477 9.89586 8.99977 11.0009 8.99977C12.1009 8.99977 12.9959 9.89477 12.9959 10.9998C12.9959 12.0998 12.1009 12.9948 11.0009 12.9948Z'
-                                fill='#2A2E2F'
-                                stroke='#2A2E2F'
+                                fill='text-black'
+                                stroke='text-black'
+                                className='text-black'
                                 strokeWidth='0.3'
                             />
                             <path
                                 d='M9.50098 6.00781H4.52148C4.24513 6.00781 4.02148 5.78391 4.02148 5.50781C4.02148 5.23171 4.24513 5.00781 4.52148 5.00781H9.50098C9.77733 5.00781 10.001 5.23171 10.001 5.50781C10.001 5.78391 9.77738 6.00781 9.50098 6.00781Z'
-                                fill='#2A2E2F'
-                                stroke='#2A2E2F'
+                                fill='text-black'
+                                stroke='text-black'
+                                className='text-black'
                                 strokeWidth='0.3'
                             />
                             <path
                                 d='M4.51562 7.51467C4.23972 7.51467 4.01562 7.29102 4.01562 7.01492C4.01562 6.73882 4.23927 6.51492 4.51512 6.51467L9.49902 6.51172H9.49953C9.77542 6.51172 9.99953 6.73537 9.99953 7.01147C9.99953 7.28757 9.77587 7.51147 9.50002 7.51172L4.51562 7.51467Z'
-                                fill='#2A2E2F'
-                                stroke='#2A2E2F'
+                                fill='text-black'
+                                stroke='text-black'
+                                className='text-black'
                                 strokeWidth='0.3'
                             />
                             <path
                                 d='M4.51563 9.01467C4.23973 9.01467 4.01613 8.79102 4.01563 8.51517C4.01513 8.23907 4.23878 8.01492 4.51513 8.01467L7.49903 8.01172C7.77493 8.01172 7.99903 8.23537 7.99953 8.51122C8.00003 8.78737 7.77638 9.01152 7.50003 9.01177L4.51613 9.01472L4.51563 9.01467Z'
-                                fill='#2A2E2F'
-                                stroke='#2A2E2F'
+                                fill='text-black'
+                                stroke='text-black'
+                                className='text-black'
                                 strokeWidth='0.3'
                             />
                             <path
                                 d='M11.9762 11.2654C12.1712 11.4654 12.1712 11.7804 11.9762 11.9754C11.8812 12.0704 11.7512 12.1204 11.6262 12.1204C11.4962 12.1204 11.3713 12.0704 11.2713 11.9754L11.0012 11.7054L10.7262 11.9804C10.6312 12.0754 10.5012 12.1254 10.3762 12.1254C10.2462 12.1254 10.1213 12.0754 10.0212 11.9804C9.82625 11.7854 9.82625 11.4704 10.0212 11.2704L10.2962 11.0004L10.0212 10.7254C9.82625 10.5304 9.82625 10.2154 10.0212 10.0154C10.2163 9.82039 10.5312 9.82039 10.7262 10.0154L11.0012 10.2904L11.2713 10.0204C11.4662 9.82539 11.7812 9.82539 11.9762 10.0204C12.1712 10.2204 12.1712 10.5354 11.9762 10.7304L11.7112 11.0004L11.9762 11.2654Z'
-                                fill='#2A2E2F'
-                                stroke='#2A2E2F'
+                                fill='text-black'
+                                stroke='text-black'
+                                className='text-black'
                                 strokeWidth='0.3'
                             />
                         </svg>
@@ -203,7 +208,7 @@ export default function TaskCard({ task }: TaskCardProps) {
 
     return (
         <>
-            <Card className='overflow-hidden rounded-lg border border-blue-100 bg-blue-50'>
+            <Card className='overflow-hidden rounded-lg border border-border-primary-light bg-primary-light'>
                 <div className='grid grid-cols-3 gap-3 p-[10px]'>
                     <div className='relative rounded-lg h-full'>
                         {getStatusBadge(task.status)}
@@ -217,48 +222,48 @@ export default function TaskCard({ task }: TaskCardProps) {
                     </div>
 
                     <div className='col-span-2'>
-                        <h3 className='text-xl font-semibold text-[#2A2E2F] mb-1.5 leading-normal'>
+                        <h3 className='text-xl font-semibold text-black mb-1.5 leading-normal'>
                             {task.title}
                         </h3>
 
                         <div className='space-y-1 mb-2'>
                             <div className='flex items-center gap-2'>
                                 <div>
-                                    <p className='font-medium text-[#2A2E2F]'>
+                                    <p className='font-medium text-dark-gray'>
                                         ID:{' '}
-                                        <span className='text-[#5C5958] font-normal'>
+                                        <span className='text-gray font-normal'>
                                             #{task.id}
                                         </span>
                                     </p>
                                 </div>
                                 <div>
-                                    <p className='font-medium text-[#2A2E2F]'>
+                                    <p className='font-medium text-dark-gray'>
                                         Total Marks:{' '}
-                                        <span className='text-[#5C5958] font-normal'>
+                                        <span className='text-gray font-normal'>
                                             {task.marks}
                                         </span>
                                     </p>
                                 </div>
                             </div>
                             <div>
-                                <p className='font-medium text-[#2A2E2F]'>
+                                <p className='font-medium text-dark-gray'>
                                     Deadline:{' '}
-                                    <span className='text-[#5C5958] font-normal'>
+                                    <span className='text-gray font-normal'>
                                         {task.deadline}
                                     </span>
                                 </p>
                             </div>
                             <div>
-                                <p className='font-medium text-[#2A2E2F]'>
+                                <p className='font-medium text-dark-gray'>
                                     Workshop:{' '}
-                                    <span className='text-[#5C5958] font-normal'>
+                                    <span className='text-gray font-normal'>
                                         {task.workshop}
                                     </span>
                                 </p>
                             </div>
                         </div>
 
-                        <div className='border-t border-[#546A7E26] pt-1.5 mt-auto'>
+                        <div className='border-t border-border-primary-light pt-1.5 mt-auto'>
                             <div className='flex gap-4'>
                                 <Button
                                     disabled={
@@ -267,7 +272,7 @@ export default function TaskCard({ task }: TaskCardProps) {
                                         task.status === 'rejected'
                                     }
                                     onClick={handleTestNowClick}
-                                    className='bg-[#0736D1] hover:bg-blue-500 text-white rounded-md px-3.5 py-2.5 h-auto'
+                                    className='bg-primary hover:bg-primary-light text-white rounded-md px-3.5 py-2.5 h-auto'
                                 >
                                     Test Now <span className='ml-1'>→</span>
                                 </Button>
@@ -275,7 +280,7 @@ export default function TaskCard({ task }: TaskCardProps) {
                                     disabled={task.status === 'not_answered'}
                                     onClick={handleSeeResultClick}
                                     variant='outline'
-                                    className='text-[#5C5958] bg-pure-white border-gray-200 hover:bg-gray-50 rounded-md px-3.5 py-2 h-auto flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
+                                    className='bg-background text-black rounded-md px-3.5 py-2 h-auto flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
                                 >
                                     <Eye className='h-5 w-5' />
                                     See Result
