@@ -1,25 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { DocumentCard } from './_components/document-card';
+import { useState, useEffect } from 'react';
+import { GlobalHeader } from '@/components/global/global-header';
 import { GlobalPagination } from '@/components/global/global-pagination';
 import { DocumentDetailsModal } from './_components/document-details-modal';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
-import GlobalHeader from '@/components/global/GlobalHeader';
-
-// Mock data for documents
-const documents = Array.from({ length: 20 }, (_, i) => ({
-    id: `doc-${i + 1}`,
-    title: 'Test Document - For Upload File',
-    author: 'John Doe',
-    date: new Date(2023, 11, 15, 12, 30).toLocaleString(),
-    readTime: 5,
-    categories: i % 2 === 0 ? ['Document', 'Development'] : ['Document'],
-    imageUrl: '/images/documents-and-labs-thumbnail.png',
-}));
+import { useSearchParams, useRouter } from 'next/navigation';
+import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
+import { useGetLabContentQuery } from '@/redux/api/documents/documentsApi';
 
 export default function DocumentsPage() {
     const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
@@ -27,53 +17,77 @@ export default function DocumentsPage() {
     );
     const [isModalOpen, setIsModalOpen] = useState(false);
     const searchParams = useSearchParams();
+    const router = useRouter();
 
-    // ✅ Ensure safe parsing of page number
     const currentPage = parseInt(searchParams.get('page') || '1', 10) || 1;
-    const itemsPerPage = 10;
-    const totalItems = documents.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const itemsPerPage = Number(searchParams.get('limit')) || 10;
+    const documentIdFromUrl = searchParams.get('id');
 
-    const paginatedDocuments = documents.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage,
-    );
+    const { data, error, isLoading } = useGetLabContentQuery({
+        page: currentPage,
+        limit: itemsPerPage,
+    });
+
+    const totalItems = data?.count || 10;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    // Handle modal state based on URL parameter
+    useEffect(() => {
+        if (documentIdFromUrl) {
+            setSelectedDocumentId(documentIdFromUrl);
+            setIsModalOpen(true);
+        }
+    }, [documentIdFromUrl]);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+    if (error) {
+        return <div>Something went wrong!</div>;
+    }
+
+    const labContent = data?.contents || [];
 
     const handleDocumentClick = (documentId: string) => {
         setSelectedDocumentId(documentId);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('id', documentId);
+        router.push(`/dashboard/documents-and-labs?${params.toString()}`);
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
+        // Remove the id parameter but keep other params
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('id');
+        router.push(`/dashboard/documents-and-labs?${params.toString()}`);
     };
 
     return (
-        <div className='py-4'>
+        <div className=''>
             <GlobalHeader
                 title='Documents & Labs'
-                subTitle='View your documents with ease'
-                buttons={
-                    <div className='flex items-center gap-4'>
-                        <Button variant='outline' size='sm'>
-                            Filters
+                subtitle='View your documents with ease'
+            >
+                <div className='flex items-center gap-2'>
+                    <Button variant='outline' size='sm'>
+                        Filters
+                    </Button>
+                    <Link href='/dashboard'>
+                        <Button size='sm' asChild>
+                            Go to Dashboard
+                            <ChevronRight className='h-4 w-4' />
                         </Button>
-                        <Button size='sm' className='gap-1' asChild>
-                            <Link href='/dashboard'>
-                                Go to Dashboard
-                                <ChevronRight className='h-4 w-4' />
-                            </Link>
-                        </Button>
-                    </div>
-                }
-            />
+                    </Link>
+                </div>
+            </GlobalHeader>
 
-            <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-                {paginatedDocuments.map((doc) => (
-                    <DocumentCard
-                        key={doc.id}
-                        {...doc}
-                        onClick={() => handleDocumentClick(doc.id)}
+            <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
+                {labContent.map((content) => (
+                    <GlobalDocumentCard
+                        key={content._id}
+                        {...content}
+                        onClick={() => handleDocumentClick(content._id)}
                     />
                 ))}
             </div>
@@ -83,6 +97,12 @@ export default function DocumentsPage() {
                 totalPages={totalPages}
                 totalItems={totalItems}
                 itemsPerPage={itemsPerPage}
+                onLimitChange={(number) => {
+                    console.log(number);
+                    router.push(
+                        `/dashboard/documents-and-labs?limit=${number}`,
+                    );
+                }}
                 baseUrl='/dashboard/documents-and-labs'
             />
 

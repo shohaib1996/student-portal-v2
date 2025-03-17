@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import {
     ArrowLeft,
@@ -27,95 +27,66 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
-export interface UploadDocumentModalProps {
+export interface EditDocumentModalProps {
     isOpen: boolean;
     onClose: () => void;
+    defaultValues?: {
+        description: string;
+        name: string;
+        tags: string;
+        categories: string[];
+        thumbnailUrl: string;
+        attachedFileUrls: string[];
+    };
 }
 
-export function UploadDocumentModal({
+export function EditDocumentModal({
     isOpen,
     onClose,
-}: UploadDocumentModalProps) {
+    defaultValues,
+}: EditDocumentModalProps) {
     const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
         null,
     );
-    const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null); // Store uploaded thumbnail URL
+    const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
     const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
-    const [attachedFileUrls, setAttachedFileUrls] = useState<string[]>([]); // Store uploaded attachment URLs
+    const [attachedFileUrls, setAttachedFileUrls] = useState<string[]>([]);
     const [category1, setCategory1] = useState<string>('');
     const [category2, setCategory2] = useState<string>('');
-    const [isUploading, setIsUploading] = useState(false); // Track upload status
 
-    // Upload a single file and return its URL
-    const uploadFile = async (file: File): Promise<string> => {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error('Upload failed');
-            }
-
-            const data = await response.json();
-            return data.url; // Assuming the response contains { url: string }
-        } catch (error) {
-            console.error('Error uploading file:', error);
-            throw error;
+    // Set default values when the modal opens
+    useEffect(() => {
+        if (isOpen && defaultValues) {
+            setThumbnailPreview(defaultValues.thumbnailUrl);
+            setAttachedFileUrls(defaultValues.attachedFileUrls);
+            setCategory1(defaultValues.categories[0] || '');
+            setCategory2(defaultValues.categories[1] || '');
         }
-    };
+    }, [isOpen, defaultValues]);
 
-    const handleThumbnailChange = async (
-        e: React.ChangeEvent<HTMLInputElement>,
-    ) => {
+    const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            setIsUploading(true);
-
-            try {
-                // Upload the thumbnail
-                const url = await uploadFile(file);
-                setThumbnailUrl(url);
-
-                // Generate preview
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    if (event.target?.result) {
-                        setThumbnailPreview(event.target.result as string);
-                    }
-                };
-                reader.readAsDataURL(file);
-            } catch (error) {
-                console.error('Failed to upload thumbnail:', error);
-            } finally {
-                setIsUploading(false);
-            }
+            setThumbnailFile(file);
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                if (event.target?.result) {
+                    setThumbnailPreview(event.target.result as string);
+                }
+            };
+            reader.readAsDataURL(file);
         }
     };
 
-    const handleFileAttachment = async (
-        e: React.ChangeEvent<HTMLInputElement>,
-    ) => {
+    const handleFileAttachment = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const newFiles = Array.from(e.target.files);
-            setIsUploading(true);
-
-            try {
-                // Upload each file and collect URLs
-                const urls = await Promise.all(
-                    newFiles.map((file) => uploadFile(file)),
-                );
-                setAttachedFiles((prev) => [...prev, ...newFiles]);
-                setAttachedFileUrls((prev) => [...prev, ...urls]);
-            } catch (error) {
-                console.error('Failed to upload attachments:', error);
-            } finally {
-                setIsUploading(false);
-            }
+            setAttachedFiles((prev) => [...prev, ...newFiles]);
+            // For simplicity, we'll just add file names here; in a real app, you'd upload and get URLs
+            setAttachedFileUrls((prev) => [
+                ...prev,
+                ...newFiles.map((file) => file.name),
+            ]);
         }
     };
 
@@ -126,7 +97,7 @@ export function UploadDocumentModal({
 
     const handleRemoveThumbnail = () => {
         setThumbnailPreview(null);
-        setThumbnailUrl(null);
+        setThumbnailFile(null);
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -144,14 +115,25 @@ export function UploadDocumentModal({
             documentName,
             categories: [category1, category2].filter(Boolean),
             tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
-            thumbnail: thumbnailUrl, // Use the uploaded URL
-            attachedFiles: attachedFileUrls, // Use the uploaded URLs
+            thumbnail: thumbnailFile
+                ? {
+                      name: thumbnailFile.name,
+                      size: thumbnailFile.size,
+                      type: thumbnailFile.type,
+                  }
+                : { url: thumbnailPreview }, // Use preview URL if no new file
+            attachedFiles:
+                attachedFiles.length > 0
+                    ? attachedFiles.map((file) => ({
+                          name: file.name,
+                          size: file.size,
+                          type: file.type,
+                      }))
+                    : attachedFileUrls.map((url) => ({ url })), // Use URLs if no new files
         };
 
-        console.log('Document Submission Data:', submissionData);
-
-        // Uncomment the following line if you want to close the modal after submission
-        // onClose();
+        console.log('Updated Document Submission Data:', submissionData);
+        onClose();
     };
 
     return (
@@ -171,10 +153,14 @@ export function UploadDocumentModal({
                             </Button>
                             <div>
                                 <h1 className='text-xl font-semibold'>
-                                    Add New Document
+                                    {defaultValues
+                                        ? 'Edit Document'
+                                        : 'Add New Document'}
                                 </h1>
                                 <p className='text-sm text-muted-foreground'>
-                                    Fill out the form to add new document
+                                    {defaultValues
+                                        ? 'Update your document details'
+                                        : 'Fill out the form to add new document'}
                                 </p>
                             </div>
                         </div>
@@ -190,9 +176,8 @@ export function UploadDocumentModal({
                                 size='sm'
                                 type='submit'
                                 form='upload-document-form'
-                                disabled={isUploading} // Disable while uploading
                             >
-                                {isUploading ? 'Uploading...' : 'Save & Close'}
+                                Save & Close
                             </Button>
                         </div>
                     </div>
@@ -311,6 +296,10 @@ export function UploadDocumentModal({
                                             <Textarea
                                                 id='description'
                                                 name='description'
+                                                defaultValue={
+                                                    defaultValues?.description ||
+                                                    ''
+                                                }
                                                 placeholder='Enter description...'
                                                 className='h-[80vh] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0'
                                             />
@@ -335,6 +324,9 @@ export function UploadDocumentModal({
                                         <Input
                                             id='document-name'
                                             name='document-name'
+                                            defaultValue={
+                                                defaultValues?.name || ''
+                                            }
                                             placeholder='Enter document name'
                                             required
                                         />
@@ -417,6 +409,9 @@ export function UploadDocumentModal({
                                         <Input
                                             id='tags'
                                             name='tags'
+                                            defaultValue={
+                                                defaultValues?.tags || ''
+                                            }
                                             placeholder='Enter tags (Maximum 10 tags)'
                                         />
                                     </div>
@@ -446,9 +441,6 @@ export function UploadDocumentModal({
                                                             onClick={
                                                                 handleRemoveThumbnail
                                                             }
-                                                            disabled={
-                                                                isUploading
-                                                            }
                                                         >
                                                             <X className='h-3 w-3' />
                                                         </Button>
@@ -475,9 +467,6 @@ export function UploadDocumentModal({
                                                                     onChange={
                                                                         handleThumbnailChange
                                                                     }
-                                                                    disabled={
-                                                                        isUploading
-                                                                    }
                                                                 />
                                                             </label>
                                                         </div>
@@ -496,13 +485,13 @@ export function UploadDocumentModal({
                                     <div>
                                         <Label className='mb-2'>
                                             Attached Files (
-                                            {attachedFiles.length})
+                                            {attachedFileUrls.length})
                                         </Label>
                                         <div className='rounded-lg border bg-muted/20 p-4'>
-                                            {attachedFiles.length > 0 ? (
+                                            {attachedFileUrls.length > 0 ? (
                                                 <ul className='space-y-2'>
-                                                    {attachedFiles.map(
-                                                        (file, index) => (
+                                                    {attachedFileUrls.map(
+                                                        (url, index) => (
                                                             <li
                                                                 key={index}
                                                                 className='flex items-center justify-between rounded-md border bg-background p-2 text-sm'
@@ -510,9 +499,13 @@ export function UploadDocumentModal({
                                                                 <div className='flex items-center gap-2'>
                                                                     <Paperclip className='h-4 w-4 text-muted-foreground' />
                                                                     <span className='truncate'>
-                                                                        {
-                                                                            file.name
-                                                                        }
+                                                                        {url
+                                                                            .split(
+                                                                                '/',
+                                                                            )
+                                                                            .pop() ||
+                                                                            url}{' '}
+                                                                        {/* Extract filename */}
                                                                     </span>
                                                                 </div>
                                                                 <Button
@@ -524,9 +517,6 @@ export function UploadDocumentModal({
                                                                         handleRemoveFile(
                                                                             index,
                                                                         )
-                                                                    }
-                                                                    disabled={
-                                                                        isUploading
                                                                     }
                                                                 >
                                                                     <X className='h-3 w-3' />
@@ -550,9 +540,6 @@ export function UploadDocumentModal({
                                                             className='sr-only'
                                                             onChange={
                                                                 handleFileAttachment
-                                                            }
-                                                            disabled={
-                                                                isUploading
                                                             }
                                                         />
                                                     </label>
