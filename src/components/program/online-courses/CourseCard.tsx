@@ -9,16 +9,17 @@ import {
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ArrowRight, Clock, CreditCard, FileText, Star } from 'lucide-react';
+import { TCourse } from '@/types';
 
-export default function CourseCard() {
+export default function CourseCard({ course }: { course: TCourse }) {
     return (
         <Card className='w-full max-w-md overflow-hidden border border-border-primary-light bg-primary-light'>
             {/* Banner Image with Active Badge */}
             <div className='relative'>
                 <div className='relative h-[200px] w-full bg-blue-900/20'>
                     <Image
-                        src='/placeholder.jpg'
-                        alt='Cloud computing network'
+                        src={course?.course?.image || '/placeholder.jpg'}
+                        alt={course.course?.title}
                         fill
                         className='object-cover brightness-[0.8] contrast-[1.1] saturate-[1.2] filter'
                     />
@@ -27,7 +28,7 @@ export default function CourseCard() {
 
                 {/* Active Badge */}
                 <Badge className='absolute right-3 top-3 text-green-500 bg-background py-1'>
-                    Active
+                    {course.status}
                 </Badge>
             </div>
 
@@ -46,7 +47,7 @@ export default function CourseCard() {
                     </div>
                     <div>
                         <h3 className='font-medium text-sm text-black'>
-                            John Doe
+                            {course?.course?.instructor?.name}
                         </h3>
                         <p className='text-dark-gray text-xs'>
                             CloudOps Engineer
@@ -155,7 +156,7 @@ export default function CourseCard() {
 
             <CardHeader className='pt-0 px-3 pb-0'>
                 <h2 className='text-xl font-bold truncate'>
-                    AWS DevOps and CloudOps Engineer
+                    {course.course?.title}
                 </h2>
             </CardHeader>
 
@@ -188,11 +189,11 @@ export default function CourseCard() {
                 <div className='flex justify-between'>
                     <div>
                         <p className='text-sm text-gray'>Total Fee:</p>
-                        <p className='font-medium'>$1120</p>
+                        <p className='font-medium'>${course?.amount}</p>
                     </div>
                     <div>
                         <p className='text-sm text-gray'>Paid:</p>
-                        <p className='font-medium'>$0</p>
+                        <p className='font-medium'>${course?.paid}</p>
                     </div>
                 </div>
 
