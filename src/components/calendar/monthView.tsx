@@ -24,6 +24,7 @@ import PendingIcon from '../svgs/calendar/PendingIcon';
 import DeniedIcon from '../svgs/calendar/DeniedIcon';
 import GlobalTooltip from '../global/GlobalTooltip';
 import FinishedIcon from '../svgs/calendar/FinishedIcon';
+import { EventPopover, EventPopoverTrigger } from './CreateEvent/EventPopover';
 
 interface MonthViewProps {
     currentDate: Date;
@@ -37,15 +38,11 @@ interface CalendarEvent {
 }
 
 export function MonthView({ currentDate }: MonthViewProps) {
-    const handleDayClick = (day: Date) => {
-        console.log('Day clicked:', format(day, 'yyyy-MM-dd'));
-        // You can implement custom logic here, like opening a modal to add an event
-    };
-
     // Generate calendar days
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
     const startDate = subDays(monthStart, getDay(monthStart));
+    const [open, setOpen] = useState(false);
     const days = [];
     let day = startDate;
 
@@ -55,6 +52,12 @@ export function MonthView({ currentDate }: MonthViewProps) {
             to: monthEnd.toISOString(),
         },
     });
+
+    const handleDayClick = (day: Date) => {
+        console.log('Day clicked:', format(day, 'yyyy-MM-dd'));
+        setOpen(true);
+        // You can implement custom logic here, like opening a modal to add an event
+    };
 
     const renderStatus = (
         status: 'accepted' | 'pending' | 'denied' | 'canceled' | 'finished',
@@ -94,6 +97,10 @@ export function MonthView({ currentDate }: MonthViewProps) {
         return <div className='h-[400px]'>hello</div>;
     };
 
+    const validIndexes = [
+        0, 1, 2, 7, 8, 9, 14, 15, 16, 21, 22, 23, 28, 29, 30, 35, 36, 37,
+    ];
+
     return (
         <div className='flex-1 flex flex-col border border-t-0 border-forground-border'>
             <div className='grid grid-cols-7 border-b'>
@@ -113,10 +120,11 @@ export function MonthView({ currentDate }: MonthViewProps) {
                     const dayEvents = getEventsForDay(day);
 
                     return (
-                        <GlobalDropdown
-                            side='bottom'
-                            dropdownRender={dayPopup(day)}
+                        <EventPopoverTrigger
                             key={index}
+                            side={
+                                validIndexes.includes(index) ? 'right' : 'left'
+                            }
                         >
                             <div
                                 key={index}
@@ -203,7 +211,7 @@ export function MonthView({ currentDate }: MonthViewProps) {
                                     )}
                                 </div>
                             </div>
-                        </GlobalDropdown>
+                        </EventPopoverTrigger>
                     );
                 })}
             </div>

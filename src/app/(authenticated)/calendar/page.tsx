@@ -1,6 +1,7 @@
 'use client';
 import Calendar from '@/components/calendar/Calendar';
 import { CalendarSidebar } from '@/components/calendar/CalendarSidebar';
+import { EventPopoverProvider } from '@/components/calendar/CreateEvent/EventPopover';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
 import GlobalHeader from '@/components/global/GlobalHeader';
 import AvailabilityIcon from '@/components/svgs/calendar/Availability';
@@ -42,13 +43,15 @@ const CalendarPage = () => {
                     </div>
                 }
             />
-            <div className='grid grid-cols-[4fr_1fr] gap-2'>
-                <Calendar />
-                <CalendarSidebar
-                    currentDate={currentDate}
-                    onDateSelect={setCurrentDate}
-                />
-            </div>
+            <EventPopoverProvider>
+                <div className='grid grid-cols-[4fr_1fr] gap-2'>
+                    <Calendar />
+                    <CalendarSidebar
+                        currentDate={currentDate}
+                        onDateSelect={setCurrentDate}
+                    />
+                </div>
+            </EventPopoverProvider>
         </div>
     );
 };

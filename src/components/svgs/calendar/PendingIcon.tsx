@@ -16,14 +16,14 @@ const PendingIcon = () => {
             <path
                 d='M14.5 12C14.5 13.38 13.38 14.5 12 14.5C10.62 14.5 9.5 13.38 9.5 12C9.5 10.62 10.62 9.5 12 9.5C13.38 9.5 14.5 10.62 14.5 12Z'
                 stroke='#FF9900'
-                stroke-linecap='round'
-                stroke-linejoin='round'
+                strokeLinecap='round'
+                strokeLinejoin='round'
             />
             <path
                 d='M12.9272 12.7949L12.1522 12.3324C12.0172 12.2524 11.9072 12.0599 11.9072 11.9024V10.8774'
                 stroke='#FF9900'
-                stroke-linecap='round'
-                stroke-linejoin='round'
+                strokeLinecap='round'
+                strokeLinejoin='round'
             />
         </svg>
     );
