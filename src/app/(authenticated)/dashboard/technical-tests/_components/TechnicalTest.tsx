@@ -12,6 +12,7 @@ import GlobalHeader from '@/components/global/GlobalHeader';
 import { Button } from '@/components/ui/button';
 import { useGetTechnicalTestsQuery } from '@/redux/api/technicalTest/technicalTest';
 import { useState } from 'react';
+import GlobalPagination from '@/components/global/GlobalPagination';
 
 const tasks: Task[] = [
     {
@@ -141,11 +142,12 @@ const TechnicalTest = () => {
     const [category, setCategory] = useState<string>('');
     const [type, setType] = useState<string>('');
     const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+    const [limit, setLimit] = useState(10);
     const [currentPage, setCurrentPage] = useState<number>(1);
 
     const { data, isLoading } = useGetTechnicalTestsQuery({
         page: currentPage,
-        limit: 10,
+        limit: limit,
         workshop: selectedDate || null,
         category: category,
         query: searchQuery,
@@ -213,6 +215,15 @@ const TechnicalTest = () => {
                     </div>
                 </TabsContent>
             </Tabs>
+            <GlobalPagination
+                totalItems={tasks.length || 0}
+                currentPage={currentPage}
+                itemsPerPage={limit}
+                onPageChange={(page, newLimit) => {
+                    setCurrentPage(page);
+                    setLimit(newLimit);
+                }}
+            />
         </>
     );
 };
