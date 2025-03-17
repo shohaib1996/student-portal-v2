@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload } from 'lucide-react';
-import { GlobalHeader } from '@/components/global/global-header';
 import { DocumentCard } from './_components/document-card';
 import { GlobalPagination } from '@/components/global/global-pagination';
 import { DocumentDetailsModal } from './_components/document-details-modal';
 import { UploadDocumentModal } from './_components/upload-document-modal';
 import { useSearchParams } from 'next/navigation';
+import GlobalHeader from '@/components/global/GlobalHeader';
 
 // Mock data for documents
 const documents = Array.from({ length: 20 }, (_, i) => ({
@@ -61,22 +61,23 @@ export default function DocumentsPage() {
             <div className='mb-8'>
                 <GlobalHeader
                     title='Upload Documents'
-                    subtitle='Securely upload and manage your files with ease'
-                >
-                    <div className='ml-auto flex items-center gap-4'>
-                        <Button variant='outline' size='sm'>
-                            Filters
-                        </Button>
-                        <Button
-                            onClick={handleOpenUploadModal}
-                            size='sm'
-                            className='gap-2'
-                        >
-                            <Upload className='h-4 w-4' />
-                            Upload Document
-                        </Button>
-                    </div>
-                </GlobalHeader>
+                    subTitle='Securely upload and manage your files with ease'
+                    buttons={
+                        <div className='ml-auto flex items-center gap-4'>
+                            <Button variant='outline' size='sm'>
+                                Filters
+                            </Button>
+                            <Button
+                                onClick={handleOpenUploadModal}
+                                size='sm'
+                                className='gap-2'
+                            >
+                                <Upload className='h-4 w-4' />
+                                Upload Document
+                            </Button>
+                        </div>
+                    }
+                />
             </div>
 
             <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
