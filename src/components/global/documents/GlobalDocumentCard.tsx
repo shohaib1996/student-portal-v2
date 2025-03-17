@@ -95,8 +95,6 @@ export function GlobalDocumentCard({
                     <p className='line-clamp-2 text-sm text-muted-foreground'>
                         {description}
                     </p>
-                </CardContent>
-                <CardFooter className='border-t border-border p-4 pt-2'>
                     <Button
                         variant='link'
                         className='h-auto p-0 text-xs font-medium text-primary'
@@ -107,7 +105,8 @@ export function GlobalDocumentCard({
                     >
                         Read More →
                     </Button>
-                </CardFooter>
+                </CardContent>
+                {/* <CardFooter className='border-t border-border p-4 pt-2'></CardFooter> */}
             </div>
         </Card>
     );

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
+import { useGetLabContentQuery } from '@/redux/api/documents/documentsApi';
 
 const documents = Array.from({ length: 20 }, (_, i) => ({
     id: `doc-${i + 1}`,
@@ -29,7 +30,7 @@ export default function DocumentsPage() {
 
     // ✅ Ensure safe parsing of page number
     const currentPage = parseInt(searchParams.get('page') || '1', 10) || 1;
-    const itemsPerPage = 10;
+    const itemsPerPage = Number(searchParams.get('limit')) || 10;
     const totalItems = documents.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -38,6 +39,14 @@ export default function DocumentsPage() {
         currentPage * itemsPerPage,
     );
 
+    const { data, error, isLoading } = useGetLabContentQuery({
+        page: currentPage,
+        limit: itemsPerPage,
+    });
+
+    console.log('[RTK DATA FOR DOCUMENTS AND LABS]', isLoading, data, error);
+
+    // event handlers
     const handleDocumentClick = (documentId: string) => {
         setSelectedDocumentId(documentId);
         setIsModalOpen(true);
