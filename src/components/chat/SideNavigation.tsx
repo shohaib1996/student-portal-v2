@@ -3,19 +3,9 @@
 import type React from 'react';
 import { useCallback, useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios'; // TODO: Replace with RTK query in the future
+import { useDispatch } from 'react-redux';
 // import { updateChats } from '../../store/reducer/chatReducer';
 import { toast } from 'sonner';
-
-// ShadCN UI components
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
 
 // Lucide Icons
 import {
@@ -30,6 +20,9 @@ import {
     UserMinus,
 } from 'lucide-react';
 import chats from './chats.json';
+import { instance } from '@/lib/axios/axiosInstance';
+import GlobalTooltip from '../global/GlobalTooltip';
+
 interface SideNavigationProps {
     setActive: (section: string) => void;
     active: string;
@@ -55,22 +48,24 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
     setActive,
     active,
 }) => {
+    // const { chats } = useAppSelector((state) => state.chat || {});
     const router = useRouter();
     const dispatch = useDispatch();
 
     // const { chats } = useSelector((state: RootState) => state.chat);
-    const [unread, setUnread] = useState<Chat[]>([]);
+    const [unread, setUnread] = useState<any[]>([]);
 
     useEffect(() => {
         const channels =
-            chats?.filter((x) => x.isChannel && x.unreadCount > 0) || [];
-        setUnread(channels);
+            chats?.filter((x) => x?.isChannel && (x?.unreadCount ?? 0) > 0) ||
+            [];
+        setUnread(channels); // Add this line to store the result in state
     }, [chats]);
 
     const handleCreateChat = useCallback(
         (id: string) => {
             // TODO: Replace with RTK query in the future
-            axios
+            instance
                 .post(`/chat/findorcreate/${id}`)
                 .then((res) => {
                     const filtered = chats.filter(
@@ -94,220 +89,120 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
 
     const getButtonClass = useCallback(
         (section: string) => {
-            return `icon-nav ${active === section ? 'active-btn' : ''} ${
-                active === section ? 'bg-gray-800' : ''
-            }`;
+            return active === section
+                ? 'bg-primary text-pure-white'
+                : 'bg-transparent text-dark-gray';
         },
         [active],
     );
 
     return (
-        <>
-            <div className='side-wrapper'>
-                <div className='list-container'>
-                    <div className='chatbar-list'>
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        onClick={() => setActive('chats')}
-                                        className={getButtonClass('chats')}
-                                        variant='ghost'
-                                        size='icon'
-                                    >
-                                        <User className='h-5 w-5 text-white' />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side='right'>
-                                    All Chats
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        onClick={() => setActive('crowds')}
-                                        className={getButtonClass('crowds')}
-                                        variant='ghost'
-                                        size='icon'
-                                    >
-                                        <Users className='h-5 w-5 text-[#27AC1F]' />
-                                        {/* Preserved commented SVG code converted to Lucide Icon:
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      className="text-white"
+        <div className='flex flex-col h-full w-[50px]'>
+            <div className='flex flex-col items-center gap-3'>
+                <GlobalTooltip tooltip='All Chats' side='right'>
+                    <div
+                        onClick={() => setActive('chats')}
+                        className={`bg-transparent hover:bg-primary group text-dark-gray hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('chats')}`}
                     >
-                      <path
-                        d="M14.6668 2H1.3335L6.66683 8.30667V12.6667L9.3335 14V8.30667L14.6668 2Z"
-                        stroke="currentColor"
-                        strokeWidth="1.3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    */}
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side='right'>
-                                    Crowds
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        onClick={() => setActive('unread')}
-                                        className={getButtonClass('unread')}
-                                        variant='ghost'
-                                        size='icon'
-                                    >
-                                        <div className='relative'>
-                                            <MessageSquare className='h-5 w-5' />
-                                            {unread.length > 0 && (
-                                                <span className='absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500 animate-pulse'></span>
-                                            )}
-                                        </div>
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side='right'>
-                                    Unread
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        onClick={() => setActive('favourites')}
-                                        className={getButtonClass('favourites')}
-                                        variant='ghost'
-                                        size='icon'
-                                    >
-                                        <Pin className='h-5 w-5' />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side='right'>
-                                    Pinned
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        onClick={() => setActive('onlines')}
-                                        className={getButtonClass('onlines')}
-                                        variant='ghost'
-                                        size='icon'
-                                    >
-                                        <UserCheck className='h-5 w-5 text-[#27AC1F]' />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side='right'>
-                                    Onlines
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        onClick={() => setActive('archived')}
-                                        className={getButtonClass('archived')}
-                                        variant='ghost'
-                                        size='icon'
-                                    >
-                                        <Archive className='h-5 w-5' />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side='right'>
-                                    Archived
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        onClick={() => setActive('search')}
-                                        className={getButtonClass('search')}
-                                        variant='ghost'
-                                        size='icon'
-                                    >
-                                        <Search className='h-5 w-5 text-[#27AC1F]' />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side='right'>
-                                    Search
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        <Suspense
-                            fallback={
-                                <div className='h-10 w-10 animate-pulse bg-gray-200 rounded-full'></div>
-                            }
-                        >
-                            {process.env.NEXT_PUBLIC_AI_BOT_ID && (
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Button
-                                                onClick={() => {
-                                                    setActive('ai');
-                                                    handleCreateChat(
-                                                        process.env
-                                                            .NEXT_PUBLIC_AI_BOT_ID as string,
-                                                    );
-                                                }}
-                                                className={getButtonClass('ai')}
-                                                variant='ghost'
-                                                size='icon'
-                                            >
-                                                <Bot className='h-5 w-5 text-[#27AC1F]' />
-                                            </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent side='right'>
-                                            AI Bot
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                            )}
-                        </Suspense>
-
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        onClick={() => setActive('blocked')}
-                                        className={getButtonClass('blocked')}
-                                        variant='ghost'
-                                        size='icon'
-                                    >
-                                        <UserMinus className='h-5 w-5' />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent side='right'>
-                                    Blocked Users
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                        <User className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
                     </div>
-                </div>
+                </GlobalTooltip>
+
+                <GlobalTooltip tooltip='Crowds' side='right'>
+                    <div
+                        onClick={() => setActive('crowds')}
+                        className={`bg-transparent hover:bg-primary group text-dark-gray hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('crowds')}`}
+                    >
+                        <Users className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
+                    </div>
+                </GlobalTooltip>
+
+                <GlobalTooltip tooltip='Unread' side='right'>
+                    <div
+                        onClick={() => setActive('unread')}
+                        className={`bg-transparent hover:bg-primary group text-dark-gray hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('unread')}`}
+                    >
+                        <div className='relative'>
+                            <MessageSquare className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
+                            {unread.length > 0 && (
+                                <>
+                                    <span className='absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500'></span>
+                                    <span className='absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500 animate-ping'></span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </GlobalTooltip>
+
+                <GlobalTooltip tooltip='Pinned' side='right'>
+                    <div
+                        onClick={() => setActive('favourites')}
+                        className={`bg-transparent hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('favourites')}`}
+                    >
+                        <Pin className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
+                    </div>
+                </GlobalTooltip>
+
+                <GlobalTooltip tooltip='Online Users' side='right'>
+                    <div
+                        onClick={() => setActive('onlines')}
+                        className={`bg-transparent hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('onlines')}`}
+                    >
+                        <UserCheck className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
+                    </div>
+                </GlobalTooltip>
+
+                <GlobalTooltip tooltip='Archived' side='right'>
+                    <div
+                        onClick={() => setActive('archived')}
+                        className={`bg-transparent hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('archived')}`}
+                    >
+                        <Archive className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
+                    </div>
+                </GlobalTooltip>
+
+                <GlobalTooltip tooltip='Search' side='right'>
+                    <div
+                        onClick={() => setActive('search')}
+                        className={`bg-transparent hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('search')}`}
+                    >
+                        <Search className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
+                    </div>
+                </GlobalTooltip>
+
+                <Suspense
+                    fallback={
+                        <div className='h-12 w-12 animate-pulse bg-muted rounded-full'></div>
+                    }
+                >
+                    {process.env.NEXT_PUBLIC_AI_BOT_ID && (
+                        <GlobalTooltip tooltip='AI Bot' side='right'>
+                            <div
+                                onClick={() => {
+                                    setActive('ai');
+                                    handleCreateChat(
+                                        process.env
+                                            .NEXT_PUBLIC_AI_BOT_ID as string,
+                                    );
+                                }}
+                                className={`bg-transparent hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('ai')}`}
+                            >
+                                <Bot className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
+                            </div>
+                        </GlobalTooltip>
+                    )}
+                </Suspense>
+
+                <GlobalTooltip tooltip='Blocked Users' side='right'>
+                    <div
+                        onClick={() => setActive('blocked')}
+                        className={`bg-transparent hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('blocked')}`}
+                    >
+                        <UserMinus className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
+                    </div>
+                </GlobalTooltip>
             </div>
-        </>
+        </div>
     );
 };
 

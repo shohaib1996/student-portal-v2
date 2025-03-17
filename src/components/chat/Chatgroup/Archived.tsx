@@ -29,9 +29,10 @@ import {
 
 // Lucide Icons
 import { Search, Lock, Loader2 } from 'lucide-react';
-import chats from '../chats.json';
 import onlineUsers from '../onlineUsers.json';
 import { TChat } from '../ChatNav';
+import { useAppSelector } from '@/redux/hooks';
+import chats from '../chats.json';
 interface Message {
     _id?: string;
     createdAt?: string;
@@ -133,7 +134,7 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function Archived() {
-    // const { chats } = useSelector((state: RootState) => state.chat);
+    // const { chats } = useAppSelector((state) => state.chat);
     // const { onlineUsers } = useSelector((state: RootState) => state.chat);
 
     const [records, setRecords] = useState<any[]>([]);

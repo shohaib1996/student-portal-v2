@@ -13,6 +13,7 @@ const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {
 
 interface MessagePreviewProps {
     text: string;
+    searchQuery?: string;
 }
 
 interface RootState {

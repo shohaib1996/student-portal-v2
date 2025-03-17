@@ -29,6 +29,7 @@ import {
 
 // Lucide Icons
 import { Search, Lock, Loader2 } from 'lucide-react';
+import { useAppSelector } from '@/redux/hooks';
 import chats from '../chats.json';
 import onlineUsers from '../onlineUsers.json';
 interface Message {
@@ -159,9 +160,7 @@ function sortByLatestMessage(data: any[]): any[] {
 }
 
 function FavouriteSidebar() {
-    // const { chats, onlineUsers } = useSelector(
-    //     (state: RootState) => state.chat,
-    // );
+    // const { chats, onlineUsers } = useAppSelector((state) => state.chat);
 
     const [records, setRecords] = useState<any[]>([]);
     const [favourites, setFavourites] = useState<any[]>([]);

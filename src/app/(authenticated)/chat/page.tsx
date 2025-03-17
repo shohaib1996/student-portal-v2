@@ -17,9 +17,9 @@ const Chatbox = dynamic(() => import('@/components/chat/Chatbox'), {
 
 const Chat: React.FC = () => {
     return (
-        <div className='bg-white dark:bg-gray-900 min-h-screen'>
+        <div className='min-h-screen'>
             {/* Main chat container */}
-            <div className='chat-container bg-gray-50 dark:bg-gray-800'>
+            <div className='chat-container'>
                 <Suspense
                     fallback={
                         <div className='flex justify-center items-center h-[calc(100vh-7rem)] w-full'>

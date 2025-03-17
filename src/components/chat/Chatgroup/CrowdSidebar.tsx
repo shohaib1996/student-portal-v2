@@ -4,7 +4,6 @@ import type React from 'react';
 import { useCallback, useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useSelector } from 'react-redux';
 import dynamic from 'next/dynamic';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -29,8 +28,9 @@ import {
 // Lucide Icons
 import { Search, Lock, Plus } from 'lucide-react';
 import { getText, replaceMentionToNode } from '@/helper/utilities';
-import chats from '../chats.json';
 import onlineUsers from '../onlineUsers.json';
+import { useAppSelector } from '@/redux/hooks';
+import chats from '../chats.json';
 // Dynamic imports
 const CreateCrowd = dynamic(() => import('./CreateCrowd'), {
     loading: () => (
@@ -168,7 +168,7 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function CrowdSidebar() {
-    // const { chats } = useSelector((state: RootState) => state.chat);
+    // const { chats } = useAppSelector((state) => state.chat);
     // const onlineUsers = useSelector(
     //     (state: RootState) => state.chat.onlineUsers || [],
     // );

@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { toast } from 'sonner';
-import chats from '../chats.json';
 // Initialize dayjs plugins
 dayjs.extend(relativeTime);
 
@@ -22,6 +21,8 @@ import { Button } from '@/components/ui/button';
 // Lucide Icons
 import { MessageSquare, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { useAppSelector } from '@/redux/hooks';
+import chats from '../chats.json';
 
 interface User {
     _id: string;
@@ -45,7 +46,7 @@ interface RootState {
 }
 
 function UserCard({ user, source }: UserCardProps) {
-    // const { chats } = useSelector((state: RootState) => state.chat);
+    // const { chats } = useAppSelector((state) => state.chat);
     const dispatch = useDispatch();
     const router = useRouter();
 

@@ -1,0 +1,525 @@
+'use client';
+
+import type React from 'react';
+import { useState, forwardRef } from 'react';
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import dayjs from 'dayjs';
+import axios from 'axios';
+import { toast } from 'sonner';
+import {
+    Check,
+    CheckCheck,
+    Circle,
+    ChevronRight,
+    MoreVertical,
+    MessageSquare,
+    Copy,
+    Pencil,
+    Trash,
+} from 'lucide-react';
+
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+
+import MessagePreview from './MessagePreview';
+import { generateActivityText } from './helper';
+import FileCard from '../FileCard';
+import DeleteMessage from '../ChatForm/DeleteMessage';
+import { copyTextToClipboard } from '../../../utils/clipboard';
+import { updateChats } from '@/redux/features/chatReducer';
+import { useAppSelector } from '@/redux/hooks';
+import chats from '../chats.json';
+
+const emojies = ['👍', '😍', '❤', '😂', '🥰', '😯'];
+
+interface MessageProps {
+    message: {
+        _id: string;
+        type: string;
+        sender?: {
+            _id: string;
+            firstName?: string;
+            lastName?: string;
+            fullName?: string;
+            profilePicture?: string;
+            type?: string;
+        };
+        createdAt: string | number;
+        status?: string;
+        text?: string;
+        files?: any[];
+        editedAt?: string;
+        replyCount?: number;
+        reactions?: Record<string, number>;
+        chat?: string;
+    };
+    lastmessage?: boolean;
+    setEditMessage?: (message: any) => void;
+    setThreadMessage?: (message: any) => void;
+    hideOptions?: boolean;
+    hideReplyCount?: boolean;
+    source?: string;
+    hideAlign?: boolean;
+    reload?: number;
+    setReload?: (value: number) => void;
+    isAi?: boolean;
+    searchQuery?: string;
+    bottomRef?: React.RefObject<HTMLDivElement>;
+}
+
+type MessageComponent = React.ForwardRefExoticComponent<
+    MessageProps & React.RefAttributes<HTMLDivElement>
+>;
+
+const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
+    // const { chats } = useAppSelector((state) => state.chat);
+    const { user } = useAppSelector((state) => state.auth);
+    const [deleteMessage, setDeleteMessage] = useState<any>(null);
+    const [chatDelOpened, setChatDelOpened] = useState(false);
+
+    const {
+        message,
+        lastmessage,
+        setEditMessage,
+        setThreadMessage,
+        hideOptions,
+        hideReplyCount,
+        source,
+        hideAlign,
+        reload,
+        setReload,
+        isAi,
+        searchQuery,
+    } = props;
+
+    const [creating, setCreating] = useState(false);
+    const [fileType, setFileType] = useState(message?.files?.[0]?.type);
+
+    const router = useRouter();
+    const dispatch = useDispatch();
+
+    const handleDeleteMessage = (msg: any) => {
+        setDeleteMessage(msg);
+        setChatDelOpened(true);
+    };
+
+    const handleCopyClick = () => {
+        if ((message?.files ?? []).length > 0) {
+            // for files
+            const allUrl = message?.files?.map((x) => x.url);
+            const files = JSON.stringify(allUrl);
+
+            copyTextToClipboard(files)
+                .then(() => {
+                    toast.success('Image copied!');
+                })
+                .catch((err: any) => {
+                    toast.error('Could not copy message');
+                });
+        } else {
+            // for text
+            copyTextToClipboard(message.text || '')
+                .then(() => {
+                    toast.success('Message copied to clipboard succeed!');
+                })
+                .catch((err: any) => {
+                    toast.error('Could not copy message');
+                });
+        }
+    };
+
+    // handle open new chat
+    const handleOpenNewChat = (id: string) => {
+        setCreating(true);
+        axios
+            .post(`/chat/findorcreate/${id}`)
+            .then((res) => {
+                const filtered = chats.filter(
+                    (c: any) => c._id === res.data.chat._id,
+                );
+
+                if (filtered.length > 0) {
+                    router.push(`/chat/${res.data.chat._id}`);
+                } else {
+                    dispatch(updateChats(res?.data?.chat));
+                    router.push(`/chat/${res.data.chat._id}`);
+                }
+                setCreating(false);
+            })
+            .catch((err) => {
+                setCreating(false);
+                toast.error(
+                    err?.response?.data?.error || 'Something went wrong',
+                );
+            });
+    };
+
+    // handle reaction
+    const handleReaction = (emoji: string, messageId: string) => {
+        axios
+            .put(`/chat/react/${messageId}`, {
+                symbol: emoji,
+            })
+            .then(() => {
+                if (setReload) {
+                    setReload(Math.random() * 100);
+                }
+            })
+            .catch(() => {
+                toast.error('Something went wrong');
+            });
+    };
+
+    function formatDate(date: string | number | undefined) {
+        if (!date) {
+            return 'N/A';
+        }
+
+        const today = dayjs().startOf('day');
+        const yesterday = dayjs().subtract(1, 'days').startOf('day');
+
+        if (dayjs(date).isSame(today, 'day')) {
+            return dayjs(date).format('h:mm A');
+        } else if (dayjs(date).isSame(yesterday, 'day')) {
+            return `${dayjs(date).format('MMM DD, YYYY')} at ${dayjs(date).format('hh:mm A')} (Yesterday)`;
+        } else if (date) {
+            return `${dayjs(date).format('MMM DD, YYYY')} at ${dayjs(date).format('hh:mm A')}`;
+        } else {
+            return 'N/A';
+        }
+    }
+
+    // Safe function to handle thread message
+    const handleThreadMessage = () => {
+        if (setThreadMessage) {
+            setThreadMessage(message);
+        }
+    };
+
+    return (
+        <>
+            {message?.type === 'activity' ? (
+                <div
+                    ref={lastmessage ? ref : null}
+                    className='py-2 px-4 text-center text-sm text-muted-foreground'
+                    id={`message-${message._id}`}
+                >
+                    <p>{generateActivityText(message)}</p>
+                </div>
+            ) : (
+                <div
+                    ref={lastmessage ? ref : null}
+                    className={`flex mb-4 ${!hideAlign && message?.sender?._id === user?._id ? 'justify-end' : 'justify-start'}`}
+                    style={{ scrollBehavior: 'smooth' }}
+                >
+                    <div className='flex max-w-[80%]'>
+                        <div className='flex-shrink-0 mr-2'>
+                            <div
+                                className='cursor-pointer'
+                                onClick={() =>
+                                    handleOpenNewChat(
+                                        message?.sender?._id || '',
+                                    )
+                                }
+                            >
+                                <Image
+                                    src={
+                                        message.sender?.type === 'bot'
+                                            ? '/chat/bot.png'
+                                            : message?.sender?.profilePicture ||
+                                              '/chat/user.png'
+                                    }
+                                    alt={
+                                        message?.sender?.firstName ||
+                                        'User images'
+                                    }
+                                    width={40}
+                                    height={40}
+                                    className='rounded-full h-10 w-10 object-cover'
+                                />
+                            </div>
+                        </div>
+                        <div className='flex flex-col'>
+                            <div
+                                className={`rounded-lg p-3 ${
+                                    !hideAlign &&
+                                    message?.sender?._id === user?._id
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'bg-muted'
+                                }`}
+                            >
+                                <div className='flex flex-col'>
+                                    <span
+                                        onClick={() =>
+                                            handleOpenNewChat(
+                                                message?.sender?._id || '',
+                                            )
+                                        }
+                                        className='font-medium text-sm cursor-pointer mb-1'
+                                    >
+                                        {message.sender?.fullName ||
+                                            'Bootcamps Hub user'}
+                                    </span>
+
+                                    {(message?.files ?? []).length > 0 &&
+                                        message?.type !== 'delete' && (
+                                            <div className='flex flex-wrap gap-2 mb-2'>
+                                                {message?.files?.map(
+                                                    (file, i) => (
+                                                        <FileCard
+                                                            file={file}
+                                                            key={i}
+                                                        />
+                                                    ),
+                                                )}
+                                            </div>
+                                        )}
+
+                                    {message?.type === 'delete' ? (
+                                        <p className='text-xs italic text-muted-foreground'>
+                                            This message has been deleted
+                                        </p>
+                                    ) : (
+                                        <MessagePreview
+                                            searchQuery={searchQuery}
+                                            text={message?.text || ''}
+                                        />
+                                    )}
+
+                                    <div className='flex justify-between items-center mt-2 text-xs'>
+                                        {message?.type !== 'delete' && (
+                                            <div className='flex items-center gap-1'>
+                                                {message?.sender?._id ===
+                                                    user?._id && (
+                                                    <>
+                                                        {message?.status ===
+                                                        'seen' ? (
+                                                            <>
+                                                                <CheckCheck className='h-3 w-3 text-muted-foreground' />
+                                                                <span className='text-muted-foreground'>
+                                                                    {
+                                                                        message?.status
+                                                                    }
+                                                                </span>
+                                                            </>
+                                                        ) : message?.status ===
+                                                          'sent' ? (
+                                                            <>
+                                                                <Check className='h-3 w-3 text-muted-foreground' />
+                                                                <span className='text-muted-foreground'>
+                                                                    {
+                                                                        message?.status
+                                                                    }
+                                                                </span>
+                                                            </>
+                                                        ) : message?.status ===
+                                                          'delivered' ? (
+                                                            <>
+                                                                <CheckCheck className='h-3 w-3 text-muted-foreground' />
+                                                                <span className='text-muted-foreground'>
+                                                                    {
+                                                                        message?.status
+                                                                    }
+                                                                </span>
+                                                            </>
+                                                        ) : message?.status ===
+                                                          'sending' ? (
+                                                            <>
+                                                                <Circle className='h-3 w-3 text-muted-foreground' />
+                                                                <span className='text-muted-foreground'>
+                                                                    {
+                                                                        message?.status
+                                                                    }
+                                                                </span>
+                                                            </>
+                                                        ) : (
+                                                            message?.status
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        <span className='text-muted-foreground ml-2'>
+                                            {formatDate(message?.createdAt)}
+                                        </span>
+                                    </div>
+
+                                    {message?.type !== 'delete' &&
+                                        message?.editedAt && (
+                                            <span className='text-xs italic text-muted-foreground'>
+                                                (Edited)
+                                            </span>
+                                        )}
+
+                                    {message?.type !== 'delete' &&
+                                        message?.replyCount &&
+                                        message?.replyCount > 0 &&
+                                        !hideReplyCount && (
+                                            <Button
+                                                variant='ghost'
+                                                size='sm'
+                                                className='flex items-center gap-1 mt-1 p-0 h-auto text-xs'
+                                                onClick={handleThreadMessage}
+                                            >
+                                                <span className='text-muted-foreground'>
+                                                    {message?.replyCount}{' '}
+                                                    replies
+                                                </span>
+                                                <ChevronRight className='h-3 w-3 text-muted-foreground' />
+                                            </Button>
+                                        )}
+                                </div>
+                            </div>
+
+                            {message?.reactions &&
+                                Object.keys(message?.reactions).length > 0 && (
+                                    <div className='flex gap-1 mt-1'>
+                                        {Object.keys(message.reactions).map(
+                                            (e, i) => (
+                                                <span
+                                                    key={i}
+                                                    className={`flex items-center justify-center px-1.5 py-0.5 rounded-full text-xs bg-muted ${
+                                                        e === '❤'
+                                                            ? 'text-red-500'
+                                                            : ''
+                                                    }`}
+                                                >
+                                                    {e}
+                                                    {message.reactions?.[e] ??
+                                                        ''}
+                                                </span>
+                                            ),
+                                        )}
+                                    </div>
+                                )}
+                        </div>
+
+                        {!hideOptions && message?.type !== 'delete' && (
+                            <div className='ml-2 self-start'>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant='ghost'
+                                            size='icon'
+                                            className='h-8 w-8'
+                                        >
+                                            <MoreVertical className='h-4 w-4' />
+                                            <span className='sr-only'>
+                                                Open menu
+                                            </span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                        align={
+                                            !hideAlign &&
+                                            message?.sender?._id === user?._id
+                                                ? 'start'
+                                                : 'end'
+                                        }
+                                    >
+                                        {source !== 'thread' && !isAi && (
+                                            <DropdownMenuItem
+                                                className='flex items-center gap-2'
+                                                onClick={handleThreadMessage}
+                                            >
+                                                <MessageSquare className='h-4 w-4' />
+                                                Reply
+                                            </DropdownMenuItem>
+                                        )}
+
+                                        {message?.files?.length === 0 && (
+                                            <DropdownMenuItem
+                                                className='flex items-center gap-2'
+                                                onClick={handleCopyClick}
+                                            >
+                                                <Copy className='h-4 w-4' />
+                                                Copy
+                                            </DropdownMenuItem>
+                                        )}
+
+                                        {!hideAlign &&
+                                            message?.sender?._id ===
+                                                user?._id && (
+                                                <DropdownMenuItem
+                                                    className='flex items-center gap-2'
+                                                    onClick={() => {
+                                                        if (setEditMessage) {
+                                                            setEditMessage(
+                                                                message,
+                                                            );
+                                                        }
+                                                    }}
+                                                >
+                                                    <Pencil className='h-4 w-4' />
+                                                    Edit your message
+                                                </DropdownMenuItem>
+                                            )}
+
+                                        {!hideAlign &&
+                                            message?.sender?._id ===
+                                                user?._id &&
+                                            !isAi && (
+                                                <DropdownMenuItem
+                                                    className='flex items-center gap-2 text-destructive'
+                                                    onClick={() =>
+                                                        handleDeleteMessage(
+                                                            message,
+                                                        )
+                                                    }
+                                                >
+                                                    <Trash className='h-4 w-4' />
+                                                    Delete this message
+                                                </DropdownMenuItem>
+                                            )}
+
+                                        <div className='flex flex-wrap gap-1 p-2'>
+                                            {emojies?.map((x, i) => (
+                                                <Button
+                                                    key={i}
+                                                    variant='ghost'
+                                                    size='icon'
+                                                    className={`h-8 w-8 ${x === '❤' ? 'text-red-500' : ''}`}
+                                                    onClick={() =>
+                                                        handleReaction(
+                                                            x,
+                                                            message?._id,
+                                                        )
+                                                    }
+                                                >
+                                                    {x}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            <Dialog open={chatDelOpened} onOpenChange={setChatDelOpened}>
+                <DialogContent>
+                    <DeleteMessage
+                        selectedMessage={deleteMessage}
+                        opened={chatDelOpened}
+                        close={() => setChatDelOpened(false)}
+                    />
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+});
+
+Message.displayName = 'Message';
+
+export default Message;

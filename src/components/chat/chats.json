@@ -1,6 +1,65 @@
 [
     {
         "isArchived": false,
+        "membersCount": 4,
+        "organization": "654d46da01e5e400181846d0",
+        "latestMessage": {
+            "type": "activity",
+            "status": "sent",
+            "_id": "67d7e1113c6139001aea69e9",
+            "sender": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1736416051986-Shuvajit_Maitra",
+                "lastName": "Maitra",
+                "type": "marketing",
+                "_id": "658ce2bf45ea7e0019776f2f",
+                "firstName": "Shuvajit ",
+                "fullName": "Shuvajit  Maitra"
+            },
+            "chat": "6757dc88678506001a0b6527",
+            "organization": "654d46da01e5e400181846d0",
+            "activity": {
+                "user": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1740085425370-Demo.JPEG",
+                    "lastName": "Demo",
+                    "type": "marketing",
+                    "_id": "67b786f82bfba400198f736d",
+                    "firstName": "Pilot",
+                    "fullName": "Pilot Demo"
+                },
+                "type": "remove"
+            },
+            "files": [],
+            "emoji": [],
+            "createdAt": "2025-03-17T08:45:05.876Z",
+            "updatedAt": "2025-03-17T08:45:05.876Z",
+            "id": 323,
+            "__v": 0
+        },
+        "isChannel": true,
+        "_id": "6757dc88678506001a0b6527",
+        "description": "The first time you have a chance at the top is the second one you get a free pass and you can go on your way back and then go to your car to pick it out of there so I don’t have any money for that and I can get it back and you could get a ride home or something and I could just get it to the bottom and you could go back and",
+        "isPublic": false,
+        "avatar": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/chat/654d47f6dde10300195b6f42/1741783450510-1154FDA1-3177-4622-A6F5-87D7A9476D07.jpg",
+        "name": "Mobile App Testing",
+        "isReadOnly": false,
+        "memberScope": "custom",
+        "unreadCount": 0,
+        "myData": {
+            "user": "654d47f6dde10300195b6f42",
+            "isFavourite": true,
+            "isBlocked": false,
+            "role": "admin",
+            "_id": "677cf419c724cd001a356be2",
+            "notification": {
+                "isOn": true
+            },
+            "mute": {
+                "isMuted": false
+            }
+        }
+    },
+    {
+        "isArchived": false,
         "membersCount": 3,
         "organization": "654d46da01e5e400181846d0",
         "latestMessage": {
@@ -57,46 +116,47 @@
     },
     {
         "isArchived": false,
-        "membersCount": 4,
+        "membersCount": 549,
         "organization": "654d46da01e5e400181846d0",
         "latestMessage": {
             "type": "message",
-            "status": "sent",
-            "_id": "67d7966e3c6139001aea5811",
+            "status": "delivered",
+            "_id": "67d6e7b4db1f73001acfba62",
             "sender": {
-                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1736416051986-Shuvajit_Maitra",
-                "lastName": "Maitra",
-                "type": "marketing",
-                "_id": "658ce2bf45ea7e0019776f2f",
-                "firstName": "Shuvajit ",
-                "fullName": "Shuvajit  Maitra"
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                "lastName": "Ahmad",
+                "_id": "610c4f4ab000a890e91f5d7e",
+                "firstName": "Shiblu",
+                "fullName": "Shiblu Ahmad"
             },
-            "text": "Test",
-            "chat": "6757dc88678506001a0b6527",
+            "text": "GM, everyone! Interview webinar is on:\nhttps://us02web.zoom.us/webinar/register/WN_LNtzPBqxQoinMifTr0bnUw\nPlease join now!",
             "files": [],
-            "organization": "654d46da01e5e400181846d0",
-            "parentMessage": "67d4fdd2db1f73001acf3fcd",
-            "emoji": [],
-            "createdAt": "2025-03-17T03:26:38.098Z",
-            "updatedAt": "2025-03-17T03:26:38.098Z",
-            "id": 317,
-            "__v": 0
+            "emoji": [
+                {
+                    "_id": "67d6e9a8db1f73001acfbc9d",
+                    "user": "673d2664ab53cb001969a50a",
+                    "symbol": "👍",
+                    "createdAt": "2025-03-16T15:09:28.103Z"
+                }
+            ],
+            "createdAt": "2025-03-16T15:01:08.978Z",
+            "id": 125
         },
         "isChannel": true,
-        "_id": "6757dc88678506001a0b6527",
-        "description": "The first time you have a chance at the top is the second one you get a free pass and you can go on your way back and then go to your car to pick it out of there so I don’t have any money for that and I can get it back and you could get a ride home or something and I could just get it to the bottom and you could go back and",
+        "_id": "6760dd0a5fb515001adebcb8",
         "isPublic": false,
-        "avatar": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/chat/654d47f6dde10300195b6f42/1741783450510-1154FDA1-3177-4622-A6F5-87D7A9476D07.jpg",
-        "name": "Mobile App Testing",
-        "isReadOnly": false,
-        "memberScope": "custom",
-        "unreadCount": 3,
+        "description": "Webinar, holidays, app update, release update will be shared through this crowd. ",
+        "branch": "654d4ace01e5e4001818485f",
+        "name": "TS4U Announcement",
+        "isReadOnly": true,
+        "memberScope": "branch",
+        "unreadCount": 0,
         "myData": {
             "user": "654d47f6dde10300195b6f42",
-            "isFavourite": true,
+            "isFavourite": false,
             "isBlocked": false,
-            "role": "admin",
-            "_id": "677cf419c724cd001a356be2",
+            "role": "member",
+            "_id": "67bc628a3bf2e5001ac3161a",
             "notification": {
                 "isOn": true
             },
@@ -501,7 +561,7 @@
             "type": "marketing",
             "_id": "658ce2bf45ea7e0019776f2f",
             "firstName": "Shuvajit ",
-            "lastActive": "2025-03-17T04:05:01.307Z",
+            "lastActive": "2025-03-17T09:18:19.735Z",
             "fullName": "Shuvajit  Maitra"
         },
         "name": "User Chat",
@@ -554,7 +614,7 @@
             "type": "testUser",
             "_id": "611151c15e58a9b155d8fc6b",
             "firstName": "Md",
-            "lastActive": "2025-03-17T04:41:03.950Z",
+            "lastActive": "2025-03-17T05:51:56.498Z",
             "fullName": "Md Shimul"
         },
         "name": "User Chat",
@@ -733,7 +793,7 @@
             "type": "testUser",
             "_id": "610c4f4ab000a890e91f5d7e",
             "firstName": "Shiblu",
-            "lastActive": "2025-03-17T04:50:54.115Z",
+            "lastActive": "2025-03-17T07:13:44.561Z",
             "fullName": "Shiblu Ahmad"
         },
         "name": "User Chat",
@@ -2022,7 +2082,7 @@
             "type": "marketing",
             "_id": "660501fc392d4b00199802b9",
             "firstName": "Mahfuzur Rahman",
-            "lastActive": "2025-03-17T04:31:05.388Z",
+            "lastActive": "2025-03-17T06:48:16.146Z",
             "fullName": "Mahfuzur Rahman Shabbir"
         },
         "name": "User Chat",
@@ -3330,7 +3390,7 @@
             "type": "marketing",
             "_id": "65e2a9df77b55c0020e421bf",
             "firstName": "Trishon",
-            "lastActive": "2025-03-17T04:48:29.087Z",
+            "lastActive": "2025-03-17T05:46:39.986Z",
             "fullName": "Trishon Baidaya"
         },
         "name": "User Chat",
@@ -4210,7 +4270,7 @@
             "type": "marketing",
             "_id": "670f5069a624720019f25e37",
             "firstName": "MD. RIAJUL",
-            "lastActive": "2025-03-17T03:01:35.272Z",
+            "lastActive": "2025-03-17T08:33:02.955Z",
             "fullName": "MD. RIAJUL ISLAM"
         },
         "name": "User Chat",
@@ -4327,7 +4387,7 @@
             "type": "marketing",
             "_id": "659231ebf5366000194c6e8d",
             "firstName": "Md Jahid ",
-            "lastActive": "2025-03-17T03:02:47.667Z",
+            "lastActive": "2025-03-17T05:46:39.855Z",
             "fullName": "Md Jahid  Hasan"
         },
         "name": "User Chat",
@@ -4363,7 +4423,7 @@
             "type": "marketing",
             "_id": "659231ebf5366000194c6e8d",
             "firstName": "Md Jahid ",
-            "lastActive": "2025-03-17T03:02:47.667Z",
+            "lastActive": "2025-03-17T05:46:39.855Z",
             "fullName": "Md Jahid  Hasan"
         },
         "name": "User Chat",
@@ -4516,7 +4576,7 @@
             "type": "marketing",
             "_id": "6638fe21f3009f00192b75f5",
             "firstName": "Salma",
-            "lastActive": "2025-03-17T03:02:02.508Z",
+            "lastActive": "2025-03-17T08:30:10.074Z",
             "fullName": "Salma Sarkar"
         },
         "name": "User Chat",

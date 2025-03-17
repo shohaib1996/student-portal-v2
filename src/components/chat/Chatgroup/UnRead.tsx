@@ -30,6 +30,7 @@ import {
 
 // Lucide Icons
 import { Search, Lock, Loader2 } from 'lucide-react';
+import { useAppSelector } from '@/redux/hooks';
 import chats from '../chats.json';
 // Dynamic imports
 const CreateCrowd = dynamic(() => import('./CreateCrowd'), {
@@ -171,7 +172,7 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function UnRead() {
-    // const { chats } = useSelector((state: RootState) => state.chat);
+    // const { chats } = useAppSelector((state) => state.chat);
     const [records, setRecords] = useState<any[]>([]);
     const [channels, setChannels] = useState<any[]>([]);
     const [limit, setLimit] = useState<number>(20);
@@ -216,7 +217,8 @@ function UnRead() {
         setIsLoading(true);
         try {
             const unreadChannels =
-                chats?.filter((x) => x.isChannel && x.unreadCount > 0) || [];
+                chats?.filter((x) => x.isChannel && (x.unreadCount ?? 0) > 0) ||
+                [];
             setChannels(unreadChannels);
             setRecords(unreadChannels);
         } catch (error) {

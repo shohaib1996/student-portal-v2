@@ -12,8 +12,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 // Lucide Icons
 import { Search, Loader2 } from 'lucide-react';
-import chats from '../chats.json';
 import onlineUsers from '../onlineUsers.json';
+import { useAppSelector } from '@/redux/hooks';
 // Dynamic imports with loading state
 const UserCard = dynamic(() => import('./UserCard'), {
     loading: () => <UserCardSkeleton />,
@@ -57,7 +57,7 @@ interface RootState {
 }
 
 function OnlineSidebar() {
-    const { user } = useSelector((state: RootState) => state.auth);
+    const { user } = useAppSelector((state) => state.auth);
     const [records, setRecords] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -130,7 +130,7 @@ function OnlineSidebar() {
                             <ul className='list-group'>
                                 {records?.map(
                                     (u, i) =>
-                                        u._id !== user._id && (
+                                        u._id !== user?._id && (
                                             <UserCard user={u} key={i} />
                                         ),
                                 )}
