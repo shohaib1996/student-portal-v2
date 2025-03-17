@@ -29,11 +29,13 @@ import {
 
 // Lucide Icons
 import { Search, Lock, Loader2 } from 'lucide-react';
-
+import chats from '../chats.json';
+import onlineUsers from '../onlineUsers.json';
+import { TChat } from '../ChatNav';
 interface Message {
     _id?: string;
     createdAt?: string;
-    type?: string;
+    type: string;
     text?: string;
     sender?: {
         _id: string;
@@ -48,36 +50,9 @@ interface Message {
     };
 }
 
-interface Chat {
-    _id: string;
-    isChannel: boolean;
-    isPublic?: boolean;
-    isArchived?: boolean;
-    name?: string;
-    avatar?: string;
-    unreadCount: number;
-    latestMessage?: Message;
-    otherUser?: {
-        _id: string;
-        type?: string;
-        firstName?: string;
-        fullName: string;
-        profilePicture?: string;
-    };
-    myData?: {
-        isBlocked: boolean;
-    };
-    typingData?: {
-        isTyping: boolean;
-        user?: {
-            firstName: string;
-        };
-    };
-}
-
 interface RootState {
     chat: {
-        chats: Chat[];
+        chats: any[];
         onlineUsers: any[];
     };
     theme: {
@@ -85,7 +60,7 @@ interface RootState {
     };
 }
 
-function sortByLatestMessage(data: Chat[]): Chat[] {
+function sortByLatestMessage(data: any[]): any[] {
     return data.slice().sort((a, b) => {
         const dateA =
             a.latestMessage && a.latestMessage.createdAt
@@ -158,14 +133,13 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function Archived() {
-    const { chats } = useSelector((state: RootState) => state.chat);
-    const { onlineUsers } = useSelector((state: RootState) => state.chat);
+    // const { chats } = useSelector((state: RootState) => state.chat);
+    // const { onlineUsers } = useSelector((state: RootState) => state.chat);
 
-    const [records, setRecords] = useState<Chat[]>([]);
-    const [channels, setChannels] = useState<Chat[]>([]);
+    const [records, setRecords] = useState<any[]>([]);
+    const [channels, setChannels] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const params = useParams();
-    const { displayMode } = useSelector((state: RootState) => state.theme);
 
     // Channel states
     const [opened, setOpened] = useState(false);
@@ -254,10 +228,9 @@ function Archived() {
                                                             : ''
                                                     } ${
                                                         params?.chatid ===
-                                                            chat?._id &&
-                                                        (displayMode === 'dark'
+                                                        chat?._id
                                                             ? 'darkActive'
-                                                            : 'active')
+                                                            : 'active'
                                                     } ${chat?.unreadCount > 0 ? 'new-msg' : ''}`}
                                                 >
                                                     <div>

@@ -29,7 +29,8 @@ import {
 
 // Lucide Icons
 import { Search, Lock, Loader2 } from 'lucide-react';
-
+import chats from '../chats.json';
+import onlineUsers from '../onlineUsers.json';
 interface Message {
     _id?: string;
     createdAt?: string;
@@ -77,7 +78,7 @@ interface Chat {
 
 interface RootState {
     chat: {
-        chats: Chat[];
+        chats: any[];
         onlineUsers: any[];
     };
     theme: {
@@ -85,7 +86,7 @@ interface RootState {
     };
 }
 
-function sortByLatestMessage(data: Chat[]): Chat[] {
+function sortByLatestMessage(data: any[]): any[] {
     return data.slice().sort((a, b) => {
         const dateA =
             a.latestMessage && a.latestMessage.createdAt
@@ -158,14 +159,13 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function BlockedUser() {
-    const { chats } = useSelector((state: RootState) => state.chat);
-    const { onlineUsers } = useSelector((state: RootState) => state.chat);
+    // const { chats } = useSelector((state: RootState) => state.chat);
+    // const { onlineUsers } = useSelector((state: RootState) => state.chat);
 
-    const [records, setRecords] = useState<Chat[]>([]);
-    const [channels, setChannels] = useState<Chat[]>([]);
+    const [records, setRecords] = useState<any[]>([]);
+    const [channels, setChannels] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const params = useParams();
-    const { displayMode } = useSelector((state: RootState) => state.theme);
 
     const handleChangeSearch = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,7 +192,8 @@ function BlockedUser() {
         setIsLoading(true);
         try {
             const blockedChannels =
-                chats?.filter((x) => x.isChannel && x.isBlocked) || [];
+                chats?.filter((x) => x?.isChannel && x?.myData?.isBlocked) ||
+                [];
             setChannels(blockedChannels);
             setRecords(blockedChannels);
         } catch (error) {
@@ -243,10 +244,9 @@ function BlockedUser() {
                                                             : ''
                                                     } ${
                                                         params?.chatid ===
-                                                            chat?._id &&
-                                                        (displayMode === 'dark'
+                                                        chat?._id
                                                             ? 'darkActive'
-                                                            : 'active')
+                                                            : 'active'
                                                     } ${chat?.unreadCount > 0 ? 'new-msg' : ''}`}
                                                 >
                                                     <div>

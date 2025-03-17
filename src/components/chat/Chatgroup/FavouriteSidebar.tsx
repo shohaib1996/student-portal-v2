@@ -29,7 +29,8 @@ import {
 
 // Lucide Icons
 import { Search, Lock, Loader2 } from 'lucide-react';
-
+import chats from '../chats.json';
+import onlineUsers from '../onlineUsers.json';
 interface Message {
     _id?: string;
     createdAt?: string;
@@ -77,7 +78,7 @@ interface Chat {
 
 interface RootState {
     chat: {
-        chats: Chat[];
+        chats: any[];
         onlineUsers: any[];
     };
     theme: {
@@ -142,7 +143,7 @@ function formatDate(date: string | Date | undefined): string {
     }
 }
 
-function sortByLatestMessage(data: Chat[]): Chat[] {
+function sortByLatestMessage(data: any[]): any[] {
     return data.slice().sort((a, b) => {
         const dateA =
             a.latestMessage && a.latestMessage.createdAt
@@ -158,13 +159,12 @@ function sortByLatestMessage(data: Chat[]): Chat[] {
 }
 
 function FavouriteSidebar() {
-    const { chats, onlineUsers } = useSelector(
-        (state: RootState) => state.chat,
-    );
-    const { displayMode } = useSelector((state: RootState) => state.theme);
+    // const { chats, onlineUsers } = useSelector(
+    //     (state: RootState) => state.chat,
+    // );
 
-    const [records, setRecords] = useState<Chat[]>([]);
-    const [favourites, setFavourites] = useState<Chat[]>([]);
+    const [records, setRecords] = useState<any[]>([]);
+    const [favourites, setFavourites] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const params = useParams();
 
@@ -239,10 +239,9 @@ function FavouriteSidebar() {
                                                     ? 'bg-gray-100 dark:bg-gray-800'
                                                     : ''
                                             } ${
-                                                params?.chatid === chat?._id &&
-                                                (displayMode === 'dark'
+                                                params?.chatid === chat?._id
                                                     ? 'darkActive'
-                                                    : 'active')
+                                                    : 'active'
                                             } ${chat?.unreadCount > 0 ? 'new-msg' : ''}`}
                                         >
                                             <div>

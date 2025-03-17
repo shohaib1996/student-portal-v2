@@ -29,7 +29,8 @@ import {
 // Lucide Icons
 import { Search, Lock, Plus } from 'lucide-react';
 import { getText, replaceMentionToNode } from '@/helper/utilities';
-
+import chats from '../chats.json';
+import onlineUsers from '../onlineUsers.json';
 // Dynamic imports
 const CreateCrowd = dynamic(() => import('./CreateCrowd'), {
     loading: () => (
@@ -86,7 +87,7 @@ interface Chat {
 
 interface RootState {
     chat: {
-        chats: Chat[];
+        chats: any[];
         onlineUsers?: any[];
     };
     theme: {
@@ -94,7 +95,7 @@ interface RootState {
     };
 }
 
-function sortByLatestMessage(data: Chat[]): Chat[] {
+function sortByLatestMessage(data: any[]): any[] {
     return data.slice().sort((a, b) => {
         const dateA =
             a.latestMessage && a.latestMessage.createdAt
@@ -167,14 +168,13 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function CrowdSidebar() {
-    const { chats } = useSelector((state: RootState) => state.chat);
-    const { displayMode } = useSelector((state: RootState) => state.theme);
-    const onlineUsers = useSelector(
-        (state: RootState) => state.chat.onlineUsers || [],
-    );
+    // const { chats } = useSelector((state: RootState) => state.chat);
+    // const onlineUsers = useSelector(
+    //     (state: RootState) => state.chat.onlineUsers || [],
+    // );
 
-    const [records, setRecords] = useState<Chat[]>([]);
-    const [channels, setChannels] = useState<Chat[]>([]);
+    const [records, setRecords] = useState<any[]>([]);
+    const [channels, setChannels] = useState<any[]>([]);
     const [limit, setLimit] = useState<number>(20);
     const [opened, setOpened] = useState<boolean>(false);
     const params = useParams();
@@ -249,10 +249,9 @@ function CrowdSidebar() {
                                                     ? 'bg-gray-100 dark:bg-gray-800'
                                                     : ''
                                             } ${
-                                                params?.chatid === chat?._id &&
-                                                (displayMode === 'dark'
+                                                params?.chatid === chat?._id
                                                     ? 'darkActive'
-                                                    : 'active')
+                                                    : 'active'
                                             } ${chat?.unreadCount > 0 ? 'new-msg' : ''}`}
                                         >
                                             <div>

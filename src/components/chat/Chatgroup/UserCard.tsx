@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { toast } from 'sonner';
-
+import chats from '../chats.json';
 // Initialize dayjs plugins
 dayjs.extend(relativeTime);
 
@@ -45,8 +45,7 @@ interface RootState {
 }
 
 function UserCard({ user, source }: UserCardProps) {
-    const { chats } = useSelector((state: RootState) => state.chat);
-    const { displayMode } = useSelector((state: RootState) => state.theme);
+    // const { chats } = useSelector((state: RootState) => state.chat);
     const dispatch = useDispatch();
     const router = useRouter();
 

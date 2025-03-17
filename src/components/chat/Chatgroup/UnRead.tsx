@@ -30,7 +30,7 @@ import {
 
 // Lucide Icons
 import { Search, Lock, Loader2 } from 'lucide-react';
-
+import chats from '../chats.json';
 // Dynamic imports
 const CreateCrowd = dynamic(() => import('./CreateCrowd'), {
     loading: () => (
@@ -86,7 +86,7 @@ interface Chat {
 
 interface RootState {
     chat: {
-        chats: Chat[];
+        chats: any[];
         onlineUsers: any[];
     };
     theme: {
@@ -94,7 +94,7 @@ interface RootState {
     };
 }
 
-function sortByLatestMessage(data: Chat[]): Chat[] {
+function sortByLatestMessage(data: any[]): any[] {
     return data.slice().sort((a, b) => {
         const dateA =
             a.latestMessage && a.latestMessage.createdAt
@@ -171,11 +171,9 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function UnRead() {
-    const { chats } = useSelector((state: RootState) => state.chat);
-    const { displayMode } = useSelector((state: RootState) => state.theme);
-
-    const [records, setRecords] = useState<Chat[]>([]);
-    const [channels, setChannels] = useState<Chat[]>([]);
+    // const { chats } = useSelector((state: RootState) => state.chat);
+    const [records, setRecords] = useState<any[]>([]);
+    const [channels, setChannels] = useState<any[]>([]);
     const [limit, setLimit] = useState<number>(20);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const params = useParams();
@@ -270,11 +268,9 @@ function UnRead() {
                                                                 : ''
                                                         } ${
                                                             params?.chatid ===
-                                                                record?._id &&
-                                                            (displayMode ===
-                                                            'dark'
+                                                            record?._id
                                                                 ? 'darkActive'
-                                                                : 'active')
+                                                                : 'active'
                                                         } ${record?.unreadCount > 0 ? 'new-msg' : ''}`}
                                                     >
                                                         <div>

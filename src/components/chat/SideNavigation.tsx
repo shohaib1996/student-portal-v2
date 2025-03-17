@@ -29,7 +29,7 @@ import {
     Bot,
     UserMinus,
 } from 'lucide-react';
-
+import chats from './chats.json';
 interface SideNavigationProps {
     setActive: (section: string) => void;
     active: string;
@@ -58,8 +58,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
     const router = useRouter();
     const dispatch = useDispatch();
 
-    const { chats } = useSelector((state: RootState) => state.chat);
-    const { displayMode } = useSelector((state: RootState) => state.theme);
+    // const { chats } = useSelector((state: RootState) => state.chat);
     const [unread, setUnread] = useState<Chat[]>([]);
 
     useEffect(() => {
@@ -96,12 +95,10 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
     const getButtonClass = useCallback(
         (section: string) => {
             return `icon-nav ${active === section ? 'active-btn' : ''} ${
-                displayMode === 'dark' && active === section
-                    ? 'bg-gray-800'
-                    : ''
+                active === section ? 'bg-gray-800' : ''
             }`;
         },
-        [active, displayMode],
+        [active],
     );
 
     return (

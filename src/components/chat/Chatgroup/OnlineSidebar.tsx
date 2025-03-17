@@ -12,7 +12,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 // Lucide Icons
 import { Search, Loader2 } from 'lucide-react';
-
+import chats from '../chats.json';
+import onlineUsers from '../onlineUsers.json';
 // Dynamic imports with loading state
 const UserCard = dynamic(() => import('./UserCard'), {
     loading: () => <UserCardSkeleton />,
@@ -56,14 +57,7 @@ interface RootState {
 }
 
 function OnlineSidebar() {
-    const { chats, onlineUsers } = useSelector(
-        (state: RootState) => state.chat,
-    );
     const { user } = useSelector((state: RootState) => state.auth);
-    const { displayMode } = useSelector(
-        (state: RootState) => state.theme || { displayMode: 'light' },
-    );
-
     const [records, setRecords] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 

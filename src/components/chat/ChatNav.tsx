@@ -35,7 +35,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-
+import chats from './chats.json';
+import onlineUsers from './onlineUsers.json';
+import drafts from './drafts.json';
 // Lucide Icons
 import {
     Search,
@@ -122,52 +124,55 @@ const SidebarSkeleton = () => (
     </div>
 );
 
-interface Chat {
-    _id: string;
-    isChannel: boolean;
-    isArchived?: boolean;
-    isPublic?: boolean;
-    name?: string;
-    avatar?: string;
-    unreadCount: number;
-    myData?: {
-        isBlocked: boolean;
-    };
-    otherUser?: {
+export interface TChat {
+    isArchived: boolean;
+    membersCount: number;
+    organization: string;
+    otherUser?: any;
+    latestMessage: {
+        type: string;
+        status: string;
         _id: string;
-        type?: string;
-        firstName?: string;
-        lastName?: string;
-        fullName?: string;
-        profilePicture?: string;
-    };
-    latestMessage?: {
-        _id?: string;
-        createdAt?: string;
-        type?: string;
-        text?: string;
-        files?: Array<{
-            type?: string;
-        }>;
-        emoji?: Array<{
-            symbol: string;
-        }>;
-        sender?: {
+        activity?: any;
+        sender: {
+            profilePicture: string;
+            lastName: string;
+            type: string | undefined;
             _id: string;
-            firstName?: string;
-            fullName?: string;
-        };
-        activity?: {
-            type: string;
-            user: {
-                fullName: string;
-            };
-        };
-    };
-    typingData?: {
-        isTyping: boolean;
-        user?: {
             firstName: string;
+            fullName: string;
+        };
+        text: string;
+        chat: string;
+        files: Array<any>;
+        organization: string;
+        parentMessage?: string;
+        emoji: Array<any>;
+        createdAt: string;
+        updatedAt: string;
+        id: number;
+        __v: number;
+    };
+    isChannel: boolean;
+    _id: string;
+    description: string;
+    isPublic: boolean;
+    avatar?: string | undefined;
+    name: string;
+    isReadOnly: boolean;
+    memberScope: string;
+    unreadCount: number;
+    myData: {
+        user: string;
+        isFavourite: boolean;
+        isBlocked: boolean;
+        role: string;
+        _id: string;
+        notification: {
+            isOn: boolean;
+        };
+        mute: {
+            isMuted: boolean;
         };
     };
 }
@@ -181,7 +186,7 @@ interface UserType {
 
 interface RootState {
     chat: {
-        chats: Chat[];
+        chats: any[];
         onlineUsers: UserType[];
         fetchingMore: boolean;
         drafts: Array<{
@@ -200,7 +205,7 @@ interface RootState {
 /**
  * Sort chats by latest message timestamp
  */
-const sortByLatestMessage = (data: Chat[]): Chat[] => {
+const sortByLatestMessage = (data: any[]): any[] => {
     return data.slice().sort((a, b) => {
         const dateA =
             a.latestMessage && a.latestMessage.createdAt
@@ -240,7 +245,7 @@ const formatDate = (date: string | Date | undefined): string => {
 /**
  * Generate text for activity messages
  */
-const generateActivityText = (message: Chat['latestMessage']) => {
+const generateActivityText = (message: TChat['latestMessage']) => {
     if (!message || !message.activity) {
         return <>N/A</>;
     }
@@ -282,14 +287,15 @@ const generateActivityText = (message: Chat['latestMessage']) => {
 };
 
 const ChatNav: React.FC = () => {
-    const { chats, onlineUsers, fetchingMore, drafts } = useSelector(
-        (state: RootState) => state.chat,
-    );
+    // const { chats, onlineUsers, fetchingMore, drafts } = useSelector(
+    //     (state: RootState) => state.chat,
+    // ); // todo: set up rtk and get them from here
+    const fetchingMore = false; // todo: get it from rtk
+    console.log({ ChatsLength: chats.length });
     const { user } = useSelector((state: RootState) => state.auth);
-    const { displayMode } = useSelector((state: RootState) => state.theme);
 
     const [hoveredChatId, setHoveredChatId] = useState<string | null>(null);
-    const [records, setRecords] = useState<Chat[]>([]);
+    const [records, setRecords] = useState<any[]>([]);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [active, setActive] = useState<string>('chats');
     const [displayCount, setDisplayCount] = useState<number>(10);
@@ -306,7 +312,9 @@ const ChatNav: React.FC = () => {
 
     // Update records when chats change
     useEffect(() => {
-        setRecords(sortByLatestMessage(chats).slice(0, 10)); // Load initial chats
+        if (chats.length > 0) {
+            setRecords(sortByLatestMessage(chats).slice(0, 10)); // Load initial chats
+        }
     }, [chats]);
 
     // Handle scroll to load more chats
@@ -340,7 +348,7 @@ const ChatNav: React.FC = () => {
         (e: React.ChangeEvent<HTMLInputElement>) => {
             if (e.target.value) {
                 const filteredChats = chats.filter(
-                    (c: Chat) =>
+                    (c: any) =>
                         c?.name
                             ?.toLowerCase()
                             .includes(e.target.value.toLowerCase()) ||
@@ -368,9 +376,7 @@ const ChatNav: React.FC = () => {
 
     return (
         <div className='chat-nav'>
-            <div
-                className={`chat-sidebar ${displayMode === 'dark' ? 'bg-gray-900' : 'bg-white'}`}
-            >
+            <div className={`chat-sidebar bg-background`}>
                 <div className='first-bar'>
                     <SideNavigation active={active} setActive={setActive} />
                 </div>
@@ -433,7 +439,7 @@ const ChatNav: React.FC = () => {
 
                                         <DropdownMenuContent className='w-56'>
                                             <DropdownMenuLabel
-                                                className={`text-base ${displayMode === 'dark' ? 'text-white' : ''}`}
+                                                className={`text-base text-dark-gray`}
                                             >
                                                 Application
                                             </DropdownMenuLabel>
@@ -441,7 +447,7 @@ const ChatNav: React.FC = () => {
                                                 onClick={() =>
                                                     setActive('chats')
                                                 }
-                                                className={`${displayMode === 'dark' ? 'text-gray-300' : ''}`}
+                                                className={`text-gray`}
                                             >
                                                 <User className='mr-2 h-4 w-4' />
                                                 <span>All</span>
@@ -450,7 +456,7 @@ const ChatNav: React.FC = () => {
                                                 onClick={() =>
                                                     setActive('unread')
                                                 }
-                                                className={`${displayMode === 'dark' ? 'text-gray-300' : ''}`}
+                                                className={`text-gray`}
                                             >
                                                 <MessageSquareMore className='mr-2 h-4 w-4' />
                                                 <span>Unread</span>
@@ -459,7 +465,7 @@ const ChatNav: React.FC = () => {
                                                 onClick={() =>
                                                     setActive('readOnly')
                                                 }
-                                                className={`${displayMode === 'dark' ? 'text-gray-300' : ''}`}
+                                                className={`text-gray`}
                                             >
                                                 <Eye className='mr-2 h-4 w-4' />
                                                 <span>Read Only</span>
@@ -468,7 +474,7 @@ const ChatNav: React.FC = () => {
                                                 onClick={() =>
                                                     setActive('archived')
                                                 }
-                                                className={`${displayMode === 'dark' ? 'text-gray-300' : ''}`}
+                                                className={`text-gray`}
                                             >
                                                 <Archive className='mr-2 h-4 w-4' />
                                                 <span>Archived</span>
@@ -477,7 +483,7 @@ const ChatNav: React.FC = () => {
                                                 onClick={() =>
                                                     setActive('crowds')
                                                 }
-                                                className={`${displayMode === 'dark' ? 'text-gray-300' : ''}`}
+                                                className={`text-gray`}
                                             >
                                                 <Users className='mr-2 h-4 w-4' />
                                                 <span>Crowds</span>
@@ -486,7 +492,7 @@ const ChatNav: React.FC = () => {
                                                 onClick={() =>
                                                     setActive('favourites')
                                                 }
-                                                className={`${displayMode === 'dark' ? 'text-gray-300' : ''}`}
+                                                className={`text-gray`}
                                             >
                                                 <Pin className='mr-2 h-4 w-4' />
                                                 <span>Pinned</span>
@@ -495,7 +501,7 @@ const ChatNav: React.FC = () => {
                                                 onClick={() =>
                                                     setActive('onlines')
                                                 }
-                                                className={`${displayMode === 'dark' ? 'text-gray-300' : ''}`}
+                                                className={`text-gray`}
                                             >
                                                 <Star className='mr-2 h-4 w-4' />
                                                 <span>Onlines</span>
@@ -504,14 +510,14 @@ const ChatNav: React.FC = () => {
                                                 onClick={() =>
                                                     setActive('search')
                                                 }
-                                                className={`${displayMode === 'dark' ? 'text-gray-300' : ''}`}
+                                                className={`text-gray`}
                                             >
                                                 <UserSearch className='mr-2 h-4 w-4' />
                                                 <span>Search</span>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem
                                                 onClick={() => setActive('ai')}
-                                                className={`${displayMode === 'dark' ? 'text-gray-300' : ''}`}
+                                                className={`text-gray`}
                                             >
                                                 <Bot className='mr-2 h-4 w-4' />
                                                 <span>AI Bot</span>
@@ -529,8 +535,10 @@ const ChatNav: React.FC = () => {
                                         <ul className='list-group'>
                                             {sortByLatestMessage(records)?.map(
                                                 (chat, i) => {
-                                                    const draft = drafts?.find(
-                                                        (f) =>
+                                                    const draft = (
+                                                        drafts as any
+                                                    )?.find(
+                                                        (f: any) =>
                                                             f.chat ===
                                                             chat?._id,
                                                     );
@@ -565,7 +573,7 @@ const ChatNav: React.FC = () => {
                                             ? 'bg-gray-50 dark:bg-gray-800/50'
                                             : ''
                                   }
-                                  ${params?.chatid === chat?._id && (displayMode === 'dark' ? 'darkActive' : 'active')}
+                                  ${params?.chatid === chat?._id && 'active'}
                                   ${chat?.unreadCount > 0 ? 'new-msg' : ''}`}
                                                                     onMouseEnter={() =>
                                                                         setHoveredChatId(
@@ -796,7 +804,7 @@ const ChatNav: React.FC = () => {
                                                                                                       0) ? (
                                                                                                     chat.latestMessage.emoji?.map(
                                                                                                         (
-                                                                                                            x,
+                                                                                                            x: any,
                                                                                                         ) => (
                                                                                                             <span
                                                                                                                 key={

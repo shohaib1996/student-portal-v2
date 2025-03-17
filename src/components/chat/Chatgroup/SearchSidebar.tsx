@@ -53,11 +53,6 @@ function UserCardSkeleton() {
 }
 
 function SearchSidebar() {
-    const { chats } = useSelector((state: RootState) => state.chat);
-    const { displayMode } = useSelector(
-        (state: RootState) => state.theme || { displayMode: 'light' },
-    );
-
     const [users, setUsers] = useState<User[]>([]);
     const [isUserLoading, setIsUserLoading] = useState<boolean>(false);
 
