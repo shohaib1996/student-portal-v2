@@ -4,7 +4,6 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -18,7 +17,6 @@ import { getText, replaceMentionToNode } from '@/helper/utilities';
 
 // ShadCN UI components
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
     Card,
@@ -26,12 +24,19 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 // Lucide Icons
-import { Search, Lock, Loader2 } from 'lucide-react';
-import onlineUsers from '../onlineUsers.json';
-import { useAppSelector } from '@/redux/hooks';
+import {
+    Search,
+    Lock,
+    Loader2,
+    Clock,
+    SlidersHorizontal,
+    CircleOff,
+} from 'lucide-react';
 import chats from '../chats.json';
+
 interface Message {
     _id?: string;
     createdAt?: string;
@@ -160,26 +165,25 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function BlockedUser() {
-    // const { chats } = useAppSelector((state) => state.chat);
-    // const { onlineUsers } = useSelector((state: RootState) => state.chat);
-
     const [records, setRecords] = useState<any[]>([]);
     const [channels, setChannels] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [searchQuery, setSearchQuery] = useState<string>('');
     const params = useParams();
 
     const handleChangeSearch = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
-            if (e.target.value) {
+            const value = e.target.value;
+            setSearchQuery(value);
+
+            if (value) {
                 const filteredChats = channels.filter(
                     (c) =>
-                        c?.name
-                            ?.toLowerCase()
-                            .includes(e.target.value.toLowerCase()) ||
+                        c?.name?.toLowerCase().includes(value.toLowerCase()) ||
                         (c?.otherUser?.fullName &&
                             c?.otherUser?.fullName
                                 .toLowerCase()
-                                .includes(e.target.value.toLowerCase())),
+                                .includes(value.toLowerCase())),
                 );
                 setRecords(filteredChats);
             } else {
@@ -206,214 +210,187 @@ function BlockedUser() {
     }, [chats]);
 
     return (
-        <>
-            <div className='filter-group'>
-                <div className='relative'>
+        <div className='flex flex-col h-full'>
+            {/* Search input */}
+            <div className='relative flex flex-row items-center gap-2 pb-2 border-b border-b-border'>
+                <div className='relative flex-1'>
                     <Input
-                        className='search-input bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                        className='pl-10 bg-foreground border'
                         onChange={handleChangeSearch}
+                        value={searchQuery}
                         type='search'
-                        placeholder='Search Blocked Users Chat'
+                        placeholder='Search blocked users...'
                     />
-                    <span className='absolute right-3 top-1/2 transform -translate-y-1/2'>
-                        <Search className='h-4 w-4 text-muted-foreground' />
-                    </span>
+                    <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
                 </div>
+                <Button variant='secondary' size='icon'>
+                    <SlidersHorizontal className='h-4 w-4 text-gray' />
+                </Button>
             </div>
 
-            <div className='nav-body'>
-                <div className='scrollbar-container'>
-                    <ul className='list-group'>
-                        {isLoading ? (
-                            <div className='flex justify-center py-8'>
-                                <Loader2 className='h-8 w-8 animate-spin text-primary dark:text-primary-foreground' />
-                            </div>
-                        ) : records.length > 0 ? (
-                            <div className='list_group_item'>
-                                {sortByLatestMessage(records)?.map(
-                                    (chat, i) => {
-                                        return (
-                                            <Link
-                                                key={i}
-                                                href={`/chat/${chat?._id}`}
-                                            >
-                                                <li
-                                                    className={`list-group-item border-b border-gray-200 dark:border-gray-700 ${
-                                                        params?.chatid ===
-                                                        chat?._id
-                                                            ? 'bg-gray-100 dark:bg-gray-800'
-                                                            : ''
-                                                    } ${
-                                                        params?.chatid ===
-                                                        chat?._id
-                                                            ? 'darkActive'
-                                                            : 'active'
-                                                    } ${chat?.unreadCount > 0 ? 'new-msg' : ''}`}
-                                                >
-                                                    <div>
-                                                        <div className='relative'>
-                                                            <Avatar className='h-[34px] w-[34px]'>
-                                                                <AvatarImage
-                                                                    src={
-                                                                        chat.isChannel
-                                                                            ? chat?.avatar ||
-                                                                              '/chat/group.svg'
-                                                                            : chat
-                                                                                    ?.otherUser
-                                                                                    ?.type ===
-                                                                                'bot'
-                                                                              ? '/chat/bot.png'
-                                                                              : chat
-                                                                                    ?.otherUser
-                                                                                    ?.profilePicture ||
-                                                                                '/chat/user.svg'
-                                                                    }
-                                                                    alt={
-                                                                        chat?.isChannel
-                                                                            ? `${chat?.name}`
-                                                                            : chat
-                                                                                  ?.otherUser
-                                                                                  ?.fullName ||
-                                                                              'TS4U User (deleted)'
-                                                                    }
-                                                                />
-                                                                <AvatarFallback>
-                                                                    {chat?.isChannel
-                                                                        ? chat?.name?.charAt(
-                                                                              0,
-                                                                          )
-                                                                        : chat?.otherUser?.firstName?.charAt(
-                                                                              0,
-                                                                          ) ||
-                                                                          'U'}
-                                                                </AvatarFallback>
-                                                            </Avatar>
-                                                            <span
-                                                                className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${
-                                                                    chat?.isChannel
-                                                                        ? 'bg-green-500'
-                                                                        : onlineUsers?.find(
-                                                                                (
-                                                                                    x,
-                                                                                ) =>
-                                                                                    x?._id ===
-                                                                                    chat
-                                                                                        ?.otherUser
-                                                                                        ?._id,
-                                                                            )
-                                                                          ? 'bg-green-500'
-                                                                          : 'bg-gray-500'
-                                                                }`}
-                                                            ></span>
-                                                        </div>
-                                                    </div>
-                                                    <div className='user-list-body'>
-                                                        <div className='name'>
-                                                            <p className='title text-gray-900 dark:text-gray-100'>
-                                                                {chat?.isChannel && (
-                                                                    <>
-                                                                        {chat?.isPublic ? (
-                                                                            '#'
-                                                                        ) : (
-                                                                            <Lock className='mr-1 h-4 w-4 inline' />
-                                                                        )}
-                                                                    </>
-                                                                )}
-                                                                {chat?.isChannel
-                                                                    ? `${chat?.name}`
-                                                                    : chat
-                                                                          ?.otherUser
-                                                                          ?.fullName ||
-                                                                      'TS4U User (deleted)'}
-                                                            </p>
+            {/* Blocked users list */}
+            <div className='flex-1 overflow-y-auto'>
+                {isLoading ? (
+                    <div className='flex justify-center py-8'>
+                        <Loader2 className='h-8 w-8 animate-spin text-primary' />
+                    </div>
+                ) : records.length > 0 ? (
+                    <div className='divide-y divide-border'>
+                        {sortByLatestMessage(records)?.map((chat, i) => (
+                            <Link key={i} href={`/chat/${chat?._id}`}>
+                                <div
+                                    className={`flex items-center p-4 border-l-[2px] transition-colors duration-200 ${
+                                        params?.chatid === chat?._id
+                                            ? 'bg-primary-light border-l-primary'
+                                            : 'border-l-transparent hover:bg-primary-light hover:border-l-primary'
+                                    }`}
+                                >
+                                    <div className='flex items-center w-full'>
+                                        <div className='relative mr-3'>
+                                            <div className='relative'>
+                                                <Avatar className='h-12 w-12'>
+                                                    <AvatarImage
+                                                        src={
+                                                            chat.isChannel
+                                                                ? chat?.avatar ||
+                                                                  '/chat/group.svg'
+                                                                : chat
+                                                                        ?.otherUser
+                                                                        ?.type ===
+                                                                    'bot'
+                                                                  ? '/chat/bot.png'
+                                                                  : chat
+                                                                        ?.otherUser
+                                                                        ?.profilePicture ||
+                                                                    '/chat/user.svg'
+                                                        }
+                                                        alt={
+                                                            chat?.isChannel
+                                                                ? `${chat?.name}`
+                                                                : chat
+                                                                      ?.otherUser
+                                                                      ?.fullName ||
+                                                                  'User (deleted)'
+                                                        }
+                                                    />
+                                                    <AvatarFallback>
+                                                        {chat?.isChannel
+                                                            ? chat?.name?.charAt(
+                                                                  0,
+                                                              )
+                                                            : chat?.otherUser?.firstName?.charAt(
+                                                                  0,
+                                                              ) || 'U'}
+                                                    </AvatarFallback>
+                                                </Avatar>
 
-                                                            <small className='time text-gray-500 dark:text-gray-400'>
-                                                                {formatDate(
+                                                {/* Dark overlay with red clock for blocked users */}
+                                                <div className='absolute inset-0 bg-pure-black/50 rounded-full flex items-center justify-center'>
+                                                    <CircleOff className='h-6 w-6 text-red-500' />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className='flex-1 min-w-0'>
+                                            <div className='flex justify-between items-start'>
+                                                <div className='font-medium text-sm truncate'>
+                                                    {chat?.isChannel && (
+                                                        <span className='mr-1'>
+                                                            {chat?.isPublic ? (
+                                                                '#'
+                                                            ) : (
+                                                                <Lock className='inline h-3 w-3' />
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                    {chat?.isChannel
+                                                        ? `${chat?.name}`
+                                                        : chat?.otherUser
+                                                              ?.fullName ||
+                                                          'User (deleted)'}
+                                                </div>
+                                                <span className='text-xs text-gray-500 whitespace-nowrap'>
+                                                    {formatDate(
+                                                        chat?.latestMessage
+                                                            ?.createdAt,
+                                                    )}
+                                                </span>
+                                            </div>
+
+                                            <div className='flex justify-between items-center mt-1'>
+                                                <div className='text-xs text-gray-500 truncate max-w-[80%]'>
+                                                    {chat?.myData?.isBlocked ? (
+                                                        <span className='text-red-500 font-medium'>
+                                                            You blocked this
+                                                            contact
+                                                        </span>
+                                                    ) : chat?.typingData
+                                                          ?.isTyping ? (
+                                                        <span className='text-green-500'>
+                                                            {
+                                                                chat?.typingData
+                                                                    ?.user
+                                                                    ?.firstName
+                                                            }{' '}
+                                                            is typing...
+                                                        </span>
+                                                    ) : !chat.latestMessage
+                                                          ?._id ? (
+                                                        <>New conversation</>
+                                                    ) : chat.latestMessage
+                                                          ?.type ===
+                                                      'activity' ? (
+                                                        <span className='italic'>
+                                                            {generateActivityText(
+                                                                chat.latestMessage,
+                                                            )}
+                                                        </span>
+                                                    ) : (
+                                                        <>
+                                                            {
+                                                                chat
+                                                                    ?.latestMessage
+                                                                    ?.sender
+                                                                    ?.firstName
+                                                            }
+                                                            :{' '}
+                                                            {getText(
+                                                                replaceMentionToNode(
                                                                     chat
                                                                         ?.latestMessage
-                                                                        ?.createdAt,
-                                                                )}
-                                                            </small>
-                                                        </div>
-                                                        <div className='message_preview'>
-                                                            <p className='text-gray-500 dark:text-gray-400'>
-                                                                {chat?.myData
-                                                                    ?.isBlocked ? (
-                                                                    <Badge variant='destructive'>
-                                                                        Blocked
-                                                                    </Badge>
-                                                                ) : chat
-                                                                      ?.typingData
-                                                                      ?.isTyping ? (
-                                                                    <p className='text-green-500'>
-                                                                        {
-                                                                            chat
-                                                                                ?.typingData
-                                                                                ?.user
-                                                                                ?.firstName
-                                                                        }{' '}
-                                                                        is
-                                                                        typing...
-                                                                    </p>
-                                                                ) : !chat
-                                                                      .latestMessage
-                                                                      ?._id ? (
-                                                                    <>
-                                                                        New chat
-                                                                    </>
-                                                                ) : chat
-                                                                      .latestMessage
-                                                                      ?.type ===
-                                                                  'activity' ? (
-                                                                    generateActivityText(
-                                                                        chat.latestMessage,
-                                                                    )
-                                                                ) : (
-                                                                    <span className='text'>
-                                                                        {`${chat.latestMessage.sender?.firstName}: ${getText(
-                                                                            replaceMentionToNode(
-                                                                                chat
-                                                                                    ?.latestMessage
-                                                                                    ?.text,
-                                                                            ),
-                                                                        )}`}
-                                                                    </span>
-                                                                )}
-                                                            </p>
-                                                            {chat?.unreadCount >
-                                                                0 &&
-                                                                chat?.unreadCount !==
-                                                                    0 && (
-                                                                    <small className='count'>
-                                                                        {
-                                                                            chat?.unreadCount
-                                                                        }
-                                                                    </small>
-                                                                )}
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </Link>
-                                        );
-                                    },
-                                )}
-                            </div>
-                        ) : (
-                            <div className='flex justify-center p-8'>
-                                <Card className='w-full max-w-md'>
-                                    <CardHeader className='text-center'>
-                                        <CardTitle>No Blocked Chats</CardTitle>
-                                        <CardDescription>
-                                            {`No blocked user's chats found`}
-                                        </CardDescription>
-                                    </CardHeader>
-                                </Card>
-                            </div>
-                        )}
-                    </ul>
-                </div>
+                                                                        ?.text,
+                                                                ),
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
+
+                                                {chat?.unreadCount > 0 && (
+                                                    <span className='flex-shrink-0 h-5 w-5 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-medium'>
+                                                        {chat.unreadCount}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                ) : (
+                    <div className='p-8 text-center'>
+                        <Card className='w-full max-w-md mx-auto'>
+                            <CardHeader className='text-center'>
+                                <CardTitle>No Blocked Chats</CardTitle>
+                                <CardDescription>
+                                    {`You haven't blocked any users or chats yet`}
+                                </CardDescription>
+                            </CardHeader>
+                        </Card>
+                    </div>
+                )}
             </div>
-        </>
+        </div>
     );
 }
 

@@ -4,11 +4,9 @@ import type React from 'react';
 import { useCallback, useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import dynamic from 'next/dynamic';
 import { toast } from 'sonner';
 
 // Initialize dayjs plugins
@@ -19,28 +17,26 @@ import { getText, replaceMentionToNode } from '@/helper/utilities';
 
 // ShadCN UI components
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import {
-    Card,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Lucide Icons
-import { Search, Lock, Loader2 } from 'lucide-react';
+import {
+    Search,
+    Lock,
+    Loader2,
+    SlidersHorizontal,
+    CheckCircle2,
+    AtSign,
+    BellOff,
+    CheckCheck,
+    Check,
+    Pin,
+} from 'lucide-react';
+
 import { useAppSelector } from '@/redux/hooks';
 import chats from '../chats.json';
-// Dynamic imports
-const CreateCrowd = dynamic(() => import('./CreateCrowd'), {
-    loading: () => (
-        <div className='flex justify-center p-4'>
-            <Loader2 className='h-8 w-8 animate-spin text-primary' />
-        </div>
-    ),
-    ssr: false,
-});
 
 interface Chat {
     _id: string;
@@ -66,6 +62,7 @@ interface Chat {
                 fullName: string;
             };
         };
+        files?: Array<any>;
     };
     otherUser?: {
         _id: string;
@@ -76,22 +73,16 @@ interface Chat {
     };
     myData?: {
         isBlocked: boolean;
+        isFavourite: boolean;
+        notification: {
+            isOn: boolean;
+        };
     };
     typingData?: {
         isTyping: boolean;
         user?: {
             firstName: string;
         };
-    };
-}
-
-interface RootState {
-    chat: {
-        chats: any[];
-        onlineUsers: any[];
-    };
-    theme: {
-        displayMode: string;
     };
 }
 
@@ -110,47 +101,6 @@ function sortByLatestMessage(data: any[]): any[] {
     });
 }
 
-const generateActivityText = (message: Chat['latestMessage']) => {
-    if (!message || !message.activity) {
-        return <>N/A</>;
-    }
-
-    const activity = message.activity;
-    if (activity?.type === 'add') {
-        return (
-            <b>
-                <>{message.sender?.fullName}</> <strong>added</strong>{' '}
-                <b>{message.activity?.user?.fullName}</b>{' '}
-            </b>
-        );
-    } else if (activity?.type === 'remove') {
-        return (
-            <>
-                <>{message.sender?.fullName}</> <strong>removed</strong>{' '}
-                <b>{message.activity?.user?.fullName}</b>{' '}
-            </>
-        );
-    } else if (activity?.type === 'join') {
-        return (
-            <>
-                {' '}
-                <>{message.activity?.user?.fullName}</> <strong>joined</strong>{' '}
-                in this channel{' '}
-            </>
-        );
-    } else if (activity?.type === 'leave') {
-        return (
-            <>
-                {' '}
-                <>{message.activity?.user?.fullName}</> <strong>left</strong>{' '}
-                this channel{' '}
-            </>
-        );
-    } else {
-        return <>N/A</>;
-    }
-};
-
 function formatDate(date: string | Date | undefined): string {
     if (!date) {
         return '';
@@ -165,45 +115,33 @@ function formatDate(date: string | Date | undefined): string {
     } else if (dateObj.isSame(yesterday, 'day')) {
         return 'yesterday';
     } else if (date) {
-        return dateObj.format('MM/DD/YYYY');
+        return dateObj.format('MMM DD, YY');
     } else {
         return 'N/A';
     }
 }
 
 function UnRead() {
-    // const { chats } = useAppSelector((state) => state.chat);
+    const { user } = useAppSelector((state: any) => state.auth);
     const [records, setRecords] = useState<any[]>([]);
     const [channels, setChannels] = useState<any[]>([]);
-    const [limit, setLimit] = useState<number>(20);
+    const [searchQuery, setSearchQuery] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const params = useParams();
 
-    // Channel states
-    const [isNewChannelModalVisible, setIsNewChannelModalVisible] =
-        useState<boolean>(false);
-    const [opened, setOpened] = useState<boolean>(false);
-
-    const showCreateModal = useCallback(() => {
-        setOpened(true);
-    }, []);
-
-    const closeCreateModal = useCallback(() => {
-        setOpened(false);
-    }, []);
-
     const handleChangeSearch = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
-            if (e.target.value) {
+            const value = e.target.value;
+            setSearchQuery(value);
+
+            if (value) {
                 const filteredChats = channels.filter(
                     (c) =>
-                        c?.name
-                            ?.toLowerCase()
-                            .includes(e.target.value.toLowerCase()) ||
+                        c?.name?.toLowerCase().includes(value.toLowerCase()) ||
                         (c?.otherUser?.fullName &&
                             c?.otherUser?.fullName
                                 .toLowerCase()
-                                .includes(e.target.value.toLowerCase())),
+                                .includes(value.toLowerCase())),
                 );
                 setRecords(filteredChats);
             } else {
@@ -217,8 +155,7 @@ function UnRead() {
         setIsLoading(true);
         try {
             const unreadChannels =
-                chats?.filter((x) => x.isChannel && (x.unreadCount ?? 0) > 0) ||
-                [];
+                chats?.filter((x) => (x.unreadCount ?? 0) > 0) || [];
             setChannels(unreadChannels);
             setRecords(unreadChannels);
         } catch (error) {
@@ -231,221 +168,261 @@ function UnRead() {
 
     return (
         <>
-            <div className='filter-group'>
-                <div className='relative'>
+            {/* Search input - Fixed */}
+            <div className='pb-2 border-b'>
+                <div className='relative flex flex-row items-center gap-2'>
                     <Input
-                        className='search-input bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                        className='pl-10 bg-foreground'
                         onChange={handleChangeSearch}
+                        value={searchQuery}
                         type='search'
-                        placeholder='Search Unread Chat'
+                        placeholder='Search unread chats...'
                     />
-                    <span className='absolute right-3 top-1/2 transform -translate-y-1/2'>
-                        <Search className='h-4 w-4 text-muted-foreground' />
-                    </span>
+                    <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
+                    <Button variant='secondary' size='icon'>
+                        <SlidersHorizontal className='h-4 w-4 text-gray' />
+                    </Button>
                 </div>
             </div>
 
-            <div className='nav-body'>
-                <div className='scrollbar-container'>
-                    {isLoading ? (
-                        <div className='flex justify-center py-8'>
-                            <Loader2 className='h-8 w-8 animate-spin text-primary dark:text-primary-foreground' />
-                        </div>
-                    ) : (
-                        <ul className='list-group'>
-                            {records.length > 0 ? (
-                                <div className='list_group_item'>
-                                    {sortByLatestMessage(records)?.map(
-                                        (record, i) => {
-                                            return (
-                                                <Link
-                                                    key={i}
-                                                    href={`/chat/${record?._id}`}
-                                                >
-                                                    <li
-                                                        className={`list-group-item border-b border-gray-200 dark:border-gray-700 ${
-                                                            params?.chatid ===
-                                                            record?._id
-                                                                ? 'bg-gray-100 dark:bg-gray-800'
-                                                                : ''
-                                                        } ${
-                                                            params?.chatid ===
-                                                            record?._id
-                                                                ? 'darkActive'
-                                                                : 'active'
-                                                        } ${record?.unreadCount > 0 ? 'new-msg' : ''}`}
-                                                    >
-                                                        <div>
-                                                            <div className='relative'>
-                                                                <Avatar className='h-[34px] w-[34px]'>
-                                                                    <AvatarImage
-                                                                        src={
-                                                                            record.isChannel
-                                                                                ? record?.avatar ||
-                                                                                  '/chat/group.svg'
-                                                                                : record
-                                                                                        ?.otherUser
-                                                                                        ?.type ===
-                                                                                    'bot'
-                                                                                  ? '/chat/bot.png'
-                                                                                  : record
-                                                                                        ?.otherUser
-                                                                                        ?.profilePicture ||
-                                                                                    '/chat/user.svg'
-                                                                        }
-                                                                        alt={
-                                                                            record?.isChannel
-                                                                                ? `${record?.name}`
-                                                                                : record
-                                                                                      ?.otherUser
-                                                                                      ?.fullName ||
-                                                                                  'TS4U User (deleted)'
-                                                                        }
-                                                                    />
-                                                                    <AvatarFallback>
-                                                                        {record?.isChannel
-                                                                            ? record?.name?.charAt(
-                                                                                  0,
-                                                                              )
-                                                                            : record?.otherUser?.firstName?.charAt(
-                                                                                  0,
-                                                                              ) ||
-                                                                              'U'}
-                                                                    </AvatarFallback>
-                                                                </Avatar>
-                                                                <span
-                                                                    className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${
-                                                                        record?.isChannel
-                                                                            ? 'bg-green-500'
-                                                                            : 'bg-gray-500'
-                                                                    }`}
-                                                                ></span>
-                                                            </div>
-                                                        </div>
-                                                        <div className='user-list-body'>
-                                                            <div className='name'>
-                                                                <p className='title text-gray-900 dark:text-gray-100'>
-                                                                    {record?.isChannel && (
-                                                                        <>
-                                                                            {record?.isPublic ? (
-                                                                                '#'
-                                                                            ) : (
-                                                                                <Lock className='mr-1 h-4 w-4 inline' />
-                                                                            )}
-                                                                        </>
-                                                                    )}
-                                                                    {record?.isChannel
-                                                                        ? `${record?.name}`
-                                                                        : record
-                                                                              ?.otherUser
-                                                                              ?.fullName ||
-                                                                          'TS4U User (deleted)'}
-                                                                </p>
+            {isLoading ? (
+                <div className='flex justify-center py-8'>
+                    <Loader2 className='h-8 w-8 animate-spin text-primary' />
+                </div>
+            ) : (
+                <div className='divide-y divide-gray-200'>
+                    {sortByLatestMessage(records)?.map((chat, i) => {
+                        const isActive = params?.chatid === chat?._id;
+                        const hasUnread = (chat?.unreadCount ?? 0) > 0;
 
-                                                                <small className='time text-gray-500 dark:text-gray-400'>
-                                                                    {formatDate(
-                                                                        record
-                                                                            ?.latestMessage
-                                                                            ?.createdAt,
-                                                                    )}
-                                                                </small>
-                                                            </div>
-                                                            <div className='message_preview'>
-                                                                <p className='text-gray-500 dark:text-gray-400'>
-                                                                    {record
-                                                                        ?.myData
-                                                                        ?.isBlocked ? (
-                                                                        <Badge variant='destructive'>
-                                                                            Blocked
-                                                                        </Badge>
-                                                                    ) : record
-                                                                          ?.typingData
-                                                                          ?.isTyping ? (
-                                                                        <p className='text-green-500'>
-                                                                            {
-                                                                                record
-                                                                                    ?.typingData
-                                                                                    ?.user
-                                                                                    ?.firstName
-                                                                            }{' '}
-                                                                            is
-                                                                            typing...
-                                                                        </p>
-                                                                    ) : !record
-                                                                          .latestMessage
-                                                                          ?._id ? (
-                                                                        <>
-                                                                            New
-                                                                            chat
-                                                                        </>
-                                                                    ) : record
-                                                                          .latestMessage
-                                                                          ?.type ===
-                                                                      'activity' ? (
-                                                                        generateActivityText(
-                                                                            record.latestMessage,
-                                                                        )
-                                                                    ) : (
-                                                                        <span className='text'>
-                                                                            {`${record.latestMessage.sender?.firstName}: ${getText(
-                                                                                replaceMentionToNode(
-                                                                                    record
-                                                                                        ?.latestMessage
-                                                                                        ?.text,
-                                                                                ),
-                                                                            )}`}
-                                                                        </span>
-                                                                    )}
-                                                                </p>
-                                                                {record?.unreadCount >
-                                                                    0 &&
-                                                                    record?.unreadCount !==
-                                                                        0 && (
-                                                                        <small className='count'>
-                                                                            {
-                                                                                record?.unreadCount
-                                                                            }
-                                                                        </small>
-                                                                    )}
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                </Link>
-                                            );
-                                        },
-                                    )}
+                        // For demo purposes - in real app, these would come from the chat data
+                        const hasMention = i % 3 === 0;
+                        const isMuted =
+                            chat?.myData?.notification?.isOn === false ||
+                            i % 4 === 0;
+                        const isPinned =
+                            chat?.myData?.isFavourite || i % 5 === 0;
+                        const isDelivered =
+                            chat?.latestMessage?.sender?._id === user?._id &&
+                            i % 2 === 0;
+                        const isRead =
+                            chat?.latestMessage?.sender?._id === user?._id &&
+                            i % 5 === 0;
+
+                        return (
+                            <Link
+                                key={i}
+                                href={`/chat/${chat?._id}`}
+                                className={`block border-l-[2px] ${
+                                    isActive
+                                        ? 'bg-blue-700/20 border-blue-800'
+                                        : 'hover:bg-blue-700/20 border-transparent hover:border-blue-800'
+                                }`}
+                            >
+                                <div className='flex items-start p-4 gap-3'>
+                                    {/* Avatar */}
+                                    <div className='relative flex-shrink-0'>
+                                        <Avatar className='h-10 w-10'>
+                                            <AvatarImage
+                                                src={
+                                                    chat.isChannel
+                                                        ? chat?.avatar ||
+                                                          '/chat/group.svg'
+                                                        : chat?.otherUser
+                                                                ?.type === 'bot'
+                                                          ? '/chat/bot.png'
+                                                          : chat?.otherUser
+                                                                ?.profilePicture ||
+                                                            '/chat/user.svg'
+                                                }
+                                                alt={
+                                                    chat?.isChannel
+                                                        ? `${chat?.name}`
+                                                        : chat?.otherUser
+                                                              ?.fullName ||
+                                                          'User'
+                                                }
+                                            />
+                                            <AvatarFallback>
+                                                {chat?.isChannel
+                                                    ? chat?.name?.charAt(0)
+                                                    : chat?.otherUser?.firstName?.charAt(
+                                                          0,
+                                                      ) || 'U'}
+                                            </AvatarFallback>
+                                        </Avatar>
+
+                                        {/* Online indicator */}
+                                        <span
+                                            className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${
+                                                chat?.isChannel
+                                                    ? 'bg-green-500'
+                                                    : 'bg-gray-500'
+                                            }`}
+                                        ></span>
+                                    </div>
+
+                                    {/* Chat content */}
+                                    <div className='flex-1 min-w-0'>
+                                        <div className='flex justify-between items-start'>
+                                            <div className='font-medium flex flex-row items-center gap-1 text-sm truncate'>
+                                                {chat?.isChannel && (
+                                                    <span className='mr-1'>
+                                                        {chat?.isPublic ? (
+                                                            '#'
+                                                        ) : (
+                                                            <Lock className='inline h-3 w-3' />
+                                                        )}
+                                                    </span>
+                                                )}
+                                                {chat?.isChannel
+                                                    ? chat?.name
+                                                    : chat?.otherUser
+                                                          ?.fullName || 'User'}
+                                                {chat?.otherUser?.type ===
+                                                    'verified' && (
+                                                    <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
+                                                )}
+                                                {/* Pin icon */}
+                                                {isPinned && (
+                                                    <Pin className='h-4 w-4 text-dark-gray rotate-45' />
+                                                )}
+                                            </div>
+                                            <span className='text-xs text-gray-500 whitespace-nowrap'>
+                                                {formatDate(
+                                                    chat?.latestMessage
+                                                        ?.createdAt,
+                                                )}
+                                            </span>
+                                        </div>
+
+                                        {/* Message preview */}
+                                        <div className='flex justify-between items-center mt-1'>
+                                            <div className='flex items-center gap-1 flex-1 w-full'>
+                                                {/* Message status for sent messages */}
+                                                {chat?.latestMessage?.sender
+                                                    ?._id === user?._id && (
+                                                    <>
+                                                        {isRead ? (
+                                                            <CheckCheck className='h-3 w-3 text-blue-500 flex-shrink-0' />
+                                                        ) : isDelivered ? (
+                                                            <CheckCheck className='h-3 w-3 text-gray-400 flex-shrink-0' />
+                                                        ) : (
+                                                            <Check className='h-3 w-3 text-gray-400 flex-shrink-0' />
+                                                        )}
+                                                    </>
+                                                )}
+
+                                                <p className='text-xs text-gray-500 truncate max-w-[80%]'>
+                                                    {chat?.myData?.isBlocked ? (
+                                                        <span className='bg-red-500 text-white text-xs px-2 py-0.5 rounded'>
+                                                            Blocked
+                                                        </span>
+                                                    ) : chat?.typingData
+                                                          ?.isTyping ? (
+                                                        <span className='text-green-500'>
+                                                            {
+                                                                chat?.typingData
+                                                                    ?.user
+                                                                    ?.firstName
+                                                            }{' '}
+                                                            is typing...
+                                                        </span>
+                                                    ) : !chat.latestMessage
+                                                          ?._id ? (
+                                                        <span>New chat</span>
+                                                    ) : chat.latestMessage
+                                                          ?.type ===
+                                                      'activity' ? (
+                                                        <span className='italic'>
+                                                            Activity message
+                                                        </span>
+                                                    ) : chat.latestMessage
+                                                          ?.type ===
+                                                      'delete' ? (
+                                                        <span className='italic'>
+                                                            Message deleted
+                                                        </span>
+                                                    ) : chat.latestMessage
+                                                          ?.files?.length >
+                                                      0 ? (
+                                                        <span>
+                                                            {chat?.latestMessage
+                                                                ?.sender
+                                                                ?._id !==
+                                                            user?._id
+                                                                ? '• '
+                                                                : ''}
+                                                            Sent a file
+                                                        </span>
+                                                    ) : (
+                                                        <>
+                                                            {chat?.latestMessage
+                                                                ?.sender
+                                                                ?._id !==
+                                                            user?._id
+                                                                ? '• '
+                                                                : ''}
+                                                            {getText(
+                                                                replaceMentionToNode(
+                                                                    chat
+                                                                        ?.latestMessage
+                                                                        ?.text ||
+                                                                        'New conversation',
+                                                                ),
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </p>
+                                            </div>
+
+                                            {/* Right side indicators */}
+                                            <div className='flex items-center gap-1'>
+                                                {/* Mention icon */}
+                                                {hasMention && (
+                                                    <AtSign className='h-4 w-4 text-blue-500' />
+                                                )}
+
+                                                {/* Bell icon (muted or not) */}
+                                                {isMuted && (
+                                                    <BellOff className='h-4 w-4 text-gray-400' />
+                                                )}
+
+                                                {/* Unread indicator */}
+                                                {hasUnread &&
+                                                    chat?.latestMessage?.sender
+                                                        ?._id !== user?._id && (
+                                                        <span className='flex-shrink-0 h-5 w-5 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-medium'>
+                                                            {chat.unreadCount}
+                                                        </span>
+                                                    )}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            ) : (
-                                <div className='flex justify-center p-8'>
-                                    <Card className='w-full max-w-md'>
-                                        <CardHeader className='text-center'>
-                                            <CardTitle>
-                                                No Unread Chats
-                                            </CardTitle>
-                                            <CardDescription>
-                                                No unread chats found
-                                            </CardDescription>
-                                        </CardHeader>
-                                    </Card>
-                                </div>
-                            )}
-                        </ul>
+                            </Link>
+                        );
+                    })}
+
+                    {records.length === 0 && (
+                        <div className='p-4 text-center text-gray-500'>
+                            No unread chats found
+                        </div>
+                    )}
+
+                    {records.length > 0 && (
+                        <div className='p-2 text-center'>
+                            <Button
+                                variant='ghost'
+                                size='sm'
+                                className='text-xs text-primary'
+                            >
+                                View More
+                            </Button>
+                        </div>
                     )}
                 </div>
-            </div>
-
-            {/* Dynamically load CreateCrowd component when needed */}
-            <Suspense
-                fallback={
-                    <div className='flex justify-center p-4'>
-                        <Loader2 className='h-8 w-8 animate-spin text-primary' />
-                    </div>
-                }
-            >
-                {opened && (
-                    <CreateCrowd opened={opened} close={closeCreateModal} />
-                )}
-            </Suspense>
+            )}
         </>
     );
 }
