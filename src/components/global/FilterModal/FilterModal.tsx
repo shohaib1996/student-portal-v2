@@ -49,7 +49,7 @@ const FilterModal = ({ columns, onChange, value }: TProps) => {
                 <Button
                     onClick={() => setOpen(!open)}
                     className='text-dark-gray'
-                    variant={'primary_light'}
+                    variant={'secondary'}
                 >
                     <FilterIcon className='stroke-dark-gray' />
                     Filters
