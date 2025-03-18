@@ -64,6 +64,15 @@ export interface UploadDocumentFileResponse {
     fileUrl?: string;
 }
 
+export interface MySlide {
+    _id: string;
+}
+export interface MySlidesResponse {
+    success: boolean;
+    slides: MySlide[];
+    count: number;
+}
+
 const documentsApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getLabContent: build.query<
@@ -84,7 +93,19 @@ const documentsApi = baseApi.injectEndpoints({
                 params: { page, limit },
             }),
         }),
-        getMyTemplates: build.query<{ success: boolean }, void>({
+        getMySlides: build.query<
+            MySlidesResponse,
+            { page?: number; limit?: number }
+        >({
+            query: ({ page = 1, limit = 8 }) => ({
+                url: '/slide/myslides',
+                params: { page, limit },
+            }),
+        }),
+        getMyTemplates: build.query<
+            { success: boolean; templates: any; count: number },
+            void
+        >({
             query: () => ({
                 url: '/template/mytemplates',
             }),
@@ -165,6 +186,7 @@ export const {
     useUploadUserDocumentFileMutation,
     useDeleteUserDocumentMutation,
     useUpdateUserDocumentMutation,
+    useGetMySlidesQuery,
 } = documentsApi;
 
 export default documentsApi;
