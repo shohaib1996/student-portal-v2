@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { format, isToday } from 'date-fns';
 
 import { cn } from '@/lib/utils';
+import dayjs, { Dayjs } from 'dayjs';
 
 interface DayViewProps {
     currentDate: Date;
+    onChange?: (_: Dayjs) => void;
 }
 
 interface CalendarEvent {
@@ -18,7 +20,7 @@ interface CalendarEvent {
     color: string;
 }
 
-export function DayView({ currentDate }: DayViewProps) {
+export function DayView({ currentDate, onChange }: DayViewProps) {
     // Sample events - in a real app, these would come from a database or API
     const [events] = useState<CalendarEvent[]>([
         {
@@ -50,6 +52,9 @@ export function DayView({ currentDate }: DayViewProps) {
     const handleHourClick = (hour: number) => {
         console.log('Hour clicked:', hour);
         // You can implement custom logic here, like opening a modal to add an event
+        const date = dayjs(currentDate);
+        const updatedDate = date.hour(hour).minute(0).second(0).millisecond(0);
+        onChange?.(updatedDate);
     };
 
     // Generate hours (0-23)
@@ -76,7 +81,7 @@ export function DayView({ currentDate }: DayViewProps) {
                     <div
                         key={hour}
                         className={cn(
-                            'flex border-b min-h-[60px]',
+                            'flex border-b cursor-pointer min-h-[60px]',
                             isToday(currentDate) &&
                                 hour === currentHour &&
                                 'bg-muted/20',

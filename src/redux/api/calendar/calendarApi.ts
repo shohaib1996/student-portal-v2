@@ -16,7 +16,14 @@ const calendarApi = baseApi.injectEndpoints({
                 // params
             }),
         }),
+        fetchUsers: build.query({
+            query: (searchQuery: string) => ({
+                url: '/user/filter',
+                method: 'POST',
+                data: { query: searchQuery, global: true },
+            }),
+        }),
     }),
 });
 
-export const { useGetMyEventsQuery } = calendarApi;
+export const { useGetMyEventsQuery, useFetchUsersQuery } = calendarApi;
