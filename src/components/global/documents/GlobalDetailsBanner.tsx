@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Upload, Calendar } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
 
 export interface GlobalDetailsBannerProps {
     title: string;
@@ -41,15 +42,20 @@ export function GlobalDetailsBanner({
                             <AvatarImage src={avatarUrl} alt={author} />
                             <AvatarFallback>{author[0]}</AvatarFallback>
                         </Avatar>
-                        <span>{author}</span>
+                        {/* <span>{author}</span> */}
+                        <span>Admin</span>
                     </div>
                     <div className='flex items-center gap-1'>
                         <Upload className='h-4 w-4' />
-                        <span>Uploaded: {uploadDate}</span>
+                        <span>
+                            Uploaded: {formatDateToCustomString(uploadDate)}
+                        </span>
                     </div>
                     <div className='flex items-center gap-1'>
                         <Calendar className='h-4 w-4' />
-                        <span>Last Update: {lastUpdate}</span>
+                        <span>
+                            Last Update: {formatDateToCustomString(lastUpdate)}
+                        </span>
                     </div>
                 </div>
                 <div className='mt-2 flex flex-wrap gap-1'>

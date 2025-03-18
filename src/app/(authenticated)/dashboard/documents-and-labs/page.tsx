@@ -9,7 +9,10 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
-import { useGetLabContentQuery } from '@/redux/api/documents/documentsApi';
+import {
+    LabContent,
+    useGetLabContentQuery,
+} from '@/redux/api/documents/documentsApi';
 
 export default function DocumentsPage() {
     const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
@@ -83,7 +86,7 @@ export default function DocumentsPage() {
             </GlobalHeader>
 
             <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
-                {labContent.map((content) => (
+                {labContent.map((content: LabContent) => (
                     <GlobalDocumentCard
                         key={content._id}
                         {...content}
