@@ -43,7 +43,7 @@ const ChatInbox = () => {
     return (
         <div className='flex flex-col min-h-[calc(100vh-60px)] max-h-[calc(100vh-60px)] h-[calc(100vh-60px)]'>
             <div className='flex-1 bg-background h-full'>
-                <div className='container h-full w-full'>
+                <div className='h-full w-full'>
                     <div className='grid grid-cols-1 lg:grid-cols-12 h-full'>
                         {/* Chat Navigation */}
                         <div className='lg:col-span-4 lg:col-start-1 col-span-12 h-full'>

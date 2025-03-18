@@ -370,7 +370,7 @@ const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
 
     return (
         <div className='chat-nav h-full'>
-            <div className='flex flex-row h-full'>
+            <div className='flex flex-row h-full border-r'>
                 {/* Side Navigation - Fixed */}
                 <div className='bg-primary-light p-1 border border-primary  h-[calc(100vh-60px)]'>
                     <SideNavigation active={active} setActive={setActive} />
