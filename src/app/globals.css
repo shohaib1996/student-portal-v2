@@ -229,6 +229,9 @@ body {
 .clip-custom {
     clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 25% 50%, 0% 0%);
 }
+.profile-clip {
+    clip-path: polygon(0 30%, 50% 0, 100% 30%, 100% 70%, 50% 100%, 0 70%);
+}
 
 @layer base {
     * {
