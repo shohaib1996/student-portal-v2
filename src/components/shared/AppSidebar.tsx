@@ -31,6 +31,7 @@ import {
     SidebarMenuSub,
     SidebarMenuSubItem,
     SidebarRail,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { usePathname } from 'next/navigation';
@@ -127,7 +128,7 @@ export function AppSidebar() {
         navigations.helpCenter ||
         navigations.myIssue;
 
-    console.log(navigations);
+    const { open } = useSidebar();
 
     return (
         <Sidebar collapsible='icon'>
@@ -135,16 +136,27 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size='lg'>
-                            <div className='flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground'>
-                                <GalleryVerticalEnd className='size-4' />
-                            </div>
+                            {!open && (
+                                <div className='flex aspect-square size-8 items-center justify-center'>
+                                    <Image
+                                        src={
+                                            theme === 'dark'
+                                                ? '/logo-icon-white.png'
+                                                : '/logo-icon.png'
+                                        }
+                                        width={30}
+                                        height={30}
+                                        alt='logo'
+                                    />
+                                </div>
+                            )}
                             <Link href={`/dashboard`}>
                                 <div className='flex flex-col gap-0.5 leading-none'>
                                     <Image
                                         src={
-                                            theme !== 'dark'
+                                            theme === 'dark'
                                                 ? '/logo.png'
-                                                : '/logo/logo-white.png'
+                                                : '/logo-blue.png'
                                         }
                                         width={140}
                                         height={40}
@@ -213,10 +225,10 @@ export function AppSidebar() {
                                                                             asChild
                                                                             isActive={
                                                                                 pathname ===
-                                                                                '/dashboard/program'
+                                                                                '/program'
                                                                             }
                                                                         >
-                                                                            <Link href='/dashboard/program'>
+                                                                            <Link href='/program'>
                                                                                 Programs
                                                                             </Link>
                                                                         </SidebarMenuButton>
@@ -229,10 +241,10 @@ export function AppSidebar() {
                                                                             asChild
                                                                             isActive={
                                                                                 pathname ===
-                                                                                '/dashboard/e2e-program-agenda'
+                                                                                '/e2e-program-agenda'
                                                                             }
                                                                         >
-                                                                            <Link href='/dashboard/e2e-program-agenda'>
+                                                                            <Link href='/e2e-program-agenda'>
                                                                                 E2E
                                                                                 Program
                                                                                 Agenda
@@ -247,10 +259,10 @@ export function AppSidebar() {
                                                                             asChild
                                                                             isActive={
                                                                                 pathname ===
-                                                                                '/dashboard/audio-video'
+                                                                                '/audio-video'
                                                                             }
                                                                         >
-                                                                            <Link href='/dashboard/audio-video'>
+                                                                            <Link href='/audio-video'>
                                                                                 Audios/Videos
                                                                             </Link>
                                                                         </SidebarMenuButton>
@@ -263,10 +275,10 @@ export function AppSidebar() {
                                                                             asChild
                                                                             isActive={
                                                                                 pathname ===
-                                                                                '/dashboard/show-and-tell'
+                                                                                '/show-and-tell'
                                                                             }
                                                                         >
-                                                                            <Link href='/dashboard/show-and-tell'>
+                                                                            <Link href='/show-and-tell'>
                                                                                 Show
                                                                                 n
                                                                                 Tell
@@ -281,10 +293,10 @@ export function AppSidebar() {
                                                                             asChild
                                                                             isActive={
                                                                                 pathname ===
-                                                                                '/dashboard/technical-tests'
+                                                                                '/technical-tests'
                                                                             }
                                                                         >
-                                                                            <Link href='/dashboard/technical-tests'>
+                                                                            <Link href='/technical-tests'>
                                                                                 Technical
                                                                                 Tests
                                                                             </Link>
@@ -298,10 +310,10 @@ export function AppSidebar() {
                                                                             asChild
                                                                             isActive={
                                                                                 pathname ===
-                                                                                '/dashboard/day-to-day-activity'
+                                                                                '/day-to-day-activity'
                                                                             }
                                                                         >
-                                                                            <Link href='/dashboard/day-to-day-activity'>
+                                                                            <Link href='/day-to-day-activity'>
                                                                                 Day
                                                                                 to
                                                                                 day
@@ -317,10 +329,10 @@ export function AppSidebar() {
                                                                             asChild
                                                                             isActive={
                                                                                 pathname ===
-                                                                                '/dashboard/architecture-diagram'
+                                                                                '/architecture-diagram'
                                                                             }
                                                                         >
-                                                                            <Link href='/dashboard/architecture-diagram'>
+                                                                            <Link href='/architecture-diagram'>
                                                                                 Architecture
                                                                                 Diagram
                                                                             </Link>
@@ -375,10 +387,10 @@ export function AppSidebar() {
                                                             asChild
                                                             isActive={
                                                                 pathname ===
-                                                                '/dashboard/my-documents'
+                                                                '/my-documents'
                                                             }
                                                         >
-                                                            <Link href='/dashboard/my-documents'>
+                                                            <Link href='/my-documents'>
                                                                 My Documents
                                                             </Link>
                                                         </SidebarMenuButton>
@@ -391,10 +403,10 @@ export function AppSidebar() {
                                                             asChild
                                                             isActive={
                                                                 pathname ===
-                                                                '/dashboard/upload-documents'
+                                                                '/upload-documents'
                                                             }
                                                         >
-                                                            <Link href='/dashboard/upload-documents'>
+                                                            <Link href='/upload-documents'>
                                                                 Uploaded
                                                                 Documents
                                                             </Link>
@@ -408,10 +420,10 @@ export function AppSidebar() {
                                                             asChild
                                                             isActive={
                                                                 pathname ===
-                                                                '/dashboard/documents-and-labs'
+                                                                '/documents-and-labs'
                                                             }
                                                         >
-                                                            <Link href='/dashboard/documents-and-labs'>
+                                                            <Link href='/documents-and-labs'>
                                                                 Documents & Labs
                                                             </Link>
                                                         </SidebarMenuButton>
@@ -424,10 +436,10 @@ export function AppSidebar() {
                                                             asChild
                                                             isActive={
                                                                 pathname ===
-                                                                '/dashboard/presentation-slides'
+                                                                '/presentation-slides'
                                                             }
                                                         >
-                                                            <Link href='/dashboard/presentation-slides'>
+                                                            <Link href='/presentation-slides'>
                                                                 Presentations/Slides
                                                             </Link>
                                                         </SidebarMenuButton>
@@ -440,10 +452,10 @@ export function AppSidebar() {
                                                             asChild
                                                             isActive={
                                                                 pathname ===
-                                                                '/dashboard/my-templates'
+                                                                '/my-templates'
                                                             }
                                                         >
-                                                            <Link href='/dashboard/my-templates'>
+                                                            <Link href='/my-templates'>
                                                                 Templates
                                                             </Link>
                                                         </SidebarMenuButton>
@@ -460,14 +472,12 @@ export function AppSidebar() {
                                 <SidebarMenuItem>
                                     <SidebarMenuButton
                                         tooltip={'Calendar'}
-                                        isActive={
-                                            pathname === '/dashboard/calendar'
-                                        }
+                                        isActive={pathname === '/calendar'}
                                     >
                                         <Calendar size={20} />
                                         <Link
                                             className='whitespace-nowrap truncate w-full'
-                                            href='/dashboard/calendar'
+                                            href='/calendar'
                                         >
                                             Calendar
                                         </Link>
@@ -497,10 +507,10 @@ export function AppSidebar() {
                                                             asChild
                                                             isActive={
                                                                 pathname ===
-                                                                '/dashboard/mock-interviews'
+                                                                '/mock-interviews'
                                                             }
                                                         >
-                                                            <Link href='/dashboard/mock-interviews'>
+                                                            <Link href='/mock-interviews'>
                                                                 Mock Interviews
                                                             </Link>
                                                         </SidebarMenuButton>
@@ -517,14 +527,12 @@ export function AppSidebar() {
                                 <SidebarMenuItem>
                                     <SidebarMenuButton
                                         tooltip={'Community'}
-                                        isActive={
-                                            pathname === '/dashboard/community'
-                                        }
+                                        isActive={pathname === '/community'}
                                     >
                                         <MessageSquare size={20} />
                                         <Link
                                             className='whitespace-nowrap truncate w-full'
-                                            href='/dashboard/community'
+                                            href='/community'
                                         >
                                             Community
                                         </Link>
@@ -555,10 +563,10 @@ export function AppSidebar() {
                                                             asChild
                                                             isActive={
                                                                 pathname ===
-                                                                '/dashboard/my-issues'
+                                                                '/my-issues'
                                                             }
                                                         >
-                                                            <Link href='/dashboard/my-issues'>
+                                                            <Link href='/my-issues'>
                                                                 Bootcamps Hub
                                                                 Issues
                                                             </Link>
@@ -572,10 +580,10 @@ export function AppSidebar() {
                                                             asChild
                                                             isActive={
                                                                 pathname ===
-                                                                '/dashboard/my-family'
+                                                                '/my-family'
                                                             }
                                                         >
-                                                            <Link href='/dashboard/my-family'>
+                                                            <Link href='/my-family'>
                                                                 Families
                                                             </Link>
                                                         </SidebarMenuButton>
@@ -588,10 +596,10 @@ export function AppSidebar() {
                                                             asChild
                                                             isActive={
                                                                 pathname ===
-                                                                '/dashboard/my-job-support'
+                                                                '/my-job-support'
                                                             }
                                                         >
-                                                            <Link href='/dashboard/my-job-support'>
+                                                            <Link href='/my-job-support'>
                                                                 Job Supports
                                                             </Link>
                                                         </SidebarMenuButton>
