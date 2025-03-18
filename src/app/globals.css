@@ -237,4 +237,7 @@ body {
     body {
         @apply bg-background text-foreground;
     }
+    .document-container {
+        @apply max-w-[1400px] mx-auto;
+    }
 }

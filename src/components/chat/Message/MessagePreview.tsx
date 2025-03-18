@@ -4,6 +4,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
+import { useTheme } from 'next-themes';
 
 // Dynamic import of markdown preview component
 const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {
@@ -12,6 +13,7 @@ const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {
 
 interface MessagePreviewProps {
     text: string;
+    searchQuery?: string;
 }
 
 interface RootState {
@@ -52,7 +54,7 @@ const transformDate = (text?: string): string => {
 };
 
 function MessagePreview({ text }: MessagePreviewProps) {
-    const { displayMode } = useSelector((state: RootState) => state.theme);
+    const { theme } = useTheme();
 
     return (
         <div className='message-preview'>
@@ -60,8 +62,7 @@ function MessagePreview({ text }: MessagePreviewProps) {
                 source={transformDate(transformMessage(text))}
                 components={components}
                 wrapperElement={{
-                    'data-color-mode':
-                        displayMode === 'dark' ? 'dark' : 'light',
+                    'data-color-mode': theme === 'dark' ? 'dark' : 'light',
                 }}
                 className={`text-gray-700 dark:text-gray-300`}
             />

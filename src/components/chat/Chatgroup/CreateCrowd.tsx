@@ -74,8 +74,6 @@ function CreateCrowd({
     const [members, setMembers] = useState<User[]>([]);
     const [isPublic, setIsPublic] = useState<boolean>(true);
     const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
-
-    const { displayMode } = useSelector((state: RootState) => state.theme);
     const [users, setUsers] = useState<User[]>([]);
 
     // Channel related actions

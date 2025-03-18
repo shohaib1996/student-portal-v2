@@ -11,6 +11,7 @@ import {
 } from 'redux-persist';
 import { baseApi } from './api/baseApi';
 import communityReducer from './features/communityReducer';
+import ChatReducer from './features/chatReducer';
 import comapnyReducer from './features/comapnyReducer';
 import notificationReducer from './features/notificationReducer';
 import navigationReducer from './features/navigationReducer';
@@ -45,6 +46,7 @@ export const reducer = {
     [baseApi.reducerPath]: baseApi.reducer,
     auth: persistedAuthReducer,
     community: communityReducer,
+    chat: ChatReducer,
     company: comapnyReducer,
     notification: notificationReducer,
     navigations: navigationReducer,

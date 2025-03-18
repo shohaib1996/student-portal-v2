@@ -8,6 +8,7 @@ interface GlobalPaginationProps {
     totalItems: number;
     itemsPerPage: number;
     baseUrl?: string;
+    onLimitChange: (page: number) => void;
 }
 
 export function GlobalPagination({
@@ -16,6 +17,7 @@ export function GlobalPagination({
     totalItems,
     itemsPerPage,
     baseUrl = '',
+    onLimitChange,
 }: GlobalPaginationProps) {
     const showingStart = Math.min(
         (currentPage - 1) * itemsPerPage + 1,
@@ -139,10 +141,14 @@ export function GlobalPagination({
             </div>
             <div className='text-sm text-muted-foreground'>
                 {totalItems} / Page{' '}
-                <select className='rounded border border-input bg-background px-1'>
-                    <option>10</option>
-                    <option>20</option>
-                    <option>50</option>
+                <select
+                    className='rounded border border-input bg-background px-1'
+                    defaultValue={itemsPerPage}
+                    onChange={(e) => onLimitChange(Number(e.target.value))}
+                >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
                 </select>
             </div>
         </div>

@@ -1,0 +1,29 @@
+/* Add this to your globals.css or a separate CSS file */
+
+.text_input_box {
+    @apply w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.text_input_box__input {
+    @apply w-full bg-transparent outline-none resize-none;
+}
+
+.text_input_box__highlighter {
+    @apply w-full;
+}
+
+.text_input_box__suggestions {
+    @apply z-50 bg-background border border-border rounded-md shadow-md;
+}
+
+.text_input_box__suggestions__list {
+    @apply max-h-60 overflow-auto p-1;
+}
+
+.text_input_box__suggestions__item {
+    @apply p-2 text-sm cursor-pointer rounded hover:bg-muted;
+}
+
+.text_input_box__suggestions__item--focused {
+    @apply bg-muted;
+}

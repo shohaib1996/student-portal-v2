@@ -1,24 +1,28 @@
 'use client';
+
 import Image from 'next/image';
+
 import {
     ArrowLeft,
     ArrowRight,
     Calendar,
     FileText,
-    Heart,
-    MessageSquare,
-    MoreVertical,
-    Send,
-    Smile,
     Upload,
-    X,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
+import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
+import { GlobalAttachedFilesSection } from '@/components/global/GlobalAttachedFilesSection';
+import { GlobalDocumentDetailsModal } from '@/components/global/documents/GlobalDocumentDetailsModal';
+import DownloadIcon from '@/components/svgs/common/DownloadIcon';
+import EditPenIcon from '@/components/svgs/common/EditPenIcon';
+import DeleteTrashIcon from '@/components/svgs/common/DeleteTrashIcon';
+import { useState } from 'react';
+import { EditDocumentModal } from './edit-document-modal';
+import { GlobalDetailsBanner } from '@/components/global/documents/GlobalDetailsBanner';
+import { useGetContentDetailsQuery } from '@/redux/api/documents/documentsApi';
 
 export interface DocumentDetailsProps {
     isOpen: boolean;
@@ -26,13 +30,63 @@ export interface DocumentDetailsProps {
     documentId: string | null;
 }
 
+// Define the document interface
+export interface Document {
+    id: string;
+    title: string;
+    author: string;
+    uploadDate: string;
+    lastUpdate: string;
+    tags: string[];
+    content: string;
+    imageUrl: string;
+    attachedFiles: { id: string; name: string; type: string; size: string }[];
+    comments: {
+        id: string;
+        author: string;
+        avatar: string;
+        time: string;
+        content: string;
+        additionalText?: string;
+        likes: number;
+        replies: number;
+    }[];
+}
+
 export function DocumentDetailsModal({
     isOpen,
     onClose,
     documentId,
 }: DocumentDetailsProps) {
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    // const { data, error, isLoading } = useGetContentDetailsQuery(
+    //     documentId || '',
+    // );
+
+    // if (isLoading) {
+    //     return <div>Loading...</div>;
+    // }
+
+    // if (error) {
+    //     return <div>Something went wrong!</div>;
+    // }
+
+    // console.log(data);
+
+    // const content = data?.content;
+    // const {
+    //     name,
+    //     description,
+    //     tags,
+    //     createdAt,
+    //     updatedAt,
+    //     createdBy,
+    //     thumbnail,
+    // } = content || {};
+
     // Mock document data - in a real app, you would fetch this based on documentId
-    const document = documentId
+    const document: Document | null = documentId
         ? {
               id: documentId,
               title: 'Test Document - For Upload File',
@@ -117,27 +171,40 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
         'Duis aute irure dolor in reprehenderit in voluptate velit esse.',
     ];
 
+    const handleCommentSubmit = (content: string) => {
+        console.log('New comment:', content);
+    };
+
+    const handleEditClick = () => {
+        setIsEditModalOpen(true);
+    };
+
+    const handleEditModalClose = () => {
+        setIsEditModalOpen(false);
+    };
+
     if (!document) {
         return null;
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className='h-screen w-screen overflow-y-auto p-0 sm:max-w-[95vw]'>
+        <>
+            <GlobalDocumentDetailsModal isOpen={isOpen} onClose={onClose}>
                 <div className='flex h-full flex-col'>
                     {/* Header with navigation */}
                     <div className='sticky top-0 z-10 flex items-center justify-between border-b bg-background p-4'>
                         <div className='flex items-center gap-2'>
-                            <Button
-                                variant='outline'
-                                size='icon'
-                                onClick={onClose}
-                            >
-                                <ArrowLeft className='h-4 w-4' />
-                                <span className='sr-only'>Back</span>
-                            </Button>
                             <div>
-                                <h1 className='text-xl font-semibold'>
+                                <h1 className='text-xl font-semibold flex gap-1 items-center'>
+                                    <Button
+                                        variant='ghost'
+                                        size='icon'
+                                        onClick={onClose}
+                                        className='px-0 py-0 h-auto w-auto'
+                                    >
+                                        <ArrowLeft className='h-4 w-4' />
+                                        <span className='sr-only'>Back</span>
+                                    </Button>
                                     Document Details
                                 </h1>
                                 <p className='text-sm text-muted-foreground'>
@@ -147,7 +214,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                         </div>
                         <div className='flex items-center gap-2'>
                             <Button
-                                variant='outline'
+                                variant='default'
                                 size='sm'
                                 className='gap-1'
                             >
@@ -162,105 +229,52 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                                 <span>Next</span>
                                 <ArrowRight className='h-4 w-4' />
                             </Button>
+                            <Button variant='outline' size='sm'>
+                                <DownloadIcon className='h-4 w-4' />
+                            </Button>
                             <Button
                                 variant='outline'
                                 size='sm'
-                                className='gap-1'
-                                onClick={onClose}
+                                onClick={handleEditClick}
                             >
-                                <span>Back to Docs</span>
-                                <ArrowRight className='h-4 w-4' />
+                                <EditPenIcon className='h-4 w-4' />
                             </Button>
-                            <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={onClose}
-                                className='ml-2'
-                            >
-                                <X className='h-4 w-4' />
-                                <span className='sr-only'>Close</span>
+                            <Button variant='outline' size='sm'>
+                                <DeleteTrashIcon className='h-4 w-4' />
                             </Button>
                         </div>
                     </div>
 
                     {/* Main content */}
-                    <div className='flex-1 overflow-y-auto p-4'>
+                    <div className='flex-1 overflow-y-auto p-4 document-container bg-foreground my-3 rounded-lg'>
                         {/* Main content with sidebar */}
                         <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
                             {/* Main content area - 2/3 width on large screens */}
                             <div className='lg:col-span-2'>
                                 {/* Document image with overlay title */}
-                                <div className='relative mb-4 overflow-hidden rounded-lg border'>
-                                    <Image
-                                        src={
-                                            document.imageUrl ||
-                                            '/images/documents-and-labs-thumbnail.png'
-                                        }
-                                        alt={document.title}
-                                        width={800}
-                                        height={400}
-                                        className='h-auto w-full object-cover'
-                                    />
-                                    <div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-white'>
-                                        <h2 className='text-2xl font-bold'>
-                                            {document.title}
-                                        </h2>
-                                        <div className='mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm'>
-                                            <div className='flex items-center gap-1'>
-                                                <Avatar className='h-5 w-5'>
-                                                    <AvatarImage
-                                                        src='/placeholder.svg?height=20&width=20'
-                                                        alt={document.author}
-                                                    />
-                                                    <AvatarFallback>
-                                                        {document.author[0]}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <span>{document.author}</span>
-                                            </div>
-                                            <div className='flex items-center gap-1'>
-                                                <Upload className='h-4 w-4' />
-                                                <span>
-                                                    Uploaded:{' '}
-                                                    {document.uploadDate}
-                                                </span>
-                                            </div>
-                                            <div className='flex items-center gap-1'>
-                                                <Calendar className='h-4 w-4' />
-                                                <span>
-                                                    Last Update:{' '}
-                                                    {document.lastUpdate}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className='mt-2 flex flex-wrap gap-1'>
-                                            {document.tags.map((tag, index) => (
-                                                <Badge
-                                                    key={index}
-                                                    variant='secondary'
-                                                    className='bg-white/20 hover:bg-white/30'
-                                                >
-                                                    {tag}
-                                                </Badge>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
+                                <GlobalDetailsBanner
+                                    title={document.title}
+                                    author={document.author}
+                                    uploadDate={document.uploadDate}
+                                    lastUpdate={document.lastUpdate}
+                                    tags={document.tags}
+                                    imageUrl={document.imageUrl}
+                                />
 
                                 {/* Document content */}
-                                <div className='rounded-lg border bg-card shadow'>
+                                <div className=''>
                                     <Tabs defaultValue='documents'>
-                                        <TabsList className='border-b px-4'>
+                                        <TabsList className='bg-background'>
                                             <TabsTrigger
                                                 value='documents'
-                                                className='gap-2 data-[state=active]:bg-transparent'
+                                                className='gap-2 data-[state=active]:bg-primary'
                                             >
                                                 <FileText className='h-4 w-4' />
                                                 Documents
                                             </TabsTrigger>
                                             <TabsTrigger
                                                 value='slide'
-                                                className='gap-2 data-[state=active]:bg-transparent'
+                                                className='gap-2 data-[state=active]:bg-primary'
                                             >
                                                 <FileText className='h-4 w-4' />
                                                 Slide
@@ -270,214 +284,22 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                                             value='documents'
                                             className='p-4'
                                         >
-                                            <div className='space-y-4'>
-                                                <p className='text-sm text-muted-foreground'>
-                                                    {document.content}
-                                                </p>
-
-                                                <div className='space-y-2'>
-                                                    <ul className='ml-6 list-disc space-y-2 text-sm text-muted-foreground'>
-                                                        {bulletPoints.map(
-                                                            (point, index) => (
-                                                                <li key={index}>
-                                                                    {point}
-                                                                </li>
-                                                            ),
-                                                        )}
-                                                    </ul>
-                                                </div>
-
-                                                <p className='text-sm text-muted-foreground'>
-                                                    {document.content}
-                                                </p>
-                                                <p className='text-sm text-muted-foreground'>
-                                                    Excepteur sint occaecat
-                                                    cupidatat non proident, sunt
-                                                    in culpa qui officia
-                                                    deserunt mollit anim id est
-                                                    laborum Excepteur sint
-                                                    occaecat cupidatat non
-                                                    proident, sunt in culpa qui
-                                                    officia deserunt mollit anim
-                                                    id est laborum Excepteur
-                                                    sint occaecat cupidatat non
-                                                    proident, sunt in culpa qui
-                                                    officia deserunt mollit anim
-                                                    id est laborum Excepteur
-                                                    sint occaecat cupidatat non
-                                                    proident, sunt in
-                                                </p>
+                                            <div className='pt-2'>
+                                                {document.content}
                                             </div>
 
                                             {/* Attached files */}
-                                            <div className='mt-6 border-t pt-4'>
-                                                <h3 className='mb-3 text-sm font-medium'>
-                                                    Attached Files (
-                                                    {
-                                                        document.attachedFiles
-                                                            .length
-                                                    }
-                                                    )
-                                                </h3>
-                                                <div className='flex flex-wrap gap-4'>
-                                                    {document.attachedFiles.map(
-                                                        (file) => (
-                                                            <div
-                                                                key={file.id}
-                                                                className='flex items-center gap-2 rounded-md border bg-muted/40 p-2 text-sm'
-                                                            >
-                                                                <div className='flex h-8 w-8 items-center justify-center rounded bg-muted'>
-                                                                    <FileText className='h-4 w-4 text-muted-foreground' />
-                                                                </div>
-                                                                <div>
-                                                                    <p className='text-xs font-medium'>
-                                                                        {
-                                                                            file.name
-                                                                        }
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        ),
-                                                    )}
-                                                </div>
-                                            </div>
+                                            <GlobalAttachedFilesSection
+                                                files={document.attachedFiles}
+                                            />
 
                                             {/* Comments section */}
-                                            <div className='mt-6 border-t pt-4'>
-                                                <h3 className='mb-3 text-sm font-medium'>
-                                                    Comments (
-                                                    {document.comments.length})
-                                                </h3>
-                                                <div className='space-y-4'>
-                                                    {document.comments.map(
-                                                        (comment) => (
-                                                            <div
-                                                                key={comment.id}
-                                                                className='rounded-md border p-4'
-                                                            >
-                                                                <div className='mb-2 flex items-start justify-between'>
-                                                                    <div className='flex items-center gap-2'>
-                                                                        <Avatar className='h-8 w-8'>
-                                                                            <AvatarImage
-                                                                                src={
-                                                                                    comment.avatar
-                                                                                }
-                                                                                alt={
-                                                                                    comment.author
-                                                                                }
-                                                                            />
-                                                                            <AvatarFallback>
-                                                                                {
-                                                                                    comment
-                                                                                        .author[0]
-                                                                                }
-                                                                            </AvatarFallback>
-                                                                        </Avatar>
-                                                                        <div>
-                                                                            <p className='text-sm font-medium'>
-                                                                                {
-                                                                                    comment.author
-                                                                                }
-                                                                            </p>
-                                                                            <p className='text-xs text-muted-foreground'>
-                                                                                {
-                                                                                    comment.time
-                                                                                }
-                                                                            </p>
-                                                                        </div>
-                                                                    </div>
-                                                                    <Button
-                                                                        variant='ghost'
-                                                                        size='icon'
-                                                                        className='h-8 w-8'
-                                                                    >
-                                                                        <MoreVertical className='h-4 w-4' />
-                                                                    </Button>
-                                                                </div>
-                                                                <p className='mb-2 text-sm'>
-                                                                    {
-                                                                        comment.content
-                                                                    }
-                                                                </p>
-                                                                {comment.additionalText && (
-                                                                    <p className='mb-2 text-sm'>
-                                                                        {
-                                                                            comment.additionalText
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                                <div className='flex items-center gap-4 text-xs text-muted-foreground'>
-                                                                    {comment.replies >
-                                                                        0 && (
-                                                                        <Button
-                                                                            variant='ghost'
-                                                                            size='sm'
-                                                                            className='h-6 gap-1 p-0 text-xs font-normal'
-                                                                        >
-                                                                            Replies{' '}
-                                                                            {
-                                                                                comment.replies
-                                                                            }
-                                                                        </Button>
-                                                                    )}
-                                                                    <div className='flex items-center gap-1'>
-                                                                        <Heart className='h-3 w-3 fill-current text-red-500' />
-                                                                        <span>
-                                                                            {
-                                                                                comment.likes
-                                                                            }
-                                                                        </span>
-                                                                    </div>
-                                                                    <div className='flex items-center gap-1'>
-                                                                        <MessageSquare className='h-3 w-3' />
-                                                                        <span>
-                                                                            {
-                                                                                comment.replies
-                                                                            }
-                                                                        </span>
-                                                                    </div>
-                                                                    <Button
-                                                                        variant='ghost'
-                                                                        size='sm'
-                                                                        className='h-6 gap-1 p-0 text-xs font-normal'
-                                                                    >
-                                                                        <Smile className='h-3 w-3' />
-                                                                    </Button>
-                                                                </div>
-                                                            </div>
-                                                        ),
-                                                    )}
-                                                </div>
-
-                                                {/* Comment input */}
-                                                <div className='mt-4 flex items-start gap-2'>
-                                                    <Avatar className='h-8 w-8'>
-                                                        <AvatarImage
-                                                            src='/images/author.png'
-                                                            alt='Your avatar'
-                                                        />
-                                                        <AvatarFallback>
-                                                            YA
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <div className='relative flex-1'>
-                                                        <Textarea
-                                                            placeholder='Write a comment...'
-                                                            className='min-h-[40px] resize-none pr-10'
-                                                        />
-                                                        <Button
-                                                            size='icon'
-                                                            variant='ghost'
-                                                            className='absolute bottom-1 right-1 h-8 w-8 rounded-full'
-                                                        >
-                                                            <Send className='h-4 w-4' />
-                                                            <span className='sr-only'>
-                                                                Send comment
-                                                            </span>
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <GlobalCommentsSection
+                                                documentId={documentId || ''}
+                                                onCommentSubmit={
+                                                    handleCommentSubmit
+                                                }
+                                            />
                                         </TabsContent>
                                         <TabsContent value='slide'>
                                             <div className='flex h-40 items-center justify-center rounded-md border border-dashed p-4'>
@@ -492,7 +314,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                             </div>
 
                             {/* Sidebar - 1/3 width on large screens */}
-                            <div className='space-y-6'>
+                            <div className='lg:sticky top-20 space-y-3'>
                                 {/* Tags section */}
                                 <div className='rounded-lg border bg-card p-4 shadow'>
                                     <h3 className='mb-3 text-sm font-medium'>
@@ -565,7 +387,25 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                         </div>
                     </div>
                 </div>
-            </DialogContent>
-        </Dialog>
+            </GlobalDocumentDetailsModal>
+
+            {/* Edit Modal */}
+            {document && (
+                <EditDocumentModal
+                    isOpen={isEditModalOpen}
+                    onClose={handleEditModalClose}
+                    defaultValues={{
+                        description: document.content,
+                        name: document.title,
+                        categories: document.tags.slice(0, 2), // Assuming 2 categories
+                        tags: document.tags.join(', '),
+                        thumbnailUrl: document.imageUrl,
+                        attachedFileUrls: document.attachedFiles.map(
+                            (file) => file.name,
+                        ),
+                    }}
+                />
+            )}
+        </>
     );
 }

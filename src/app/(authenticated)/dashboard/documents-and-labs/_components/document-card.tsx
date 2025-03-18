@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
 export interface DocumentCardProps {
-    id: string;
+    id?: string;
     title: string;
     author: string;
     date: string;
@@ -18,7 +18,6 @@ export interface DocumentCardProps {
 }
 
 export function DocumentCard({
-    id,
     title,
     author,
     date,

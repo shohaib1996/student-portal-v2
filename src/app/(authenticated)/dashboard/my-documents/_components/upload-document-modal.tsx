@@ -39,41 +39,124 @@ export function UploadDocumentModal({
     const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
         null,
     );
+    const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null); // Store uploaded thumbnail URL
     const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+    const [attachedFileUrls, setAttachedFileUrls] = useState<string[]>([]); // Store uploaded attachment URLs
+    const [category1, setCategory1] = useState<string>('');
+    const [category2, setCategory2] = useState<string>('');
+    const [isUploading, setIsUploading] = useState(false); // Track upload status
 
-    const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                if (event.target?.result) {
-                    setThumbnailPreview(event.target.result as string);
-                }
-            };
-            reader.readAsDataURL(file);
+    // Upload a single file and return its URL
+    const uploadFile = async (file: File): Promise<string> => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Upload failed');
+            }
+
+            const data = await response.json();
+            return data.url; // Assuming the response contains { url: string }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            throw error;
         }
     };
 
-    const handleFileAttachment = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleThumbnailChange = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setIsUploading(true);
+
+            try {
+                // Upload the thumbnail
+                const url = await uploadFile(file);
+                setThumbnailUrl(url);
+
+                // Generate preview
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    if (event.target?.result) {
+                        setThumbnailPreview(event.target.result as string);
+                    }
+                };
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Failed to upload thumbnail:', error);
+            } finally {
+                setIsUploading(false);
+            }
+        }
+    };
+
+    const handleFileAttachment = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
         if (e.target.files) {
             const newFiles = Array.from(e.target.files);
-            setAttachedFiles((prev) => [...prev, ...newFiles]);
+            setIsUploading(true);
+
+            try {
+                // Upload each file and collect URLs
+                const urls = await Promise.all(
+                    newFiles.map((file) => uploadFile(file)),
+                );
+                setAttachedFiles((prev) => [...prev, ...newFiles]);
+                setAttachedFileUrls((prev) => [...prev, ...urls]);
+            } catch (error) {
+                console.error('Failed to upload attachments:', error);
+            } finally {
+                setIsUploading(false);
+            }
         }
     };
 
     const handleRemoveFile = (index: number) => {
         setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+        setAttachedFileUrls((prev) => prev.filter((_, i) => i !== index));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleRemoveThumbnail = () => {
+        setThumbnailPreview(null);
+        setThumbnailUrl(null);
+    };
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // Handle form submission
-        onClose();
+
+        const form = e.currentTarget;
+        const formData = new FormData(form);
+
+        const description = formData.get('description') as string;
+        const documentName = formData.get('document-name') as string;
+        const tags = formData.get('tags') as string;
+
+        const submissionData = {
+            description,
+            documentName,
+            categories: [category1, category2].filter(Boolean),
+            tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
+            thumbnail: thumbnailUrl, // Use the uploaded URL
+            attachedFiles: attachedFileUrls, // Use the uploaded URLs
+        };
+
+        console.log('Document Submission Data:', submissionData);
+
+        // Uncomment the following line if you want to close the modal after submission
+        // onClose();
     };
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className='h-screen w-screen overflow-y-auto p-0 sm:max-w-[95vw]'>
+            <DialogContent className='h-screen min-w-full overflow-y-auto p-0'>
                 <div className='flex h-full flex-col'>
                     {/* Header */}
                     <div className='sticky top-0 z-10 flex items-center justify-between border-b bg-background p-4'>
@@ -107,14 +190,15 @@ export function UploadDocumentModal({
                                 size='sm'
                                 type='submit'
                                 form='upload-document-form'
+                                disabled={isUploading} // Disable while uploading
                             >
-                                Save & Close
+                                {isUploading ? 'Uploading...' : 'Save & Close'}
                             </Button>
                         </div>
                     </div>
 
                     {/* Form content */}
-                    <div className='flex-1 overflow-y-auto p-4'>
+                    <div className='flex-1 overflow-y-auto p-4 document-container w-full'>
                         <form
                             id='upload-document-form'
                             onSubmit={handleSubmit}
@@ -226,8 +310,9 @@ export function UploadDocumentModal({
                                             </div>
                                             <Textarea
                                                 id='description'
+                                                name='description'
                                                 placeholder='Enter description...'
-                                                className='min-h-[200px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0'
+                                                className='h-[80vh] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0'
                                             />
                                         </div>
                                     </div>
@@ -249,6 +334,7 @@ export function UploadDocumentModal({
                                         </Label>
                                         <Input
                                             id='document-name'
+                                            name='document-name'
                                             placeholder='Enter document name'
                                             required
                                         />
@@ -264,7 +350,11 @@ export function UploadDocumentModal({
                                                 *
                                             </span>
                                         </Label>
-                                        <Select required>
+                                        <Select
+                                            required
+                                            onValueChange={setCategory1}
+                                            value={category1}
+                                        >
                                             <SelectTrigger id='category-1'>
                                                 <SelectValue placeholder='Select Category' />
                                             </SelectTrigger>
@@ -295,7 +385,11 @@ export function UploadDocumentModal({
                                                 *
                                             </span>
                                         </Label>
-                                        <Select required>
+                                        <Select
+                                            required
+                                            onValueChange={setCategory2}
+                                            value={category2}
+                                        >
                                             <SelectTrigger id='category-2'>
                                                 <SelectValue placeholder='Select Category' />
                                             </SelectTrigger>
@@ -322,6 +416,7 @@ export function UploadDocumentModal({
                                         </Label>
                                         <Input
                                             id='tags'
+                                            name='tags'
                                             placeholder='Enter tags (Maximum 10 tags)'
                                         />
                                     </div>
@@ -348,10 +443,11 @@ export function UploadDocumentModal({
                                                             variant='destructive'
                                                             size='icon'
                                                             className='absolute right-1 top-1 h-6 w-6'
-                                                            onClick={() =>
-                                                                setThumbnailPreview(
-                                                                    null,
-                                                                )
+                                                            onClick={
+                                                                handleRemoveThumbnail
+                                                            }
+                                                            disabled={
+                                                                isUploading
                                                             }
                                                         >
                                                             <X className='h-3 w-3' />
@@ -378,6 +474,9 @@ export function UploadDocumentModal({
                                                                     className='sr-only'
                                                                     onChange={
                                                                         handleThumbnailChange
+                                                                    }
+                                                                    disabled={
+                                                                        isUploading
                                                                     }
                                                                 />
                                                             </label>
@@ -426,6 +525,9 @@ export function UploadDocumentModal({
                                                                             index,
                                                                         )
                                                                     }
+                                                                    disabled={
+                                                                        isUploading
+                                                                    }
                                                                 >
                                                                     <X className='h-3 w-3' />
                                                                 </Button>
@@ -448,6 +550,9 @@ export function UploadDocumentModal({
                                                             className='sr-only'
                                                             onChange={
                                                                 handleFileAttachment
+                                                            }
+                                                            disabled={
+                                                                isUploading
                                                             }
                                                         />
                                                     </label>
