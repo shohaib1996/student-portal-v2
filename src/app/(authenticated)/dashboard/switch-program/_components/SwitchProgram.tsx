@@ -204,10 +204,11 @@ const SwitchProgram = () => {
                     </span>
                 }
                 subTitle={
-                    <div>
+                    <>
                         Change to another program, please click on
-                        <span className='text-primary'>Switch</span> and proceed
-                    </div>
+                        <span className='text-primary'>Switch</span>
+                        and proceed
+                    </>
                 }
                 buttons={
                     <Button
@@ -277,15 +278,15 @@ const SwitchProgram = () => {
             </div>
 
             {/* Default Account Checkbox */}
-            <div className='mt-6 flex items-center gap-2'>
+            <div className='my-3 flex items-center gap-1.5'>
                 <input
                     type='checkbox'
                     id='default-account'
-                    className='h-4 w-4 rounded border-gray-300 text-blue-600'
+                    className='h-4 w-4 rounded border-gray text-primary'
                 />
                 <label
                     htmlFor='default-account'
-                    className='text-sm text-gray-600'
+                    className='text-base font-medium text-dark-gray'
                 >
                     Set this selected account as the default
                 </label>
