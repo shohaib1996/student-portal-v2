@@ -27,7 +27,7 @@ import {
 } from '@/redux/features/chatReducer';
 import { toast } from 'sonner';
 import { useAppSelector } from '@/redux/hooks';
-import chats from './chats.json';
+// import chats from './chats.json';
 import { instance } from '@/lib/axios/axiosInstance';
 interface ChatMessage {
     _id: string;
@@ -126,11 +126,13 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     searchQuery,
 }) => {
     const params = useParams();
+    console.log({ params });
     const dispatch = useDispatch();
     // Fix: Add fallbacks for when state.chat is undefined
     const chatState = useAppSelector((state) => state.chat || {});
+    console.log({ chatState });
     const chatMessages = chatState.chatMessages || {};
-    // const chats = chatState.chats || [];
+    const chats = chatState.chats || [];
     const onlineUsers = chatState.onlineUsers || [];
     const currentPage = chatState.currentPage || 1;
     const fetchedMore = chatState.fetchedMore || false;
@@ -396,6 +398,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
             }
         }
     };
+    const prevTriggerRef = React.useRef('');
 
     useEffect(() => {
         if (lastMessageRef.current) {
@@ -405,7 +408,13 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                 inline: 'nearest',
             });
         }
-        setReloading(!reloading);
+        const messageKey =
+            messages?.length > 0 ? messages[messages.length - 1]?._id : 'empty';
+        const triggerKey = `${messageKey}-${reload}`;
+        if (prevTriggerRef.current !== triggerKey) {
+            prevTriggerRef.current = triggerKey;
+            setReloading(!reloading);
+        }
     }, [messages, reload, setReloading, reloading]);
 
     const draft =
@@ -498,7 +507,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                 chatMessages?.[params?.chatid as string]
                                     ?.length === 0 && (
                                     <div className='text-center mt-15 pb-[25vh]'>
-                                        <h3 className='font-bold text-foreground'>
+                                        <h3 className='font-bold text-dark-gray'>
                                             No messages found!
                                         </h3>
                                     </div>

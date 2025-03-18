@@ -11,13 +11,13 @@ import { toast } from 'sonner';
 import {
     User,
     Users,
-    MessageSquare,
     Pin,
     UserCheck,
     Archive,
     Search,
     Bot,
     UserMinus,
+    MessageSquareText,
 } from 'lucide-react';
 import chats from './chats.json';
 import { instance } from '@/lib/axios/axiosInstance';
@@ -95,7 +95,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
         },
         [active],
     );
-
+    console.log({ active: active });
     return (
         <div className='flex flex-col h-full w-[50px]'>
             <div className='flex flex-col items-center gap-3'>
@@ -123,11 +123,11 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                         className={`bg-transparent hover:bg-primary group text-dark-gray hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('unread')}`}
                     >
                         <div className='relative'>
-                            <MessageSquare className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
+                            <MessageSquareText className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
                             {unread.length > 0 && (
                                 <>
-                                    <span className='absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500'></span>
-                                    <span className='absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500 animate-ping'></span>
+                                    <span className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500'></span>
+                                    <span className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping'></span>
                                 </>
                             )}
                         </div>

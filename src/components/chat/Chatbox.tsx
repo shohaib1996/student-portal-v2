@@ -23,8 +23,8 @@ const ChatEmpty = dynamic(() => import('./ChatEmpty'), {
 const Chatbox: React.FC = () => {
     return (
         <div className=''>
-            <div className='grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3 md:gap-5'>
-                <div className='lg:col-span-5 col-span-12'>
+            <div className='grid grid-cols-1 lg:grid-cols-12'>
+                <div className='lg:col-span-4 lg:col-start-1 col-span-12'>
                     <Suspense
                         fallback={
                             <div className='h-screen w-full bg-background rounded-md animate-pulse'></div>
@@ -34,17 +34,17 @@ const Chatbox: React.FC = () => {
                     </Suspense>
                 </div>
 
-                {/* <div className='lg:col-span-7 col-span-12'>
+                <div className='lg:col-span-8 lg:col-start-5 col-span-12'>
                     <Suspense
                         fallback={
-                            <div className='flex justify-center items-center h-screen w-full'>
+                            <div className='flex justify-center items-center h-[calc(100vh-60px)] w-full'>
                                 <Loader2 className='h-8 w-8 animate-spin text-primary' />
                             </div>
                         }
                     >
                         <ChatEmpty />
                     </Suspense>
-                </div> */}
+                </div>
             </div>
         </div>
     );

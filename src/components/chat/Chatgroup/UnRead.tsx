@@ -33,6 +33,7 @@ import {
     CheckCheck,
     Check,
     Pin,
+    ChevronDown,
 } from 'lucide-react';
 
 import { useAppSelector } from '@/redux/hooks';
@@ -411,14 +412,17 @@ function UnRead() {
                     )}
 
                     {records.length > 0 && (
-                        <div className='p-2 text-center'>
+                        <div className='p-2 text-center flex flex-row items-center gap-1'>
+                            <div className='w-full h-[2px] bg-border'></div>
                             <Button
-                                variant='ghost'
+                                variant='primary_light'
                                 size='sm'
-                                className='text-xs text-primary'
+                                className='text-xs rounded-3xl text-primary'
                             >
-                                View More
+                                View More{' '}
+                                <ChevronDown size={16} className='text-gray' />
                             </Button>
+                            <div className='w-full h-[2px] bg-border'></div>
                         </div>
                     )}
                 </div>

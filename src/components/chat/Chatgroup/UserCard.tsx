@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Clock } from 'lucide-react';
+import { Clock, MessagesSquare } from 'lucide-react';
 import axios from 'axios';
 
 interface User {
@@ -87,7 +87,7 @@ function UserCard({
                 </div>
             </div>
             <Button
-                variant={isSelected ? 'default' : 'ghost'}
+                variant={isSelected ? 'default' : 'primary_light'}
                 size='icon'
                 className='rounded-full h-10 w-10 text-primary'
                 onClick={(e) => {
@@ -95,7 +95,7 @@ function UserCard({
                     handleCreateChat();
                 }}
             >
-                <MessageCircle className='h-5 w-5' />
+                <MessagesSquare className='h-5 w-5' />
             </Button>
         </div>
     );

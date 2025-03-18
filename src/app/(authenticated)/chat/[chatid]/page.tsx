@@ -37,20 +37,22 @@ const ChatInbox = () => {
     const closeModal = useCallback(() => {
         setModalOpen(false);
     }, []);
-
+    console.log(
+        '----------------------------------------------------------------------------------------',
+    );
     return (
         <div className='flex flex-col min-h-[calc(100vh-60px)] max-h-[calc(100vh-60px)] h-[calc(100vh-60px)]'>
             <div className='flex-1 bg-background h-full'>
-                <div className='container mx-auto h-full'>
-                    <div className='grid grid-cols-1 lg:grid-cols-12 gap-5 h-full'>
+                <div className='container h-full w-full'>
+                    <div className='grid grid-cols-1 lg:grid-cols-12 h-full'>
                         {/* Chat Navigation */}
-                        <div className='lg:col-span-4 col-span-12 h-full'>
+                        <div className='lg:col-span-4 lg:col-start-1 col-span-12 h-full'>
                             <ChatNav reloading={reloading} />
                         </div>
 
                         {/* Chat Inbox */}
-                        {/* <div
-                            className={`col-span-12 ${profileInfoShow ? 'lg:col-span-4' : 'lg:col-span-8'}`}
+                        <div
+                            className={`col-span-12 ${profileInfoShow ? 'lg:col-span-4' : 'lg:col-span-8 lg:col-start-5'}`}
                         >
                             <Inbox
                                 handleToggleInfo={handleToggleProfileInfo}
@@ -59,7 +61,7 @@ const ChatInbox = () => {
                                 setReloading={setReloading}
                                 reloading={reloading}
                             />
-                        </div> */}
+                        </div>
 
                         {/* Profile Info (visible on larger screens when toggled) */}
                         {profileInfoShow && (

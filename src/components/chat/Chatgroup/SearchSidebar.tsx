@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 
 // Lucide Icons
-import { Search, Loader2, SlidersHorizontal } from 'lucide-react';
+import { Search, Loader2, SlidersHorizontal, ChevronDown } from 'lucide-react';
 
 // Dynamic imports
 const UserCard = dynamic(() => import('./UserCard'), {
@@ -152,14 +152,20 @@ function SearchSidebar() {
                                 ))}
 
                                 {users?.length > 10 && (
-                                    <div className='p-2 text-center'>
+                                    <div className='p-2 text-center flex flex-row items-center gap-1'>
+                                        <div className='w-full h-[2px] bg-border'></div>
                                         <Button
-                                            variant='ghost'
+                                            variant='primary_light'
                                             size='sm'
-                                            className='text-xs text-primary'
+                                            className='text-xs rounded-3xl text-primary'
                                         >
-                                            View More
+                                            View More{' '}
+                                            <ChevronDown
+                                                size={16}
+                                                className='text-gray'
+                                            />
                                         </Button>
+                                        <div className='w-full h-[2px] bg-border'></div>
                                     </div>
                                 )}
                             </div>
