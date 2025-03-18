@@ -4,17 +4,17 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { GlobalHeader } from '@/components/global/global-header';
 import { GlobalPagination } from '@/components/global/global-pagination';
-import { DocumentDetailsModal } from './_components/document-details-modal';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 import {
     LabContent,
-    useGetLabContentQuery,
+    useGetMyTemplatesQuery,
 } from '@/redux/api/documents/documentsApi';
+import { DocumentDetailsModal } from './document-details-modal';
 
-export default function DocumentsPage() {
+export default function MyTemplateComponent() {
     const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
         null,
     );
@@ -26,10 +26,7 @@ export default function DocumentsPage() {
     const itemsPerPage = Number(searchParams.get('limit')) || 10;
     const documentIdFromUrl = searchParams.get('id');
 
-    const { data, error, isLoading } = useGetLabContentQuery({
-        page: currentPage,
-        limit: itemsPerPage,
-    });
+    const { data, error, isLoading } = useGetMyTemplatesQuery();
 
     const totalItems = data?.count || 10;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -48,19 +45,19 @@ export default function DocumentsPage() {
         return <div>Something went wrong!</div>;
     }
 
-    const labContent = data?.contents || [];
+    const labContent = data?.templates || [];
 
     const handleDocumentClick = (documentId: string) => {
         setSelectedDocumentId(documentId);
         const params = new URLSearchParams(searchParams.toString());
         params.set('id', documentId);
-        router.push(`/dashboard/documents-and-labs?${params.toString()}`);
+        router.push(`/dashboard/my-tempaltes?${params.toString()}`);
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        // Remove the id parameter but keep other params
+
         const params = new URLSearchParams(searchParams.toString());
         params.delete('id');
         router.push(`/dashboard/documents-and-labs?${params.toString()}`);
@@ -102,11 +99,9 @@ export default function DocumentsPage() {
                 itemsPerPage={itemsPerPage}
                 onLimitChange={(number) => {
                     console.log(number);
-                    router.push(
-                        `/dashboard/documents-and-labs?limit=${number}`,
-                    );
+                    router.push(`/dashboard/my-templates?limit=${number}`);
                 }}
-                baseUrl='/dashboard/documents-and-labs'
+                baseUrl='/dashboard/my-templates'
             />
 
             <DocumentDetailsModal

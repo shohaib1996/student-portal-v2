@@ -107,7 +107,9 @@ export function GlobalDocumentCard({
                             <span>{readTime} min read</span>
                         </div>
                     </div>
-                    <h3 className='mb-1 line-clamp-2 font-semibold'>{name}</h3>
+                    <h3 className='mb-1 line-clamp-2 font-semibold'>
+                        {name || title}
+                    </h3>
                     <p className='line-clamp-2 text-sm text-muted-foreground'>
                         {description}
                     </p>

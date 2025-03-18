@@ -1,20 +1,21 @@
 'use client';
 
-// import { Upload } from 'lucide-react';
 import { useState, useEffect } from 'react'; // Added useEffect
 import { Button } from '@/components/ui/button';
+import { Upload } from 'lucide-react';
 import { GlobalHeader } from '@/components/global/global-header';
 import { GlobalPagination } from '@/components/global/global-pagination';
-import { DocumentDetailsModal } from './_components/document-details-modal';
-import { UploadDocumentModal } from './_components/upload-document-modal';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
-import { useGetMyDocumentQuery } from '@/redux/api/documents/documentsApi';
+import { useGetUploadDocumentsQuery } from '@/redux/api/documents/documentsApi';
+import { DocumentDetailsModal } from './document-details-modal';
+import { UploadDocumentModal } from './upload-document-modal';
 
-export default function MyDocumentsPage() {
+export default function UploadDocumentComponent() {
     const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
         null,
     );
+    const [currentDoc, setCurrentDoc] = useState({});
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const searchParams = useSearchParams();
@@ -24,7 +25,7 @@ export default function MyDocumentsPage() {
     const itemsPerPage = Number(searchParams.get('limit')) || 10;
     const documentIdFromUrl = searchParams.get('id');
 
-    const { data, error, isLoading } = useGetMyDocumentQuery({
+    const { data, error, isLoading } = useGetUploadDocumentsQuery({
         page: currentPage,
         limit: itemsPerPage,
     });
@@ -40,8 +41,6 @@ export default function MyDocumentsPage() {
         }
     }, [documentIdFromUrl]);
 
-    console.log(selectedDocumentId);
-
     if (isLoading) {
         return <div>Loading...</div>;
     }
@@ -54,7 +53,7 @@ export default function MyDocumentsPage() {
     const handleDocumentClick = (documentId: string) => {
         setSelectedDocumentId(documentId);
         router.push(
-            `/dashboard/my-documents?page=${currentPage}&limit=${itemsPerPage}&id=${documentId}`,
+            `/dashboard/upload-documents?page=${currentPage}&limit=${itemsPerPage}&id=${documentId}`,
         );
         setIsDetailsModalOpen(true);
     };
@@ -64,7 +63,7 @@ export default function MyDocumentsPage() {
         // Remove the id parameter but keep other params
         const params = new URLSearchParams(searchParams.toString());
         params.delete('id');
-        router.push(`/dashboard/my-documents?${params.toString()}`);
+        router.push(`/dashboard/upload-documents?${params.toString()}`);
     };
 
     const handleOpenUploadModal = () => {
@@ -79,21 +78,21 @@ export default function MyDocumentsPage() {
         <div>
             <div className='mb-3'>
                 <GlobalHeader
-                    title='My Documents'
-                    subtitle='Resource Library: Access All Essential Documents'
+                    title='Upload Documents'
+                    subtitle='Securely upload and manage your files with ease'
                 >
                     <div className='ml-auto flex items-center gap-2'>
                         <Button variant='outline' size='sm'>
                             Filters
                         </Button>
-                        {/* <Button
+                        <Button
                             onClick={handleOpenUploadModal}
                             size='sm'
                             className='gap-2'
                         >
                             <Upload className='h-4 w-4' />
                             Upload Document
-                        </Button> */}
+                        </Button>
                     </div>
                 </GlobalHeader>
             </div>
@@ -116,10 +115,10 @@ export default function MyDocumentsPage() {
                 onLimitChange={(number) => {
                     console.log(number);
                     router.push(
-                        `/dashboard/my-documents?page=1&limit=${number}`,
+                        `/dashboard/upload-documents?page=1&limit=${number}`,
                     );
                 }}
-                baseUrl='/dashboard/my-documents'
+                baseUrl='/dashboard/upload-documents'
             />
 
             <DocumentDetailsModal

@@ -3,10 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import {
-    SingleComment,
-    useGetDocumentCommentsQuery,
-} from '@/redux/api/documents/documentsApi';
+import { useGetDocumentCommentsQuery } from '@/redux/api/documents/documentsApi';
 import { Heart, MessageSquare, MoreVertical, Send, Smile } from 'lucide-react';
 
 export interface Comment {
@@ -21,31 +18,54 @@ export interface Comment {
 }
 
 interface GlobalCommentsSectionProps {
-    documentId: string;
+    documentId?: string;
+    comments?: Comment[];
     currentUserAvatar?: string;
     onCommentSubmit?: (content: string) => void;
 }
 
 export function GlobalCommentsSection({
     documentId,
+    comments: propComments = [],
     currentUserAvatar = '/images/author.png',
     onCommentSubmit,
 }: GlobalCommentsSectionProps) {
-    const { data, error, isLoading } = useGetDocumentCommentsQuery(
-        documentId || '',
-    );
+    // Fetch comments from API if documentId is provided
+    const { data, error, isLoading } = documentId
+        ? useGetDocumentCommentsQuery(documentId)
+        : { data: null, error: null, isLoading: false };
 
-    const comments: SingleComment[] = data?.comments || [];
+    // Use API data if documentId exists, otherwise use prop comments
+    const commentsToDisplay = documentId
+        ? data?.comments || []
+        : propComments.map((comment) => ({
+              _id: comment.id,
+              comment: comment.content,
+              createdAt: comment.time,
+              repliesCount: comment.replies,
+              user: {
+                  fullName: comment.author,
+                  profilePicture: comment.avatar,
+              },
+          }));
+
+    if (isLoading) {
+        return <div>Loading comments...</div>;
+    }
+
+    if (error) {
+        return <div>Error loading comments</div>;
+    }
 
     return (
         <div className='mt-6 border-t pt-4'>
             <h3 className='mb-3 text-sm font-medium'>
-                Comments ({comments.length})
+                Comments ({commentsToDisplay.length})
             </h3>
 
             {/* Comments list */}
             <div className='space-y-4'>
-                {comments.map((comment) => (
+                {commentsToDisplay.map((comment) => (
                     <div
                         key={comment._id}
                         className='rounded-md border p-4 bg-background'
@@ -57,14 +77,18 @@ export function GlobalCommentsSection({
                                         src={comment.user.profilePicture}
                                         alt={comment.user.fullName}
                                     />
-                                    <AvatarFallback>Admin</AvatarFallback>
+                                    <AvatarFallback>
+                                        {comment.user.fullName?.[0] || 'U'}
+                                    </AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <p className='text-sm font-medium'>
                                         {comment.user.fullName}
                                     </p>
                                     <p className='text-xs text-muted-foreground'>
-                                        {comment.createdAt}
+                                        {new Date(
+                                            comment.createdAt,
+                                        ).toLocaleString()}
                                     </p>
                                 </div>
                             </div>
@@ -77,11 +101,6 @@ export function GlobalCommentsSection({
                             </Button>
                         </div>
                         <p className='mb-2 text-sm'>{comment.comment}</p>
-                        {/* {comment.additionalText && (
-                            <p className='mb-2 text-sm'>
-                                {comment.additionalText}
-                            </p>
-                        )} */}
                         <div className='flex items-center gap-4 text-xs text-muted-foreground'>
                             {comment.repliesCount > 0 && (
                                 <Button
