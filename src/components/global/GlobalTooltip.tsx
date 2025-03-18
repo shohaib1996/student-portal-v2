@@ -24,7 +24,7 @@ const GlobalTooltip = ({
                 <TooltipTrigger asChild>{children}</TooltipTrigger>
                 <TooltipContent
                     side={side}
-                    className={cn('max-w-44 z-[99999999999999]', className)}
+                    className={cn('max-w-44 z-50', className)}
                 >
                     {tooltip}
                 </TooltipContent>

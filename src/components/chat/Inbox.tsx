@@ -17,10 +17,12 @@ import {
     X,
     Video,
     VideoOff,
+    SearchIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { markRead, updateMyData } from '@/redux/features/chatReducer';
 import onlineUsers from './onlineUsers.json';
+import { Input } from '../ui/input';
 // Dynamic imports
 const ChatBody = lazy(() => import('./ChatBody'));
 // const NotificationOptionModal = lazy(() => import("./ChatForm/NotificationModal"));
@@ -168,11 +170,11 @@ const Inbox: React.FC<InboxProps> = ({
     const toggleMeeting = useCallback(() => {
         setIsMeeting((prev) => !prev);
     }, []);
-
+    console.log({ chat });
     return (
         <>
             {/* Set position relative so the absolute search box is positioned relative to this container */}
-            <div className='relative bg-background rounded-md shadow-sm'>
+            <div className='relative bg-background rounded-md shadow-sm h-[calc(100vh-60px)]'>
                 <div className='flex flex-col h-full'>
                     <div className='flex items-center justify-between p-2 border-b'>
                         <div className='flex items-center space-x-3'>
@@ -221,7 +223,8 @@ const Inbox: React.FC<InboxProps> = ({
                                 <h4 className='text-dark-gray capitalize text-sm font-semibold'>
                                     {chat?.isChannel
                                         ? chat?.name
-                                        : chat?.otherUser?.fullName}
+                                        : chat?.otherUser?.fullName ||
+                                          'unknown'}
                                 </h4>
                                 <span className='text-sm text-muted-foreground whitespace-nowrap'>
                                     {isThinking ? (
@@ -336,32 +339,34 @@ const Inbox: React.FC<InboxProps> = ({
 
                     {/* Search box appears when search.isOpen is true */}
                     {search.isOpen && (
-                        <div className='absolute top-16 left-0 right-0 bg-background p-3 shadow-md z-10 flex items-center gap-2'>
-                            <input
-                                type='text'
-                                value={search.query}
-                                onChange={(e) =>
-                                    setSearch((prev) => ({
-                                        ...prev,
-                                        query: e.target.value,
-                                    }))
-                                }
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        handleSearchSubmit();
+                        <div className='absolute top-[60px] left-0 right-0 bg-background p-2 shadow-md z-10 flex items-center gap-2'>
+                            <div className='relative w-full'>
+                                <Input
+                                    type='text'
+                                    value={search.query}
+                                    onChange={(e) =>
+                                        setSearch((prev) => ({
+                                            ...prev,
+                                            query: e.target.value,
+                                        }))
                                     }
-                                }}
-                                placeholder='Search...'
-                                className='flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary'
-                            />
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            handleSearchSubmit();
+                                        }
+                                    }}
+                                    placeholder='Search...'
+                                    className='flex-1 px-3 py-2 max-h-9 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-foreground'
+                                />
+                                <X
+                                    className='h-4 w-4 cursor-pointer text-danger absolute top-2.5 right-2.5'
+                                    onClick={resetSearch}
+                                />
+                            </div>
                             <Button
-                                variant='primary_light'
-                                size='icon'
-                                onClick={resetSearch}
-                            >
-                                <X className='h-5 w-5' />
-                            </Button>
-                            <Button onClick={handleSearchSubmit}>Search</Button>
+                                onClick={handleSearchSubmit}
+                                icon={<SearchIcon size={18} />}
+                            ></Button>
                         </div>
                     )}
 

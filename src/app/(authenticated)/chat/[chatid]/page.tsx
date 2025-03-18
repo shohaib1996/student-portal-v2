@@ -52,7 +52,7 @@ const ChatInbox = () => {
 
                         {/* Chat Inbox */}
                         <div
-                            className={`col-span-12 ${profileInfoShow ? 'lg:col-span-4' : 'lg:col-span-8 lg:col-start-5'}`}
+                            className={`col-span-12 h-full ${profileInfoShow ? 'lg:col-span-4' : 'lg:col-span-8 lg:col-start-5'}`}
                         >
                             <Inbox
                                 handleToggleInfo={handleToggleProfileInfo}
@@ -65,7 +65,7 @@ const ChatInbox = () => {
 
                         {/* Profile Info (visible on larger screens when toggled) */}
                         {profileInfoShow && (
-                            <div className='lg:col-span-4 col-span-12'>
+                            <div className='lg:col-span-4 col-span-12 h-full'>
                                 <Suspense fallback={<LoadingFallback />}>
                                     <ProfileInfo
                                         handleToggleInfo={
