@@ -53,6 +53,8 @@ export function MonthView({ currentDate }: MonthViewProps) {
         },
     });
 
+    console.log(data);
+
     const handleDayClick = (day: Date) => {
         console.log('Day clicked:', format(day, 'yyyy-MM-dd'));
         setOpen(true);
