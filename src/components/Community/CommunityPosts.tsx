@@ -13,7 +13,14 @@ import {
     useSavePostApiMutation,
 } from '@/redux/api/community/community';
 import { IAuthUser, ICommunityPost } from '@/types';
-import { Ellipsis, Share2, SmileIcon } from 'lucide-react';
+import {
+    Ellipsis,
+    Heart,
+    MessageSquare,
+    Share2,
+    SmileIcon,
+    ThumbsUp,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useState, forwardRef } from 'react';
 import { useSelector } from 'react-redux';
@@ -29,6 +36,7 @@ import LoadingSpinner from '../global/Community/LoadingSpinner/LoadingSpinner';
 import Comment from '../global/Community/Comment&Reply/Comment';
 import NewGlobalModal from '../global/Community/modal/GlobalModal';
 import { copyToClipboard } from '@/utils/common';
+import dayjs from 'dayjs';
 
 interface ICommunityPostProps {
     post: ICommunityPost;
@@ -198,7 +206,9 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                     </div>
                                 </div>
                                 <div className='text-xs text-gray'>
-                                    <FormattingDate date={post?.createdAt} />
+                                    {dayjs(post.createdAt).format(
+                                        'dddd, MMMM D, YYYY h:mm A',
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -263,11 +273,11 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                         </DropdownMenu>
                     </div>
                 </CardTitle>
-                <CardContent className='relative'>
-                    <h1 className='mt-common text-xl font-semibold text-gray'>
+                <CardContent className='relative p-0'>
+                    <h1 className='text-xl font-semibold text-black my-2'>
                         {post.title}
                     </h1>
-                    {post?.attachments && (
+                    {/* {post?.attachments && (
                         <div>
                             {post?.attachments.map((attach) => (
                                 <Image
@@ -304,10 +314,69 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                         >
                             See More
                         </button>
-                    )}
+                    )} */}
+                    <p className='text-dark-gray mb-4'>
+                        Lorem Ipsum is simply dummy text of the printing and
+                        typesetting industry. Lorem Ipsum has been the
+                        industry&apos;s standard dummy text ever since the
+                        1500s, when an unknown printer took a galley of type and
+                        scrambled it to make a type specimen book. Lorem Ipsum
+                        is simply dummy text of the printing and typesetting
+                        industry. Lorem Ipsum has been the industry&apos;s
+                        standard dummy text ever since the 1500s, when an
+                        unknown printer took a galley of type and scrambled it
+                        to make a type specimen book.
+                    </p>
+
+                    {/* Image Grid */}
+                    <div className='grid grid-cols-2 gap-2 mb-4'>
+                        <Image
+                            src='/placeholder.jpg'
+                            alt='Post image'
+                            width={300}
+                            height={200}
+                            className='rounded-lg w-full h-[120px] object-cover'
+                        />
+                        <Image
+                            src='/placeholder.jpg'
+                            alt='Post image'
+                            width={300}
+                            height={200}
+                            className='rounded-lg w-full h-[120px] object-cover'
+                        />
+                        <Image
+                            src='/placeholder.jpg'
+                            alt='Post image'
+                            width={300}
+                            height={200}
+                            className='rounded-lg w-full h-[120px] object-cover'
+                        />
+                        <div className='relative'>
+                            <Image
+                                src='/placeholder.jpg'
+                                alt='Post image'
+                                width={300}
+                                height={200}
+                                className='rounded-lg w-full h-[120px] object-cover'
+                            />
+                            <div className='absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center'>
+                                <span className='text-white font-medium'>
+                                    +5 more
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p className='text-dark-gray mb-4'>
+                        Lorem Ipsum is simply dummy text of the printing and
+                        typesetting industry. Lorem Ipsum has been the
+                        industry&apos;s standard dummy text ever since the
+                        1500s, when an unknown printer took a galley of type and
+                        scrambled it to make a type specimen book.
+                    </p>
                 </CardContent>
                 <CardFooter className='space-x-common'>
-                    <div className='mt-common flex items-center gap-common'>
+                    {/* <div className='mt-common flex items-center gap-common'>
                         {Object.entries(post.reactions).map(
                             ([emoji, count]) => (
                                 <div
@@ -321,8 +390,28 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                 </div>
                             ),
                         )}
+                    </div> */}
+                    <div className='flex items-center gap-4 mb-2'>
+                        <div className='flex items-center gap-1'>
+                            <ThumbsUp className='h-4 w-4 text-blue-600 fill-current' />
+                            <span className='text-sm text-dark-gray'>20</span>
+                        </div>
+                        <div className='flex items-center gap-1'>
+                            <Heart className='h-4 w-4 text-red-500 fill-current' />
+                            <span className='text-sm text-dark-gray'>5</span>
+                        </div>
+                        <div className='flex items-center gap-1'>
+                            <span className='text-yellow-500 text-lg leading-none'>
+                                😮
+                            </span>
+                            <span className='text-sm text-dark-gray'>8</span>
+                        </div>
+                        <div className='flex items-center gap-1'>
+                            <MessageSquare className='h-4 w-4 text-gray-500' />
+                            <span className='text-sm text-dark-gray'>8</span>
+                        </div>
                     </div>
-                    <div className='mt-common flex w-full items-center justify-between'>
+                    {/* <div className='mt-common flex w-full items-center justify-between'>
                         <div
                             className='relative inline-block'
                             onMouseEnter={() => setShowEmojis(true)}
@@ -361,7 +450,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                         >
                             <Share2 /> Share
                         </Button>
-                    </div>
+                    </div> */}
                 </CardFooter>
                 <Separator className='my-common border' />
                 {showComments ? (
