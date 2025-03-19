@@ -35,7 +35,7 @@ export const EventFormSchema = z.object({
     repeat_on: z.array(z.string()),
     repeat: z.boolean().default(false),
     reminder: z.string().default('15 minutes before'),
-    location: z.string().optional(),
+    meetingLink: z.string().optional(),
     agenda: z.string().optional(),
     eventColor: z.string().optional(),
 });
@@ -56,7 +56,7 @@ const CreateEventModal = () => {
             isAllDay: false,
             repeat: false,
             reminder: '15 minutes before',
-            location: '',
+            meetingLink: '',
             agenda: '',
             eventColor: '',
         },

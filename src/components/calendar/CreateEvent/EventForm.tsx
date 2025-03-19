@@ -1,13 +1,15 @@
 'use client';
 
-import { Dispatch, SetStateAction, useCallback, useState } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FormProps, useForm } from 'react-hook-form';
+import {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useState,
+} from 'react';
 import { z } from 'zod';
 import {
-    CalendarIcon,
     ChevronDown,
-    Clock,
     MapPin,
     Bell,
     Users,
@@ -17,6 +19,8 @@ import {
     Check,
     X,
     Repeat2,
+    CircleCheck,
+    Loader,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -26,6 +30,7 @@ import {
     FormControl,
     FormField,
     FormItem,
+    FormLabel,
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -36,7 +41,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useFetchUsersQuery } from '@/redux/api/calendar/calendarApi';
+import {
+    useFetchUsersQuery,
+    useFindUserAvailabilityQuery,
+} from '@/redux/api/calendar/calendarApi';
 import { TUser } from '@/types/auth';
 import { TdUser } from '@/components/global/TdUser';
 import GlobalDropdown from '@/components/global/GlobalDropdown';
@@ -51,6 +59,14 @@ import { useEventPopover } from './EventPopover';
 import { UseFormReturn, SubmitHandler } from 'react-hook-form';
 import { EventFormSchema } from './CreateEventModal';
 import { ColorPicker } from '@/components/global/ColorPicker';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import timesArray from '../../../../public/times';
+import { TAvailability } from '@/types/calendar/calendarTypes';
 
 type TProps = {
     form: UseFormReturn<z.infer<typeof EventFormSchema>>;
@@ -59,14 +75,49 @@ type TProps = {
 };
 
 const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
-    const [date, setDate] = useState<Date>();
+    const [openUser, setOpenUser] = useState<string>('');
     const [query, setQuery] = useState('');
+    const {
+        data: userAvailability,
+        isLoading: availibilityLoading,
+        isFetching,
+    } = useFindUserAvailabilityQuery(openUser, { skip: !openUser });
+    const [date, setDate] = useState<Date>(form.getValues('start'));
+    const [availability, setAvailibility] = useState<
+        TAvailability | undefined
+    >();
+
+    const handleSetAvailibility = (date: Date) => {
+        const availabilityList: TAvailability[] | undefined =
+            userAvailability?.schedule?.availability || [];
+        const wday = dayjs(date).format('dddd').toLowerCase();
+
+        const result = availabilityList?.find((x) => x?.wday === wday);
+        setAvailibility(result);
+    };
+
+    useEffect(() => {
+        handleSetAvailibility(date);
+    }, [userAvailability]);
+
+    const handleDateSelect = (date: Date | undefined) => {
+        if (date) {
+            setDate(date);
+            handleSetAvailibility(date);
+        }
+    };
 
     const { data: userData, isLoading } = useFetchUsersQuery(query);
 
-    const users: TUser[] = userData?.users || [];
+    const users: TUser[] = userData?.users
+        ? (Array.from(
+              new Map(
+                  userData.users.map((user: TUser) => [user._id, user]),
+              ).values(),
+          ) as TUser[])
+        : [];
 
-    const { isFullScreen } = useEventPopover();
+    const { isFullScreen, setIsFullScreen } = useEventPopover();
 
     const findUser = useCallback(
         (id: string) => {
@@ -84,6 +135,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                 name='title'
                 render={({ field }) => (
                     <FormItem className={className}>
+                        {isFullScreen && <FormLabel reqired>Name</FormLabel>}
                         <FormControl>
                             <Input
                                 className='bg-foreground'
@@ -109,6 +161,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                         >
+                            {isFullScreen && <FormLabel>Priority</FormLabel>}
                             <FormControl>
                                 <SelectTrigger className='bg-foreground col-span-2'>
                                     <SelectValue placeholder='Select priority' />
@@ -134,6 +187,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                 name='courseLink'
                 render={({ field }) => (
                     <FormItem className={className}>
+                        {isFullScreen && <FormLabel>Purpose</FormLabel>}
                         <FormControl>
                             <div className='flex items-center border rounded-md h-10 bg-foreground border-forground-border'>
                                 <LinkIcon className='ml-3 h-4 w-4 text-muted-foreground' />
@@ -159,6 +213,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                 name='eventColor'
                 render={({ field }) => (
                     <FormItem>
+                        {isFullScreen && <FormLabel>Color</FormLabel>}
                         <FormControl>
                             <div>
                                 <ColorPicker
@@ -176,72 +231,104 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
 
     const dateField = (className?: string) => {
         return (
-            <div
-                className={cn(
-                    'border border-forground-border bg-foreground rounded-md p-2',
-                    className,
+            <div>
+                {isFullScreen && (
+                    <FormLabel reqired>Event Date & Time</FormLabel>
                 )}
-            >
-                <div className='space-y-2'>
-                    {/* Date Picker */}
-                    <div className='flex gap-3'>
-                        <div className='flex-1 space-y-1'>
+                <div
+                    className={cn(
+                        'border border-forground-border bg-foreground rounded-md p-2 mt-2',
+                        className,
+                    )}
+                >
+                    <div className='space-y-2'>
+                        {/* Date Picker */}
+                        <div className='flex gap-3'>
+                            <div className='flex-1 space-y-1'>
+                                <FormField
+                                    name='start'
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <div className='flex items-center gap-2'>
+                                                    <DatePicker
+                                                        className='bg-background min-h-8'
+                                                        value={dayjs(
+                                                            field.value,
+                                                        )}
+                                                        onChange={(val) => {
+                                                            field.onChange(
+                                                                val?.toDate(),
+                                                            );
+                                                            setCurrentDate(
+                                                                val || dayjs(),
+                                                            );
+                                                        }}
+                                                    />
+                                                    {/* Time Picker */}
+                                                    <TimePicker
+                                                        className='bg-background '
+                                                        value={field.value}
+                                                        onChange={(val) =>
+                                                            field.onChange(val)
+                                                        }
+                                                    />
+                                                </div>
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    name='end'
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <div className='flex items-center gap-2'>
+                                                    <DatePicker
+                                                        className='bg-background min-h-8'
+                                                        value={dayjs(
+                                                            field.value,
+                                                        )}
+                                                        onChange={(val) =>
+                                                            field.onChange(
+                                                                val?.toDate(),
+                                                            )
+                                                        }
+                                                    />
+                                                    {/* Time Picker */}
+                                                    <TimePicker
+                                                        className='bg-background'
+                                                        value={field.value}
+                                                        onChange={(val) =>
+                                                            field.onChange(val)
+                                                        }
+                                                    />
+                                                </div>
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
                             <FormField
-                                name='start'
+                                name='isAllDay'
                                 control={form.control}
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <div className='flex items-center gap-2'>
-                                                <DatePicker
-                                                    className='bg-background min-h-8'
-                                                    value={dayjs(field.value)}
-                                                    onChange={(val) => {
-                                                        field.onChange(
-                                                            val?.toDate(),
-                                                        );
-                                                        setCurrentDate(
-                                                            val || dayjs(),
-                                                        );
-                                                    }}
-                                                />
-                                                {/* Time Picker */}
-                                                <TimePicker
-                                                    className='bg-background '
-                                                    value={field.value}
-                                                    onChange={(val) =>
-                                                        field.onChange(val)
+                                            <div className='flex items-center space-x-2'>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={
+                                                        field.onChange
                                                     }
+                                                    id='airplane-mode'
                                                 />
-                                            </div>
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                name='end'
-                                control={form.control}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <div className='flex items-center gap-2'>
-                                                <DatePicker
-                                                    className='bg-background min-h-8'
-                                                    value={dayjs(field.value)}
-                                                    onChange={(val) =>
-                                                        field.onChange(
-                                                            val?.toDate(),
-                                                        )
-                                                    }
-                                                />
-                                                {/* Time Picker */}
-                                                <TimePicker
-                                                    className='bg-background'
-                                                    value={field.value}
-                                                    onChange={(val) =>
-                                                        field.onChange(val)
-                                                    }
-                                                />
+                                                <Label htmlFor='airplane-mode'>
+                                                    All Day
+                                                </Label>
                                             </div>
                                         </FormControl>
                                     </FormItem>
@@ -249,38 +336,17 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                             />
                         </div>
 
-                        <FormField
-                            name='isAllDay'
-                            control={form.control}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <div className='flex items-center space-x-2'>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                                id='airplane-mode'
-                                            />
-                                            <Label htmlFor='airplane-mode'>
-                                                All Day
-                                            </Label>
-                                        </div>
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
+                        {/* Repeat Button */}
+                        <Button
+                            type='button'
+                            variant='plain'
+                            className='flex items-center gap-2'
+                            size='sm'
+                        >
+                            <Repeat2 size={16} />
+                            Repeat
+                        </Button>
                     </div>
-
-                    {/* Repeat Button */}
-                    <Button
-                        type='button'
-                        variant='plain'
-                        className='flex items-center gap-2'
-                        size='sm'
-                    >
-                        <Repeat2 size={16} />
-                        Repeat
-                    </Button>
                 </div>
             </div>
         );
@@ -339,7 +405,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
         return (
             <FormField
                 control={form.control}
-                name='location'
+                name='meetingLink'
                 render={({ field }) => (
                     <FormItem className={className}>
                         <div className='w-full'>
@@ -347,8 +413,13 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
                             >
+                                {isFullScreen && (
+                                    <FormLabel reqired>Location</FormLabel>
+                                )}
                                 <FormControl>
-                                    <SelectTrigger className=''>
+                                    <SelectTrigger
+                                        className={cn({ 'mt-2': isFullScreen })}
+                                    >
                                         <MapPin className='mr-2 h-4 w-4' />
                                         <SelectValue placeholder='Select location' />
                                     </SelectTrigger>
@@ -384,6 +455,11 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                 name='agenda'
                 render={({ field }) => (
                     <FormItem className={className}>
+                        {isFullScreen && (
+                            <FormLabel>
+                                Meeting Agenda/Follow up/Action Item
+                            </FormLabel>
+                        )}
                         <FormControl>
                             <div className='flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring'>
                                 <Menu className='ml-3 h-4 w-4 text-muted-foreground' />
@@ -586,6 +662,16 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                             {locationField()}
                             {/* Agenda */}
                             {agendaField()}
+
+                            {!isFullScreen && (
+                                <button
+                                    type='button'
+                                    onClick={() => setIsFullScreen(true)}
+                                    className='w-full text-end font-semibold pb-2 text-sm text-primary'
+                                >
+                                    More Options
+                                </button>
+                            )}
                         </div>
                     ) : (
                         <div className='space-y-2 h-full'>
@@ -599,141 +685,283 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                 {dateField()}
                                 {locationField()}
                             </div>
-                            <div className='grid grid-cols-2 gap-2 h-full'>
+                            <div className='grid grid-cols-[2fr_1fr] gap-2 h-full'>
                                 {agendaField('h-full')}
-                                <FormField
-                                    control={form.control}
-                                    name='invitations'
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <div>
-                                                    {field.value?.length >
-                                                        0 && (
-                                                        <div className='space-y-2 max-h-40 bg-foreground p-2 overflow-y-auto'>
-                                                            {field.value?.map(
-                                                                (user, i) => (
-                                                                    <div
-                                                                        className='relative bg-background px-2 py-1 flex items-center justify-between rounded-md'
-                                                                        key={
-                                                                            user
-                                                                        }
-                                                                    >
-                                                                        <TdUser
-                                                                            user={
-                                                                                findUser(
-                                                                                    user,
-                                                                                ) as TUser
-                                                                            }
-                                                                        />
-                                                                        <X
-                                                                            onClick={() =>
-                                                                                field.onChange(
-                                                                                    field.value?.filter(
-                                                                                        (
-                                                                                            u,
-                                                                                        ) =>
-                                                                                            u !==
-                                                                                            user,
-                                                                                    ),
-                                                                                )
-                                                                            }
-                                                                            className='text-danger cursor-pointer'
-                                                                            size={
-                                                                                18
-                                                                            }
-                                                                        />
-                                                                    </div>
-                                                                ),
-                                                            )}
-                                                        </div>
-                                                    )}
-
-                                                    <div className='p-2'>
-                                                        <Input
-                                                            onChange={(e) =>
-                                                                setQuery(
-                                                                    e.target
-                                                                        .value,
-                                                                )
-                                                            }
-                                                            prefix={
-                                                                <SearchIcon
-                                                                    size={18}
-                                                                />
-                                                            }
-                                                        />
-
-                                                        <div className='space-y-2'>
-                                                            {users?.map(
-                                                                (user, i) => {
-                                                                    const selected =
-                                                                        field.value.find(
-                                                                            (
-                                                                                u,
-                                                                            ) =>
-                                                                                u ===
-                                                                                user._id,
-                                                                        );
-                                                                    return (
+                                <div>
+                                    {isFullScreen && (
+                                        <FormLabel reqired>
+                                            Invitations/Add Guests
+                                        </FormLabel>
+                                    )}
+                                    <FormField
+                                        control={form.control}
+                                        name='invitations'
+                                        render={({ field }) => (
+                                            <FormItem className='bg-foreground rounded-md border border-forground-border mt-2'>
+                                                <FormControl>
+                                                    <div>
+                                                        {field.value?.length >
+                                                            0 && (
+                                                            <div className='space-y-2 max-h-40 bg-foreground p-2 overflow-y-auto'>
+                                                                {field.value?.map(
+                                                                    (
+                                                                        user,
+                                                                        i,
+                                                                    ) => (
                                                                         <div
-                                                                            onClick={() => {
-                                                                                if (
-                                                                                    selected
-                                                                                ) {
+                                                                            className='relative bg-background px-2 py-1 flex items-center justify-between rounded-md'
+                                                                            key={
+                                                                                user
+                                                                            }
+                                                                        >
+                                                                            <TdUser
+                                                                                user={
+                                                                                    findUser(
+                                                                                        user,
+                                                                                    ) as TUser
+                                                                                }
+                                                                            />
+                                                                            <X
+                                                                                onClick={() =>
                                                                                     field.onChange(
                                                                                         field.value?.filter(
                                                                                             (
                                                                                                 u,
                                                                                             ) =>
                                                                                                 u !==
-                                                                                                user._id,
+                                                                                                user,
                                                                                         ),
-                                                                                    );
-                                                                                } else {
-                                                                                    field.onChange(
-                                                                                        [
-                                                                                            ...field.value,
-                                                                                            user._id,
-                                                                                        ],
-                                                                                    );
+                                                                                    )
                                                                                 }
-                                                                            }}
-                                                                            className={cn(
-                                                                                'relative flex justify-between items-center px-2 py-1 cursor-pointer bg-foreground rounded-md',
-                                                                                {
-                                                                                    'bg-primary-light':
-                                                                                        selected,
-                                                                                },
-                                                                            )}
-                                                                            key={
-                                                                                user._id
-                                                                            }
-                                                                        >
-                                                                            <TdUser
-                                                                                user={
-                                                                                    user
+                                                                                className='text-danger cursor-pointer'
+                                                                                size={
+                                                                                    18
                                                                                 }
                                                                             />
-                                                                            {selected && (
-                                                                                <Check
-                                                                                    size={
-                                                                                        16
-                                                                                    }
-                                                                                />
-                                                                            )}
                                                                         </div>
-                                                                    );
-                                                                },
-                                                            )}
+                                                                    ),
+                                                                )}
+                                                            </div>
+                                                        )}
+
+                                                        <div className='p-2'>
+                                                            <Input
+                                                                onChange={(e) =>
+                                                                    setQuery(
+                                                                        e.target
+                                                                            .value,
+                                                                    )
+                                                                }
+                                                                prefix={
+                                                                    <SearchIcon
+                                                                        size={
+                                                                            18
+                                                                        }
+                                                                    />
+                                                                }
+                                                            />
+
+                                                            <div className='space-y-2 pt-2'>
+                                                                {users?.map(
+                                                                    (
+                                                                        user,
+                                                                        i,
+                                                                    ) => {
+                                                                        const selected =
+                                                                            field.value.find(
+                                                                                (
+                                                                                    u,
+                                                                                ) =>
+                                                                                    u ===
+                                                                                    user._id,
+                                                                            );
+                                                                        return (
+                                                                            <Popover
+                                                                                open={
+                                                                                    openUser ===
+                                                                                    user._id
+                                                                                }
+                                                                                onOpenChange={() =>
+                                                                                    setOpenUser(
+                                                                                        '',
+                                                                                    )
+                                                                                }
+                                                                                key={
+                                                                                    user._id
+                                                                                }
+                                                                            >
+                                                                                <PopoverTrigger className='w-full block'>
+                                                                                    <div
+                                                                                        onClick={() => {
+                                                                                            if (
+                                                                                                selected
+                                                                                            ) {
+                                                                                                field.onChange(
+                                                                                                    field.value?.filter(
+                                                                                                        (
+                                                                                                            u,
+                                                                                                        ) =>
+                                                                                                            u !==
+                                                                                                            user._id,
+                                                                                                    ),
+                                                                                                );
+                                                                                            } else {
+                                                                                                field.onChange(
+                                                                                                    [
+                                                                                                        ...field.value,
+                                                                                                        user._id,
+                                                                                                    ],
+                                                                                                );
+                                                                                            }
+                                                                                        }}
+                                                                                        className={cn(
+                                                                                            'relative flex justify-between items-center px-2 py-1 cursor-pointer bg-background rounded-md',
+                                                                                            {
+                                                                                                'bg-primary-light':
+                                                                                                    selected,
+                                                                                            },
+                                                                                        )}
+                                                                                    >
+                                                                                        <TdUser
+                                                                                            user={
+                                                                                                user
+                                                                                            }
+                                                                                        />
+                                                                                        <div className='flex items-center gap-3'>
+                                                                                            <Button
+                                                                                                type='button'
+                                                                                                onClick={(
+                                                                                                    e,
+                                                                                                ) => {
+                                                                                                    e.stopPropagation();
+                                                                                                    setOpenUser(
+                                                                                                        user?._id,
+                                                                                                    );
+                                                                                                }}
+                                                                                                variant={
+                                                                                                    'primary_light'
+                                                                                                }
+                                                                                                size={
+                                                                                                    'sm'
+                                                                                                }
+                                                                                                className='h-7'
+                                                                                                icon={
+                                                                                                    <CircleCheck
+                                                                                                        size={
+                                                                                                            16
+                                                                                                        }
+                                                                                                    />
+                                                                                                }
+                                                                                            >
+                                                                                                Availability
+                                                                                            </Button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </PopoverTrigger>
+                                                                                <PopoverContent className='z-[9999] w-[var(--radix-popover-trigger-width)]'>
+                                                                                    <div className='flex gap-2'>
+                                                                                        <Calendar
+                                                                                            className='p-0'
+                                                                                            mode='single'
+                                                                                            selected={
+                                                                                                date
+                                                                                            }
+                                                                                            onSelect={
+                                                                                                handleDateSelect
+                                                                                            }
+                                                                                        />
+                                                                                        {availibilityLoading ||
+                                                                                        isFetching ? (
+                                                                                            <div className='w-full h-[260px] flex items-center justify-center'>
+                                                                                                <Loader
+                                                                                                    size={
+                                                                                                        18
+                                                                                                    }
+                                                                                                    className='animate-spin'
+                                                                                                />
+                                                                                            </div>
+                                                                                        ) : (
+                                                                                            <>
+                                                                                                {availability &&
+                                                                                                availability
+                                                                                                    ?.intervals
+                                                                                                    ?.length >
+                                                                                                    0 ? (
+                                                                                                    <div className='border-l border-forground-border w-full'>
+                                                                                                        <h2 className='font-semibold pb-1 text-black text-base text-center'>
+                                                                                                            {dayjs(
+                                                                                                                date,
+                                                                                                            ).format(
+                                                                                                                'dddd',
+                                                                                                            )}
+                                                                                                        </h2>
+                                                                                                        <div className='flex flex-col gap-2 ps-2 overflow-y-auto w-full max-h-[270px]'>
+                                                                                                            {availability?.intervals?.map(
+                                                                                                                (
+                                                                                                                    interval,
+                                                                                                                    i,
+                                                                                                                ) => (
+                                                                                                                    <div
+                                                                                                                        key={
+                                                                                                                            i
+                                                                                                                        }
+                                                                                                                        className='flex bg-foreground text-sm rounded-md border border-forground-border w-full px-2 py-1 '
+                                                                                                                    >
+                                                                                                                        <span>
+                                                                                                                            {timesArray?.find(
+                                                                                                                                (
+                                                                                                                                    x,
+                                                                                                                                ) =>
+                                                                                                                                    x.value ===
+                                                                                                                                    interval?.from,
+                                                                                                                            )
+                                                                                                                                ?.label ||
+                                                                                                                                interval?.from}
+                                                                                                                        </span>
+                                                                                                                        <span>
+                                                                                                                            -
+                                                                                                                        </span>
+                                                                                                                        <span>
+                                                                                                                            {timesArray?.find(
+                                                                                                                                (
+                                                                                                                                    x,
+                                                                                                                                ) =>
+                                                                                                                                    x.value ===
+                                                                                                                                    interval?.to,
+                                                                                                                            )
+                                                                                                                                ?.label ||
+                                                                                                                                interval?.to}
+                                                                                                                        </span>
+                                                                                                                    </div>
+                                                                                                                ),
+                                                                                                            )}
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                ) : (
+                                                                                                    <div className='h-[260px] w-full flex items-center'>
+                                                                                                        No
+                                                                                                        available
+                                                                                                        time
+                                                                                                        found
+                                                                                                    </div>
+                                                                                                )}
+                                                                                            </>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </PopoverContent>
+                                                                            </Popover>
+                                                                        );
+                                                                    },
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                             </div>
                         </div>
                     )}

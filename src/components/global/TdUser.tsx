@@ -36,11 +36,11 @@ export function TdUser({
                     )}
                 />
             </div>
-            <div className='flex flex-col'>
-                <span className='text-sm font-medium text-gray-900'>
+            <div className='flex flex-col text-start'>
+                <span className='text-sm font-medium text-black'>
                     {user?.fullName}
                 </span>
-                <span className='text-xs text-gray-500'>{user?.email}</span>
+                <span className='text-xs text-gray'>{user?.email}</span>
             </div>
         </div>
     );
