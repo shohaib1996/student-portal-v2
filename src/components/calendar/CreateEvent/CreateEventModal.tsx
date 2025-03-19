@@ -11,7 +11,6 @@ import {
 import AvailabilityIcon from '@/components/svgs/calendar/Availability';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EventForm from './EventForm';
-import TodoForm from './TodoForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -19,57 +18,11 @@ import { DayView } from '../DayView';
 import dayjs from 'dayjs';
 import { useCreateEventMutation } from '@/redux/api/calendar/calendarApi';
 import { toast } from 'sonner';
-
-export const EventFormSchema = z.object({
-    title: z.string().min(2, {
-        message: 'Event name is required.',
-    }),
-    priority: z.string().optional(),
-    courseLink: z.string().optional(),
-    invitations: z
-        .array(
-            z.string().min(1, {
-                message: 'Please add at least one guest.',
-            }),
-        )
-        .min(1, 'Please add at least one guest.'),
-    start: z.date().refine(
-        (data) => {
-            return dayjs(data).isAfter(dayjs(), 'minute');
-        },
-        { message: 'Please select a future date' },
-    ),
-    end: z.date(),
-    isAllDay: z.boolean().default(false),
-    repeat_on: z.array(z.string()).optional(),
-    repeat: z.boolean().default(false).optional(),
-    notifications: z.array(
-        z
-            .object({
-                chatGroups: z.array(z.string()).optional(),
-                methods: z
-                    .array(z.string())
-                    .min(1, 'Choose at least one method')
-                    .max(3, "Can't add more than 3 methods"),
-                timeBefore: z.number(),
-            })
-            .refine(
-                (data) => {
-                    if (data.methods.includes('groups')) {
-                        return !!data.chatGroups && data.chatGroups.length > 0;
-                    }
-                    return true;
-                },
-                {
-                    message: 'Please select at least one chat group',
-                    path: ['chatGroups'],
-                },
-            ),
-    ),
-    meetingLink: z.string().optional(),
-    agenda: z.string().optional(),
-    eventColor: z.string().optional(),
-});
+import {
+    EventFormSchema,
+    TEventFormType,
+} from '../validations/eventValidation';
+import TodoForm from '../CreateTodo/TodoForm';
 
 const CreateEventModal = () => {
     const { closePopover, isFullScreen } = useEventPopover();
@@ -77,7 +30,7 @@ const CreateEventModal = () => {
 
     const [createEvent] = useCreateEventMutation();
 
-    const eventForm = useForm<z.infer<typeof EventFormSchema>>({
+    const eventForm = useForm<TEventFormType>({
         resolver: zodResolver(EventFormSchema),
         defaultValues: {
             title: '',
@@ -101,6 +54,28 @@ const CreateEventModal = () => {
         },
     });
 
+    const todoForm = useForm<TEventFormType>({
+        resolver: zodResolver(EventFormSchema),
+        defaultValues: {
+            title: '',
+            priority: '',
+            courseLink: '',
+            start: new Date(),
+            end: new Date(),
+            isAllDay: false,
+            repeat: false,
+            notifications: [
+                {
+                    chatGroups: [],
+                    methods: ['push'],
+                    timeBefore: 15,
+                },
+            ],
+            meetingLink: '',
+            agenda: '',
+        },
+    });
+
     useEffect(() => {
         console.log(eventForm.formState?.errors);
         const errors = Object.values(eventForm.formState?.errors);
@@ -118,6 +93,18 @@ const CreateEventModal = () => {
     }, [eventForm.watch('start')]);
 
     async function onEventSubmit(values: z.infer<typeof EventFormSchema>) {
+        const data = values;
+        try {
+            const res = await createEvent({
+                ...data,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            }).unwrap();
+            console.log(res);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    async function onTodoSubmit(values: z.infer<typeof EventFormSchema>) {
         const data = values;
         try {
             const res = await createEvent({
@@ -202,10 +189,10 @@ const CreateEventModal = () => {
                 </div>
             }
         >
-            {/* <Tabs defaultValue='event'>
+            <Tabs defaultValue='event'>
                 <TabsList>
-                    <TabsTrigger value='event'>Events</TabsTrigger>
-                    <TabsTrigger value='todo'>Events</TabsTrigger>
+                    <TabsTrigger value='event'>Event</TabsTrigger>
+                    <TabsTrigger value='todo'>Todo</TabsTrigger>
                 </TabsList>
                 <TabsContent value='event'>
                     <EventForm
@@ -215,14 +202,13 @@ const CreateEventModal = () => {
                     />
                 </TabsContent>
                 <TabsContent value='todo'>
-                    <TodoForm />
+                    <TodoForm
+                        setCurrentDate={setCurrentDate}
+                        form={todoForm}
+                        onSubmit={onTodoSubmit}
+                    />
                 </TabsContent>
-            </Tabs> */}
-            <EventForm
-                setCurrentDate={setCurrentDate}
-                form={eventForm}
-                onSubmit={onEventSubmit}
-            />
+            </Tabs>
         </EventPopover>
     );
 };

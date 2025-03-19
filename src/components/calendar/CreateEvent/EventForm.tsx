@@ -58,7 +58,6 @@ import { DayView } from '../DayView';
 import { useEventPopover } from './EventPopover';
 
 import { UseFormReturn, SubmitHandler } from 'react-hook-form';
-import { EventFormSchema } from './CreateEventModal';
 import { ColorPicker } from '@/components/global/ColorPicker';
 import {
     Popover,
@@ -77,10 +76,11 @@ import meetImg from '../../../../public/calendar/meet.png';
 import phoneImg from '../../../../public/calendar/phone.png';
 import customImg from '../../../../public/calendar/custom.png';
 import AddNotification from './AddNotification';
+import { TEventFormType } from '../validations/eventValidation';
 
 type TProps = {
-    form: UseFormReturn<z.infer<typeof EventFormSchema>>;
-    onSubmit: SubmitHandler<z.infer<typeof EventFormSchema>>;
+    form: UseFormReturn<TEventFormType>;
+    onSubmit: SubmitHandler<TEventFormType>;
     setCurrentDate: Dispatch<SetStateAction<Dayjs>>;
 };
 
@@ -690,7 +690,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                             )}
                         </div>
                     ) : (
-                        <div className='space-y-2 h-full w-full overflow-y-auto pb-2'>
+                        <div className='space-y-2 h-full w-full pb-2'>
                             <div className='grid grid-cols-10 gap-2 items-start'>
                                 {titleField('col-span-5')}
                                 {courseLink('col-span-2')}
