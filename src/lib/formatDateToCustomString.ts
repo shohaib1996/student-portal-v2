@@ -7,6 +7,7 @@ dayjs.extend(timezone);
 
 export function formatDateToCustomString(
     dateString: string | undefined,
+    isFull: boolean = true,
 ): string {
     const date = dayjs.utc(dateString).local();
 
@@ -14,5 +15,9 @@ export function formatDateToCustomString(
         return 'Dec 16, 1971 | 12:00 AM';
     }
 
-    return date.format('MMM D, YYYY | h:mm A');
+    if (isFull) {
+        return date.format('MMM D, YYYY | h:mm A');
+    }
+
+    return date.format('MMM D, YYYY');
 }
