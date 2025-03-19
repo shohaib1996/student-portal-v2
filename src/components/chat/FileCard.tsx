@@ -1,9 +1,19 @@
 'use client';
 
-import type React from 'react';
+import React, { useState } from 'react';
 import { Download, Loader2 } from 'lucide-react';
 import mime from 'mime-types';
-import AudioCard from './TextEditor/AudioCard';
+import dayjs from 'dayjs';
+import { toast } from 'sonner';
+import dynamic from 'next/dynamic';
+import { Button } from '../ui/button';
+
+// Dynamic imports for optimized loading
+const AudioCard = dynamic(() => import('./TextEditor/AudioCard'), {
+    loading: () => (
+        <div className='w-full h-16 bg-muted animate-pulse rounded-md'></div>
+    ),
+});
 
 // Define image types
 const imageTypes = [
@@ -18,6 +28,7 @@ const imageTypes = [
 ];
 
 interface FileObject {
+    _id?: string;
     name?: string;
     type?: string;
     size?: number;
@@ -28,6 +39,7 @@ interface FileObject {
         type?: string;
         size?: number;
     };
+    createdAt?: string;
 }
 
 interface FileCardProps {
@@ -55,7 +67,7 @@ const determineIconSrc = (
     url: string | undefined,
 ): string => {
     if (!fileType) {
-        return '/file.png';
+        return '/file_icon.png';
     }
 
     switch (fileType) {
@@ -76,30 +88,49 @@ const determineIconSrc = (
             return '/zip.png';
         default:
             if (imageTypes.includes(fileType)) {
-                return url || '/file.png';
+                return url || '/default_image.png';
             }
-            return '/file.png';
+            return '/file_icon.png';
     }
 };
 
 /**
  * Helper function to download a file
  */
-const downloadFileWithLink = (url?: string) => {
+const downloadFileWithLink = (url?: string, fileName?: string) => {
     if (!url) {
+        toast.error('Download URL not available');
         return;
     }
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', '');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+        const link = document.createElement('a');
+        link.href = url;
+        if (fileName) {
+            link.setAttribute('download', fileName);
+        } else {
+            link.setAttribute('download', '');
+        }
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Download started');
+    } catch (error) {
+        toast.error('Failed to download file');
+        console.error('Download error:', error);
+    }
 };
 
-const FileCard: React.FC<FileCardProps> = ({ file, index }) => {
-    const iconSrc = determineIconSrc(file.type, file?.url);
+const formatDate = (dateString?: string) => {
+    if (!dateString) {
+        return '';
+    }
+    return dayjs(dateString).format('MMM D, YYYY h:mm A');
+};
+
+const FileCard = ({ file, index }: FileCardProps) => {
+    const [isHovered, setIsHovered] = useState(false);
+    const iconSrc = determineIconSrc(file?.type, file?.url);
     const fileType = file?.type?.split('/')[0];
 
     const isAudio =
@@ -108,70 +139,166 @@ const FileCard: React.FC<FileCardProps> = ({ file, index }) => {
     const isVideo = fileType === 'video';
     const isUploading = file?.status === 'uploading';
 
-    return (
-        <div
-            className={`file_download_item ${file?.status || ''} rounded-md border border-border p-3 flex flex-col`}
-        >
-            {isAudio ? (
+    console.log({ file });
+
+    const handleDownload = (e: React.MouseEvent) => {
+        e.preventDefault();
+        downloadFileWithLink(file?.url, file?.name);
+    };
+
+    // Render audio card for audio files
+    if (isAudio) {
+        return (
+            <div className='file_download_item rounded-md flex flex-col'>
                 <AudioCard audioUrl={file?.url as string} />
-            ) : (
-                <>
-                    <div className='thumb relative overflow-hidden rounded-md'>
-                        {isImage ? (
-                            <div className='aspect-square overflow-hidden rounded-md'>
-                                <img
-                                    className='w-full h-full object-cover'
-                                    src={iconSrc || '/file.png'}
-                                    alt={file.name || 'File'}
-                                />
-                            </div>
-                        ) : isVideo ? (
-                            <div className='aspect-video overflow-hidden rounded-md bg-muted flex items-center justify-center'>
-                                <img
-                                    className='w-20 h-20 object-contain'
-                                    src='/video-icon.png'
-                                    alt='Video'
-                                />
-                            </div>
-                        ) : (
-                            <div className='aspect-square overflow-hidden rounded-md bg-muted/50 flex items-center justify-center'>
-                                <img
-                                    className='w-16 h-16 object-contain'
-                                    src={iconSrc || '/placeholder.svg'}
-                                    alt={
-                                        mime.extension(file.type || '') ||
-                                        'File'
-                                    }
-                                />
-                            </div>
-                        )}
-                    </div>
+            </div>
+        );
+    }
 
-                    <div className='info mt-2 flex items-center justify-between'>
-                        <div className='flex items-center space-x-2'>
-                            {isUploading && (
-                                <Loader2 className='h-4 w-4 animate-spin text-primary' />
-                            )}
-                            <span className='text-xs text-muted-foreground'>
-                                {bytesToSize(
-                                    file.size || file?.file?.size || 0,
-                                )}
-                            </span>
-                        </div>
+    // Special rendering for image files
+    if (isImage) {
+        return (
+            <div
+                className='file_download_item w-full relative rounded-md overflow-hidden'
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                {/* Image */}
+                <div className='aspect-square w-full relative'>
+                    <img
+                        className='w-full h-full object-contain'
+                        src={file?.url || iconSrc || '/default_image.png'}
+                        alt={file?.name || 'Image'}
+                    />
 
-                        <button
-                            className='imgDownBtn p-2 rounded-full hover:bg-muted transition-colors'
-                            onClick={(e) => {
-                                e.preventDefault();
-                                downloadFileWithLink(file?.url);
-                            }}
+                    {/* Gradient overlay */}
+                    <div className='absolute inset-0 bg-gradient-to-b from-pure-black/60 to-transparent pointer-events-none' />
+
+                    {/* Top controls */}
+                    <div className='absolute top-0 left-0 right-0 p-1 flex justify-between items-center'>
+                        {/* Download button */}
+                        <Button
+                            variant='primary_light'
+                            size='icon'
+                            className='h-8 w-8 rounded-full'
+                            onClick={handleDownload}
                             aria-label='Download file'
                         >
                             <Download className='h-4 w-4 text-primary' />
-                        </button>
+                        </Button>
+
+                        {/* Time */}
+                        {file?.createdAt && (
+                            <span className='text-xs text-white px-2 py-1 rounded-md'>
+                                {formatDate(file?.createdAt)}
+                            </span>
+                        )}
                     </div>
-                </>
-            )}
+
+                    {/* Bottom info box - shown on hover */}
+                    <div
+                        className={`absolute bottom-0 left-0 right-0 bg-white p-2 transition-transform duration-200 ease-in-out ${
+                            isHovered ? 'translate-y-0' : 'translate-y-full'
+                        }`}
+                    >
+                        <p
+                            className='text-sm font-medium truncate text-black'
+                            title={file?.name}
+                        >
+                            {file?.name || 'Unnamed file'}
+                        </p>
+                        <p className='text-xs text-gray-500'>
+                            {bytesToSize(file?.size || file?.file?.size || 0)}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Default rendering for non-image, non-audio files (attachments)
+    return (
+        <div
+            className={`file_download_item w-full ${file?.status || ''} rounded-md border flex flex-col`}
+        >
+            <div
+                className='thumb relative overflow-hidden'
+                style={{ borderRadius: '4px 4px 0 0 ' }}
+            >
+                {isVideo ? (
+                    <div className='aspect-video overflow-hidden rounded-md bg-primary-light flex items-center justify-center'>
+                        <img
+                            className='w-20 h-20 object-contain'
+                            src='/video-icon.png'
+                            alt='Video'
+                        />
+                    </div>
+                ) : (
+                    <div className='overflow-hidden bg-primary-light flex items-center justify-center'>
+                        <img
+                            className='w-24 h-24 object-contain'
+                            src={iconSrc}
+                            alt={mime.extension(file?.type || '') || 'File'}
+                        />
+                    </div>
+                )}
+            </div>
+            <div
+                className='flex flex-row items-center gap-1 bg-background px-2 py-1'
+                style={{ borderRadius: '0 0 4px 4px' }}
+            >
+                <div className='left'>
+                    <Button
+                        variant={'primary_light'}
+                        className='rounded-full h-10 w-10'
+                        onClick={handleDownload}
+                        aria-label='Download file'
+                    >
+                        <Download className='h-4 w-4 text-primary' />
+                    </Button>
+                </div>
+                <div className='right flex flex-col'>
+                    {!isVideo && (
+                        <p
+                            className='text-xs text-gray'
+                            style={{ lineHeight: 1.1 }}
+                        >
+                            Attachment
+                        </p>
+                    )}
+                    <p
+                        className='text-sm font-medium truncate text-black'
+                        style={{ lineHeight: 1.1 }}
+                        title={file?.name}
+                    >
+                        {file?.name || 'Unnamed file'}
+                    </p>
+                    <div className='flex flex-row gap-3 items-center justify-between'>
+                        <div className='flex items-center space-x-2'>
+                            {isUploading ? (
+                                <Loader2 className='h-4 w-4 animate-spin text-primary' />
+                            ) : (
+                                <span
+                                    className='text-xs text-gray'
+                                    style={{ lineHeight: 1.1 }}
+                                >
+                                    {bytesToSize(
+                                        file?.size || file?.file?.size || 0,
+                                    )}
+                                </span>
+                            )}
+                        </div>
+                        {file?.createdAt && (
+                            <span
+                                className='text-xs text-gray'
+                                style={{ lineHeight: 1.1 }}
+                            >
+                                {formatDate(file?.createdAt)}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

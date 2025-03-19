@@ -490,8 +490,6 @@ const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
                                                 params?.chatid === chat?._id;
                                             const hasUnread =
                                                 chat?.unreadCount > 0;
-
-                                            // For demo purposes - in real app, these would come from the chat data
                                             const hasMention = i % 3 === 0;
                                             const isMuted =
                                                 chat?.myData?.notification
