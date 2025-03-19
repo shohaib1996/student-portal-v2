@@ -5,6 +5,7 @@ import { format, isToday } from 'date-fns';
 
 import { cn } from '@/lib/utils';
 import dayjs, { Dayjs } from 'dayjs';
+import { toast } from 'sonner';
 
 interface DayViewProps {
     currentDate: Date;
@@ -54,6 +55,9 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
         // You can implement custom logic here, like opening a modal to add an event
         const date = dayjs(currentDate);
         const updatedDate = date.hour(hour).minute(0).second(0).millisecond(0);
+        if (dayjs(updatedDate).isBefore(dayjs(), 'minute')) {
+            return toast.warning('Please select future date and time');
+        }
         onChange?.(updatedDate);
     };
 

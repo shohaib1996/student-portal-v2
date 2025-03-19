@@ -17,24 +17,55 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DayView } from '../DayView';
 import dayjs from 'dayjs';
+import { useCreateEventMutation } from '@/redux/api/calendar/calendarApi';
+import { toast } from 'sonner';
 
 export const EventFormSchema = z.object({
     title: z.string().min(2, {
-        message: 'Event name must be at least 2 characters.',
+        message: 'Event name is required.',
     }),
     priority: z.string().optional(),
     courseLink: z.string().optional(),
-    invitations: z.array(
-        z.string().min(1, {
-            message: 'Please add at least one guest.',
-        }),
+    invitations: z
+        .array(
+            z.string().min(1, {
+                message: 'Please add at least one guest.',
+            }),
+        )
+        .min(1, 'Please add at least one guest.'),
+    start: z.date().refine(
+        (data) => {
+            return dayjs(data).isAfter(dayjs(), 'minute');
+        },
+        { message: 'Please select a future date' },
     ),
-    start: z.date(),
     end: z.date(),
     isAllDay: z.boolean().default(false),
-    repeat_on: z.array(z.string()),
-    repeat: z.boolean().default(false),
-    reminder: z.string().default('15 minutes before'),
+    repeat_on: z.array(z.string()).optional(),
+    repeat: z.boolean().default(false).optional(),
+    notifications: z.array(
+        z
+            .object({
+                chatGroups: z.array(z.string()).optional(),
+                methods: z
+                    .array(z.string())
+                    .min(1, 'Choose at least one method')
+                    .max(3, "Can't add more than 3 methods"),
+                timeBefore: z.number(),
+            })
+            .refine(
+                (data) => {
+                    if (data.methods.includes('groups')) {
+                        return !!data.chatGroups && data.chatGroups.length > 0;
+                    }
+                    return true;
+                },
+                {
+                    message: 'Please select at least one chat group',
+                    path: ['chatGroups'],
+                },
+            ),
+    ),
     meetingLink: z.string().optional(),
     agenda: z.string().optional(),
     eventColor: z.string().optional(),
@@ -43,6 +74,8 @@ export const EventFormSchema = z.object({
 const CreateEventModal = () => {
     const { closePopover, isFullScreen } = useEventPopover();
     const [currentDate, setCurrentDate] = useState(dayjs());
+
+    const [createEvent] = useCreateEventMutation();
 
     const eventForm = useForm<z.infer<typeof EventFormSchema>>({
         resolver: zodResolver(EventFormSchema),
@@ -55,12 +88,26 @@ const CreateEventModal = () => {
             end: new Date(),
             isAllDay: false,
             repeat: false,
-            reminder: '15 minutes before',
+            notifications: [
+                {
+                    chatGroups: [],
+                    methods: ['push'],
+                    timeBefore: 15,
+                },
+            ],
             meetingLink: '',
             agenda: '',
             eventColor: '',
         },
     });
+
+    useEffect(() => {
+        console.log(eventForm.formState?.errors);
+        const errors = Object.values(eventForm.formState?.errors);
+        if (errors.length > 0) {
+            toast.error(errors[0].message);
+        }
+    }, [eventForm.formState?.errors]);
 
     useEffect(() => {
         const startDate = eventForm.getValues('start');
@@ -70,8 +117,17 @@ const CreateEventModal = () => {
         }
     }, [eventForm.watch('start')]);
 
-    function onEventSubmit(values: z.infer<typeof EventFormSchema>) {
-        console.log(values);
+    async function onEventSubmit(values: z.infer<typeof EventFormSchema>) {
+        const data = values;
+        try {
+            const res = await createEvent({
+                ...data,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            }).unwrap();
+            console.log(res);
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     const handleNext = () => {
@@ -91,7 +147,10 @@ const CreateEventModal = () => {
         <EventPopover
             title={
                 <div className='flex justify-between items-center w-full'>
-                    <Button icon={<BookmarkCheck size={18} />}>
+                    <Button
+                        onClick={eventForm.handleSubmit(onEventSubmit)}
+                        icon={<BookmarkCheck size={18} />}
+                    >
                         Save & Close
                     </Button>
                     <div className='flex gap-2'>

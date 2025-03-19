@@ -293,7 +293,7 @@ export function EventPopover({ children, title, sidebar }: EventPopoverProps) {
                         <div
                             className={cn(
                                 'flex-1 overflow-auto p-4 h-[350px]',
-                                { 'h-full': isFullScreen },
+                                { 'h-[calc(100vh-61px)]': isFullScreen },
                             )}
                         >
                             {children}

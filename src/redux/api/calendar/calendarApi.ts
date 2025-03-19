@@ -29,6 +29,13 @@ const calendarApi = baseApi.injectEndpoints({
                 method: 'GET',
             }),
         }),
+        createEvent: build.mutation({
+            query: (data: any) => ({
+                url: 'v2/calendar/event/create',
+                method: 'POST',
+                data,
+            }),
+        }),
     }),
 });
 
@@ -36,4 +43,5 @@ export const {
     useGetMyEventsQuery,
     useFetchUsersQuery,
     useFindUserAvailabilityQuery,
+    useCreateEventMutation,
 } = calendarApi;

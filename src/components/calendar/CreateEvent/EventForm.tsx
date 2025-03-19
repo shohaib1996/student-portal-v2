@@ -5,6 +5,7 @@ import {
     SetStateAction,
     useCallback,
     useEffect,
+    useRef,
     useState,
 } from 'react';
 import { z } from 'zod';
@@ -66,7 +67,16 @@ import {
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import timesArray from '../../../../public/times';
-import { TAvailability } from '@/types/calendar/calendarTypes';
+import { TAvailability, TNotification } from '@/types/calendar/calendarTypes';
+import { MarkdownEditor } from '@/components/global/MarkdownEditor/MarkdownEditor';
+import { MDXEditorMethods } from '@mdxeditor/editor';
+import Image from 'next/image';
+
+import zoomImg from '../../../../public/calendar/zoom.png';
+import meetImg from '../../../../public/calendar/meet.png';
+import phoneImg from '../../../../public/calendar/phone.png';
+import customImg from '../../../../public/calendar/custom.png';
+import AddNotification from './AddNotification';
 
 type TProps = {
     form: UseFormReturn<z.infer<typeof EventFormSchema>>;
@@ -86,7 +96,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
     const [availability, setAvailibility] = useState<
         TAvailability | undefined
     >();
-
+    const agendaRef = useRef<MDXEditorMethods>(null);
     const handleSetAvailibility = (date: Date) => {
         const availabilityList: TAvailability[] | undefined =
             userAvailability?.schedule?.availability || [];
@@ -276,6 +286,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                     />
                                                 </div>
                                             </FormControl>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -307,6 +318,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                     />
                                                 </div>
                                             </FormControl>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -356,45 +368,28 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
         return (
             <FormField
                 control={form.control}
-                name='reminder'
+                name='notifications'
                 render={({ field }) => (
                     <FormItem
                         className={cn('col-span-5', {
                             'col-span-10 order-9': isFullScreen,
                         })}
                     >
-                        <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                        >
-                            <FormControl>
-                                <SelectTrigger>
-                                    <Bell className='mr-2 h-4 w-4' />
-                                    <SelectValue placeholder='Reminder 15 minutes before' />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                <SelectItem value='5 minutes before'>
-                                    5 minutes before
-                                </SelectItem>
-                                <SelectItem value='10 minutes before'>
-                                    10 minutes before
-                                </SelectItem>
-                                <SelectItem value='15 minutes before'>
-                                    15 minutes before
-                                </SelectItem>
-                                <SelectItem value='30 minutes before'>
-                                    30 minutes before
-                                </SelectItem>
-                                <SelectItem value='1 hour before'>
-                                    1 hour before
-                                </SelectItem>
-                                <SelectItem value='1 day before'>
-                                    1 day before
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
+                        <div className={isFullScreen ? '' : ''}>
+                            {isFullScreen && (
+                                <FormLabel reqired>Add Reminders</FormLabel>
+                            )}
+                            {field.value?.map((noti, i) => (
+                                <AddNotification
+                                    setNotification={(val) =>
+                                        field.onChange([val])
+                                    }
+                                    key={i}
+                                    notificaiton={noti as TNotification}
+                                />
+                            ))}
+                            <FormMessage />
+                        </div>
                     </FormItem>
                 )}
             />
@@ -409,37 +404,65 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                 render={({ field }) => (
                     <FormItem className={className}>
                         <div className='w-full'>
-                            <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                            >
-                                {isFullScreen && (
-                                    <FormLabel reqired>Location</FormLabel>
-                                )}
-                                <FormControl>
-                                    <SelectTrigger
-                                        className={cn({ 'mt-2': isFullScreen })}
-                                    >
-                                        <MapPin className='mr-2 h-4 w-4' />
-                                        <SelectValue placeholder='Select location' />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem value='office'>
-                                        Office
-                                    </SelectItem>
-                                    <SelectItem value='home'>Home</SelectItem>
-                                    <SelectItem value='conference-room'>
-                                        Conference Room
-                                    </SelectItem>
-                                    <SelectItem value='virtual'>
-                                        Virtual Meeting
-                                    </SelectItem>
-                                    <SelectItem value='custom'>
-                                        Custom Location
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
+                            {isFullScreen && (
+                                <FormLabel reqired>Location</FormLabel>
+                            )}
+                            <div className='bg-foreground space-y-2 rounded-md border border-forground-border p-3 mt-2'>
+                                <div className='grid grid-cols-4 gap-2'>
+                                    <div className='bg-background h-full w-full rounded-md flex flex-col items-center p-2'>
+                                        <Image
+                                            className='size-9 object-contain'
+                                            src={zoomImg}
+                                            height={60}
+                                            width={60}
+                                            alt='zoom'
+                                        />
+                                        <h5 className='text-dark-gray text-sm'>
+                                            Zoom
+                                        </h5>
+                                    </div>
+                                    <div className='bg-background h-full w-full rounded-md flex flex-col items-center p-2'>
+                                        <Image
+                                            className='size-9 object-contain'
+                                            src={phoneImg}
+                                            height={60}
+                                            width={60}
+                                            alt='zoom'
+                                        />
+                                        <h5 className='text-dark-gray text-sm'>
+                                            Phone Call
+                                        </h5>
+                                    </div>
+                                    <div className='bg-background h-full w-full rounded-md flex flex-col items-center p-2'>
+                                        <Image
+                                            className='size-9 object-contain'
+                                            src={meetImg}
+                                            height={60}
+                                            width={60}
+                                            alt='zoom'
+                                        />
+                                        <h5 className='text-dark-gray text-sm'>
+                                            Google Meet
+                                        </h5>
+                                    </div>
+                                    <div className='bg-background h-full w-full rounded-md flex flex-col items-center p-2'>
+                                        <Image
+                                            className='size-9 object-contain'
+                                            src={customImg}
+                                            height={60}
+                                            width={60}
+                                            alt='zoom'
+                                        />
+                                        <h5 className='text-dark-gray text-sm'>
+                                            Custom
+                                        </h5>
+                                    </div>
+                                </div>
+                                <Input
+                                    {...field}
+                                    placeholder='Paste your meeting link here...'
+                                />
+                            </div>
                         </div>
                         <FormMessage />
                     </FormItem>
@@ -450,30 +473,23 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
 
     const agendaField = (className?: string) => {
         return (
-            <FormField
-                control={form.control}
-                name='agenda'
-                render={({ field }) => (
-                    <FormItem className={className}>
-                        {isFullScreen && (
-                            <FormLabel>
-                                Meeting Agenda/Follow up/Action Item
-                            </FormLabel>
-                        )}
-                        <FormControl>
-                            <div className='flex items-center border rounded-md focus-within:ring-1 focus-within:ring-ring'>
-                                <Menu className='ml-3 h-4 w-4 text-muted-foreground' />
-                                <Input
-                                    placeholder='Enter agenda/follow up/action item...'
-                                    {...field}
-                                    className='border-0 focus-visible:ring-0'
-                                />
-                            </div>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
+            <div className={isFullScreen ? 'h-[60vh]' : ''}>
+                {isFullScreen && (
+                    <FormLabel>Meeting Agenda/Follow up/Action Item</FormLabel>
                 )}
-            />
+                <div className='mt-2 h-full'>
+                    <MarkdownEditor
+                        ref={agendaRef}
+                        placeholder='Enter agenda/follow up/action item...'
+                        className='bg-foreground h-full overflow-y-auto'
+                        markdown={form.getValues('agenda') || ''}
+                        onChange={() => {
+                            const value = agendaRef.current?.getMarkdown();
+                            form.setValue('agenda', value);
+                        }}
+                    />
+                </div>
+            </div>
         );
     };
 
@@ -674,20 +690,20 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                             )}
                         </div>
                     ) : (
-                        <div className='space-y-2 h-full'>
-                            <div className='grid grid-cols-10 gap-2'>
+                        <div className='space-y-2 h-full w-full overflow-y-auto pb-2'>
+                            <div className='grid grid-cols-10 gap-2 items-start'>
                                 {titleField('col-span-5')}
                                 {courseLink('col-span-2')}
                                 {priorityField('col-span-2')}
                                 {colorField('col-span-1')}
                             </div>
                             <div className='grid grid-cols-2 gap-2'>
-                                {dateField()}
+                                {dateField('')}
                                 {locationField()}
                             </div>
-                            <div className='grid grid-cols-[2fr_1fr] gap-2 h-full'>
-                                {agendaField('h-full')}
-                                <div>
+                            <div className='grid grid-cols-[2fr_1fr] gap-2'>
+                                {agendaField()}
+                                <div className='h-full'>
                                     {isFullScreen && (
                                         <FormLabel reqired>
                                             Invitations/Add Guests
@@ -697,12 +713,13 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                         control={form.control}
                                         name='invitations'
                                         render={({ field }) => (
-                                            <FormItem className='bg-foreground rounded-md border border-forground-border mt-2'>
+                                            <FormItem className='bg-foreground h-[60vh] overflow-y-auto rounded-md border border-forground-border mt-2'>
                                                 <FormControl>
                                                     <div>
+                                                        <FormMessage className='pt-2 text-center' />
                                                         {field.value?.length >
                                                             0 && (
-                                                            <div className='space-y-2 max-h-40 bg-foreground p-2 overflow-y-auto'>
+                                                            <div className='space-y-2 bg-foreground p-2'>
                                                                 {field.value?.map(
                                                                     (
                                                                         user,
@@ -744,7 +761,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                             </div>
                                                         )}
 
-                                                        <div className='p-2'>
+                                                        <div className='p-2 overflow-y-auto'>
                                                             <Input
                                                                 onChange={(e) =>
                                                                     setQuery(
@@ -761,7 +778,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                 }
                                                             />
 
-                                                            <div className='space-y-2 pt-2'>
+                                                            <div className='space-y-2 pt-2 overflow-y-auto'>
                                                                 {users?.map(
                                                                     (
                                                                         user,
@@ -957,12 +974,12 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                         </div>
                                                     </div>
                                                 </FormControl>
-                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
                                 </div>
                             </div>
+                            {reminderField()}
                         </div>
                     )}
                 </form>

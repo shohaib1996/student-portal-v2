@@ -1,0 +1,11 @@
+.mdxeditor-popup-container {
+    @apply bg-dropdown;
+}
+
+._selectTrigger_uazmk_307 {
+    background-color: var(--background) !important;
+}
+
+._contentEditable_uazmk_379 {
+    @apply h-40;
+}
