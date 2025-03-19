@@ -169,10 +169,10 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
             <Card ref={ref} className='mb-2 p-2'>
                 <CardTitle>
                     <div className='flex justify-between'>
-                        <div className='flex items-center gap-common'>
-                            <div>
+                        <div className='flex items-center gap-3'>
+                            <div className='relative'>
                                 <Image
-                                    className='h-12 w-12 rounded-full'
+                                    className='h-10 w-10 rounded-full object-cover'
                                     src={
                                         post.createdBy.profilePicture ||
                                         'https://static.vecteezy.com/system/resources/thumbnails/002/002/403/small/man-with-beard-avatar-character-isolated-icon-free-vector.jpg'
@@ -181,24 +181,24 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                         post.createdBy.fullName ||
                                         'profile picture'
                                     }
-                                    height={48}
-                                    width={48}
+                                    height={40}
+                                    width={40}
                                 />
+                                {/* Add online indicator if needed */}
                             </div>
                             <div>
-                                <div className='space-x-common'>
-                                    <span className='text-lg text-gray'>
+                                <div className='flex items-center'>
+                                    <span className='font-semibold text-black'>
                                         {post.createdBy.fullName}
                                     </span>
-                                    <FormattingTime
-                                        createdAt={post?.createdAt}
-                                    />
+                                    <div className='ml-2 text-xs text-gray flex items-center'>
+                                        <FormattingTime
+                                            createdAt={post?.createdAt}
+                                        />
+                                    </div>
                                 </div>
-                                <div>
-                                    <FormattingDate
-                                        className='text-base font-semibold text-gray'
-                                        date={post?.createdAt}
-                                    />
+                                <div className='text-xs text-gray'>
+                                    <FormattingDate date={post?.createdAt} />
                                 </div>
                             </div>
                         </div>

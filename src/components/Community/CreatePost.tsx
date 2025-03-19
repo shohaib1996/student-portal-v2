@@ -127,7 +127,7 @@ const CreatePost = ({ refetch, setRefetch }: ICreatePostProps) => {
     return (
         <>
             {openMarkDown ? (
-                <div className='mb-common-multiplied rounded-xl bg-background p-common'>
+                <div className='mb-common-multiplied rounded-xl bg-foreground p-common'>
                     <div className='flex items-center justify-between mb-2'>
                         <div className='flex items-center gap-2'>
                             <Avatar className='h-8 w-8'>
@@ -245,9 +245,9 @@ const CreatePost = ({ refetch, setRefetch }: ICreatePostProps) => {
                 //         What's on your mind, {user?.fullName}?
                 //     </p>
                 // </div>
-                <Card className='shadow-sm border-border-primary-light mb-2'>
-                    <CardContent className='p-4'>
-                        <div className='flex items-center gap-3'>
+                <Card className='shadow-sm bg-foreground border-border-primary-light mb-2'>
+                    <CardContent className='p-2.5'>
+                        <div className='flex items-center gap-2'>
                             <Avatar className='h-10 w-10 border-2 border-border shadow-sm'>
                                 <AvatarImage
                                     src={user.profilePicture}
@@ -259,7 +259,7 @@ const CreatePost = ({ refetch, setRefetch }: ICreatePostProps) => {
                             </Avatar>
                             <button
                                 onClick={() => setOpenMarkDown(true)}
-                                className='flex-1 text-left bg-foreground hover:bg-background transition-colors rounded-full px-4 py-2.5 text-dark-gray font-semibold'
+                                className='flex-1 text-left bg-background hover:bg-background transition-colors rounded-lg px-4 py-2.5 text-dark-gray font-semibold'
                             >
                                 What&apos;s on your mind, {user?.fullName}?
                             </button>
