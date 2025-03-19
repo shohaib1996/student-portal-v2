@@ -38,7 +38,7 @@ const GlobalDropdown = ({
                 side={side}
                 align={align}
                 className={cn(
-                    'z-10 max-h-96 overflow-y-auto relative p-0 border',
+                    'z-50 max-h-96 overflow-y-auto relative p-0 border',
                     className,
                 )}
             >

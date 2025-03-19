@@ -16,7 +16,32 @@ const calendarApi = baseApi.injectEndpoints({
                 // params
             }),
         }),
+        fetchUsers: build.query({
+            query: (searchQuery: string) => ({
+                url: '/user/filter',
+                method: 'POST',
+                data: { query: searchQuery, global: true },
+            }),
+        }),
+        findUserAvailability: build.query({
+            query: (id: string) => ({
+                url: `/calendar/schedule/find/${id}`,
+                method: 'GET',
+            }),
+        }),
+        createEvent: build.mutation({
+            query: (data: any) => ({
+                url: 'v2/calendar/event/create',
+                method: 'POST',
+                data,
+            }),
+        }),
     }),
 });
 
-export const { useGetMyEventsQuery } = calendarApi;
+export const {
+    useGetMyEventsQuery,
+    useFetchUsersQuery,
+    useFindUserAvailabilityQuery,
+    useCreateEventMutation,
+} = calendarApi;

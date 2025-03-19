@@ -14,7 +14,7 @@ import { motion, useDragControls, useMotionValue } from 'framer-motion';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import CreateEventModal from './CreateEventModal';
+import { createPortal } from 'react-dom';
 
 type Side = 'top' | 'right' | 'bottom' | 'left';
 
@@ -24,6 +24,10 @@ interface EventPopoverContextType {
     closePopover: () => void;
     title: string;
     setTitle: (title: string) => void;
+    position: { x: number; y: number };
+    isFullScreen: boolean;
+    setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
+    renderPopover: (children: ReactNode) => ReactNode | null;
 }
 
 const EventPopoverContext = createContext<EventPopoverContextType | undefined>(
@@ -38,6 +42,10 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [title, setTitle] = useState('');
+    const [popoverContent, setPopoverContent] = useState<ReactNode | null>(
+        null,
+    );
+    const [isFullScreen, setIsFullScreen] = useState(false);
 
     const openPopover = useCallback((triggerRect: DOMRect, side: Side) => {
         // Calculate position based on the trigger's position and the specified side
@@ -48,7 +56,7 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
 
         switch (side) {
             case 'top':
-                x = triggerRect.left + triggerRect.width / 2 - 300; // Center horizontally (600px width / 2)
+                x = triggerRect.left + triggerRect.width / 2 - 250; // Center horizontally (600px width / 2)
                 y = triggerRect.top - padding - window.scrollY;
                 break;
             case 'right':
@@ -56,11 +64,11 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
                 y = triggerRect.top + triggerRect.height / 2 - window.scrollY;
                 break;
             case 'bottom':
-                x = triggerRect.left + triggerRect.width / 2 - 300; // Center horizontally
+                x = triggerRect.left + triggerRect.width / 2 - 250; // Center horizontally
                 y = triggerRect.bottom + padding - window.scrollY;
                 break;
             case 'left':
-                x = triggerRect.left - 600 - padding; // 600px is the width of the popover
+                x = triggerRect.left - 500 - padding; // 600px is the width of the popover
                 y = triggerRect.top + triggerRect.height / 2 - window.scrollY;
                 break;
         }
@@ -78,21 +86,29 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
 
     const closePopover = useCallback(() => {
         setIsOpen(false);
+        setPopoverContent(null);
+    }, []);
+
+    const renderPopover = useCallback((content: ReactNode) => {
+        setPopoverContent(content);
+        return null;
     }, []);
 
     return (
         <EventPopoverContext.Provider
-            value={{ isOpen, openPopover, closePopover, title, setTitle }}
+            value={{
+                isOpen,
+                openPopover,
+                closePopover,
+                title,
+                setTitle,
+                position,
+                renderPopover,
+                isFullScreen,
+                setIsFullScreen,
+            }}
         >
             {children}
-            <EventPopover
-                isOpen={isOpen}
-                onClose={closePopover}
-                title={title}
-                initialPosition={position}
-            >
-                <CreateEventModal />
-            </EventPopover>
         </EventPopoverContext.Provider>
     );
 }
@@ -117,9 +133,13 @@ export function EventPopoverTrigger({
     side = 'bottom',
 }: EventPopoverTriggerProps) {
     const triggerRef = useRef<HTMLDivElement>(null);
-    const { openPopover, setTitle } = useEventPopover();
+    const { openPopover, closePopover, isOpen } = useEventPopover();
 
-    const handleClick = () => {
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+        if (isOpen) {
+            return closePopover();
+        }
         if (triggerRef.current) {
             const rect = triggerRef.current.getBoundingClientRect();
             openPopover(rect, side);
@@ -134,40 +154,56 @@ export function EventPopoverTrigger({
 }
 
 interface EventPopoverProps {
-    isOpen: boolean;
-    onClose: () => void;
-    title: string;
     children?: ReactNode;
-    initialPosition: { x: number; y: number };
+    title?: ReactNode;
+    sidebar?: ReactNode;
 }
 
-export function EventPopover({
-    isOpen,
-    onClose,
-    title,
-    children,
-    initialPosition,
-}: EventPopoverProps) {
-    const [isFullScreen, setIsFullScreen] = useState(false);
+export function EventPopover({ children, title, sidebar }: EventPopoverProps) {
+    const { isOpen, closePopover, position, isFullScreen, setIsFullScreen } =
+        useEventPopover();
     const dragControls = useDragControls();
-    const x = useMotionValue(initialPosition.x);
-    const y = useMotionValue(initialPosition.y);
+    const x = useMotionValue(position.x);
+    const y = useMotionValue(position.y);
 
-    // Update position when initialPosition changes
+    // Update position when position from context changes
     React.useEffect(() => {
         if (isOpen && !isFullScreen) {
-            x.set(initialPosition.x);
-            y.set(initialPosition.y);
+            x.set(position.x);
+            y.set(position.y);
         }
-    }, [initialPosition, isOpen, isFullScreen, x, y]);
+    }, [position, isOpen, isFullScreen, x, y]);
+
+    React.useEffect(() => {
+        if (isOpen && isFullScreen) {
+            document.body.style.overflow = 'hidden';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen, isFullScreen]);
 
     // Add click outside handler
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as HTMLElement;
+
             // Check if the click is outside the popover
             if (isOpen && !target.closest('.event-popover')) {
-                onClose();
+                // Check if the click is on a select, dropdown, or other UI control
+                // that might be rendered outside the popover's DOM tree
+                const isSelectOrDropdown =
+                    target.closest('select') ||
+                    target.closest('[role="listbox"]') ||
+                    target.closest('[role="menu"]') ||
+                    target.closest('[role="dialog"]') ||
+                    target.closest('.popover') ||
+                    target.closest('.dropdown');
+
+                // Only close if it's not a select/dropdown element
+                if (!isSelectOrDropdown) {
+                    closePopover();
+                }
             }
         };
 
@@ -175,7 +211,7 @@ export function EventPopover({
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isOpen, onClose]);
+    }, [isOpen, closePopover]);
 
     if (!isOpen) {
         return null;
@@ -188,70 +224,104 @@ export function EventPopover({
             x.set(0);
             y.set(0);
         } else {
-            x.set(initialPosition.x);
-            y.set(initialPosition.y);
+            x.set(position.x);
+            y.set(position.y);
         }
     };
 
-    return (
+    return createPortal(
         <div className='fixed inset-0 z-50 pointer-events-none'>
             <motion.div
                 className={cn(
-                    'bg-white rounded-lg shadow-lg flex flex-col pointer-events-auto event-popover',
+                    'bg-background border border-forground-border rounded-lg shadow-lg flex flex-col pointer-events-auto event-popover',
                     isFullScreen
                         ? 'fixed inset-0 w-full h-full rounded-none'
-                        : 'w-[600px] max-h-[80vh] absolute',
+                        : 'w-[500px] h-fit max-h-[80vh] absolute',
                 )}
                 initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
+                animate={{
+                    opacity: 1,
+                    scale: 1,
+                    ...(isFullScreen
+                        ? {
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              borderRadius: 0,
+                          }
+                        : {}),
+                }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.15 }}
+                transition={{
+                    duration: 0.2,
+                    type: 'spring',
+                    stiffness: 300,
+                    damping: 30,
+                }}
+                layout
                 drag={!isFullScreen}
                 dragControls={dragControls}
                 dragListener={false}
                 dragMomentum={false}
                 style={isFullScreen ? undefined : { x, y }}
             >
-                <div
-                    className='flex items-center justify-between p-4 border-b cursor-move'
-                    onPointerDown={(e) => {
-                        if (!isFullScreen) {
-                            dragControls.start(e);
-                        }
-                    }}
-                >
-                    <div className='flex items-center'>
-                        <GripHorizontal className='h-5 w-5 mr-2 text-gray-400' />
-                        <h2 className='text-lg font-semibold'>{title}</h2>
-                    </div>
-                    <div className='flex items-center gap-2'>
-                        <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={toggleFullScreen}
-                            className='h-8 w-8'
-                        >
-                            {isFullScreen ? (
-                                <Minimize2 className='h-4 w-4' />
-                            ) : (
-                                <Maximize2 className='h-4 w-4' />
-                            )}
-                        </Button>
-                        <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={() => {
-                                onClose();
-                                setIsFullScreen(false);
+                <div className='flex'>
+                    <div className='border-r border-forground-border w-full'>
+                        <div
+                            className='flex items-center justify-between p-4 pb-2 border-b cursor-move'
+                            onPointerDown={(e) => {
+                                if (!isFullScreen) {
+                                    dragControls.start(e);
+                                }
                             }}
-                            className='h-8 w-8'
                         >
-                            <X className='h-4 w-4' />
-                        </Button>
+                            {title}
+                            <Button
+                                variant='secondary'
+                                size='icon'
+                                onClick={toggleFullScreen}
+                                className='ms-2 text-dark-gray'
+                            >
+                                {isFullScreen ? (
+                                    <Minimize2 className='h-4 w-4' />
+                                ) : (
+                                    <Maximize2 className='h-4 w-4' />
+                                )}
+                            </Button>
+                        </div>
+                        <div
+                            className={cn(
+                                'flex-1 overflow-auto p-4 h-[350px]',
+                                { 'h-[calc(100vh-61px)]': isFullScreen },
+                            )}
+                        >
+                            {children}
+                        </div>
                     </div>
+                    {isFullScreen && sidebar}
                 </div>
-                <div className='flex-1 overflow-auto p-4'>{children}</div>
             </motion.div>
-        </div>
+        </div>,
+        document.body,
     );
+}
+
+// Helper component to render content in the popover from anywhere
+export function RenderInPopover({
+    children,
+    title,
+}: {
+    children: ReactNode;
+    title?: string;
+}) {
+    const { renderPopover, setTitle } = useEventPopover();
+
+    React.useEffect(() => {
+        if (title) {
+            setTitle(title);
+        }
+    }, [title, setTitle]);
+
+    return renderPopover(children);
 }

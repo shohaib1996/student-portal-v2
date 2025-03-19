@@ -1,6 +1,7 @@
 'use client';
 import Calendar from '@/components/calendar/Calendar';
 import { CalendarSidebar } from '@/components/calendar/CalendarSidebar';
+import CreateEventModal from '@/components/calendar/CreateEvent/CreateEventModal';
 import { EventPopoverProvider } from '@/components/calendar/CreateEvent/EventPopover';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
 import GlobalHeader from '@/components/global/GlobalHeader';
@@ -51,6 +52,7 @@ const CalendarPage = () => {
                         onDateSelect={setCurrentDate}
                     />
                 </div>
+                <CreateEventModal />
             </EventPopoverProvider>
         </div>
     );
