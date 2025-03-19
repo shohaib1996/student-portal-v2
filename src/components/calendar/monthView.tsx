@@ -30,12 +30,20 @@ interface MonthViewProps {
     currentDate: Date;
 }
 
-interface CalendarEvent {
-    id: string;
-    title: string;
-    date: Date;
-    color: string;
-}
+export const renderStatus = (
+    status: 'accepted' | 'pending' | 'denied' | 'canceled' | 'finished',
+) => {
+    switch (status) {
+        case 'accepted':
+            return <AcceptedIcon />;
+        case 'pending':
+            return <PendingIcon />;
+        case 'denied':
+            return <DeniedIcon />;
+        default:
+            return <FinishedIcon />;
+    }
+};
 
 export function MonthView({ currentDate }: MonthViewProps) {
     // Generate calendar days
@@ -53,27 +61,10 @@ export function MonthView({ currentDate }: MonthViewProps) {
         },
     });
 
-    console.log(data);
-
     const handleDayClick = (day: Date) => {
         console.log('Day clicked:', format(day, 'yyyy-MM-dd'));
         setOpen(true);
         // You can implement custom logic here, like opening a modal to add an event
-    };
-
-    const renderStatus = (
-        status: 'accepted' | 'pending' | 'denied' | 'canceled' | 'finished',
-    ) => {
-        switch (status) {
-            case 'accepted':
-                return <AcceptedIcon />;
-            case 'pending':
-                return <PendingIcon />;
-            case 'denied':
-                return <DeniedIcon />;
-            default:
-                return <FinishedIcon />;
-        }
     };
 
     const events: TEvent[] = (staticEvents as unknown as TEvent[]) || [];

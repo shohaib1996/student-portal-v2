@@ -251,7 +251,11 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                         className,
                     )}
                 >
-                    <div className='space-y-2'>
+                    <div
+                        className={cn('w-full space-y-3', {
+                            'h-[calc(100%-19px)]': isFullScreen,
+                        })}
+                    >
                         {/* Date Picker */}
                         <div className='flex gap-3'>
                             <div className='flex-1 space-y-1'>
@@ -403,7 +407,11 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                 name='meetingLink'
                 render={({ field }) => (
                     <FormItem className={className}>
-                        <div className='w-full'>
+                        <div
+                            className={cn('w-full', {
+                                'h-[calc(100%-19px)]': isFullScreen,
+                            })}
+                        >
                             {isFullScreen && (
                                 <FormLabel reqired>Location</FormLabel>
                             )}
