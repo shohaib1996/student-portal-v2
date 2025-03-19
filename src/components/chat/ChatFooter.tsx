@@ -4,6 +4,7 @@ import type React from 'react';
 import dayjs from 'dayjs';
 import { useDispatch } from 'react-redux';
 import TextEditor from './TextEditor/page';
+import TextEditorReply from './TextEditor/TextEditorReply';
 
 interface MuteData {
     isMuted: boolean;
@@ -99,17 +100,17 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
                 ) : (
                     <>
                         {reply ? (
-                            // <TextEditorReply
-                            //     chatId={chat?._id}
-                            //     parentMessage={parentMessage}
-                            //     onSentCallback={onSentCallback}
-                            //     selectedMessage={selectedMessage}
-                            //     setProfileInfoShow={setProfileInfoShow}
-                            //     profileInfoShow={profileInfoShow}
-                            //     chat={chat}
-                            // />
-                            <p>Reply Coming soon!</p>
+                            <TextEditorReply
+                                chatId={chat?._id as string}
+                                parentMessage={parentMessage}
+                                onSentCallback={onSentCallback}
+                                selectedMessage={selectedMessage}
+                                setProfileInfoShow={setProfileInfoShow}
+                                profileInfoShow={profileInfoShow}
+                                chat={chat}
+                            />
                         ) : (
+                            // <p>Reply Coming soon!</p>
                             <TextEditor
                                 chatId={chat?._id}
                                 parentMessage={parentMessage}

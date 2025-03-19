@@ -17,10 +17,12 @@ import {
     X,
     Video,
     VideoOff,
+    SearchIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { markRead, updateMyData } from '@/redux/features/chatReducer';
 import onlineUsers from './onlineUsers.json';
+import { Input } from '../ui/input';
 // Dynamic imports
 const ChatBody = lazy(() => import('./ChatBody'));
 // const NotificationOptionModal = lazy(() => import("./ChatForm/NotificationModal"));
@@ -168,25 +170,25 @@ const Inbox: React.FC<InboxProps> = ({
     const toggleMeeting = useCallback(() => {
         setIsMeeting((prev) => !prev);
     }, []);
-
+    console.log({ chat });
     return (
         <>
             {/* Set position relative so the absolute search box is positioned relative to this container */}
-            <div className='relative bg-background rounded-md shadow-sm'>
+            <div className='relative bg-background rounded-md shadow-sm h-[calc(100vh-60px)]'>
                 <div className='flex flex-col h-full'>
-                    <div className='flex items-center justify-between p-4 border-b'>
+                    <div className='flex items-center justify-between p-2 border-b'>
                         <div className='flex items-center space-x-3'>
                             <Link
-                                className='text-foreground hover:text-primary'
+                                className='text-dark-gray hover:text-primary'
                                 href='/chat'
                             >
-                                <ArrowLeft className='h-5 w-5' />
+                                <ArrowLeft className='h-5 w-5 text-dark-gray' />
                             </Link>
 
                             <div className='relative'>
                                 <Image
-                                    width={50}
-                                    height={50}
+                                    width={40}
+                                    height={40}
                                     src={
                                         chat?.isChannel
                                             ? chat?.avatar || '/chat/group.svg'
@@ -194,8 +196,13 @@ const Inbox: React.FC<InboxProps> = ({
                                               '/chat/user.svg'
                                     }
                                     onClick={handleToggleInfo}
-                                    className='cursor-pointer rounded-full bg-green-500 p-[3px]'
-                                    alt='User avatar'
+                                    className='cursor-pointer rounded-full bg-primary w-[40px] h-[40px]'
+                                    alt={
+                                        chat?.isChannel
+                                            ? chat?.name
+                                            : chat?.otherUser?.fullName ||
+                                              'User avatar'
+                                    }
                                 />
                                 {onlineUsers?.find(
                                     (x) => x?._id === chat?.otherUser?._id,
@@ -210,13 +217,14 @@ const Inbox: React.FC<InboxProps> = ({
                             </div>
 
                             <div
-                                className='cursor-pointer'
+                                className='cursor-pointer flex flex-col gap-0'
                                 onClick={handleToggleInfo}
                             >
-                                <h4 className='font-medium text-foreground'>
+                                <h4 className='text-dark-gray capitalize text-sm font-semibold'>
                                     {chat?.isChannel
                                         ? chat?.name
-                                        : chat?.otherUser?.fullName}
+                                        : chat?.otherUser?.fullName ||
+                                          'unknown'}
                                 </h4>
                                 <span className='text-sm text-muted-foreground whitespace-nowrap'>
                                     {isThinking ? (
@@ -245,20 +253,26 @@ const Inbox: React.FC<InboxProps> = ({
 
                         <div className='flex items-center space-x-2'>
                             <Button
-                                variant='ghost'
+                                variant='primary_light'
                                 size='icon'
-                                onClick={() => handleNoti()}
+                                className='border'
+                                onClick={() =>
+                                    setSearch((prev) => ({
+                                        ...prev,
+                                        isOpen: !prev.isOpen,
+                                    }))
+                                }
                             >
-                                {chat?.myData?.notification?.isOn ? (
-                                    <Bell className='h-5 w-5' />
-                                ) : (
-                                    <BellOff className='h-5 w-5' />
-                                )}
+                                <Search className='h-5 w-5' />
                             </Button>
-
                             {chat?.otherUser?.type !== 'bot' && (
                                 <>
-                                    <Button variant='ghost' size='icon' asChild>
+                                    <Button
+                                        variant='primary_light'
+                                        size='icon'
+                                        className='border'
+                                        asChild
+                                    >
                                         <Link
                                             href='/dashboard/calendar'
                                             target='_blank'
@@ -268,8 +282,9 @@ const Inbox: React.FC<InboxProps> = ({
                                     </Button>
 
                                     <Button
-                                        variant='ghost'
+                                        variant='primary_light'
                                         size='icon'
+                                        className='border'
                                         onClick={toggleMeeting}
                                     >
                                         {isMeeting ? (
@@ -280,16 +295,29 @@ const Inbox: React.FC<InboxProps> = ({
                                     </Button>
                                 </>
                             )}
+                            <Button
+                                variant='primary_light'
+                                size='icon'
+                                className='border'
+                                onClick={() => handleNoti()}
+                            >
+                                {chat?.myData?.notification?.isOn ? (
+                                    <Bell className='h-5 w-5' />
+                                ) : (
+                                    <BellOff className='h-5 w-5' />
+                                )}
+                            </Button>
 
                             <Button
-                                variant='ghost'
+                                variant='primary_light'
                                 size='icon'
+                                className='border'
                                 onClick={() =>
                                     handleFavourite(!chat?.myData?.isFavourite)
                                 }
                             >
                                 {chat?.myData?.isFavourite ? (
-                                    <Pin className='h-5 w-5' />
+                                    <Pin className='h-5 w-5 rotate-45' />
                                 ) : (
                                     <svg
                                         width='13'
@@ -306,50 +334,39 @@ const Inbox: React.FC<InboxProps> = ({
                                     </svg>
                                 )}
                             </Button>
-
-                            <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={() =>
-                                    setSearch((prev) => ({
-                                        ...prev,
-                                        isOpen: !prev.isOpen,
-                                    }))
-                                }
-                            >
-                                <Search className='h-5 w-5' />
-                            </Button>
                         </div>
                     </div>
 
                     {/* Search box appears when search.isOpen is true */}
                     {search.isOpen && (
-                        <div className='absolute top-16 left-0 right-0 bg-background p-3 shadow-md z-10 flex items-center gap-2'>
-                            <input
-                                type='text'
-                                value={search.query}
-                                onChange={(e) =>
-                                    setSearch((prev) => ({
-                                        ...prev,
-                                        query: e.target.value,
-                                    }))
-                                }
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        handleSearchSubmit();
+                        <div className='absolute top-[60px] left-0 right-0 bg-background p-2 shadow-md z-10 flex items-center gap-2'>
+                            <div className='relative w-full'>
+                                <Input
+                                    type='text'
+                                    value={search.query}
+                                    onChange={(e) =>
+                                        setSearch((prev) => ({
+                                            ...prev,
+                                            query: e.target.value,
+                                        }))
                                     }
-                                }}
-                                placeholder='Search...'
-                                className='flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary'
-                            />
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            handleSearchSubmit();
+                                        }
+                                    }}
+                                    placeholder='Search...'
+                                    className='flex-1 px-3 py-2 max-h-9 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-foreground'
+                                />
+                                <X
+                                    className='h-4 w-4 cursor-pointer text-danger absolute top-2.5 right-2.5'
+                                    onClick={resetSearch}
+                                />
+                            </div>
                             <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={resetSearch}
-                            >
-                                <X className='h-5 w-5' />
-                            </Button>
-                            <Button onClick={handleSearchSubmit}>Search</Button>
+                                onClick={handleSearchSubmit}
+                                icon={<SearchIcon size={18} />}
+                            ></Button>
                         </div>
                     )}
 

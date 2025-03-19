@@ -19,7 +19,7 @@ const Chat: React.FC = () => {
     return (
         <div className='min-h-screen'>
             {/* Main chat container */}
-            <div className='chat-container'>
+            <div className='chat-container h-full'>
                 <Suspense
                     fallback={
                         <div className='flex justify-center items-center h-[calc(100vh-7rem)] w-full'>

@@ -2,7 +2,7 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Eye, Minimize, XIcon } from 'lucide-react';
+import { Expand, Eye, Minimize, Shrink, XIcon } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import GlobalTooltip from './GlobalTooltip';
 
@@ -19,6 +19,7 @@ type TProps = {
     buttons?: ReactNode;
     subTitle?: string;
     setOpen: (_: boolean) => void;
+    customFooter?: ReactNode;
 };
 
 const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
@@ -33,6 +34,7 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
             customTitle,
             allowFullScreen = true,
             buttons,
+            customFooter,
             ...rest
         },
         ref,
@@ -55,7 +57,7 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
                         <div
                             id='global_modal'
                             ref={ref}
-                            className='fixed inset-0 bg-pure-black/10 backdrop-blur-sm flex items-center justify-center z-[9999999]'
+                            className='fixed inset-0 bg-pure-black/10 backdrop-blur-sm flex items-center justify-center z-[99]'
                         >
                             <div
                                 style={
@@ -103,11 +105,11 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
                                                 >
                                                     {isFullScreen ? (
                                                         <GlobalTooltip tooltip='Minimize'>
-                                                            <Minimize className='stroke-primary cursor-pointer' />
+                                                            <Shrink className='stroke-primary cursor-pointer' />
                                                         </GlobalTooltip>
                                                     ) : (
                                                         <GlobalTooltip tooltip='Full-Screen'>
-                                                            <Eye className='stroke-primary cursor-pointer' />
+                                                            <Expand className='stroke-primary cursor-pointer' />
                                                         </GlobalTooltip>
                                                     )}
                                                 </Button>
@@ -120,6 +122,11 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
                                 <div className='px-5 pb-4 flex-1 h-full  min-h-20 overflow-y-auto'>
                                     {children}
                                 </div>
+                                {customFooter && (
+                                    <div className='sticky bottom-0 bg-foreground border-t border-forground-border z-10'>
+                                        {customFooter}
+                                    </div>
+                                )}
 
                                 {/* Close Button */}
                                 {!isFullScreen && (

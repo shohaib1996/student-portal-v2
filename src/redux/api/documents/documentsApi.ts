@@ -1,10 +1,10 @@
 import { baseApi } from '../baseApi';
+import { tagTypes } from '../tagType/tagTypes';
 
 export interface LabContent {
     _id: string;
     title: string;
     description: string;
-    // Add other fields as per your API response
 }
 
 export interface LabContentResponse {
@@ -13,24 +13,16 @@ export interface LabContentResponse {
     count: number;
 }
 
-export interface Author {
-    firstName: string;
-    fullName: string;
-    lastName: string;
-    profilePicture: string;
-    _id: string;
-}
-
 export interface MyDocument {
+    _id: string;
+    name: string;
     description: string;
     attachment: File[] | string[];
     user: string;
     priority: 'low' | 'medium' | 'high';
     category: string[];
     branches: string[];
-    _id: string;
-    name: string;
-    createdBy: Author;
+    createdBy: string;
     thumbnail: File | string | null;
     organization: string;
     comments: {
@@ -48,44 +40,37 @@ export interface MyDocumentResponse {
     count: number;
 }
 
-export interface ContentDetailsResponse {
-    success: boolean;
-    content: {
-        name: string;
-        description: string;
-        category: string;
-        tags: string[];
-        attachments: string[];
-        createdAt: string;
-        updatedAt: string;
-        createdBy: string;
-        thumbnail: string;
-    };
-}
-
-export interface CommentedUser {
-    profilePicture: string;
-    lastName: string;
+interface UploadDoc {
     _id: string;
-    firstName: string;
-    fullName: string;
-}
-
-export interface SingleComment {
-    _id: string;
-    contentId: string;
-    comment: string;
-    user: CommentedUser;
+    name: string;
+    description: string;
+    branch: string;
+    enrollment: string;
+    user: string;
     createdAt: string;
     updatedAt: string;
-    __v: number;
-    repliesCount: number;
+    attachment: any[];
+    comments: any[];
 }
 
-export interface CommentResponse {
+export interface UploadDocumentResponse {
     success: boolean;
-    comments: SingleComment[];
-    totalCount: number;
+    documents: UploadDoc[];
+    count: number;
+}
+
+export interface UploadDocumentFileResponse {
+    success: boolean;
+    fileUrl?: string;
+}
+
+export interface MySlide {
+    _id: string;
+}
+export interface MySlidesResponse {
+    success: boolean;
+    slides: MySlide[];
+    count: number;
 }
 
 const documentsApi = baseApi.injectEndpoints({
@@ -108,14 +93,85 @@ const documentsApi = baseApi.injectEndpoints({
                 params: { page, limit },
             }),
         }),
-        getContentDetails: build.query<ContentDetailsResponse, string>({
+        getMySlides: build.query<
+            MySlidesResponse,
+            { page?: number; limit?: number }
+        >({
+            query: ({ page = 1, limit = 8 }) => ({
+                url: '/slide/myslides',
+                params: { page, limit },
+            }),
+        }),
+        getMyTemplates: build.query<
+            { success: boolean; templates: any; count: number },
+            void
+        >({
+            query: () => ({
+                url: '/template/mytemplates',
+            }),
+        }),
+        getContentDetails: build.query<
+            { success: boolean; content: any },
+            string
+        >({
             query: (id) => ({ url: `/content/getcontent/${id}` }),
         }),
-        getDocumentComments: build.query<CommentResponse, string>({
+        getDocumentComments: build.query<
+            { success: boolean; comments: any[]; totalCount: number },
+            string
+        >({
             query: (id) => ({ url: `/content/comment/get/${id}` }),
         }),
+        uploadUserDocumentFile: build.mutation<
+            UploadDocumentFileResponse,
+            FormData
+        >({
+            query: (formData) => ({
+                url: '/document/userdocumentfile',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                data: formData,
+            }),
+            invalidatesTags: [tagTypes.documents],
+        }),
+        addUserDocument: build.mutation({
+            query: (documentData) => ({
+                url: '/document/userdocument/add',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: documentData,
+            }),
+            invalidatesTags: [tagTypes.documents],
+        }),
+        getUploadDocuments: build.query<
+            UploadDocumentResponse,
+            { page?: number; limit?: number }
+        >({
+            query: ({ page = 1, limit = 8 }) => ({
+                url: '/document/userdocument/get',
+                params: { page, limit },
+            }),
+            providesTags: [tagTypes.documents],
+        }),
+        updateUserDocument: build.mutation<{ success: boolean }, string>({
+            query: (id) => ({
+                url: `/document/userdocument/update/${id}`,
+                method: 'PATCH',
+            }),
+            invalidatesTags: [tagTypes.documents],
+        }),
+        deleteUserDocument: build.mutation<{ success: boolean }, string>({
+            query: (id) => ({
+                url: `/document/userdocument/delete/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: [tagTypes.documents],
+        }),
     }),
-
     overrideExisting: false,
 });
 
@@ -124,4 +180,13 @@ export const {
     useGetMyDocumentQuery,
     useGetContentDetailsQuery,
     useGetDocumentCommentsQuery,
+    useGetMyTemplatesQuery,
+    useGetUploadDocumentsQuery,
+    useAddUserDocumentMutation,
+    useUploadUserDocumentFileMutation,
+    useDeleteUserDocumentMutation,
+    useUpdateUserDocumentMutation,
+    useGetMySlidesQuery,
 } = documentsApi;
+
+export default documentsApi;

@@ -8,7 +8,7 @@ interface ProfileInfoProps {
 const ProfileInfo: React.FC<ProfileInfoProps> = ({ handleToggleInfo }) => {
     return (
         <>
-            <div className='bg-background border-l border-border h-full overflow-auto'>
+            <div className='bg-background border-l border-border h-[calc(100vh-60px)] overflow-auto'>
                 <ChatInfo handleToggleInfo={handleToggleInfo} />
             </div>
         </>

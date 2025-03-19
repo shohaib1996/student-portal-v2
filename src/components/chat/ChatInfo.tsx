@@ -1,7 +1,6 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { useRouter } from 'next/router';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -64,9 +63,11 @@ const resizeFile = (file: File): Promise<File> =>
     });
 
 const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
+    const params = useParams();
+    const pathname = usePathname();
+    const router = useRouter();
     const dispatch = useDispatch();
     const [copied, setCopied] = useState(false);
-    const router = useRouter();
     const [chat, setChat] = useState<any>(null);
     const [opened, setOpened] = useState(false);
     const [imageLoading, setImageLoading] = useState(false);
@@ -75,8 +76,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     const { user } = useSelector((s: any) => s.auth);
     const { theme } = useTheme();
     const isDark = theme === 'dark';
-
-    const pathname = usePathname();
 
     // const { chatMessages, chats, onlineUsers } = useAppSelector(
     //     (state: any) => state.chat,
@@ -100,9 +99,9 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     }, [chat]);
 
     useEffect(() => {
-        if (chats && router.query.chatid) {
+        if (chats && params.chatid) {
             const findChat = chats?.find(
-                (chat: any) => chat?._id === router.query.chatid,
+                (chat: any) => chat?._id === params.chatid,
             );
             setChat(findChat);
         }

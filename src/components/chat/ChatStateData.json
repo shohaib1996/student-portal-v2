@@ -1,0 +1,2600 @@
+{
+    "chats": [
+        {
+            "isArchived": false,
+            "membersCount": 549,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "delivered",
+                "_id": "67d8eb123c6139001aeabe01",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "@[everyone](everyone)\n\nAnnouncement:\nRamadan Holiday Schedule & Important Updates\n\nHello everyone,\n\nAs Ramadan progresses, we understand that everyone is adjusting to the fasting schedule while staying busy with their commitments. At the same time, we want to ensure that everyone gets a well-deserved break for self-refreshment and reflection.\n\nHoliday Schedule\n\nOur last working day will be March 26, and we will resume on April 4. During this time:\n\t•\tCoaches will not be available.\n\t•\tDevelopment work will be on hold.\n\t•\tThe team will be completely offline.\n\nWe encourage you to use this break to spend time with your friends and family. For those focused on learning, you can review previous modules, prepare for interviews, and revisit our past webinars, which cover essential topics. Take this time to gather your questions, so once we’re back, we can dive right in!\n\nUpdated Schedule After April 4\n\nWhen we resume, the schedule will be adjusted:\n\t•\tNight session: 10:00 PM Eastern Time\n\t•\tDay session: Between 9:30 AM - 10:00 AM to 5:30 PM - 6:30 PM Eastern Time\n\nThese timings may be slightly adjusted as needed, as we usually do.\n\nThis is a quick heads-up about our upcoming holiday and festival schedule. Wishing you a peaceful and blessed Ramadan. Enjoy your time, and we look forward to seeing you back on April 4!\n\nBest regards,\nSAn",
+                "files": [],
+                "emoji": [
+                    {
+                        "_id": "67d8efea3c6139001aeac043",
+                        "user": "66ff16340f00ff00198ab80c",
+                        "symbol": "❤",
+                        "createdAt": "2025-03-18T04:00:42.744Z"
+                    }
+                ],
+                "createdAt": "2025-03-18T03:40:02.858Z",
+                "id": 127,
+                "reactionsCount": 2,
+                "reactions": {
+                    "❤": 1,
+                    "❤️": 1
+                },
+                "myReaction": "❤️"
+            },
+            "isChannel": true,
+            "_id": "6760dd0a5fb515001adebcb8",
+            "isPublic": false,
+            "description": "Webinar, holidays, app update, release update will be shared through this crowd. ",
+            "branch": "654d4ace01e5e4001818485f",
+            "name": "TS4U Announcement",
+            "isReadOnly": true,
+            "memberScope": "branch",
+            "unreadCount": 0,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "notification": {
+                    "isOn": false
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": false,
+            "membersCount": 18,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "sent",
+                "_id": "67d8e4833c6139001aeab9e6",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1715765165868-308308315_80579",
+                    "lastName": "Sarkar",
+                    "type": "marketing",
+                    "_id": "6638fe21f3009f00192b75f5",
+                    "firstName": "Salma",
+                    "fullName": "Salma Sarkar"
+                },
+                "text": "Todays Workstream - Mar 18, 2025\n\n- Update  Bootcamps Page\n- Switch program Dropdown - get feedback from AI and update this page\n- Online Courses page - get feedback from AI and update this page (Grid view)\n- Online Courses page - List view\n- Pre-Enrollment Test page - get feedback from AI and update this page (Grid view)\n- Pre-Enrollment Test page (List view)\n- Technical Test page - get feedback from AI and update this page (Grid view)\n- Technical Test page (List view)",
+                "chat": "65b8fcf09a049b00190b4c67",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [],
+                "createdAt": "2025-03-18T03:12:03.808Z",
+                "updatedAt": "2025-03-18T03:12:03.808Z",
+                "id": 1049,
+                "__v": 0
+            },
+            "isChannel": true,
+            "_id": "65b8fcf09a049b00190b4c67",
+            "isPublic": false,
+            "description": "",
+            "avatar": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/undefined/1707561556170-development-icon-13.JPEG",
+            "name": "TS4U_Development",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 0,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "65e2b966c1f814001988ad07",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": false,
+            "membersCount": 4,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "delivered",
+                "_id": "67cd29eaf2283b001a0673b0",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1736416051986-Shuvajit_Maitra",
+                    "lastName": "Maitra",
+                    "_id": "658ce2bf45ea7e0019776f2f",
+                    "firstName": "Shuvajit ",
+                    "fullName": "Shuvajit  Maitra"
+                },
+                "text": "@[Anonno Das](66fbb606902f3f001903aeca), test mentions hello miz",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2025-03-09T05:40:58.869Z",
+                "id": 4
+            },
+            "isChannel": true,
+            "_id": "677d1293c724cd001a357031",
+            "isPublic": false,
+            "description": "",
+            "name": "testing",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 1,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "677d1293c724cd001a357034",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "latestMessage": {
+                "type": "message",
+                "status": "sent",
+                "_id": "67caf312f2283b001a05c56d",
+                "sender": {
+                    "profilePicture": "",
+                    "lastName": "Reminder",
+                    "_id": "658f214dbeb988ef0bc4ce84",
+                    "firstName": "Global",
+                    "fullName": "Global Reminder"
+                },
+                "text": "Hi Trishon Baidaya,&#x20;\nthe branch status has been updated by Shiblu Ahmad. Please review when convenient.",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2025-03-07T13:22:26.844Z",
+                "id": 29,
+                "activity": {}
+            },
+            "memberScope": "custom",
+            "_id": "662906054ceb070019fe5773",
+            "isChannel": false,
+            "isPublic": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "isReadOnly": false,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "",
+                "lastName": "Reminder",
+                "type": "bot",
+                "_id": "658f214dbeb988ef0bc4ce84",
+                "firstName": "Global",
+                "fullName": "Global Reminder"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "662906054ceb070019fe5776",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": false,
+            "membersCount": 14,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "delivered",
+                "_id": "67c7dfabf2283b001a05287a",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1717074583603-Screenshot-2024",
+                    "lastName": "Shimul",
+                    "_id": "654d47f6dde10300195b6f42",
+                    "firstName": "Md",
+                    "fullName": "Md Shimul"
+                },
+                "text": "Test",
+                "files": [
+                    {
+                        "_id": "67c7dfabf2283b001a05287b",
+                        "name": "133DFDDE-14D9-463E-B3B5-5951A338F57E.png",
+                        "size": 78272,
+                        "type": "image/png",
+                        "url": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/chat/654d47f6dde10300195b6f42/1741152170509-133DFDDE-14D9-463E-B3B5-5951A338F57E.png",
+                        "createdAt": "2025-03-05T05:22:51.198Z"
+                    }
+                ],
+                "emoji": [],
+                "createdAt": "2025-03-05T05:22:51.199Z",
+                "id": 128
+            },
+            "isChannel": true,
+            "_id": "6784f82c016336001aceb821",
+            "isPublic": false,
+            "description": "The only way I could do that was if you had to do a lot more work and then you would be done by yourself so you would be fine and then I could just go home to you if I needed you and you could just come over here or I can just go home if I need you can just let us go home if we need you guys are you still going home",
+            "avatar": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/chat/654d47f6dde10300195b6f42/1740222878171-F5C9170F-5114-466C-B047-46A9902B9D4C.jpg",
+            "name": "Testing with Shuvajit",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 5,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "67bb12a848ddf8001a4642b6",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": false,
+            "membersCount": 5,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "delivered",
+                "_id": "67c5466ff2283b001a04670b",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1736416051986-Shuvajit_Maitra",
+                    "lastName": "Maitra",
+                    "_id": "658ce2bf45ea7e0019776f2f",
+                    "firstName": "Shuvajit ",
+                    "fullName": "Shuvajit  Maitra"
+                },
+                "text": "The ",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2025-03-03T06:04:31.923Z",
+                "id": 28
+            },
+            "isChannel": true,
+            "_id": "67891c934e02c6001a35d33a",
+            "isPublic": false,
+            "description": "Des",
+            "name": "App Testing",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 10,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "admin",
+                "_id": "67891c934e02c6001a35d33d",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": true,
+            "membersCount": 4,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "sent",
+                "_id": "67891b674e02c6001a35d2bd",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1717074583603-Screenshot-2024",
+                    "lastName": "Shimul",
+                    "_id": "654d47f6dde10300195b6f42",
+                    "firstName": "Md",
+                    "fullName": "Md Shimul"
+                },
+                "text": "Hy",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2025-01-16T14:44:55.701Z",
+                "id": 2
+            },
+            "isChannel": true,
+            "_id": "67891af24e02c6001a35d1ef",
+            "isPublic": false,
+            "description": "Man’s",
+            "name": "App ",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 2,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "67891af24e02c6001a35d1f2",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": false,
+            "membersCount": 3,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "sent",
+                "_id": "6787aff8016336001ad00360",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1717074583603-Screenshot-2024",
+                    "lastName": "Shimul",
+                    "_id": "654d47f6dde10300195b6f42",
+                    "firstName": "Md",
+                    "fullName": "Md Shimul"
+                },
+                "text": "Rreeeee",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2025-01-15T12:54:16.059Z",
+                "id": 11,
+                "activity": {}
+            },
+            "isChannel": true,
+            "_id": "677d130ac724cd001a357061",
+            "isPublic": false,
+            "description": "",
+            "name": "Testing 2",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 0,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "677d130ac724cd001a357065",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": true,
+            "membersCount": 5,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "sent",
+                "_id": "6767905547488c001a8e29c7",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1726243868288-MY_PIC.JPEG",
+                    "lastName": "Das",
+                    "_id": "647f05b345b2b400197e4845",
+                    "firstName": "Mitul",
+                    "fullName": "Mitul Das"
+                },
+                "text": "Hxhxhx",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-12-22T04:06:46.000Z",
+                "id": 3,
+                "activity": {}
+            },
+            "isChannel": true,
+            "_id": "67678fb347488c001a8e2936",
+            "isPublic": false,
+            "description": "Hssh",
+            "name": "Teat",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 3,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "676790b447488c001a8e29ea",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "latestMessage": {
+                "type": "message",
+                "status": "sent",
+                "_id": "67637fa5ca0c84001aa9426e",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1704520285165-1685030621521-%28",
+                    "lastName": "Khan",
+                    "_id": "6598ea2f5e32600019974b2a",
+                    "firstName": "Mahmudul Hasan",
+                    "fullName": "Mahmudul Hasan Khan"
+                },
+                "text": "# Understanding RTK Query in Redux Toolkit\n\nRTK Query is a powerful data fetching and caching tool built into Redux Toolkit, designed to simplify API interaction in React applications. It provides features like automated caching, deduplication of requests, and state management for server data out of the box. By defining API endpoints in a centralized manner, developers can perform CRUD operations with minimal boilerplate. With its focus on declarative data fetching, RTK Query enables efficient state updates, reduces the need for manual Redux setup, and seamlessly integrates with Redux Toolkit's ecosystem. \n\nLearn more in the [RTK Query documentation](https://redux-toolkit.js.org/rtk-query/overview).\n\n---\n\n*Written by Mahmudul Hasan Khan*\n",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-12-19T02:06:29.518Z",
+                "id": 1,
+                "activity": {}
+            },
+            "memberScope": "custom",
+            "_id": "664f6abfd4a39100197083b8",
+            "isChannel": false,
+            "isPublic": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "isReadOnly": false,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1704520285165-1685030621521-%28",
+                "lastName": "Khan",
+                "type": "marketing",
+                "_id": "6598ea2f5e32600019974b2a",
+                "firstName": "Mahmudul Hasan",
+                "lastActive": "2025-03-18T03:01:01.281Z",
+                "fullName": "Mahmudul Hasan Khan"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "664f6abfd4a39100197083bb",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": true,
+            "membersCount": 14,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "67571479c84b51001ad201e9",
+                "sender": {
+                    "profilePicture": "",
+                    "lastName": "",
+                    "_id": "6656a36ce9673500193cc658",
+                    "firstName": "Shiblu ahmad",
+                    "fullName": "Shiblu ahmad "
+                },
+                "text": "Join us for an engaging session on \"E-com From Scratch - Order Functionality\" with industry experts!\n\n📅 Date: Dec 09, 2024 (Mon)\n\n🕚 Time: 11:00 AM - 02:00 PM (EST)\n\nGuest:\n\n👨‍💻 Mahmudul Hasan Khan - Full Stack Developer, Bootcamps Hub\n\nSpecial Guest:\n\n👨‍💻 Shiblu Ahmad - Founder & CEO, TS4U & Bootcamps Hub\n\nHost:\n\n👨‍🏫 Shohaib Hossain - Full Stack Developer, TS4U\n\nRegistration link: https://us02web.zoom.us/j/86706978499?pwd=tBtGlwXwSpG7uMK1QXXzbAkxPidSbB.1&#x20;",
+                "files": [
+                    {
+                        "_id": "67571479c84b51001ad201ea",
+                        "name": "WhatsApp Image 2024-12-09 at 8.47.07 PM.jpeg",
+                        "type": "image/jpeg",
+                        "size": 212301,
+                        "url": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/chat/65411b4f358d7f0019041eba/1733755982952-WhatsApp-Image-2024-12-09-at-8.47.07-PM.jpeg",
+                        "createdAt": "2024-12-09T16:02:01.642Z"
+                    }
+                ],
+                "emoji": [],
+                "createdAt": "2024-12-09T16:02:01.642Z"
+            },
+            "isChannel": true,
+            "_id": "6624816f135a3e001928e980",
+            "isPublic": false,
+            "description": "",
+            "name": "Dev-Ninja",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 0,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "6624816f135a3e001928e985",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": false,
+            "membersCount": 27,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "67564f3ee1796a001acd3f26",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1736416051986-Shuvajit_Maitra",
+                    "lastName": "Maitra",
+                    "_id": "658ce2bf45ea7e0019776f2f",
+                    "firstName": "Shuvajit ",
+                    "fullName": "Shuvajit  Maitra"
+                },
+                "text": "Hi",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-12-09T02:00:30.403Z"
+            },
+            "isChannel": true,
+            "_id": "670f38ab813af0001ad8f1da",
+            "isPublic": false,
+            "description": "ddafdsaafsd",
+            "avatar": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/chat/658ce2bf45ea7e0019776f2f/1731400729650-73426746-E1AF-4D1F-8A4A-75A2FC3D2D1A.png",
+            "name": "BootcampsHub Development",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 0,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "670f3e39813af0001ad8ffc7",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "674475f947bf2c001a9eb173",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1709354328236-personal-pic.JP",
+                    "lastName": "Baidaya",
+                    "_id": "65e2a9df77b55c0020e421bf",
+                    "firstName": "Trishon",
+                    "fullName": "Trishon Baidaya"
+                },
+                "text": "",
+                "files": [
+                    {
+                        "_id": "674475f947bf2c001a9eb174",
+                        "name": "recording.mp3",
+                        "type": "audio/mp3",
+                        "size": 112941,
+                        "url": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/chataudio/25-11-2024/1732539893995-recording.mp3",
+                        "createdAt": "2024-11-25T13:04:57.583Z"
+                    }
+                ],
+                "emoji": [],
+                "createdAt": "2024-11-25T13:04:57.583Z",
+                "activity": {}
+            },
+            "memberScope": "custom",
+            "_id": "6636600eec3ce200246b37c9",
+            "isChannel": false,
+            "isPublic": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "isReadOnly": false,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "",
+                "lastName": "Employee",
+                "type": "marketing",
+                "_id": "65827fc33175ac0019e74d4c",
+                "firstName": "Ex",
+                "lastActive": "2025-02-19T19:37:45.794Z",
+                "fullName": "Ex Employee"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "6636600eec3ce200246b37cb",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": false,
+            "membersCount": 3,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "sent",
+                "_id": "67428be493f6c3001aa01f23",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1709354328236-personal-pic.JP",
+                    "lastName": "Baidaya",
+                    "_id": "65e2a9df77b55c0020e421bf",
+                    "firstName": "Trishon",
+                    "fullName": "Trishon Baidaya"
+                },
+                "text": "hello reply",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-11-24T02:13:56.657Z",
+                "activity": {}
+            },
+            "isChannel": true,
+            "_id": "6705076b4a6eac001a0783cb",
+            "isPublic": false,
+            "description": "",
+            "name": "Trishon Baidaya test",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 0,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "6705076b4a6eac001a0783cf",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": false,
+            "membersCount": 8,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "delivered",
+                "_id": "672986f1e648dd001af15ead",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1717074583603-Screenshot-2024",
+                    "lastName": "Shimul",
+                    "_id": "654d47f6dde10300195b6f42",
+                    "firstName": "Md",
+                    "fullName": "Md Shimul"
+                },
+                "text": "❤️",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-11-05T02:46:09.930Z",
+                "activity": {}
+            },
+            "isChannel": true,
+            "_id": "664f5060d4a3910019705ae0",
+            "isPublic": false,
+            "description": "test deswcription",
+            "avatar": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/undefined/1716474144570-iPad-Pro-mockup-13-inch-top-view.JPEG",
+            "name": "Black Coffee",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 0,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "admin",
+                "_id": "664f5060d4a3910019705ae2",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": true,
+            "membersCount": 3,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "activity": {
+                    "user": {
+                        "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1717074583603-Screenshot-2024",
+                        "lastName": "Shimul",
+                        "_id": "654d47f6dde10300195b6f42",
+                        "firstName": "Md",
+                        "fullName": "Md Shimul"
+                    },
+                    "type": "leave"
+                },
+                "type": "activity",
+                "status": "delivered",
+                "_id": "671cc4840cc3d0001a1efc17",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-10-26T10:29:24.101Z"
+            },
+            "isChannel": true,
+            "_id": "671cc08e0cc3d0001a1efb6a",
+            "isPublic": false,
+            "description": "",
+            "name": "Samsung S23 5G",
+            "isReadOnly": false,
+            "memberScope": "custom",
+            "unreadCount": 0,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "671cc08e0cc3d0001a1efb6c",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "6719c4a10cc3d0001a1ddcc0",
+                "sender": {
+                    "profilePicture": "",
+                    "lastName": "",
+                    "_id": "66adadafde65cf0020c68502",
+                    "firstName": "test1",
+                    "fullName": "test1 "
+                },
+                "text": "Write test",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-10-24T03:53:05.781Z",
+                "activity": {}
+            },
+            "memberScope": "custom",
+            "_id": "6719c4a10cc3d0001a1ddcb8",
+            "isChannel": false,
+            "isPublic": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "isReadOnly": false,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "",
+                "lastName": "",
+                "type": "bot",
+                "_id": "66adadafde65cf0020c68502",
+                "firstName": "test1",
+                "fullName": "test1 "
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "6719c4a10cc3d0001a1ddcba",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "isArchived": false,
+            "membersCount": 5,
+            "organization": "654d46da01e5e400181846d0",
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "6719c49e0cc3d0001a1ddca2",
+                "sender": {
+                    "profilePicture": "",
+                    "lastName": "",
+                    "_id": "66adadafde65cf0020c68502",
+                    "firstName": "test1",
+                    "fullName": "test1 "
+                },
+                "text": "Write test",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-10-24T03:53:02.622Z"
+            },
+            "isChannel": true,
+            "_id": "65ff0d22c9f8df0019ed1fa6",
+            "isPublic": false,
+            "description": "test1",
+            "name": "test1",
+            "isReadOnly": true,
+            "memberScope": "custom",
+            "unreadCount": 0,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "6604fcccc6798c0019c21ad9",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "67066e334a6eac001a0864ab",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1709354328236-personal-pic.JP",
+                    "lastName": "Baidaya",
+                    "_id": "65e2a9df77b55c0020e421bf",
+                    "firstName": "Trishon",
+                    "fullName": "Trishon Baidaya"
+                },
+                "text": "test",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-10-09T11:51:15.505Z",
+                "activity": {}
+            },
+            "memberScope": "custom",
+            "_id": "67061d994a6eac001a084ff2",
+            "isChannel": false,
+            "isPublic": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "isReadOnly": false,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1729049789845-Nasif-Jihan.JPE",
+                "lastName": "Jihan",
+                "type": "marketing",
+                "_id": "66fb9200902f3f001903a82f",
+                "firstName": "Nasif",
+                "lastActive": "2025-03-04T18:18:28.868Z",
+                "fullName": "Nasif Jihan"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "67061d994a6eac001a084ff5",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "6682a5fbaa96540019a8bafa",
+                "sender": {
+                    "profilePicture": "",
+                    "lastName": "",
+                    "_id": "6656a36ce9673500193cc658",
+                    "firstName": "Shiblu ahmad",
+                    "fullName": "Shiblu ahmad "
+                },
+                "text": "#Master in Kubernetes (Hands-on crash course)\nWe invite you to join us for an insightful session where you can learn from industry experts and ask questions LIVE!\n\n📅 Date: July 27, 2024  \n🕚 Time: 11:00 AM to 04:00 PM (EST)\n\nGuest:  \n👨‍💻 Dollon Haider\nCloudOps Engineer, TS4U\n\nHost:\n👨‍🏫 Shiblu Ahmed  \nPrincipal and Founder, TS4U IT Engineering Bootcamp\n\nRegister to confirm your participation: https://ts4u.us/link/six-figure-success\n\n#KubernetesMastery #K8sCrashCourse #HandsOnKubernetes #KubernetesTraining #MasterKubernetes #K8sMastery #KubernetesLearning #K8sBootcamp #LearnKubernetes #KubernetesSkills #KubernetesEducation #KubernetesExperts #K8sCertification #KubernetesJourney #KubernetesDevelopment",
+                "files": [
+                    {
+                        "_id": "6682a5fbaa96540019a8bafb",
+                        "name": "Master in Kubernetes.png",
+                        "type": "image/png",
+                        "size": 2579125,
+                        "url": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/chat/66324af20977e60024966b4c/1719837879086-Master-in-Kubernetes.png",
+                        "createdAt": "2024-07-01T12:50:03.422Z"
+                    }
+                ],
+                "emoji": [],
+                "createdAt": "2024-07-01T12:50:03.422Z",
+                "activity": {}
+            },
+            "memberScope": "custom",
+            "_id": "6682a5e1aa96540019a8b89e",
+            "isChannel": false,
+            "isPublic": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "isReadOnly": false,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "",
+                "lastName": "",
+                "type": "bot",
+                "_id": "6656a36ce9673500193cc658",
+                "firstName": "Shiblu ahmad",
+                "fullName": "Shiblu ahmad "
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "6682a5f5aa96540019a8b986",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "66473a7e7bd22e001952e250",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1716489262733-1657306025883-r",
+                    "lastName": "Shimul",
+                    "_id": "611151c15e58a9b155d8fc6b",
+                    "firstName": "Md",
+                    "fullName": "Md Shimul"
+                },
+                "text": "Hello ",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-05-17T11:07:42.661Z",
+                "activity": {}
+            },
+            "memberScope": "custom",
+            "_id": "66390364d85851001f6b7ebf",
+            "isChannel": false,
+            "isPublic": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "isReadOnly": false,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1716489262733-1657306025883-r",
+                "lastName": "Shimul",
+                "type": "testUser",
+                "_id": "611151c15e58a9b155d8fc6b",
+                "firstName": "Md",
+                "lastActive": "2025-03-17T10:07:23.091Z",
+                "fullName": "Md Shimul"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "66390364d85851001f6b7ec1",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "664512d132429f00197d3b54",
+                "sender": {
+                    "profilePicture": "",
+                    "lastName": "",
+                    "_id": "65b7b5613bc2f80019322603",
+                    "firstName": "Show-N-Tell",
+                    "fullName": "Show-N-Tell "
+                },
+                "text": "**Sabita Binte Hoque Meem created a Show & Tell**\n - **Title:** Get Started with HTML\n - **Date:** {{DATE:2024-05-16T05:30:40.000Z}}\n - **Agenda:** - HTML - Introduction\n- HTML - Project Set up, VS-code & Extension\n- HTML Skeleton \n- Head Elements\n- Text Related Tags\n- Lists & Links in HTML\n- Image Tag\n\n - **Created By:** Sabita Binte Hoque Meem\n - [View Details](http://portal.schoolshub.ai/dashboard/show-and-tell)",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-05-15T19:53:53.011Z",
+                "activity": {}
+            },
+            "memberScope": "custom",
+            "_id": "65e68ac6c1f8140019897c45",
+            "isChannel": false,
+            "isPublic": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "isReadOnly": false,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "",
+                "lastName": "",
+                "type": "bot",
+                "_id": "65b7b5613bc2f80019322603",
+                "firstName": "Show-N-Tell",
+                "fullName": "Show-N-Tell "
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "65e68ac6c1f8140019897c4a",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "6644cd5632429f00197cf82f",
+                "sender": {
+                    "profilePicture": "",
+                    "lastName": "",
+                    "_id": "65b7aad23bc2f800193224a8",
+                    "firstName": "Calendar",
+                    "fullName": "Calendar "
+                },
+                "text": "**Tanjina Sultana created an event**\n - **Title:** Sync up with Tanvir\n - **Date:** {{DATE:2024-05-15T17:00:44.639Z}}\n - **Agenda:** - Note review \n- AgileALM task review \n- Roadblocks\n - **Created By:** Tanjina Sultana\n - [View Details](http://portal.schoolshub.ai/dashboard/calendar)",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-05-15T14:57:26.670Z",
+                "activity": {}
+            },
+            "memberScope": "custom",
+            "_id": "65e674497116d00019f25b9c",
+            "isChannel": false,
+            "isPublic": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "isReadOnly": false,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "",
+                "lastName": "",
+                "type": "bot",
+                "_id": "65b7aad23bc2f800193224a8",
+                "firstName": "Calendar",
+                "fullName": "Calendar "
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "65e674497116d00019f25b9f",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "663159a3d85851001f6a1eb5",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1709360137093-mohinrana1.JPEG",
+                    "lastName": "Ebrahim",
+                    "_id": "65e2c33c77b55c0020e42728",
+                    "firstName": "Md.",
+                    "fullName": "Md. Ebrahim"
+                },
+                "text": "",
+                "files": [
+                    {
+                        "_id": "663159a3d85851001f6a1eb6",
+                        "name": "recording.mp3",
+                        "type": "audio/mp3",
+                        "size": 20781,
+                        "url": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/chataudio/30-4-2024/1714510242601-recording.mp3",
+                        "createdAt": "2024-04-30T20:50:43.708Z"
+                    }
+                ],
+                "emoji": [],
+                "createdAt": "2024-04-30T20:50:43.709Z",
+                "activity": {}
+            },
+            "memberScope": "custom",
+            "_id": "6628c500135a3e00192ca7e8",
+            "isChannel": false,
+            "isPublic": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "isReadOnly": false,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1709360137093-mohinrana1.JPEG",
+                "lastName": "Ebrahim",
+                "type": "marketing",
+                "_id": "65e2c33c77b55c0020e42728",
+                "firstName": "Md.",
+                "lastActive": "2025-02-20T13:06:37.821Z",
+                "fullName": "Md. Ebrahim"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "6628c500135a3e00192ca7eb",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "latestMessage": {
+                "type": "message",
+                "status": "seen",
+                "_id": "66309dcbd85851001f69786a",
+                "sender": {
+                    "profilePicture": "",
+                    "lastName": "",
+                    "_id": "6594e25ef0c261001953eb18",
+                    "firstName": "Test bot",
+                    "fullName": "Test bot "
+                },
+                "text": "test message",
+                "files": [],
+                "emoji": [],
+                "createdAt": "2024-04-30T07:29:15.929Z",
+                "activity": {}
+            },
+            "memberScope": "custom",
+            "_id": "66309dcbd85851001f697864",
+            "isChannel": false,
+            "isPublic": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "isReadOnly": false,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "",
+                "lastName": "",
+                "type": "bot",
+                "_id": "6594e25ef0c261001953eb18",
+                "firstName": "Test bot",
+                "fullName": "Test bot "
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "66309dcbd85851001f697866",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "65e2cc2ac1f814001988b283",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": {
+                "activity": {}
+            },
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "",
+                "lastName": "Bot",
+                "type": "bot",
+                "_id": "655e65f5fe780d0859e41f1a",
+                "firstName": "AI",
+                "fullName": "AI Bot"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "65e2cc2ac1f814001988b285",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "662c8165ec3ce2002469d402",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": {},
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1736416051986-Shuvajit_Maitra",
+                "lastName": "Maitra",
+                "type": "marketing",
+                "_id": "658ce2bf45ea7e0019776f2f",
+                "firstName": "Shuvajit ",
+                "lastActive": "2025-03-18T06:40:16.796Z",
+                "fullName": "Shuvajit  Maitra"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "662c8165ec3ce2002469d405",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "66362be4ec3ce200246ace4b",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": {
+                "activity": {}
+            },
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1726243868288-MY_PIC.JPEG",
+                "lastName": "Das",
+                "type": "program",
+                "_id": "647f05b345b2b400197e4845",
+                "firstName": "Mitul",
+                "lastActive": "2025-01-05T06:49:28.622Z",
+                "fullName": "Mitul Das"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "66362be4ec3ce200246ace4d",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "667ba0f72020700019c1de06",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": "",
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1718769865041-IMG_4823.jpg",
+                "lastName": "Sultan",
+                "type": "marketing",
+                "_id": "666874e049c51a0019eec66d",
+                "firstName": "Mohammed",
+                "lastActive": "2025-03-18T06:05:53.279Z",
+                "fullName": "Mohammed Sultan"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "667ba0f72020700019c1de09",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "66c2d71988f845001a02fc39",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": {
+                "activity": {}
+            },
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "",
+                "lastName": "Sultana",
+                "type": "program",
+                "_id": "64873d4890ef6d001919cc18",
+                "firstName": "Tanjina",
+                "lastActive": "2025-03-17T19:53:58.694Z",
+                "fullName": "Tanjina Sultana"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "66c2d71988f845001a02fc3c",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "6705049a4a6eac001a078381",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": {
+                "activity": {}
+            },
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": "66dae26d1f768e001aaf11e1",
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "6705049a4a6eac001a078383",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "67066a684a6eac001a086320",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": {
+                "activity": {}
+            },
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": "67062e997ff96a001a9b5cb5",
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "67066a684a6eac001a086322",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "670687954a6eac001a0872c6",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": {
+                "activity": {}
+            },
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "",
+                "lastName": "Employee",
+                "type": "marketing",
+                "_id": "65923f41f5366000194c6f84",
+                "firstName": "Ex",
+                "lastActive": "2025-03-01T08:44:04.849Z",
+                "fullName": "Ex Employee"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "670687954a6eac001a0872c8",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "670f88af813af0001ad95428",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": {
+                "activity": {}
+            },
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1717074583603-Screenshot-2024",
+                "lastName": "Shimul",
+                "type": "marketing",
+                "_id": "654d47f6dde10300195b6f42",
+                "firstName": "Md",
+                "lastActive": "2025-03-18T03:00:32.412Z",
+                "fullName": "Md Shimul"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "670f88af813af0001ad9542a",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "67107e19813af0001ada33f5",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": {
+                "activity": {}
+            },
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1726779524407-IMG_0543.JPG",
+                "lastName": "Tasnova",
+                "type": "marketing",
+                "_id": "658ddfeb45ea7e00197775c0",
+                "firstName": "Afifa",
+                "lastActive": "2025-03-10T14:44:02.846Z",
+                "fullName": "Afifa Tasnova"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "67107e19813af0001ada33f7",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "67222c56e648dd001aece35f",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": {
+                "activity": {}
+            },
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1729653686035-mui.JPEG",
+                "lastName": "ISLAM",
+                "type": "marketing",
+                "_id": "670f5069a624720019f25e37",
+                "firstName": "MD. RIAJUL",
+                "lastActive": "2025-03-18T07:12:52.022Z",
+                "fullName": "MD. RIAJUL ISLAM"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "67222c56e648dd001aece361",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "674294c893f6c3001aa02516",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "organization": "654d46da01e5e400181846d0",
+            "memberScope": "custom",
+            "latestMessage": {
+                "activity": {}
+            },
+            "membersCount": 2,
+            "unreadCount": 0,
+            "otherUser": "673d71d17ff96a001aa0ac74",
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "owner",
+                "_id": "674294c893f6c3001aa02518",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "676da0c0725819001a5812d7",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "memberScope": "custom",
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "latestMessage": {
+                "activity": {}
+            },
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1735237916913-Pic.JPEG",
+                "lastName": "Shourov",
+                "type": "marketing",
+                "_id": "676ad7762bec550019512511",
+                "firstName": "Zahidul Muntasin",
+                "lastActive": "2025-01-07T21:24:52.192Z",
+                "fullName": "Zahidul Muntasin Shourov"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "676da0c0725819001a5812da",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        },
+        {
+            "_id": "6771782d725819001a593a4b",
+            "isChannel": false,
+            "isPublic": false,
+            "isReadOnly": false,
+            "isArchived": false,
+            "memberScope": "custom",
+            "organization": "654d46da01e5e400181846d0",
+            "membersCount": 2,
+            "latestMessage": {
+                "activity": {}
+            },
+            "unreadCount": 0,
+            "otherUser": {
+                "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1738548490939-hijab-girl.JPEG",
+                "lastName": "Ziasmin",
+                "type": "program",
+                "_id": "647660f745b2b400197d87e6",
+                "firstName": "Shimu",
+                "lastActive": "2025-03-18T05:32:25.055Z",
+                "fullName": "Shimu Ziasmin"
+            },
+            "name": "User Chat",
+            "avatar": null,
+            "myData": {
+                "user": "65e2a9df77b55c0020e421bf",
+                "isFavourite": false,
+                "isBlocked": false,
+                "role": "member",
+                "_id": "6771782d725819001a593a4e",
+                "notification": {
+                    "isOn": true
+                },
+                "mute": {
+                    "isMuted": false
+                }
+            }
+        }
+    ],
+    "onlineUsers": [
+        {
+            "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1709354328236-personal-pic.JP",
+            "lastName": "Baidaya",
+            "_id": "65e2a9df77b55c0020e421bf",
+            "email": "shukantobaidya2018@gmail.com",
+            "firstName": "Trishon",
+            "fullName": "Trishon Baidaya"
+        },
+        {
+            "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+            "lastName": "Ahmad",
+            "_id": "610c4f4ab000a890e91f5d7e",
+            "email": "shiblu.ahmad@ts4u.us",
+            "firstName": "Shiblu",
+            "fullName": "Shiblu Ahmad"
+        },
+        {
+            "profilePicture": "",
+            "lastName": "Ahmed",
+            "_id": "62dd5d10c0114488f7fc4116",
+            "email": "ahmedsureya1998@gmail.com",
+            "firstName": "Sureya",
+            "fullName": "Sureya Ahmed"
+        },
+        {
+            "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1717074583603-Screenshot-2024",
+            "lastName": "Shimul",
+            "_id": "654d47f6dde10300195b6f42",
+            "email": "186mdshimul@gmail.com",
+            "firstName": "Md",
+            "fullName": "Md Shimul"
+        },
+        {
+            "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1709454637541-IMG_4452.JPEG",
+            "lastName": "khan",
+            "_id": "658456c33175ac0019e75c1d",
+            "email": "habibayasmin123@gmail.com",
+            "firstName": "habiba",
+            "fullName": "habiba khan"
+        },
+        {
+            "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1704081050117-01845336521-%281%29",
+            "lastName": "Hasan",
+            "_id": "659231ebf5366000194c6e8d",
+            "email": "jhriyaz@gmail.com",
+            "firstName": "Md Jahid ",
+            "fullName": "Md Jahid  Hasan"
+        },
+        {
+            "profilePicture": "",
+            "lastName": "Choudhury",
+            "_id": "65bbbecdd1e72a0019b1f854",
+            "email": "rumachoudhury7862@gmail.com",
+            "firstName": "Ruma",
+            "fullName": "Ruma Choudhury"
+        },
+        {
+            "profilePicture": "",
+            "lastName": "Rasheed",
+            "_id": "66043726392d4b001997e541",
+            "email": "zulfiqararasheed@yahoo.com",
+            "firstName": "Zulfiqar",
+            "fullName": "Zulfiqar Rasheed"
+        },
+        {
+            "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1716439525162-36805430_185800",
+            "lastName": "Shahriar ",
+            "_id": "661ae270a70fed00241e0bd4",
+            "email": "tanvir2shahriar@gmail.com",
+            "firstName": "Tanvir ",
+            "fullName": "Tanvir  Shahriar "
+        },
+        {
+            "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1732684066931-IMG_2182.JPG",
+            "lastName": "Chowdhury",
+            "_id": "6675a6eb438c3c00194e192a",
+            "email": "marufchy1981@gmail.com",
+            "firstName": "Md",
+            "fullName": "Md Chowdhury"
+        },
+        {
+            "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1739784334921-1723355206028-j",
+            "lastName": "Jaber",
+            "_id": "66aa1438b7092300199ab27f",
+            "email": "omarjaforchy@gmail.com",
+            "firstName": "Omar Jafor Chowdhury",
+            "fullName": "Omar Jafor Chowdhury Jaber"
+        },
+        {
+            "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1736692987843-profile-pic.JPE",
+            "lastName": "Miraz",
+            "_id": "66b227d59171b400197773e8",
+            "email": "hassan.sharfuddin.miraz@gmail.com",
+            "firstName": "Hassan Md. Sharfuddin",
+            "fullName": "Hassan Md. Sharfuddin Miraz"
+        },
+        {
+            "profilePicture": "",
+            "lastName": "Sheikh",
+            "_id": "66c3c46e2a4915001986d67a",
+            "email": "ashrafsheikh992@gmail.com",
+            "firstName": "Ashraf",
+            "fullName": "Ashraf Sheikh"
+        },
+        {
+            "profilePicture": "",
+            "lastName": "Khan",
+            "_id": "6732429e3f73b1001952b7e0",
+            "email": "abdullah36690@gmail.com",
+            "firstName": "Abdullah",
+            "fullName": "Abdullah Khan"
+        }
+    ],
+    "chatMessages": {
+        "65b8fcf09a049b00190b4c67": [],
+        "6760dd0a5fb515001adebcb8": [
+            {
+                "_id": "67c9b7e6f2283b001a05aa33",
+                "type": "message",
+                "status": "sent",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "@[everyone](everyone) \n\nMastering Interview Responses: A Proven Technique for Success\n\nOne of the key areas in interviews is ensuring that your answers are organic, make sense, and go beyond just definitions. I’ve noticed that while students are actively working on hands-on projects and technical tasks, when it comes to answering interview questions, many revert to textbook definitions rather than providing real-world insights.\n\nTo address this, I am introducing a technique that you should practice over the next couple of months. This will help you frame your responses effectively.\n\nTechnique for Better Interview Answers\n\t1.\tAsk Precise Questions – Instead of generic inquiries, formulate specific, technical questions from a user perspective. For example, in an AI-powered chat portal, you might ask:\n“Give me an example of DOM manipulation on an e-commerce seller portal from a product perspective.”\n\t2.\tAnalyze & Document on Google AI Responses – Once the AI provides an answer, read it multiple times, document the insights, and refine your understanding.\n\t3.\tCollaborate & Review – Share your documented responses in your crowd, for review and feedback.\n\t4.\tPractice Speaking Aloud – Once the response is refined, practice saying it out loud to make your delivery natural and confident.\n\nBy following this method, I think, +- 90% of the common interview response issues can be resolved. This approach is effective for both technical and behavioral questions and should be integrated into your daily practice.\n\nI will demonstrate this technique in our next webinar, showing one or two examples so you can see how it works in action. With consistent practice, this will become second nature in your communication and professional discussions.\n\nI’d love to hear your thoughts—do you think this approach will help? Or do you have a better method to share?\n\n#InterviewSuccess #TechnicalSkills #CommunicationMastery #CareerGrowth",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [
+                    {
+                        "_id": "67c9c5f3f2283b001a05ae91",
+                        "user": "667449e2438c3c00194df7f5",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-06T15:57:39.851Z"
+                    },
+                    {
+                        "_id": "67c9f2eef2283b001a05b387",
+                        "user": "669248acab782a0019a2f43d",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-06T19:09:34.479Z"
+                    },
+                    {
+                        "_id": "67ca40edf2283b001a05ba36",
+                        "user": "657cb8e93175ac0019e71a11",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-07T00:42:21.604Z"
+                    },
+                    {
+                        "_id": "67ca6c10f2283b001a05bd39",
+                        "user": "64873d4890ef6d001919cc18",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-07T03:46:24.424Z"
+                    },
+                    {
+                        "_id": "67ca747ff2283b001a05bdf4",
+                        "user": "661fe9997297c500235b2219",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-07T04:22:23.984Z"
+                    },
+                    {
+                        "_id": "67cc3e7ff2283b001a061173",
+                        "user": "654d47f6dde10300195b6f42",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-08T12:56:31.907Z"
+                    }
+                ],
+                "createdAt": "2025-03-06T14:57:42.766Z",
+                "updatedAt": "2025-03-08T12:56:31.907Z",
+                "id": 113,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 6,
+                "myReaction": null,
+                "reactions": {
+                    "👍": 6
+                }
+            },
+            {
+                "_id": "67cb97a1f2283b001a05d605",
+                "type": "message",
+                "status": "sent",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "@[everyone](everyone) Good evening! \nThank you for supporting while we are transitioning to the new office. Team is starting at 10 pm EST, next 7 days maybe little hectic as far as they are setting up everything but we are doing our best to ensure everything becomes smooth. \n\nThis Sunday will have interview session. ",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [
+                    {
+                        "_id": "67cbfcedf2283b001a060283",
+                        "user": "669248acab782a0019a2f43d",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-08T08:16:45.555Z"
+                    }
+                ],
+                "createdAt": "2025-03-08T01:04:33.759Z",
+                "updatedAt": "2025-03-08T08:16:45.555Z",
+                "id": 114,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 1,
+                "myReaction": null,
+                "reactions": {
+                    "👍": 1
+                }
+            },
+            {
+                "_id": "67cc4e94f2283b001a06166c",
+                "type": "message",
+                "status": "delivered",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "GM, @[everyone](everyone)! \nApp OTA: 3.7.4 is done! Download and enjoy. Close and open app to see the new OTA update message. Check community for details release note. \n\nThanks ",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [
+                    {
+                        "_id": "67cc4ea5f2283b001a0616c5",
+                        "user": "610c4f4ab000a890e91f5d7e",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-08T14:05:25.904Z"
+                    },
+                    {
+                        "_id": "67cc4eeef2283b001a0616ea",
+                        "user": "6741fc50cc98f6001925c7fd",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-08T14:06:38.623Z"
+                    },
+                    {
+                        "_id": "67cc6a65f2283b001a061cff",
+                        "user": "66ff16340f00ff00198ab80c",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-08T16:03:49.858Z"
+                    },
+                    {
+                        "_id": "67cc6cdef2283b001a0621cd",
+                        "user": "667449e2438c3c00194df7f5",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-08T16:14:22.603Z"
+                    }
+                ],
+                "createdAt": "2025-03-08T14:05:08.531Z",
+                "updatedAt": "2025-03-08T16:14:22.603Z",
+                "id": 115,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 4,
+                "myReaction": null,
+                "reactions": {
+                    "👍": 4
+                }
+            },
+            {
+                "_id": "67cc53c2f2283b001a06180f",
+                "type": "message",
+                "status": "delivered",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "Hello, @[everyone](everyone)!\nAwareness for everyone. Please adjust your schedule accordingly. Effect from tomorrow morning. \nThank you!",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [
+                    {
+                        "_id": "67cc53c2f2283b001a061810",
+                        "name": "6445B5D6-9D77-4E35-921E-0530B00B41F8.jpg",
+                        "size": 99577,
+                        "type": "image/jpeg",
+                        "url": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/chat/610c4f4ab000a890e91f5d7e/1741444033881-6445B5D6-9D77-4E35-921E-0530B00B41F8.jpg",
+                        "createdAt": "2025-03-08T14:27:14.358Z"
+                    }
+                ],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [
+                    {
+                        "_id": "67cc7066f2283b001a062382",
+                        "user": "64873d4890ef6d001919cc18",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-08T16:29:26.266Z"
+                    },
+                    {
+                        "_id": "67ccefe3f2283b001a06506b",
+                        "user": "610c4f4ab000a890e91f5d7e",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-09T01:33:23.320Z"
+                    }
+                ],
+                "createdAt": "2025-03-08T14:27:14.358Z",
+                "updatedAt": "2025-03-09T01:33:23.320Z",
+                "id": 116,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 2,
+                "myReaction": null,
+                "reactions": {
+                    "👍": 2
+                }
+            },
+            {
+                "_id": "67cd8272f2283b001a069627",
+                "type": "message",
+                "status": "sent",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "GM, @[everyone](everyone)! Time has been changed this early morning. But our webinar is going to start at the same time (at 11 am EST).",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [],
+                "createdAt": "2025-03-09T11:58:42.287Z",
+                "updatedAt": "2025-03-09T11:58:42.287Z",
+                "id": 117,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 0,
+                "myReaction": null,
+                "reactions": {}
+            },
+            {
+                "_id": "67cda0fcf2283b001a06a32a",
+                "type": "message",
+                "status": "delivered",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "Hello, @[everyone](everyone) App OTA 3.7.5 is live. Close and open app to see the OTA message to download and install. Read release in community for details. ",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [],
+                "createdAt": "2025-03-09T14:09:00.940Z",
+                "updatedAt": "2025-03-09T14:09:02.269Z",
+                "id": 118,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 0,
+                "myReaction": null,
+                "reactions": {}
+            },
+            {
+                "_id": "67cdad1ef2283b001a06a58d",
+                "type": "message",
+                "status": "delivered",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "GM, everyone! The webinar link is on:\nhttps://us02web.zoom.us/webinar/register/WN_LNtzPBqxQoinMifTr0bnUw\nToday is another interview session.",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [],
+                "createdAt": "2025-03-09T15:00:46.097Z",
+                "updatedAt": "2025-03-09T15:00:47.327Z",
+                "id": 119,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 0,
+                "myReaction": null,
+                "reactions": {}
+            },
+            {
+                "_id": "67cdb9f1f2283b001a06ad6a",
+                "type": "message",
+                "status": "delivered",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "Hello, everyone!\nYou're welcome to explore as (there is no user sign up required), find as many as issues as possible, either create google doc or create bugs on bizcoms. \n<a target=\"_blank\" href=\"https://beta-staging-branch.bootcampshub.ai/enrollment/students/approved-member?tab=schools-dashboard\">https://beta-staging-branch.bootcampshub.ai/enrollment/students/approved-member?tab=schools-dashboard</a>",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [
+                    {
+                        "_id": "67cdc28af2283b001a06b175",
+                        "user": "667449e2438c3c00194df7f5",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-09T16:32:10.126Z"
+                    }
+                ],
+                "createdAt": "2025-03-09T15:55:29.595Z",
+                "updatedAt": "2025-03-10T03:50:49.752Z",
+                "id": 120,
+                "__v": 0,
+                "editedAt": "2025-03-10T03:50:49.751Z",
+                "replyCount": 0,
+                "reactionsCount": 1,
+                "myReaction": null,
+                "reactions": {
+                    "👍": 1
+                }
+            },
+            {
+                "_id": "67d19954db1f73001ace89a7",
+                "type": "message",
+                "status": "delivered",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "Hello, everyone! Please make sure to get OTA of the app daily basis. The OTA 3.7.8 is released today. \nTo understand better, read the community post, posted by @[Md Shimul](654d47f6dde10300195b6f42)\n\nHave a great day! ",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [
+                    {
+                        "_id": "67d1caa8db1f73001acea3e7",
+                        "user": "66ff16340f00ff00198ab80c",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-12T17:55:52.110Z"
+                    },
+                    {
+                        "_id": "67d24144db1f73001acebf78",
+                        "user": "64873d4890ef6d001919cc18",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-13T02:21:56.992Z"
+                    }
+                ],
+                "createdAt": "2025-03-12T14:25:24.759Z",
+                "updatedAt": "2025-03-13T02:21:56.992Z",
+                "id": 121,
+                "__v": 0,
+                "editedAt": "2025-03-12T14:26:13.210Z",
+                "replyCount": 0,
+                "reactionsCount": 2,
+                "myReaction": null,
+                "reactions": {
+                    "👍": 2
+                }
+            },
+            {
+                "_id": "67d4e652db1f73001acf2bd7",
+                "type": "message",
+                "status": "sent",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "@[everyone](everyone) Heads up: we have the interview set up for this Sunday. 90 min long. No questions will be given but will be asked on the go. The applicant will be interviewed in 3 stages:\n1-Recruiter\n2-Technical and \n3-Behavior \n\nSee you all! ",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [],
+                "createdAt": "2025-03-15T02:30:42.216Z",
+                "updatedAt": "2025-03-15T02:30:42.216Z",
+                "id": 122,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 0,
+                "myReaction": null,
+                "reactions": {}
+            },
+            {
+                "_id": "67d4e6eadb1f73001acf2c00",
+                "type": "message",
+                "status": "sent",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "@[everyone](everyone) Heads up: coaches and our technical manager will sync again on your Bootcamp completion roadmap and get a final deadline. We did it several months ago and will do it again this week, starting today. \nPlease cooperate with your coach accordingly. An eta is essential for everything we do. \n\nThank you! ",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [
+                    {
+                        "_id": "67d4e801db1f73001acf2c75",
+                        "user": "6741fc50cc98f6001925c7fd",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T02:37:53.670Z"
+                    },
+                    {
+                        "_id": "67d4e987db1f73001acf2ce7",
+                        "user": "62fa0084b997e4c5aa51242d",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T02:44:23.559Z"
+                    },
+                    {
+                        "_id": "67d4f470db1f73001acf36d1",
+                        "user": "673d2664ab53cb001969a50a",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T03:30:56.469Z"
+                    },
+                    {
+                        "_id": "67d4f599db1f73001acf3783",
+                        "user": "667449e2438c3c00194df7f5",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T03:35:53.772Z"
+                    },
+                    {
+                        "_id": "67d507b9db1f73001acf4513",
+                        "user": "610c4f4ab000a890e91f5d7e",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T04:53:13.036Z"
+                    },
+                    {
+                        "_id": "67d585f6db1f73001acf59a2",
+                        "user": "66ff16340f00ff00198ab80c",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T13:51:50.353Z"
+                    },
+                    {
+                        "_id": "67d5a189db1f73001acf658d",
+                        "user": "6331eccedf1acf723ac7db5e",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T15:49:29.016Z"
+                    },
+                    {
+                        "_id": "67d5a338db1f73001acf6776",
+                        "user": "64873d4890ef6d001919cc18",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T15:56:40.933Z"
+                    }
+                ],
+                "createdAt": "2025-03-15T02:33:14.802Z",
+                "updatedAt": "2025-03-15T15:56:40.933Z",
+                "id": 123,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 8,
+                "myReaction": null,
+                "reactions": {
+                    "👍": 8
+                }
+            },
+            {
+                "_id": "67d5aff2db1f73001acf7260",
+                "type": "message",
+                "status": "delivered",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "@[everyone](everyone) Let’s all take a moment to celebrate Kashem for successfully obtaining his Product Owner Certification! Over the past two weeks, he has dedicated immense time and effort to achieving this milestone.\n\nThis certification marks the final step in preparing for the job market as a Product Owner. It means mastering the requirements, excelling in interviews, and demonstrating strong practical skills. Kashem now has in-depth knowledge of how we do things, ensuring that everything he’s learned is second nature to him.\n\nCongratulations, Kashem! You’ve done an incredible job, and the next chapter looks very promising. Well done, and best of luck with what’s ahead!",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [
+                    {
+                        "_id": "67d5aff2db1f73001acf7261",
+                        "name": "8559C6E5-5652-44C3-9405-BD7AD8BD373E.jpg",
+                        "size": 87798,
+                        "type": "image/jpeg",
+                        "url": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/chat/610c4f4ab000a890e91f5d7e/1742057457994-8559C6E5-5652-44C3-9405-BD7AD8BD373E.jpg",
+                        "createdAt": "2025-03-15T16:52:46.026Z"
+                    }
+                ],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [
+                    {
+                        "_id": "67d5b02ddb1f73001acf7317",
+                        "user": "611be283da47cbf5fd9a3c1a",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T16:51:57.847Z"
+                    },
+                    {
+                        "_id": "67d5b02fdb1f73001acf7322",
+                        "user": "658ce5c145ea7e0019776f97",
+                        "symbol": "❤",
+                        "createdAt": "2025-03-15T16:51:59.635Z"
+                    },
+                    {
+                        "_id": "67d5b036db1f73001acf732d",
+                        "user": "6596318133fad30020cc2be0",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T16:52:06.796Z"
+                    },
+                    {
+                        "_id": "67d5b1d5db1f73001acf752a",
+                        "user": "667449e2438c3c00194df7f5",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T16:59:01.731Z"
+                    },
+                    {
+                        "_id": "67d5b1ebdb1f73001acf753f",
+                        "user": "674bf7054abe9e00193d90d5",
+                        "symbol": "❤",
+                        "createdAt": "2025-03-15T16:59:23.915Z"
+                    },
+                    {
+                        "_id": "67d5b25adb1f73001acf757e",
+                        "user": "673d2664ab53cb001969a50a",
+                        "symbol": "❤",
+                        "createdAt": "2025-03-15T17:01:14.542Z"
+                    },
+                    {
+                        "_id": "67d5b2a9db1f73001acf75a1",
+                        "user": "66d7750778f61b00199e5899",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T17:02:33.341Z"
+                    },
+                    {
+                        "_id": "67d5bbcddb1f73001acf799b",
+                        "user": "647660f745b2b400197d87e6",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T17:41:33.420Z"
+                    },
+                    {
+                        "_id": "67d5c788db1f73001acf8208",
+                        "user": "666874e049c51a0019eec66d",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T18:31:36.682Z"
+                    },
+                    {
+                        "_id": "67d5c9c7db1f73001acf83c8",
+                        "user": "675a20a11ae3330019d462ca",
+                        "symbol": "❤",
+                        "createdAt": "2025-03-15T18:41:11.536Z"
+                    },
+                    {
+                        "_id": "67d5d7d4db1f73001acf8933",
+                        "user": "6331eccedf1acf723ac7db5e",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T19:41:08.010Z"
+                    },
+                    {
+                        "_id": "67d5ea24db1f73001acf8e74",
+                        "user": "6741fc50cc98f6001925c7fd",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-15T20:59:16.129Z"
+                    },
+                    {
+                        "_id": "67d620e6db1f73001acf999b",
+                        "user": "66a9482fabd8f1001820db61",
+                        "symbol": "❤",
+                        "createdAt": "2025-03-16T00:52:54.677Z"
+                    },
+                    {
+                        "_id": "67d63563db1f73001acf9adc",
+                        "user": "6675a6eb438c3c00194e192a",
+                        "symbol": "❤",
+                        "createdAt": "2025-03-16T02:20:19.622Z"
+                    },
+                    {
+                        "_id": "67d67926db1f73001acfafea",
+                        "user": "658456c33175ac0019e75c1d",
+                        "symbol": "❤",
+                        "createdAt": "2025-03-16T07:09:26.365Z"
+                    },
+                    {
+                        "_id": "67d6e735db1f73001acfb96c",
+                        "user": "64873d4890ef6d001919cc18",
+                        "symbol": "❤",
+                        "createdAt": "2025-03-16T14:59:01.110Z"
+                    }
+                ],
+                "createdAt": "2025-03-15T16:50:58.634Z",
+                "updatedAt": "2025-03-16T14:59:01.110Z",
+                "id": 124,
+                "__v": 0,
+                "editedAt": "2025-03-15T16:52:46.026Z",
+                "replyCount": 0,
+                "reactionsCount": 16,
+                "myReaction": null,
+                "reactions": {
+                    "👍": 8,
+                    "❤": 8
+                }
+            },
+            {
+                "_id": "67d6e7b4db1f73001acfba62",
+                "type": "message",
+                "status": "delivered",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "GM, everyone! Interview webinar is on:\nhttps://us02web.zoom.us/webinar/register/WN_LNtzPBqxQoinMifTr0bnUw\nPlease join now!",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [
+                    {
+                        "_id": "67d6e9a8db1f73001acfbc9d",
+                        "user": "673d2664ab53cb001969a50a",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-16T15:09:28.103Z"
+                    }
+                ],
+                "createdAt": "2025-03-16T15:01:08.978Z",
+                "updatedAt": "2025-03-16T15:09:28.103Z",
+                "id": 125,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 1,
+                "myReaction": null,
+                "reactions": {
+                    "👍": 1
+                }
+            },
+            {
+                "_id": "67d895ad3c6139001aeaa7cf",
+                "type": "message",
+                "status": "sent",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "@[everyone](everyone) reminder to read lease note and update new OTA \n\n<a target=\"_blank\" href=\"https://portal.bootcampshub.ai/dashboard/community/post/67d84b575f20320019db1d2b\">https://portal.bootcampshub.ai/dashboard/community/post/67d84b575f20320019db1d2b</a>",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [
+                    {
+                        "_id": "67d8a0403c6139001aeaabfb",
+                        "user": "672cfa4c338ccb001a5fd4e3",
+                        "symbol": "😍",
+                        "createdAt": "2025-03-17T22:20:48.187Z"
+                    },
+                    {
+                        "_id": "67d8a2313c6139001aeaac76",
+                        "user": "66ff16340f00ff00198ab80c",
+                        "symbol": "👍",
+                        "createdAt": "2025-03-17T22:29:05.978Z"
+                    }
+                ],
+                "createdAt": "2025-03-17T21:35:41.567Z",
+                "updatedAt": "2025-03-17T22:29:05.978Z",
+                "id": 126,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 2,
+                "myReaction": null,
+                "reactions": {
+                    "😍": 1,
+                    "👍": 1
+                }
+            },
+            {
+                "_id": "67d8eb123c6139001aeabe01",
+                "type": "message",
+                "status": "delivered",
+                "sender": {
+                    "profilePicture": "https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1699562760513-Shiblu-Profile.",
+                    "lastName": "Ahmad",
+                    "type": "testUser",
+                    "_id": "610c4f4ab000a890e91f5d7e",
+                    "firstName": "Shiblu",
+                    "lastActive": "2025-03-18T04:04:45.478Z",
+                    "fullName": "Shiblu Ahmad"
+                },
+                "text": "@[everyone](everyone)\n\nAnnouncement:\nRamadan Holiday Schedule & Important Updates\n\nHello everyone,\n\nAs Ramadan progresses, we understand that everyone is adjusting to the fasting schedule while staying busy with their commitments. At the same time, we want to ensure that everyone gets a well-deserved break for self-refreshment and reflection.\n\nHoliday Schedule\n\nOur last working day will be March 26, and we will resume on April 4. During this time:\n\t•\tCoaches will not be available.\n\t•\tDevelopment work will be on hold.\n\t•\tThe team will be completely offline.\n\nWe encourage you to use this break to spend time with your friends and family. For those focused on learning, you can review previous modules, prepare for interviews, and revisit our past webinars, which cover essential topics. Take this time to gather your questions, so once we’re back, we can dive right in!\n\nUpdated Schedule After April 4\n\nWhen we resume, the schedule will be adjusted:\n\t•\tNight session: 10:00 PM Eastern Time\n\t•\tDay session: Between 9:30 AM - 10:00 AM to 5:30 PM - 6:30 PM Eastern Time\n\nThese timings may be slightly adjusted as needed, as we usually do.\n\nThis is a quick heads-up about our upcoming holiday and festival schedule. Wishing you a peaceful and blessed Ramadan. Enjoy your time, and we look forward to seeing you back on April 4!\n\nBest regards,\nSAn",
+                "chat": "6760dd0a5fb515001adebcb8",
+                "files": [],
+                "organization": "654d46da01e5e400181846d0",
+                "emoji": [
+                    {
+                        "_id": "67d8efea3c6139001aeac043",
+                        "user": "66ff16340f00ff00198ab80c",
+                        "symbol": "❤",
+                        "createdAt": "2025-03-18T04:00:42.744Z"
+                    },
+                    {
+                        "_id": "67d8f09c3c6139001aeac08b",
+                        "user": "66a7fe7dabd8f10018209f68",
+                        "symbol": "❤️",
+                        "createdAt": "2025-03-18T04:03:40.854Z"
+                    }
+                ],
+                "createdAt": "2025-03-18T03:40:02.858Z",
+                "updatedAt": "2025-03-18T04:03:40.854Z",
+                "id": 127,
+                "__v": 0,
+                "replyCount": 0,
+                "reactionsCount": 2,
+                "myReaction": null,
+                "reactions": {
+                    "❤": 1,
+                    "❤️": 1
+                }
+            }
+        ]
+    },
+    "bots": [],
+    "fetchingMore": false,
+    "currentPage": 1,
+    "drafts": [],
+    "fetchedMore": true
+}

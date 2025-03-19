@@ -63,6 +63,7 @@ import {
     PenSquare,
     Users as UsersIcon,
     SlidersHorizontal,
+    ChevronDown,
 } from 'lucide-react';
 import { useAppSelector } from '@/redux/hooks';
 import chats from './chats.json';
@@ -369,16 +370,16 @@ const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
 
     return (
         <div className='chat-nav h-full'>
-            <div className='flex flex-row gap-2 h-full'>
+            <div className='flex flex-row h-full border-r'>
                 {/* Side Navigation - Fixed */}
-                <div className='bg-primary-light p-2 border border-primary  h-[calc(100vh-60px)]'>
+                <div className='bg-primary-light p-1 border border-primary  h-[calc(100vh-60px)]'>
                     <SideNavigation active={active} setActive={setActive} />
                 </div>
 
                 {/* Chat List Container - Fixed layout with scrollable content */}
-                <div className='w-full bg-background chat-list flex flex-col  h-[calc(100vh-60px)]'>
+                <div className='w-[calc(100%-60px)] bg-background chat-list flex flex-col  h-[calc(100vh-60px)]'>
                     {/* Header with title and actions - Fixed */}
-                    <div className='flex items-center justify-between py-2'>
+                    <div className='flex items-center justify-between p-2'>
                         <h1 className='text-lg font-semibold'>
                             {active === 'crowds' ? (
                                 'All Crowds'
@@ -450,7 +451,7 @@ const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
 
                     {/* Chat list - Scrollable */}
                     <div
-                        className='flex-1 overflow-y-auto  h-[calc(100vh-140px)]'
+                        className='flex-1 overflow-y-auto  h-[calc(100vh-140px)] px-2'
                         ref={scrollContainerRef}
                         onScroll={handleScroll}
                     >
@@ -477,7 +478,7 @@ const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
                                         </Button>
                                     </div>
                                 </div>
-                                <div className='divide-y divide-gray-200 h-[calc(100vh - 200px) overflow-y-auto]'>
+                                <div className='divide-y divide-gray-200 h-[calc(100vh - 200px)] overflow-y-auto'>
                                     {sortByLatestMessage(records)?.map(
                                         (chat, i) => {
                                             const draft = (drafts as any)?.find(
@@ -732,14 +733,20 @@ const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
                                     )}
 
                                     {records.length > 0 && (
-                                        <div className='p-2 text-center'>
+                                        <div className='p-2 text-center flex flex-row items-center gap-1'>
+                                            <div className='w-full h-[2px] bg-border'></div>
                                             <Button
-                                                variant='ghost'
+                                                variant='primary_light'
                                                 size='sm'
-                                                className='text-xs text-primary'
+                                                className='text-xs rounded-3xl text-primary'
                                             >
-                                                View More
+                                                View More{' '}
+                                                <ChevronDown
+                                                    size={16}
+                                                    className='text-gray'
+                                                />
                                             </Button>
+                                            <div className='w-full h-[2px] bg-border'></div>
                                         </div>
                                     )}
                                 </div>

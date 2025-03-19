@@ -2,27 +2,16 @@
 
 import Image from 'next/image';
 
-import {
-    ArrowLeft,
-    ArrowRight,
-    Calendar,
-    FileText,
-    Upload,
-} from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
-import { GlobalAttachedFilesSection } from '@/components/global/GlobalAttachedFilesSection';
 import { GlobalDocumentDetailsModal } from '@/components/global/documents/GlobalDocumentDetailsModal';
 import DownloadIcon from '@/components/svgs/common/DownloadIcon';
 import EditPenIcon from '@/components/svgs/common/EditPenIcon';
 import DeleteTrashIcon from '@/components/svgs/common/DeleteTrashIcon';
 import { useState } from 'react';
 import { EditDocumentModal } from './edit-document-modal';
-import { GlobalDetailsBanner } from '@/components/global/documents/GlobalDetailsBanner';
-import { useGetContentDetailsQuery } from '@/redux/api/documents/documentsApi';
+import { DocumentContentArea } from '@/components/global/documents/DocumentContentArea';
 
 export interface DocumentDetailsProps {
     isOpen: boolean;
@@ -59,31 +48,6 @@ export function DocumentDetailsModal({
     documentId,
 }: DocumentDetailsProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-    // const { data, error, isLoading } = useGetContentDetailsQuery(
-    //     documentId || '',
-    // );
-
-    // if (isLoading) {
-    //     return <div>Loading...</div>;
-    // }
-
-    // if (error) {
-    //     return <div>Something went wrong!</div>;
-    // }
-
-    // console.log(data);
-
-    // const content = data?.content;
-    // const {
-    //     name,
-    //     description,
-    //     tags,
-    //     createdAt,
-    //     updatedAt,
-    //     createdBy,
-    //     thumbnail,
-    // } = content || {};
 
     // Mock document data - in a real app, you would fetch this based on documentId
     const document: Document | null = documentId
@@ -250,68 +214,11 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                         {/* Main content with sidebar */}
                         <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
                             {/* Main content area - 2/3 width on large screens */}
-                            <div className='lg:col-span-2'>
-                                {/* Document image with overlay title */}
-                                <GlobalDetailsBanner
-                                    title={document.title}
-                                    author={document.author}
-                                    uploadDate={document.uploadDate}
-                                    lastUpdate={document.lastUpdate}
-                                    tags={document.tags}
-                                    imageUrl={document.imageUrl}
-                                />
-
-                                {/* Document content */}
-                                <div className=''>
-                                    <Tabs defaultValue='documents'>
-                                        <TabsList className='bg-background'>
-                                            <TabsTrigger
-                                                value='documents'
-                                                className='gap-2 data-[state=active]:bg-primary'
-                                            >
-                                                <FileText className='h-4 w-4' />
-                                                Documents
-                                            </TabsTrigger>
-                                            <TabsTrigger
-                                                value='slide'
-                                                className='gap-2 data-[state=active]:bg-primary'
-                                            >
-                                                <FileText className='h-4 w-4' />
-                                                Slide
-                                            </TabsTrigger>
-                                        </TabsList>
-                                        <TabsContent
-                                            value='documents'
-                                            className='p-4'
-                                        >
-                                            <div className='pt-2'>
-                                                {document.content}
-                                            </div>
-
-                                            {/* Attached files */}
-                                            <GlobalAttachedFilesSection
-                                                files={document.attachedFiles}
-                                            />
-
-                                            {/* Comments section */}
-                                            <GlobalCommentsSection
-                                                documentId={documentId || ''}
-                                                onCommentSubmit={
-                                                    handleCommentSubmit
-                                                }
-                                            />
-                                        </TabsContent>
-                                        <TabsContent value='slide'>
-                                            <div className='flex h-40 items-center justify-center rounded-md border border-dashed p-4'>
-                                                <p className='text-sm text-muted-foreground'>
-                                                    Slide content would appear
-                                                    here
-                                                </p>
-                                            </div>
-                                        </TabsContent>
-                                    </Tabs>
-                                </div>
-                            </div>
+                            <DocumentContentArea
+                                document={document}
+                                documentId={documentId}
+                                onCommentSubmit={handleCommentSubmit}
+                            />
 
                             {/* Sidebar - 1/3 width on large screens */}
                             <div className='lg:sticky top-20 space-y-3'>

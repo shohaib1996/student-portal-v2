@@ -1,8 +1,8 @@
 'use client';
 
+// import { Upload } from 'lucide-react';
 import { useState, useEffect } from 'react'; // Added useEffect
 import { Button } from '@/components/ui/button';
-import { Upload } from 'lucide-react';
 import { GlobalHeader } from '@/components/global/global-header';
 import { GlobalPagination } from '@/components/global/global-pagination';
 import { DocumentDetailsModal } from './_components/document-details-modal';
@@ -11,18 +11,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 import { useGetMyDocumentQuery } from '@/redux/api/documents/documentsApi';
 
-// Mock data for documents
-const documents = Array.from({ length: 20 }, (_, i) => ({
-    id: `doc-${i + 1}`,
-    title: 'Test Document - For Upload File',
-    author: 'John Doe',
-    date: new Date(2023, 11, 15, 12, 30).toLocaleString(),
-    readTime: 5,
-    categories: i % 2 === 0 ? ['Document', 'Development'] : ['Document'],
-    imageUrl: '/images/documents-and-labs-thumbnail.png',
-}));
-
-export default function DocumentsPage() {
+export default function MyDocumentsPage() {
     const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
         null,
     );
@@ -62,13 +51,6 @@ export default function DocumentsPage() {
 
     const myDocuments = data?.documents || [];
 
-    console.log('MyDocuments', myDocuments[0]);
-
-    const paginatedDocuments = documents.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage,
-    );
-
     const handleDocumentClick = (documentId: string) => {
         setSelectedDocumentId(documentId);
         router.push(
@@ -97,21 +79,21 @@ export default function DocumentsPage() {
         <div>
             <div className='mb-3'>
                 <GlobalHeader
-                    title='Upload Documents'
-                    subtitle='Securely upload and manage your files with ease'
+                    title='My Documents'
+                    subtitle='Resource Library: Access All Essential Documents'
                 >
                     <div className='ml-auto flex items-center gap-2'>
                         <Button variant='outline' size='sm'>
                             Filters
                         </Button>
-                        <Button
+                        {/* <Button
                             onClick={handleOpenUploadModal}
                             size='sm'
                             className='gap-2'
                         >
                             <Upload className='h-4 w-4' />
                             Upload Document
-                        </Button>
+                        </Button> */}
                     </div>
                 </GlobalHeader>
             </div>

@@ -2,20 +2,30 @@
 
 import type React from 'react';
 import Image from 'next/image';
-import emptyChat from '/public/chat/empty_chat.svg';
+import emptyChat from '/public/chat/empty_chat.png';
+import { Button } from '../ui/button';
+import { MessagesSquare } from 'lucide-react';
 
 const ChatEmpty: React.FC = () => {
     return (
-        <div className='inbox-container chat-empty bg-white dark:bg-gray-900 rounded-md shadow-sm'>
-            <div className='empty-img flex justify-center items-center h-full p-8'>
+        <div className='inbox-container chat-empty bg-foreground shadow-sm h-full'>
+            <div className='empty-img flex flex-col justify-center items-center h-full p-8'>
                 <Image
                     src={emptyChat || '/placeholder.svg'}
                     alt='Empty Inbox'
-                    width={400}
-                    height={300}
+                    width={661}
+                    height={301}
                     className='max-w-full h-auto'
                     priority
                 />
+                <div className='flex flex-col items-center mt-4'>
+                    <p className='text-dark-gray font-semibold'>
+                        To start conversation please
+                    </p>
+                    <p className='text-primary font-semibold'>
+                        select a crowd!
+                    </p>
+                </div>
             </div>
         </div>
     );

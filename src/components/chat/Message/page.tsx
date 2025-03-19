@@ -18,6 +18,15 @@ import {
     Copy,
     Pencil,
     Trash,
+    SmilePlus,
+    ChevronDown,
+    Reply,
+    Clock,
+    Star,
+    Forward,
+    Share,
+    Info,
+    Share2,
 } from 'lucide-react';
 
 import {
@@ -84,7 +93,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
     const { user } = useAppSelector((state) => state.auth);
     const [deleteMessage, setDeleteMessage] = useState<any>(null);
     const [chatDelOpened, setChatDelOpened] = useState(false);
-
+    const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
     const {
         message,
         lastmessage,
@@ -241,18 +250,18 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                         message?.sender?.firstName ||
                                         'User images'
                                     }
-                                    width={40}
-                                    height={40}
-                                    className='rounded-full h-10 w-10 object-cover'
+                                    width={30}
+                                    height={30}
+                                    className='rounded-full h-8 w-8 object-cover'
                                 />
                             </div>
                         </div>
                         <div className='flex flex-col'>
                             <div
-                                className={`rounded-lg p-3 ${
+                                className={`rounded-lg p-2 ${
                                     !hideAlign &&
                                     message?.sender?._id === user?._id
-                                        ? 'bg-primary text-primary-foreground'
+                                        ? 'bg-primary text-primary-light'
                                         : 'bg-muted'
                                 }`}
                             >
@@ -263,10 +272,13 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                 message?.sender?._id || '',
                                             )
                                         }
-                                        className='font-medium text-sm cursor-pointer mb-1'
+                                        className='font-medium text-sm cursor-pointer mb-1 w-full flex flex-row gap-1 items-center'
                                     >
                                         {message.sender?.fullName ||
-                                            'Bootcamps Hub user'}
+                                            'Bootcamps Hub user'}{' '}
+                                        <span className='text-gray text-xs ml-2'>
+                                            {formatDate(message?.createdAt)}
+                                        </span>
                                     </span>
 
                                     {(message?.files ?? []).length > 0 &&
@@ -347,76 +359,114 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                 )}
                                             </div>
                                         )}
-
-                                        <span className='text-muted-foreground ml-2'>
-                                            {formatDate(message?.createdAt)}
-                                        </span>
                                     </div>
 
                                     {message?.type !== 'delete' &&
                                         message?.editedAt && (
-                                            <span className='text-xs italic text-muted-foreground'>
+                                            <span className='text-xs italic text-primary'>
                                                 (Edited)
                                             </span>
-                                        )}
-
-                                    {message?.type !== 'delete' &&
-                                        message?.replyCount &&
-                                        message?.replyCount > 0 &&
-                                        !hideReplyCount && (
-                                            <Button
-                                                variant='ghost'
-                                                size='sm'
-                                                className='flex items-center gap-1 mt-1 p-0 h-auto text-xs'
-                                                onClick={handleThreadMessage}
-                                            >
-                                                <span className='text-muted-foreground'>
-                                                    {message?.replyCount}{' '}
-                                                    replies
-                                                </span>
-                                                <ChevronRight className='h-3 w-3 text-muted-foreground' />
-                                            </Button>
                                         )}
                                 </div>
                             </div>
 
-                            {message?.reactions &&
-                                Object.keys(message?.reactions).length > 0 && (
-                                    <div className='flex gap-1 mt-1'>
-                                        {Object.keys(message.reactions).map(
-                                            (e, i) => (
-                                                <span
-                                                    key={i}
-                                                    className={`flex items-center justify-center px-1.5 py-0.5 rounded-full text-xs bg-muted ${
-                                                        e === '❤'
-                                                            ? 'text-red-500'
-                                                            : ''
-                                                    }`}
-                                                >
-                                                    {e}
-                                                    {message.reactions?.[e] ??
-                                                        ''}
-                                                </span>
-                                            ),
-                                        )}
+                            <div className='flex items-center gap-1 mt-1 relative'>
+                                {message?.type !== 'delete' &&
+                                message?.replyCount ? (
+                                    message?.replyCount > 0 &&
+                                    !hideReplyCount && (
+                                        <div
+                                            className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer'
+                                            onClick={handleThreadMessage}
+                                        >
+                                            <span className='text-primary'>
+                                                Replies
+                                                {message?.replyCount}{' '}
+                                            </span>
+                                            <ChevronDown className='h-3 w-3 text-gray' />
+                                        </div>
+                                    )
+                                ) : (
+                                    <div
+                                        className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer mr-3'
+                                        onClick={handleThreadMessage}
+                                    >
+                                        <span className='text-dark-gray'>
+                                            Reply
+                                        </span>
                                     </div>
                                 )}
+                                {/* Existing reactions */}
+                                {message?.reactions &&
+                                    Object.keys(message?.reactions).length >
+                                        0 && (
+                                        <div className='flex gap-1'>
+                                            {Object.keys(message.reactions).map(
+                                                (e, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className={`flex items-center justify-center px-1.5 py-0.5 rounded-full text-xs bg-secondary border ${
+                                                            e === '❤'
+                                                                ? 'text-red-500'
+                                                                : ''
+                                                        }`}
+                                                    >
+                                                        {e}
+                                                        <span className='text-primary'>
+                                                            {message
+                                                                .reactions?.[
+                                                                e
+                                                            ] ?? ''}
+                                                        </span>
+                                                    </span>
+                                                ),
+                                            )}
+                                        </div>
+                                    )}
+
+                                {/* Smile-Plus Icon */}
+                                <div
+                                    className='h-7 w-7 flex items-center justify-center p-1 rounded-full bg-secondary border cursor-pointer'
+                                    onClick={() =>
+                                        setIsEmojiPickerOpen(!isEmojiPickerOpen)
+                                    }
+                                >
+                                    <SmilePlus className='h-4 w-4' />
+                                </div>
+
+                                {/* Emoji List */}
+                                {isEmojiPickerOpen && (
+                                    <div className='flex flex-wrap gap-1 mt-1 absolute -top-10 left-2 bg-primary-light shadow-md rounded-full p-1'>
+                                        {emojies?.map((x, i) => (
+                                            <div
+                                                key={i}
+                                                className={`h-8 w-8 flex items-center justify-center hover:bg-white duration-200 rounded-full p-1 ${x === '❤' ? 'text-red-500' : ''}`}
+                                                onClick={() => {
+                                                    handleReaction(
+                                                        x,
+                                                        message._id,
+                                                    );
+                                                    setIsEmojiPickerOpen(false); // Close the emoji list after selection
+                                                }}
+                                            >
+                                                {x}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {!hideOptions && message?.type !== 'delete' && (
-                            <div className='ml-2 self-start'>
+                            <div className='ml-1 mt-2 self-start'>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='h-8 w-8'
-                                        >
-                                            <MoreVertical className='h-4 w-4' />
+                                        <div className='h-8 w-8 cursor-pointer'>
+                                            <MoreVertical className='h-4 w-4 cursor-pointer' />
                                             <span className='sr-only'>
                                                 Open menu
                                             </span>
-                                        </Button>
+                                        </div>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent
                                         align={
@@ -426,31 +476,36 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                 : 'end'
                                         }
                                     >
+                                        <div className='flex flex-wrap gap-1 border-b pb-1'>
+                                            {emojies?.map((x, i) => (
+                                                <div
+                                                    key={i}
+                                                    className={`h-8 w-8 flex items-center justify-center hover:bg-primary-light hover:border rounded-full ${x === '❤' ? 'text-red-500' : ''}`}
+                                                    onClick={() =>
+                                                        handleReaction(
+                                                            x,
+                                                            message?._id,
+                                                        )
+                                                    }
+                                                >
+                                                    {x}
+                                                </div>
+                                            ))}
+                                        </div>
                                         {source !== 'thread' && !isAi && (
                                             <DropdownMenuItem
-                                                className='flex items-center gap-2'
+                                                className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
                                                 onClick={handleThreadMessage}
                                             >
-                                                <MessageSquare className='h-4 w-4' />
+                                                <Reply className='h-4 w-4' />
                                                 Reply
                                             </DropdownMenuItem>
                                         )}
-
-                                        {message?.files?.length === 0 && (
-                                            <DropdownMenuItem
-                                                className='flex items-center gap-2'
-                                                onClick={handleCopyClick}
-                                            >
-                                                <Copy className='h-4 w-4' />
-                                                Copy
-                                            </DropdownMenuItem>
-                                        )}
-
                                         {!hideAlign &&
                                             message?.sender?._id ===
                                                 user?._id && (
                                                 <DropdownMenuItem
-                                                    className='flex items-center gap-2'
+                                                    className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
                                                     onClick={() => {
                                                         if (setEditMessage) {
                                                             setEditMessage(
@@ -460,45 +515,90 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                     }}
                                                 >
                                                     <Pencil className='h-4 w-4' />
-                                                    Edit your message
+                                                    Edit
                                                 </DropdownMenuItem>
                                             )}
+                                        {message?.files?.length === 0 && (
+                                            <DropdownMenuItem
+                                                className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                                onClick={handleCopyClick}
+                                            >
+                                                <Copy className='h-4 w-4' />
+                                                Copy
+                                            </DropdownMenuItem>
+                                        )}
+
+                                        <DropdownMenuItem
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                            onClick={() =>
+                                                toast.info('Coming soon!')
+                                            }
+                                        >
+                                            <Clock className='h-4 w-4' />
+                                            History
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                            onClick={() =>
+                                                toast.info('Coming soon!')
+                                            }
+                                        >
+                                            <Clock className='h-4 w-4' />
+                                            Pin Message
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                            onClick={() =>
+                                                toast.info('Coming soon!')
+                                            }
+                                        >
+                                            <Star className='h-4 w-4' />
+                                            Star
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                            onClick={() =>
+                                                toast.info('Coming soon!')
+                                            }
+                                        >
+                                            <Forward className='h-4 w-4' />
+                                            Forward
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                            onClick={() =>
+                                                toast.info('Coming soon!')
+                                            }
+                                        >
+                                            <Share2 className='h-4 w-4' />
+                                            Share
+                                        </DropdownMenuItem>
 
                                         {!hideAlign &&
                                             message?.sender?._id ===
                                                 user?._id &&
                                             !isAi && (
                                                 <DropdownMenuItem
-                                                    className='flex items-center gap-2 text-destructive'
+                                                    className='flex items-center gap-2 hover:bg-primary-light text-destructive'
                                                     onClick={() =>
                                                         handleDeleteMessage(
                                                             message,
                                                         )
                                                     }
                                                 >
-                                                    <Trash className='h-4 w-4' />
-                                                    Delete this message
+                                                    <Trash className='h-4 w-4 !text-danger' />
+                                                    Delete
                                                 </DropdownMenuItem>
                                             )}
-
-                                        <div className='flex flex-wrap gap-1 p-2'>
-                                            {emojies?.map((x, i) => (
-                                                <Button
-                                                    key={i}
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className={`h-8 w-8 ${x === '❤' ? 'text-red-500' : ''}`}
-                                                    onClick={() =>
-                                                        handleReaction(
-                                                            x,
-                                                            message?._id,
-                                                        )
-                                                    }
-                                                >
-                                                    {x}
-                                                </Button>
-                                            ))}
-                                        </div>
+                                        <DropdownMenuItem
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary border-t'
+                                            onClick={() =>
+                                                toast.info('Coming soon!')
+                                            }
+                                        >
+                                            <Info className='h-4 w-4' />
+                                            Info
+                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
