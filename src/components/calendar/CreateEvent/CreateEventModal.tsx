@@ -143,7 +143,7 @@ const CreateEventModal = () => {
                 </div>
             }
         >
-            <Tabs defaultValue='event'>
+            {/* <Tabs defaultValue='event'>
                 <TabsList>
                     <TabsTrigger value='event'>Events</TabsTrigger>
                     <TabsTrigger value='todo'>Events</TabsTrigger>
@@ -158,7 +158,12 @@ const CreateEventModal = () => {
                 <TabsContent value='todo'>
                     <TodoForm />
                 </TabsContent>
-            </Tabs>
+            </Tabs> */}
+            <EventForm
+                setCurrentDate={setCurrentDate}
+                form={eventForm}
+                onSubmit={onEventSubmit}
+            />
         </EventPopover>
     );
 };

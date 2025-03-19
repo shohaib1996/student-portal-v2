@@ -14,6 +14,7 @@ import { motion, useDragControls, useMotionValue } from 'framer-motion';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { createPortal } from 'react-dom';
 
 type Side = 'top' | 'right' | 'bottom' | 'left';
 
@@ -219,7 +220,7 @@ export function EventPopover({ children, title, sidebar }: EventPopoverProps) {
         }
     };
 
-    return (
+    return createPortal(
         <div className='fixed inset-0 z-50 pointer-events-none'>
             <motion.div
                 className={cn(
@@ -280,14 +281,20 @@ export function EventPopover({ children, title, sidebar }: EventPopoverProps) {
                                 )}
                             </Button>
                         </div>
-                        <div className='flex-1 overflow-auto p-4'>
+                        <div
+                            className={cn(
+                                'flex-1 overflow-auto p-4 h-[350px]',
+                                { 'h-full': isFullScreen },
+                            )}
+                        >
                             {children}
                         </div>
                     </div>
                     {isFullScreen && sidebar}
                 </div>
             </motion.div>
-        </div>
+        </div>,
+        document.body,
     );
 }
 
