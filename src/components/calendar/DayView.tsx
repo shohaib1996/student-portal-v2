@@ -6,49 +6,18 @@ import { format, isToday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import dayjs, { Dayjs } from 'dayjs';
 import { toast } from 'sonner';
+import GlobalTooltip from '../global/GlobalTooltip';
+import { renderStatus } from './monthView';
+import staticEvents from '../../../public/calendarData.json';
+import { TEvent } from '@/types/calendar/calendarTypes';
 
 interface DayViewProps {
     currentDate: Date;
     onChange?: (_: Dayjs) => void;
 }
 
-interface CalendarEvent {
-    id: string;
-    title: string;
-    date: Date;
-    startHour: number;
-    endHour: number;
-    color: string;
-}
-
 export function DayView({ currentDate, onChange }: DayViewProps) {
-    // Sample events - in a real app, these would come from a database or API
-    const [events] = useState<CalendarEvent[]>([
-        {
-            id: '1',
-            title: 'Team Meeting',
-            date: currentDate,
-            startHour: 10,
-            endHour: 11,
-            color: 'bg-blue-500',
-        },
-        {
-            id: '2',
-            title: 'Lunch Break',
-            date: currentDate,
-            startHour: 12,
-            endHour: 13,
-            color: 'bg-green-500',
-        },
-        {
-            id: '3',
-            title: 'Client Call',
-            date: currentDate,
-            startHour: 15,
-            endHour: 16,
-            color: 'bg-purple-500',
-        },
-    ]);
+    const events: TEvent[] = (staticEvents as unknown as TEvent[]) || [];
 
     const handleHourClick = (hour: number) => {
         console.log('Hour clicked:', hour);
@@ -66,13 +35,22 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
 
     // Get events for a specific hour
     const getEventsForHour = (hour: number) => {
-        return events.filter(
-            (event) =>
-                format(event.date, 'yyyy-MM-dd') ===
-                    format(currentDate, 'yyyy-MM-dd') &&
-                hour >= event.startHour &&
-                hour < event.endHour,
-        );
+        // Create a dayjs object for the current date
+        const current = dayjs(currentDate);
+
+        return events.filter((event) => {
+            // Parse the event start date
+            const eventTime = dayjs(event.start);
+
+            // Check if the event is on the same date as currentDate
+            const sameDate = eventTime.isSame(current, 'day');
+
+            // Check if the event is at the specified hour
+            const sameHour = eventTime.hour() === hour;
+
+            // Return true if both conditions are met
+            return sameDate && sameHour;
+        });
     };
 
     // Get current hour
@@ -101,49 +79,29 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
                                     ? '12 PM'
                                     : `${hour - 12} PM`}
                         </div>
-                        <div className='flex-1 p-1 relative'>
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            className='mt-1 flex flex-wrap gap-2'
+                        >
                             {getEventsForHour(hour).map((event) => (
-                                <div
-                                    key={event.id}
+                                <button
+                                    key={event._id}
                                     className={cn(
-                                        'p-2 rounded text-white text-sm absolute left-1 right-1',
-                                        event.color,
-                                        hour === event.startHour
-                                            ? 'top-1'
-                                            : 'top-0 border-t-0 rounded-t-none',
-                                        hour === event.endHour - 1
-                                            ? 'bottom-1'
-                                            : 'bottom-0 border-b-0 rounded-b-none',
+                                        'w-fit h-fit flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-foreground justify-start font-normal',
                                     )}
-                                    style={{
-                                        zIndex: 10,
-                                    }}
                                 >
-                                    {hour === event.startHour && (
-                                        <>
-                                            <div className='font-medium'>
-                                                {event.title}
-                                            </div>
-                                            <div className='text-xs'>
-                                                {event.startHour === 0
-                                                    ? '12 AM'
-                                                    : event.startHour < 12
-                                                      ? `${event.startHour} AM`
-                                                      : event.startHour === 12
-                                                        ? '12 PM'
-                                                        : `${event.startHour - 12} PM`}{' '}
-                                                -
-                                                {event.endHour === 0
-                                                    ? '12 AM'
-                                                    : event.endHour < 12
-                                                      ? `${event.endHour} AM`
-                                                      : event.endHour === 12
-                                                        ? '12 PM'
-                                                        : `${event.endHour - 12} PM`}
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
+                                    {}
+                                    <p>
+                                        {renderStatus(
+                                            event?.myParticipantData?.status,
+                                        )}
+                                    </p>
+                                    <GlobalTooltip tooltip={event?.title}>
+                                        <h2 className='truncate'>
+                                            {event?.title}
+                                        </h2>
+                                    </GlobalTooltip>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -152,3 +110,30 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
         </div>
     );
 }
+
+// {
+//     hour === event.startHour && (
+//         <>
+//             <div className='font-medium'>
+//                 {event.title}
+//             </div>
+//             <div className='text-xs'>
+//                 {event.startHour === 0
+//                     ? '12 AM'
+//                     : event.startHour < 12
+//                         ? `${event.startHour} AM`
+//                         : event.startHour === 12
+//                             ? '12 PM'
+//                             : `${event.startHour - 12} PM`}{' '}
+//                 -
+//                 {event.endHour === 0
+//                     ? '12 AM'
+//                     : event.endHour < 12
+//                         ? `${event.endHour} AM`
+//                         : event.endHour === 12
+//                             ? '12 PM'
+//                             : `${event.endHour - 12} PM`}
+//             </div>
+//         </>
+//     )
+// }

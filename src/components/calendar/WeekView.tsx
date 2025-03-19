@@ -4,6 +4,12 @@ import { useState } from 'react';
 import { addDays, format, isToday, startOfWeek, isSameDay } from 'date-fns';
 
 import { cn } from '@/lib/utils';
+import GlobalTooltip from '../global/GlobalTooltip';
+import { renderStatus } from './monthView';
+import staticEvents from '../../../public/calendarData.json';
+import { TEvent } from '@/types/calendar/calendarTypes';
+import dayjs from 'dayjs';
+import GlobalDropdown from '../global/GlobalDropdown';
 
 interface WeekViewProps {
     currentDate: Date;
@@ -22,90 +28,7 @@ interface CalendarEvent {
 }
 
 export function WeekView({ currentDate, hoursView }: WeekViewProps) {
-    // Sample events - in a real app, these would come from a database or API
-    const [events] = useState<CalendarEvent[]>([
-        {
-            id: '1',
-            title: 'First Phase Interview',
-            date: addDays(startOfWeek(currentDate), 1), // Tuesday
-            startHour: 9,
-            startMinute: 0,
-            endHour: 10,
-            endMinute: 0,
-            color: 'bg-red-100 text-red-800 border-red-300',
-        },
-        {
-            id: '2',
-            title: 'First Phase Interview',
-            date: addDays(startOfWeek(currentDate), 1), // Tuesday
-            startHour: 7,
-            startMinute: 0,
-            endHour: 8,
-            endMinute: 0,
-            color: 'bg-red-100 text-red-800 border-red-300',
-        },
-        {
-            id: '3',
-            title: 'Warm Up Class',
-            date: addDays(startOfWeek(currentDate), 1), // Tuesday
-            startHour: 15,
-            startMinute: 0,
-            endHour: 16,
-            endMinute: 0,
-            color: 'bg-orange-100 text-orange-800 border-orange-300',
-        },
-        {
-            id: '4',
-            title: 'Warm Up Class',
-            date: addDays(startOfWeek(currentDate), 2), // Wednesday
-            startHour: 13,
-            startMinute: 0,
-            endHour: 14,
-            endMinute: 0,
-            color: 'bg-orange-100 text-orange-800 border-orange-300',
-        },
-        {
-            id: '5',
-            title: 'First Phase Interview',
-            date: addDays(startOfWeek(currentDate), 2), // Wednesday
-            startHour: 8,
-            startMinute: 0,
-            endHour: 9,
-            endMinute: 0,
-            color: 'bg-red-100 text-red-800 border-red-300',
-        },
-        {
-            id: '6',
-            title: 'First Phase Interview',
-            date: addDays(startOfWeek(currentDate), 4), // Friday
-            startHour: 9,
-            startMinute: 0,
-            endHour: 10,
-            endMinute: 0,
-            color: 'bg-red-100 text-red-800 border-red-300',
-        },
-        {
-            id: '7',
-            title: 'Bootcamp Hub Skills',
-            date: addDays(startOfWeek(currentDate), 1), // Tuesday
-            startHour: 10,
-            startMinute: 0,
-            endHour: 11,
-            endMinute: 0,
-            color: 'bg-red-100 text-red-800 border-red-300',
-        },
-        {
-            id: '8',
-            title: 'First Phase Interview',
-            date: addDays(startOfWeek(currentDate), 5), // Saturday
-            startHour: 8,
-            startMinute: 0,
-            endHour: 9,
-            endMinute: 0,
-            color: 'bg-blue-100 text-blue-800 border-blue-300',
-        },
-    ]);
-
+    const events: TEvent[] = (staticEvents as unknown as TEvent[]) || [];
     const handleCellClick = (day: Date, hour: number) => {
         console.log('Cell clicked:', format(day, 'yyyy-MM-dd'), hour);
         // You can implement custom logic here, like opening a modal to add an event
@@ -127,7 +50,9 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
     // Get events for a specific day and hour
     const getEventsForCell = (day: Date, hour: number) => {
         return events.filter(
-            (event) => isSameDay(event.date, day) && hour === event.startHour,
+            (event) =>
+                isSameDay(event.start, day) &&
+                hour === dayjs(event.start).hour(),
         );
     };
 
@@ -186,22 +111,75 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
                                 )}
                                 onClick={() => handleCellClick(day, hour)}
                             >
-                                {getEventsForCell(day, hour).map((event) => (
-                                    <div
-                                        key={event.id}
-                                        className={cn(
-                                            'p-1 rounded text-sm border',
-                                            event.color,
-                                        )}
-                                    >
-                                        <div className='flex items-center gap-1'>
-                                            <div className='w-2 h-2 rounded-full bg-current'></div>
-                                            <div className='font-medium truncate'>
-                                                {event.title}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                                <div
+                                    onClick={(e) => e.stopPropagation()}
+                                    className='mt-1 space-y-1'
+                                >
+                                    {getEventsForCell(day, hour)
+                                        .slice(0, 3)
+                                        .map((event) => (
+                                            <button
+                                                key={event._id}
+                                                className={cn(
+                                                    'w-full flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-foreground justify-start font-normal',
+                                                )}
+                                            >
+                                                {}
+                                                <p>
+                                                    {renderStatus(
+                                                        event?.myParticipantData
+                                                            ?.status,
+                                                    )}
+                                                </p>
+                                                <GlobalTooltip
+                                                    tooltip={event?.title}
+                                                >
+                                                    <h2 className='truncate'>
+                                                        {event?.title}
+                                                    </h2>
+                                                </GlobalTooltip>
+                                            </button>
+                                        ))}
+                                    {getEventsForCell(day, hour)?.length >
+                                        3 && (
+                                        <GlobalDropdown
+                                            dropdownRender={
+                                                <div className='space-y-1 bg-foreground p-2'>
+                                                    {getEventsForCell(day, hour)
+                                                        .slice(3)
+                                                        .map((event) => (
+                                                            <button
+                                                                key={event._id}
+                                                                className={cn(
+                                                                    'w-full flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-background justify-start font-normal',
+                                                                )}
+                                                            >
+                                                                <p>
+                                                                    {renderStatus(
+                                                                        event
+                                                                            ?.myParticipantData
+                                                                            ?.status,
+                                                                    )}
+                                                                </p>
+                                                                <p className='truncate'>
+                                                                    {
+                                                                        event?.title
+                                                                    }
+                                                                </p>
+                                                            </button>
+                                                        ))}
+                                                </div>
+                                            }
+                                        >
+                                            <button className='h-4 text-sm font-semibold text-center w-full border-none text-primary-white'>
+                                                +
+                                                {getEventsForCell(day, hour)
+                                                    .length - 3}{' '}
+                                                more
+                                            </button>
+                                        </GlobalDropdown>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>
