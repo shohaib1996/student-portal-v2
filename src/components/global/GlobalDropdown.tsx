@@ -57,7 +57,7 @@ const GlobalDropdown = ({
                         ? dropdownRender
                         : items?.map((item, i) => (
                               <div
-                                  key={item.id || i}
+                                  key={i}
                                   className=' cursor-pointer  rounded-md  border-b  p-2  hover:bg-foreground  md:has-[>.md\:hidden]:py-0 has-[>.hidden]:py-0  lg:has-[>lg\:hidden]:py-0
         '
                               >

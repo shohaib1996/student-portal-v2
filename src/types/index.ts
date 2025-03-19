@@ -14,3 +14,7 @@ export * from './dashboard/bottomChartType';
 export * from './program/myprogramType';
 export * from './dashboard/courseContentType';
 export * from './program/prgoramChapterTypes';
+export * from './comminity/community';
+export * from './user/user';
+export * from './audio-videos/audio-videos';
+export * from './audio-videos/comments';

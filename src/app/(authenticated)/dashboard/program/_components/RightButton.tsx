@@ -34,7 +34,7 @@ export default function RightButton() {
             </Link>
 
             <Link
-                href='/progress'
+                href='/dashboard/progress'
                 className='text-dark-gray font-medium text-sm flex items-center gap-2 px-3 py-2 bg-background rounded-lg border border-gray-200 transition-colors'
             >
                 <svg
