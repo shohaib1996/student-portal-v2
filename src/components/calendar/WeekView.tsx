@@ -74,7 +74,7 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
                             key={index}
                             className={cn(
                                 'p-2 text-center border-r last:border-r-0',
-                                isToday(day) && 'bg-blue-50',
+                                isToday(day) && 'bg-primary-light',
                             )}
                         >
                             <div className='text-sm font-medium'>
@@ -107,13 +107,13 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
                                 key={dayIndex}
                                 className={cn(
                                     'border-r last:border-r-0 p-1 relative',
-                                    isToday(day) && 'bg-blue-50/30',
+                                    isToday(day) && 'bg-primary-light',
                                 )}
                                 onClick={() => handleCellClick(day, hour)}
                             >
                                 <div
                                     onClick={(e) => e.stopPropagation()}
-                                    className='mt-1 space-y-1'
+                                    className='mt-1 space-y-1 cursor-pointer'
                                 >
                                     {getEventsForCell(day, hour)
                                         .slice(0, 3)

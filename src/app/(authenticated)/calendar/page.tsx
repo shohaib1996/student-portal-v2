@@ -45,7 +45,7 @@ const CalendarPage = () => {
                 }
             />
             <EventPopoverProvider>
-                <div className='grid grid-cols-[4fr_1fr] gap-2'>
+                <div className='grid grid-cols-[4fr_1fr] gap-2 h-[calc(100vh-120px)]'>
                     <Calendar />
                     <CalendarSidebar
                         currentDate={currentDate}

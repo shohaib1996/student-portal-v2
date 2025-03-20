@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
     format,
     addDays,
@@ -19,16 +19,82 @@ import {
     CheckSquare,
     Clock,
     User,
+    SendIcon,
+    Send,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import AcceptedIcon from '../svgs/calendar/AcceptedIcon';
+import PendingIcon from '../svgs/calendar/PendingIcon';
+import DeniedIcon from '../svgs/calendar/DeniedIcon';
+import ProposeTimeIcon from '../svgs/calendar/ProposeTimeIcon';
+import FinishedIcon from '../svgs/calendar/FinishedIcon';
+import InProgressIcon from '../svgs/calendar/InProgressIcon';
+import TodoIcon from '../svgs/calendar/TodoIcon';
+import HolidayIcon from '../svgs/calendar/HolidayIcon';
+import EventsIcon from '../svgs/calendar/EventsIcon';
 
 interface CalendarAccordionsProps {
     currentDate: Date;
     onDateSelect: (date: Date) => void;
 }
+
+const eventOptions = [
+    {
+        value: 'accepted',
+        label: 'Accepted',
+        icon: <AcceptedIcon />,
+    },
+    {
+        value: 'pending',
+        label: 'Pending',
+        icon: <PendingIcon />,
+    },
+    {
+        value: 'denied',
+        label: 'Denied',
+        icon: <DeniedIcon />,
+    },
+    {
+        value: 'proposedTime',
+        label: 'Proposed New Time',
+        icon: <ProposeTimeIcon />,
+    },
+    {
+        value: 'finished',
+        label: 'Finished',
+        icon: <FinishedIcon />,
+    },
+];
+const todoOptions = [
+    {
+        value: 'inProgress',
+        label: 'In-Progress',
+        icon: <InProgressIcon />,
+    },
+    {
+        value: 'completed',
+        label: 'Completed',
+        icon: <PendingIcon />,
+    },
+    {
+        value: 'cancelled',
+        label: 'Cancelled',
+        icon: <DeniedIcon />,
+    },
+];
+const holidayOptions = [
+    {
+        value: 'holidays',
+        label: 'Holidays',
+    },
+    {
+        value: 'weekends',
+        label: 'Weekends',
+    },
+];
 
 interface Event {
     id: string;
@@ -49,8 +115,15 @@ export function CalendarSidebar({
     const [expanded, setExpanded] = useState({
         month: true,
         events: true,
+        events2: true,
         todo: true,
+        holiday: true,
     });
+
+    const [eventFilter, setEventFilter] = useState<string[]>([]);
+    const [todoFilter, setTodoFilter] = useState<string[]>([]);
+    const [holidayFilter, setHolidayFilter] = useState<string[]>([]);
+    const [sentFilter, setSentFilter] = useState('');
 
     const [selectedWeek, setSelectedWeek] = useState(startOfWeek(currentDate));
 
@@ -148,16 +221,6 @@ export function CalendarSidebar({
         });
     };
 
-    // Get all events
-    const getAllEvents = () => {
-        return items.filter((item) => !item.isTodo);
-    };
-
-    // Get all todos
-    const getAllTodos = () => {
-        return items.filter((item) => item.isTodo);
-    };
-
     // Group events by day
     const groupEventsByDay = (events: Event[]) => {
         const grouped: Record<string, Event[]> = {};
@@ -175,30 +238,60 @@ export function CalendarSidebar({
 
     const weekEvents = getEventsForWeek();
     const groupedWeekEvents = groupEventsByDay(weekEvents);
-    const allEvents = getAllEvents();
-    const allTodos = getAllTodos();
+
+    const isFilterActive = useCallback(
+        (type: 'event' | 'holiday' | 'todo', value: string) => {
+            if (type === 'event') {
+                const exist = (eventFilter as string[]).find(
+                    (f) => f === value,
+                );
+                if (exist) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (type === 'todo') {
+                const exist = (todoFilter as string[]).find((f) => f === value);
+                if (exist) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (type === 'holiday') {
+                const exist = (holidayFilter as string[]).find(
+                    (f) => f === value,
+                );
+                if (exist) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        },
+        [eventFilter, todoFilter, holidayFilter],
+    );
 
     return (
         <div className='w-full border-l flex flex-col h-full overflow-y-auto'>
             {/* Month Accordion */}
             <div className='border-b'>
                 <button
-                    className='flex items-center justify-between w-full p-3 text-sm font-medium text-left'
+                    className='flex items-center text-dark-gray gap-1 w-full p-3 text-sm font-medium text-left'
                     onClick={() => toggleSection('month')}
                 >
-                    <span>{format(currentDate, 'MMMM yyyy')}</span>
                     <ChevronDown
                         className={cn(
                             'h-4 w-4 transition-transform',
                             expanded.month ? 'rotate-180' : '',
                         )}
                     />
+                    <span>{format(currentDate, 'MMMM yyyy')}</span>
                 </button>
 
                 {expanded.month && (
                     <div className='p-3 pt-0'>
                         {/* Week navigation */}
-                        <div className='flex justify-between items-center mb-3'>
+                        <div className='flex gap-1 justify-between items-center mb-3'>
                             <Button
                                 variant='ghost'
                                 size='icon'
@@ -311,62 +404,95 @@ export function CalendarSidebar({
             <div className='border-b'>
                 <button
                     className='flex items-center justify-between w-full p-3 text-sm font-medium text-left'
+                    onClick={() => toggleSection('events2')}
+                >
+                    <div className='flex gap-1 items-center w-full text-dark-gray'>
+                        <ChevronDown
+                            className={cn(
+                                'h-4 w-4 transition-transform',
+                                expanded.events2 ? 'rotate-180' : '',
+                            )}
+                        />
+                        <EventsIcon />
+                        <span>Events (as an organizer)</span>
+                    </div>
+                </button>
+
+                {expanded.events2 && (
+                    <div className='p-3 pt-0 space-y-2'>
+                        <div className='flex justify-between items-center'>
+                            <div className='flex gap-2 items-center text-sm text-gray'>
+                                <Send size={16} className='text-primary' />
+                                Sent
+                            </div>
+                            <Checkbox
+                                checked={sentFilter === 'sent'}
+                                onCheckedChange={(val) =>
+                                    setSentFilter(val === true ? 'sent' : '')
+                                }
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+            {/* Events Accordion */}
+            <div className='border-b'>
+                <button
+                    className='flex items-center justify-between w-full p-3 text-sm font-medium text-left'
                     onClick={() => toggleSection('events')}
                 >
-                    <div className='flex items-center'>
-                        <Calendar className='h-4 w-4 mr-2' />
-                        <span>Events</span>
+                    <div className='flex gap-1 items-center w-full text-dark-gray'>
+                        <ChevronDown
+                            className={cn(
+                                'h-4 w-4 transition-transform',
+                                expanded.events ? 'rotate-180' : '',
+                            )}
+                        />
+                        <EventsIcon />
+                        <span>Events (as an attendee)</span>
+                        <Checkbox
+                            onClick={(e) => e.stopPropagation()}
+                            className='ms-auto'
+                            checked={eventFilter.length === 5}
+                            onCheckedChange={(val) =>
+                                setEventFilter((prev) =>
+                                    val === true
+                                        ? eventOptions.map((op) => op.value)
+                                        : [],
+                                )
+                            }
+                        />
                     </div>
-                    <ChevronDown
-                        className={cn(
-                            'h-4 w-4 transition-transform',
-                            expanded.events ? 'rotate-180' : '',
-                        )}
-                    />
                 </button>
 
                 {expanded.events && (
-                    <div className='p-3 pt-0'>
-                        {allEvents.length > 0 ? (
-                            <div className='space-y-2'>
-                                {allEvents.map((event) => (
-                                    <div
-                                        key={event.id}
-                                        className={cn(
-                                            'p-2 rounded bg-gray-50 text-xs',
-                                            event.color,
-                                        )}
-                                    >
-                                        <div className='flex items-center justify-between mb-1'>
-                                            <div className='font-medium'>
-                                                {event.title}
-                                            </div>
-                                            <div className='text-gray-500 text-[10px]'>
-                                                {format(event.date, 'MMM d')}
-                                            </div>
-                                        </div>
-                                        <div className='flex items-center text-gray-500 mb-1'>
-                                            <Clock className='h-3 w-3 mr-1' />
-                                            <span>
-                                                {event.time} ({event.duration})
-                                            </span>
-                                        </div>
-                                        {event.attendees.length > 0 && (
-                                            <div className='flex items-center text-gray-500'>
-                                                <User className='h-3 w-3 mr-1' />
-                                                <span className='truncate'>
-                                                    {event.attendees[0]}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
+                    <div className='p-3 pt-0 space-y-2'>
+                        {eventOptions.map((item) => (
+                            <div
+                                className='flex justify-between items-center'
+                                key={item.value}
+                            >
+                                <div className='flex gap-2 items-center text-sm text-gray'>
+                                    {item.icon}
+                                    {item.label}
+                                </div>
+                                <Checkbox
+                                    checked={isFilterActive(
+                                        'event',
+                                        item.value,
+                                    )}
+                                    onCheckedChange={(val) =>
+                                        setEventFilter((prev) =>
+                                            val === true
+                                                ? [...prev, item.value]
+                                                : prev.filter(
+                                                      (f) => f !== item.value,
+                                                  ),
+                                        )
+                                    }
+                                />
                             </div>
-                        ) : (
-                            <div className='text-center text-gray-500 text-xs py-2'>
-                                No events
-                            </div>
-                        )}
+                        ))}
                     </div>
                 )}
             </div>
@@ -377,63 +503,115 @@ export function CalendarSidebar({
                     className='flex items-center justify-between w-full p-3 text-sm font-medium text-left'
                     onClick={() => toggleSection('todo')}
                 >
-                    <div className='flex items-center'>
-                        <CheckSquare className='h-4 w-4 mr-2' />
-                        <span>Todo</span>
+                    <div className='flex gap-1 items-center w-full text-dark-gray'>
+                        <ChevronDown
+                            className={cn(
+                                'h-4 w-4 transition-transform',
+                                expanded.todo ? 'rotate-180' : '',
+                            )}
+                        />
+                        <TodoIcon />
+                        <span className='ps-2'>To-Do</span>
+                        <Checkbox
+                            onClick={(e) => e.stopPropagation()}
+                            className='ms-auto'
+                            checked={todoFilter.length === 3}
+                            onCheckedChange={(val) =>
+                                setTodoFilter((prev) =>
+                                    val === true
+                                        ? todoOptions.map((op) => op.value)
+                                        : [],
+                                )
+                            }
+                        />
                     </div>
-                    <ChevronDown
-                        className={cn(
-                            'h-4 w-4 transition-transform',
-                            expanded.todo ? 'rotate-180' : '',
-                        )}
-                    />
                 </button>
 
                 {expanded.todo && (
-                    <div className='p-3 pt-0'>
-                        {allTodos.length > 0 ? (
-                            <div className='space-y-2'>
-                                {allTodos.map((todo) => (
-                                    <div
-                                        key={todo.id}
-                                        className={cn(
-                                            'p-2 rounded bg-gray-50 text-xs flex items-start gap-2',
-                                            todo.color,
-                                        )}
-                                    >
-                                        <Checkbox
-                                            id={`todo-${todo.id}`}
-                                            className='mt-0.5'
-                                            defaultChecked={todo.completed}
-                                        />
-                                        <div className='flex-1'>
-                                            <label
-                                                htmlFor={`todo-${todo.id}`}
-                                                className={cn(
-                                                    'font-medium block mb-1',
-                                                    todo.completed &&
-                                                        'line-through text-gray-500',
-                                                )}
-                                            >
-                                                {todo.title}
-                                            </label>
-                                            <div className='flex items-center text-gray-500 mb-1'>
-                                                <Clock className='h-3 w-3 mr-1' />
-                                                <span>
-                                                    {format(todo.date, 'MMM d')}{' '}
-                                                    at {todo.time} (
-                                                    {todo.duration})
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                    <div className='p-3 pt-0 space-y-2'>
+                        {todoOptions.map((item) => (
+                            <div
+                                className='flex justify-between items-center'
+                                key={item.value}
+                            >
+                                <div className='flex gap-2 items-center text-sm text-gray'>
+                                    {item.icon}
+                                    {item.label}
+                                </div>
+                                <Checkbox
+                                    checked={isFilterActive('todo', item.value)}
+                                    onCheckedChange={(val) =>
+                                        setTodoFilter((prev) =>
+                                            val === true
+                                                ? [...prev, item.value]
+                                                : prev.filter(
+                                                      (f) => f !== item.value,
+                                                  ),
+                                        )
+                                    }
+                                />
                             </div>
-                        ) : (
-                            <div className='text-center text-gray-500 text-xs py-2'>
-                                No todos
+                        ))}
+                    </div>
+                )}
+            </div>
+            {/* Holiday Accordion */}
+            <div className='border-b'>
+                <button
+                    className='flex items-center justify-between w-full p-3 text-sm font-medium text-left'
+                    onClick={() => toggleSection('holiday')}
+                >
+                    <div className='flex items-center gap-1 w-full text-dark-gray'>
+                        <ChevronDown
+                            className={cn(
+                                'h-4 w-4 transition-transform',
+                                expanded.holiday ? 'rotate-180' : '',
+                            )}
+                        />
+                        <HolidayIcon />
+                        <span className='ps-2'>Holidays</span>
+                        <Checkbox
+                            onClick={(e) => e.stopPropagation()}
+                            className='ms-auto'
+                            checked={holidayFilter.length === 2}
+                            onCheckedChange={(val) =>
+                                setHolidayFilter((prev) =>
+                                    val === true
+                                        ? holidayOptions.map((op) => op.value)
+                                        : [],
+                                )
+                            }
+                        />
+                    </div>
+                </button>
+
+                {expanded.holiday && (
+                    <div className='p-3 pt-0 space-y-2'>
+                        {holidayOptions.map((item) => (
+                            <div
+                                className='flex justify-between items-center'
+                                key={item.value}
+                            >
+                                <div className='flex gap-2 items-center text-sm text-gray'>
+                                    {item.label}
+                                </div>
+                                <Checkbox
+                                    checked={isFilterActive(
+                                        'holiday',
+                                        item.value,
+                                    )}
+                                    onCheckedChange={(val) =>
+                                        setHolidayFilter((prev) =>
+                                            val === true
+                                                ? [...prev, item.value]
+                                                : prev.filter(
+                                                      (f) => f !== item.value,
+                                                  ),
+                                        )
+                                    }
+                                />
                             </div>
-                        )}
+                        ))}
                     </div>
                 )}
             </div>

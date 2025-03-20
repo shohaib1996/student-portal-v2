@@ -247,7 +247,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                 )}
                 <div
                     className={cn(
-                        'border border-forground-border bg-foreground rounded-md p-2 mt-2',
+                        'border border-forground-border bg-foreground rounded-md p-2 mt-2 min-h-[calc(100%-20px)]',
                         className,
                     )}
                 >
@@ -379,7 +379,11 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                             'col-span-10 order-9': isFullScreen,
                         })}
                     >
-                        <div className={isFullScreen ? '' : ''}>
+                        <div
+                            className={
+                                isFullScreen ? 'min-h-[calc(100%-20px)]' : ''
+                            }
+                        >
                             {isFullScreen && (
                                 <FormLabel reqired>Add Reminders</FormLabel>
                             )}

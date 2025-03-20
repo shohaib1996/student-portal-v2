@@ -22,7 +22,7 @@ type CalendarView = 'day' | 'week' | 'month';
 
 export default function Calendar() {
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [view, setView] = useState<CalendarView>('week');
+    const [view, setView] = useState<CalendarView>('month');
     const [hoursView, setHoursView] = useState<string>('24 hours view');
 
     const navigateToPrevious = () => {
@@ -70,7 +70,7 @@ export default function Calendar() {
     };
 
     return (
-        <div className='flex flex-col h-[calc(100vh-120px)] overflow-hidden'>
+        <div className='flex flex-col overflow-hidden'>
             <div className='flex items-center justify-between py-2 border-b border-forground-border bg-background'>
                 <div className='flex items-center gap-2'>
                     <div className='flex items-center gap-1'>

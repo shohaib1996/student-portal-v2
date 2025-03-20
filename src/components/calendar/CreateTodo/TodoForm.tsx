@@ -353,6 +353,11 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                             )}
                             {field.value?.map((noti, i) => (
                                 <AddNotification
+                                    className={
+                                        isFullScreen
+                                            ? 'min-h-[calc(100%-20px)]'
+                                            : ''
+                                    }
                                     setNotification={(val) =>
                                         field.onChange([val])
                                     }
