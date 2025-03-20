@@ -1,0 +1,221 @@
+'use client';
+
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
+    AlertTriangle,
+    Bell,
+    Calendar,
+    ChevronRight,
+    Clock,
+    GripVertical,
+    History,
+    MoreHorizontal,
+    Pencil,
+    Trash,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { TaskType } from './TodoBoard';
+import { Button } from '@/components/ui/button';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { memo } from 'react';
+import GlobalDropdown from '@/components/global/GlobalDropdown';
+
+interface TaskCardProps {
+    task: TaskType;
+}
+
+const TaskCard = memo(({ task }: TaskCardProps) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({
+        id: task.id,
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    // Get priority badge color
+    const getPriorityColor = (priority: string) => {
+        switch (priority) {
+            case 'high':
+                return 'text-red-800 dark:text-red-400';
+            case 'medium':
+                return 'text-amber-800 dark:text-amber-400';
+            case 'low':
+                return 'text-green-800 dark:text-green-400';
+            default:
+                return 'text-gray-800 dark:text-gray-400';
+        }
+    };
+
+    const dueDate = 'Tuesday - Mar 04, 2025 at 10:30 AM';
+    const reminder = '30 min before';
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={cn(
+                'group bg-background rounded-md relative cursor-grab border shadow-sm',
+                isDragging && 'opacity-50 shadow-md',
+            )}
+        >
+            <Collapsible defaultOpen className='group/collapsible'>
+                {/* Header */}
+                <CollapsibleTrigger className='flex items-center w-full justify-between p-2 border-b'>
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        className='flex items-center gap-2'
+                    >
+                        <GripVertical
+                            className='h-5 w-5 text-muted-foreground cursor-grab'
+                            {...attributes}
+                            {...listeners}
+                        />
+                        <h3 className='font-medium text-lg'>{task.title}</h3>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                        <GlobalDropdown
+                            items={[
+                                {
+                                    id: 1,
+                                    content: (
+                                        <Button
+                                            variant={'plain'}
+                                            icon={<Pencil size={16} />}
+                                        >
+                                            Rename
+                                        </Button>
+                                    ),
+                                },
+                                {
+                                    id: 2,
+                                    content: (
+                                        <Button
+                                            variant={'plain'}
+                                            icon={<History size={16} />}
+                                        >
+                                            History
+                                        </Button>
+                                    ),
+                                },
+                                {
+                                    id: 3,
+                                    content: (
+                                        <Button
+                                            variant={'danger_light'}
+                                            icon={<Trash size={16} />}
+                                        >
+                                            Delete
+                                        </Button>
+                                    ),
+                                },
+                            ]}
+                        >
+                            <div className='flex'>
+                                <MoreHorizontal className='h-5 w-5 text-muted-foreground' />
+                            </div>
+                        </GlobalDropdown>
+                        <ChevronRight
+                            size={16}
+                            className='ml-auto text-dark-gray transition-transform group-data-[state=open]/collapsible:rotate-90'
+                        />
+                    </div>
+                </CollapsibleTrigger>
+
+                <CollapsibleContent className='p-2 space-y-2'>
+                    {/* Due date and priority */}
+                    <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-1 text-xs text-dark-gray'>
+                            <span className='text-black font-semibold'>
+                                Due:
+                            </span>
+                            <span>{dueDate}</span>
+                        </div>
+                        <div className='flex items-center gap-1'>
+                            <span className='text-xs text-black font-semibold'>
+                                Priority:
+                            </span>
+                            <div className='flex items-center gap-1'>
+                                <AlertTriangle
+                                    className={cn(
+                                        'h-4 w-4',
+                                        getPriorityColor(task.priority),
+                                    )}
+                                />
+                                <span
+                                    className={cn(
+                                        'text-sm font-medium',
+                                        getPriorityColor(task.priority),
+                                    )}
+                                >
+                                    {task.priority}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span className='text-xs font-semibold text-black'>
+                            Purpose:{' '}
+                        </span>
+                        <span className='text-xs text-gray'>
+                            {task.description}
+                        </span>
+                    </div>
+
+                    <div className='flex items-center gap-1 text-xs text-dark-gray'>
+                        <Bell className='h-4 w-4' />
+                        <span>{reminder}</span>
+                    </div>
+
+                    {/* Description */}
+                    <div className='p-2 border border-forground-border rounded-md bg-foreground'>
+                        <h3 className='text-xs text-black font-semibold'>
+                            Description:
+                        </h3>
+
+                        <p className='text-xs text-gray'>
+                            Lorem Ipsum is simply dummy text of the printing and
+                            typesetting industry...
+                        </p>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className='flex gap-2'>
+                        <Button variant='primary_light' size='sm'>
+                            Today
+                        </Button>
+                        <Button variant='primary_light' size='sm'>
+                            Tomorrow
+                        </Button>
+                        <Button
+                            variant='primary_light'
+                            size='sm'
+                            icon={<Calendar className='h-3.5 w-3.5' />}
+                        >
+                            <span>Date & Time</span>
+                        </Button>
+                    </div>
+                </CollapsibleContent>
+            </Collapsible>
+        </div>
+    );
+});
+
+TaskCard.displayName = 'TaskCard';
+
+export default TaskCard;

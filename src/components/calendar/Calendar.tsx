@@ -2,7 +2,13 @@
 
 import { useState } from 'react';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
-import { CalendarIcon, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import {
+    CalendarIcon,
+    ChevronLeft,
+    ChevronRight,
+    PanelRightOpen,
+    Search,
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -119,6 +125,16 @@ export default function Calendar() {
                         Today
                     </Button>
                 </div>
+                <SheetTrigger className='min-[1000px]:hidden ms-auto' asChild>
+                    <Button
+                        variant='outline'
+                        className='h-8 text-dark-gray'
+                        size='icon'
+                    >
+                        <PanelRightOpen className='h-4 w-4' />
+                        <span className='sr-only'>Open calendar sidebar</span>
+                    </Button>
+                </SheetTrigger>
                 <div className='flex items-center gap-3'>
                     <Select value={hoursView} onValueChange={setHoursView}>
                         <SelectTrigger className='w-[150px] h-8'>
@@ -142,12 +158,6 @@ export default function Calendar() {
                             className='pl-8 h-8 w-[220px]'
                         />
                     </div>
-                    <SheetTrigger className='min-[1000px]:hidden' asChild>
-                        <Button variant="outline" size="icon">
-                            <CalendarIcon className="h-4 w-4" />
-                            <span className="sr-only">Open calendar sidebar</span>
-                        </Button>
-                    </SheetTrigger>
                 </div>
             </div>
 
