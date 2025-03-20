@@ -1,15 +1,32 @@
 'use client';
 
 import type React from 'react';
-import { Dialog, DialogContent, DialogFooter } from '@/components/ui/dialog';
+import { useCallback, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
+import { Check, HelpCircle, XCircle, Loader2 } from 'lucide-react';
+import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
 
 interface ConfirmModalProps {
     opened: boolean;
     close: () => void;
     handleConfirm: () => void;
     text: string;
+    subtitle?: string;
+    className?: any;
     confirmText?: string;
+    cancelText?: string;
+    icon?: ReactNode;
+    iconColor?: string;
+    confirmIcon?: ReactNode;
+    variant?:
+        | 'default'
+        | 'destructive'
+        | 'outline'
+        | 'secondary'
+        | 'ghost'
+        | 'link'
+        | 'primary_light';
+    isLoading?: boolean;
 }
 
 const ConfirmModal: React.FC<ConfirmModalProps> = ({
@@ -17,41 +34,79 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     close,
     handleConfirm,
     text,
-    confirmText,
+    className = 'max-w-[400px] sm:max-w-[550px]',
+    subtitle,
+    confirmText = 'Yes',
+    cancelText = 'No',
+    confirmIcon,
+    icon,
+    iconColor = 'text-primary',
+    variant = 'default',
+    isLoading = false,
 }) => {
+    const modalClose = useCallback(() => {
+        close();
+    }, [close]);
+
+    // Default icon if none provided
+    const defaultIcon = icon || (
+        <HelpCircle className={`h-10 w-10 ${iconColor}`} />
+    );
+
     return (
-        <Dialog open={opened} onOpenChange={(open) => !open && close()}>
-            <DialogContent
-                className='sm:max-w-[480px] p-6 bModalContent'
-                // hideCloseButton
-            >
-                <div className='reminder-box'>
-                    <h2 className='text-lg font-medium text-center mb-6 message-title'>
-                        {text}
-                    </h2>
+        <GlobalDialog
+            header={false}
+            open={opened}
+            setOpen={(open: boolean) => !open && modalClose()}
+            className={className}
+            allowFullScreen={false}
+            customTitle={<div></div>}
+            // showCloseButton={false}
+        >
+            <div className='flex flex-col items-center p-6'>
+                {defaultIcon}
 
-                    <DialogFooter className='flex sm:flex-row gap-4 sm:gap-0'>
-                        <div className='grid grid-cols-2 gap-4 w-full'>
-                            <Button
-                                variant='outline'
-                                onClick={close}
-                                className='w-full button delete'
-                            >
-                                Cancel
-                            </Button>
+                <h2 className='text-2xl font-semibold text-center mb-2'>
+                    {text}
+                </h2>
 
-                            <Button
-                                variant='default'
-                                onClick={handleConfirm}
-                                className='w-full button primary'
-                            >
-                                {confirmText || 'Leave'}
-                            </Button>
-                        </div>
-                    </DialogFooter>
+                {subtitle && (
+                    <p className='text-center text-muted-foreground mb-2'>
+                        {subtitle}
+                    </p>
+                )}
+
+                <div className='flex flex-row items-center justify-center gap-3 w-full'>
+                    <Button
+                        variant='primary_light'
+                        onClick={modalClose}
+                        disabled={isLoading}
+                        className='min-w-[100px] w-fit'
+                    >
+                        <XCircle className='h-4 w-4 ' />
+                        {cancelText}
+                    </Button>
+
+                    <Button
+                        variant={variant}
+                        onClick={handleConfirm}
+                        disabled={isLoading}
+                        className='min-w-[100px] w-fit'
+                    >
+                        {isLoading ? (
+                            confirmIcon ? (
+                                confirmIcon
+                            ) : (
+                                <Loader2 className='h-4 w-4 animate-spin mr-2' />
+                            )
+                        ) : (
+                            confirmIcon || <Check className='h-4 w-4 mr-2' />
+                        )}
+                        {confirmText}
+                    </Button>
                 </div>
-            </DialogContent>
-        </Dialog>
+            </div>
+        </GlobalDialog>
     );
 };
 

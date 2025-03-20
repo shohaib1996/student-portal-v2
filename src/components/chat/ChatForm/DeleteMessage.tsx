@@ -4,17 +4,22 @@ import type React from 'react';
 import { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { X, Loader2 } from 'lucide-react';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogFooter,
-} from '@/components/ui/dialog';
+import { X, Loader2, Check, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
 
 interface Message {
     _id: string;
+    sender?: {
+        _id: string;
+        firstName?: string;
+        lastName?: string;
+        fullName?: string;
+        profilePicture?: string;
+    };
+    text?: string;
+    createdAt: string | number;
     [key: string]: any;
 }
 
@@ -52,59 +57,106 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
             });
     };
 
+    // Format time from the message timestamp
+    const formatTime = (timestamp: string | number) => {
+        if (!timestamp) {
+            return '';
+        }
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
     return (
-        <Dialog open={opened} onOpenChange={(open) => !open && close()}>
-            <DialogContent className='sm:max-w-[580px] p-0 bModalContent'>
-                <DialogHeader className='px-6 py-4 flex justify-end items-center bModalHeader'>
-                    <Button
-                        variant='ghost'
-                        size='icon'
-                        onClick={close}
-                        className='h-10 w-10 rounded-full bg-muted/20 hover:bg-muted/40 btn-close'
-                    >
-                        <X className='h-5 w-5' />
-                        <span className='sr-only'>Close</span>
-                    </Button>
-                </DialogHeader>
-
-                <div className='p-6 bModalBody'>
-                    <div className='reminder-box'>
-                        <div className='mb-6'>
-                            <h1 className='text-xl font-medium text-center message-title'>
-                                Delete this message permanently? <br />
-                                <span className='text-destructive text-base block mt-2'>
-                                    {`You won't be able to undo this action.`}
+        <GlobalDialog
+            open={opened}
+            setOpen={(open: boolean) => !open && close()}
+            className='sm:max-w-[550px]'
+            allowFullScreen={false}
+            header={false}
+            showCloseButton={true}
+        >
+            <div className='flex flex-col my-4'>
+                {/* Message preview */}
+                <div className='bg-foreground border p-2 rounded-xl mb-2 mx-2'>
+                    <div className='flex items-start gap-3'>
+                        {selectedMessage?.sender?.profilePicture ? (
+                            <Image
+                                src={
+                                    selectedMessage.sender.profilePicture ||
+                                    '/placeholder.svg'
+                                }
+                                alt={selectedMessage.sender.fullName || 'User'}
+                                width={40}
+                                height={40}
+                                className='rounded-full h-10 w-10 object-cover'
+                            />
+                        ) : (
+                            <div className='h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center'>
+                                <span className='text-gray-600 font-medium'>
+                                    {selectedMessage?.sender?.firstName?.[0] ||
+                                        'U'}
                                 </span>
-                            </h1>
+                            </div>
+                        )}
+                        <div className='flex flex-col bg-primary-light rounded-xl border border-blue-500/20 p-2 w-full'>
+                            <div className='flex items-center gap-1'>
+                                <span className='font-semibold text-gray-800'>
+                                    {selectedMessage?.sender?.fullName ||
+                                        'User'}
+                                </span>
+                                <span className='text-xs text-gray-500'>
+                                    {formatTime(
+                                        selectedMessage?.createdAt || '',
+                                    )}
+                                </span>
+                            </div>
+                            <p className='text-gray-700'>
+                                {selectedMessage?.text || ''}
+                            </p>
                         </div>
-
-                        <DialogFooter className='form-buttons flex justify-center gap-4 sm:gap-6'>
-                            <Button
-                                variant='outline'
-                                onClick={close}
-                                disabled={isDeleting}
-                                className='min-w-[100px] cancle default_btn'
-                            >
-                                No
-                            </Button>
-
-                            <Button
-                                variant='default'
-                                onClick={handleDeleteMsg}
-                                disabled={isDeleting}
-                                className='min-w-[100px] default_btn'
-                            >
-                                {isDeleting ? (
-                                    <Loader2 className='h-5 w-5 animate-spin' />
-                                ) : (
-                                    'Yes'
-                                )}
-                            </Button>
-                        </DialogFooter>
                     </div>
                 </div>
-            </DialogContent>
-        </Dialog>
+
+                {/* Confirmation content */}
+                <div className='flex flex-col items-center px-4'>
+                    <h2 className='text-2xl font-bold text-center mb-2'>
+                        Do you want to remove?
+                    </h2>
+                    <p className='text-gray-600 text-center mb-2'>
+                        Are you sure you want to delete this message?
+                        <br />
+                        This action cannot be undone.
+                    </p>
+
+                    <div className='flex flex-row items-center justify-center gap-4 w-full'>
+                        <Button
+                            variant='primary_light'
+                            onClick={close}
+                            disabled={isDeleting}
+                            className='w-[130px]'
+                        >
+                            <XCircle className='h-5 w-5' /> No
+                        </Button>
+
+                        <Button
+                            onClick={handleDeleteMsg}
+                            disabled={isDeleting}
+                            className='w-[130px]'
+                        >
+                            {isDeleting ? (
+                                <Loader2 className='h-5 w-5 animate-spin ' />
+                            ) : (
+                                <Check className='h-5 w-5 ' />
+                            )}
+                            Yes
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </GlobalDialog>
     );
 };
 
