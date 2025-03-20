@@ -94,6 +94,7 @@ const ActiveProgram = ({
         'MyProgress:',
         myProgress,
     );
+
     return (
         <div>
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mt-2 mb-3 py-2 px-3 bg-foreground rounded-xl overflow-hidden border border-border items-center'>
@@ -155,7 +156,10 @@ const ActiveProgram = ({
                             <div className='flex items-center gap-3 mb-4'>
                                 <div className='w-12 h-12 rounded-full bg-background overflow-hidden flex-shrink-0 border-2 border-border shadow-sm'>
                                     <Image
-                                        src={'/avatar.png'}
+                                        src={
+                                            program?.instructor?.image ||
+                                            '/avatar.png'
+                                        }
                                         alt={program?.instructor?.name}
                                         width={48}
                                         height={48}
@@ -227,7 +231,7 @@ const ActiveProgram = ({
 
                 <div className='flex justify-center items-center'>
                     <Image
-                        src={'/program.png'}
+                        src={program?.image || '/program.png'}
                         alt={program?.title}
                         width={640}
                         height={360}

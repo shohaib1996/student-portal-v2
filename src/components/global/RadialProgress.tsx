@@ -16,7 +16,8 @@ interface RadialProgressProps extends React.HTMLAttributes<HTMLDivElement> {
         | 'secondary'
         | 'success'
         | 'warning'
-        | 'danger';
+        | 'danger'
+        | 'info';
 }
 
 export function RadialProgress({
@@ -63,6 +64,7 @@ export function RadialProgress({
         warning:
             'text-amber-600 stroke-amber-100 [&>circle:nth-child(2)]:stroke-amber-600',
         danger: 'text-red-600 stroke-red-100 [&>circle:nth-child(2)]:stroke-red-600',
+        info: 'text-[#17A2B8] stroke-teal-100 [&>circle:nth-child(2)]:stroke-[#17A2B8]',
     };
 
     return (

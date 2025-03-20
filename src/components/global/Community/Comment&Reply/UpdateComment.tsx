@@ -1,0 +1,88 @@
+// UpdateComment.tsx
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { TComment } from '@/types';
+import Image from 'next/image';
+import { useUpdateCommentMutation } from '@/redux/api/audio-video/audioVideos';
+import { toast } from 'sonner';
+import { Textarea } from '@/components/ui/textarea';
+
+interface UpdateCommentProps {
+    initialComment: TComment;
+
+    onCancel: () => void;
+}
+
+const UpdateComment = ({ initialComment, onCancel }: UpdateCommentProps) => {
+    const [comment, setComment] = useState(initialComment.comment);
+
+    const [updateComment, { isLoading }] = useUpdateCommentMutation();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const payload = {
+            commentId: initialComment._id,
+            comment,
+            parentId: '',
+        };
+        try {
+            const res = await updateComment(payload);
+            if (
+                res.error &&
+                typeof res.error === 'object' &&
+                'data' in res.error
+            ) {
+                const errorData = res.error.data as { error: string };
+                if (errorData.error) {
+                    toast.error(errorData.error);
+                    return;
+                }
+            }
+            if (res.data.success) {
+                toast.success('Comment updated successfully');
+                onCancel();
+            }
+        } catch (error: any) {
+            console.log(error);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className='flex flex-col items-end gap-2'>
+            <div className='flex w-full gap-2'>
+                <Image
+                    className='h-8 w-8 rounded-full'
+                    src={
+                        initialComment?.user?.profilePicture ??
+                        'https://img.freepik.com/premium-vector/male-character-social-network-concept_24877-17897.jpg?semt=ais_hybrid'
+                    }
+                    alt='avatar'
+                    width={24}
+                    height={24}
+                    unoptimized
+                />
+                <Textarea
+                    defaultValue={initialComment.comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className='rounded border border-gray-300 px-2 py-1'
+                />
+            </div>
+            <div className='space-x-2'>
+                {isLoading ? (
+                    <Button type='submit'>Updating...</Button>
+                ) : (
+                    <Button type='submit'>Update</Button>
+                )}
+                <Button
+                    className='border-danger'
+                    variant='outline'
+                    onClick={onCancel}
+                >
+                    Cancel
+                </Button>
+            </div>
+        </form>
+    );
+};
+
+export default UpdateComment;

@@ -393,7 +393,7 @@ const LeaderBoard = () => {
                                         width={512}
                                         height={512}
                                         className='h-6 w-6 object-cover'
-                                        src='/top.png'
+                                        src='/images/leaderboard/top.png'
                                         alt='top perform'
                                     />
                                     <h3 className='text-black text-lg font-bold'>

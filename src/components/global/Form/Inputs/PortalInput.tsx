@@ -8,7 +8,7 @@ import { Controller } from 'react-hook-form';
 interface FormInputProps {
     name: string;
     type?: string;
-    label: string;
+    label?: string;
     placeholder?: string;
     className?: string;
     readonly?: boolean;

@@ -225,10 +225,10 @@ export function AppSidebar() {
                                                                             asChild
                                                                             isActive={
                                                                                 pathname ===
-                                                                                '/program'
+                                                                                '/dashboard/program'
                                                                             }
                                                                         >
-                                                                            <Link href='/program'>
+                                                                            <Link href='/dashboard/program'>
                                                                                 Programs
                                                                             </Link>
                                                                         </SidebarMenuButton>
