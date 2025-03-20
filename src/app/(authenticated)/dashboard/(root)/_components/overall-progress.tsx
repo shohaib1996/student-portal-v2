@@ -121,8 +121,9 @@ export function OverallProgress(): JSX.Element {
                                         position='center'
                                         fill='#000000'
                                         style={{
-                                            fontSize: '20px',
+                                            fontSize: '18px',
                                             fontWeight: 'bold',
+                                            color: '#000000',
                                         }}
                                     />
                                 </Pie>

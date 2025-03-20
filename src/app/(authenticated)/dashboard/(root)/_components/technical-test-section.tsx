@@ -30,18 +30,19 @@ const data = [
 
 export function TechnicalTestSection() {
     return (
-        <Card>
-            <CardHeader className='flex flex-row items-center justify-between pb-2'>
-                <CardTitle className='text-md font-medium'>
-                    Technical Test
-                </CardTitle>
+        <Card className='p-2'>
+            <CardHeader className='flex flex-row items-center justify-between p-2 border-b'>
+                <div>
+                    <CardTitle className='text-md font-medium'>
+                        Technical Test
+                    </CardTitle>
+                    <p className='text-xs text-muted-foreground'>
+                        Track Your Performance in Technical Tests
+                    </p>
+                </div>
                 <ViewMoreLink href='#' />
             </CardHeader>
-            <CardContent>
-                <p className='text-xs text-muted-foreground'>
-                    Track Your Performance in Technical Tests
-                </p>
-
+            <CardContent className='p-2'>
                 <div className='grid grid-cols-2 gap-4 mt-4'>
                     <StatusCard
                         title='Total Accepted'

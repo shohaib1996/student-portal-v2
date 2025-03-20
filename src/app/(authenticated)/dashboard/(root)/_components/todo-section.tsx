@@ -10,8 +10,8 @@ import {
 } from '@/components/ui/select';
 import { ViewMoreLink } from './view-more-link';
 import {
-    LineChart,
-    Line,
+    AreaChart,
+    Area,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -36,13 +36,13 @@ const data = [
 
 export function TodoSection() {
     return (
-        <Card>
-            <CardHeader className='flex flex-row items-center justify-between pb-2'>
+        <Card className='p-2'>
+            <CardHeader className='flex flex-row items-center justify-between p-2 border-b'>
                 <CardTitle className='text-md font-medium'>To-Do</CardTitle>
                 <div className='flex items-center gap-2'>
                     <ViewMoreLink href='#' />
                     <Select defaultValue='monthly'>
-                        <SelectTrigger className='w-[140px] h-8'>
+                        <SelectTrigger className='w-[140px] h-9'>
                             <SelectValue placeholder='Select period' />
                         </SelectTrigger>
                         <SelectContent>
@@ -53,14 +53,14 @@ export function TodoSection() {
                     </Select>
                 </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className='p-2'>
                 <p className='text-xs text-muted-foreground'>
                     Monitor your to-do progress
                 </p>
 
                 <div className='h-[200px] mt-4'>
                     <ResponsiveContainer width='100%' height='100%'>
-                        <LineChart
+                        <AreaChart
                             data={data}
                             margin={{
                                 top: 5,
@@ -69,6 +69,26 @@ export function TodoSection() {
                                 bottom: 5,
                             }}
                         >
+                            <defs>
+                                <linearGradient
+                                    id='fillValue'
+                                    x1='0'
+                                    y1='0'
+                                    x2='0'
+                                    y2='1'
+                                >
+                                    <stop
+                                        offset='5%'
+                                        stopColor='#f4a00c'
+                                        stopOpacity={0.8}
+                                    />
+                                    <stop
+                                        offset='95%'
+                                        stopColor='#f4a00c'
+                                        stopOpacity={0.1}
+                                    />
+                                </linearGradient>
+                            </defs>
                             <CartesianGrid
                                 strokeDasharray='3 3'
                                 vertical={false}
@@ -80,15 +100,15 @@ export function TodoSection() {
                             />
                             <YAxis axisLine={false} tickLine={false} />
                             <Tooltip />
-                            <Line
+                            <Area
                                 type='monotone'
                                 dataKey='value'
                                 stroke='#f4a00c'
                                 strokeWidth={2}
-                                dot={{ r: 0 }}
+                                fill='url(#fillValue)'
                                 activeDot={{ r: 6, fill: '#f4a00c' }}
                             />
-                        </LineChart>
+                        </AreaChart>
                     </ResponsiveContainer>
                 </div>
             </CardContent>
