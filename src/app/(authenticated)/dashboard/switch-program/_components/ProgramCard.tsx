@@ -382,7 +382,7 @@ const ProgramCard = ({ program }: { program: BootcampProgram }) => {
                         </button>
                     ) : (
                         <button className='w-full py-2 bg-primary text-white rounded flex items-center justify-center gap-1 font-medium'>
-                            Switch to Program <ArrowRight className='h-4 w-4' />
+                            Go to Course <ArrowRight className='h-4 w-4' />
                         </button>
                     )}
                 </div>

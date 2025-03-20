@@ -82,6 +82,7 @@ function SwitchModal({ opened, handleClose }: SwitchModalProps) {
             open={opened}
             setOpen={handleClose}
             className='w-full max-w-4xl'
+            allowFullScreen={false}
         >
             <div className='space-y-2 py-2'>
                 {!myEnrollments || myEnrollments.length === 0 ? (

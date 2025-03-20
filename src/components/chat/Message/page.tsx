@@ -276,7 +276,9 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                     >
                                         {message.sender?.fullName ||
                                             'Bootcamps Hub user'}{' '}
-                                        <span className='text-gray text-xs ml-2'>
+                                        <span
+                                            className={`text-xs ml-2 front-normal ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}
+                                        >
                                             {formatDate(message?.createdAt)}
                                         </span>
                                     </span>
@@ -308,15 +310,15 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
 
                                     <div className='flex justify-between items-center mt-2 text-xs'>
                                         {message?.type !== 'delete' && (
-                                            <div className='flex items-center gap-1'>
+                                            <div className='flex items-center gap-1 text-pure-white/80'>
                                                 {message?.sender?._id ===
                                                     user?._id && (
                                                     <>
                                                         {message?.status ===
                                                         'seen' ? (
                                                             <>
-                                                                <CheckCheck className='h-3 w-3 text-muted-foreground' />
-                                                                <span className='text-muted-foreground'>
+                                                                <CheckCheck className='h-3 w-3 ' />
+                                                                <span className=''>
                                                                     {
                                                                         message?.status
                                                                     }
@@ -325,8 +327,8 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                         ) : message?.status ===
                                                           'sent' ? (
                                                             <>
-                                                                <Check className='h-3 w-3 text-muted-foreground' />
-                                                                <span className='text-muted-foreground'>
+                                                                <Check className='h-3 w-3 ' />
+                                                                <span className=''>
                                                                     {
                                                                         message?.status
                                                                     }
@@ -335,8 +337,8 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                         ) : message?.status ===
                                                           'delivered' ? (
                                                             <>
-                                                                <CheckCheck className='h-3 w-3 text-muted-foreground' />
-                                                                <span className='text-muted-foreground'>
+                                                                <CheckCheck className='h-3 w-3 ' />
+                                                                <span className=''>
                                                                     {
                                                                         message?.status
                                                                     }
@@ -345,8 +347,8 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                         ) : message?.status ===
                                                           'sending' ? (
                                                             <>
-                                                                <Circle className='h-3 w-3 text-muted-foreground' />
-                                                                <span className='text-muted-foreground'>
+                                                                <Circle className='h-3 w-3 ' />
+                                                                <span className=''>
                                                                     {
                                                                         message?.status
                                                                     }
@@ -379,7 +381,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                             className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer'
                                             onClick={handleThreadMessage}
                                         >
-                                            <span className='text-primary'>
+                                            <span className='text-primary flex flex-row items-center gap-1'>
                                                 Replies
                                                 {message?.replyCount}{' '}
                                             </span>
@@ -440,7 +442,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                         {emojies?.map((x, i) => (
                                             <div
                                                 key={i}
-                                                className={`h-8 w-8 flex items-center justify-center hover:bg-white duration-200 rounded-full p-1 ${x === '❤' ? 'text-red-500' : ''}`}
+                                                className={`h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white duration-200 rounded-full p-1 ${x === '❤' ? 'text-red-500' : ''}`}
                                                 onClick={() => {
                                                     handleReaction(
                                                         x,

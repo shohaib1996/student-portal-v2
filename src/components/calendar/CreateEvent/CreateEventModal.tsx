@@ -11,40 +11,26 @@ import {
 import AvailabilityIcon from '@/components/svgs/calendar/Availability';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EventForm from './EventForm';
-import TodoForm from './TodoForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DayView } from '../DayView';
 import dayjs from 'dayjs';
-
-export const EventFormSchema = z.object({
-    title: z.string().min(2, {
-        message: 'Event name must be at least 2 characters.',
-    }),
-    priority: z.string().optional(),
-    courseLink: z.string().optional(),
-    invitations: z.array(
-        z.string().min(1, {
-            message: 'Please add at least one guest.',
-        }),
-    ),
-    start: z.date(),
-    end: z.date(),
-    isAllDay: z.boolean().default(false),
-    repeat_on: z.array(z.string()),
-    repeat: z.boolean().default(false),
-    reminder: z.string().default('15 minutes before'),
-    location: z.string().optional(),
-    agenda: z.string().optional(),
-    eventColor: z.string().optional(),
-});
+import { useCreateEventMutation } from '@/redux/api/calendar/calendarApi';
+import { toast } from 'sonner';
+import {
+    EventFormSchema,
+    TEventFormType,
+} from '../validations/eventValidation';
+import TodoForm from '../CreateTodo/TodoForm';
 
 const CreateEventModal = () => {
     const { closePopover, isFullScreen } = useEventPopover();
     const [currentDate, setCurrentDate] = useState(dayjs());
 
-    const eventForm = useForm<z.infer<typeof EventFormSchema>>({
+    const [createEvent] = useCreateEventMutation();
+
+    const eventForm = useForm<TEventFormType>({
         resolver: zodResolver(EventFormSchema),
         defaultValues: {
             title: '',
@@ -55,12 +41,48 @@ const CreateEventModal = () => {
             end: new Date(),
             isAllDay: false,
             repeat: false,
-            reminder: '15 minutes before',
-            location: '',
+            notifications: [
+                {
+                    chatGroups: [],
+                    methods: ['push'],
+                    timeBefore: 15,
+                },
+            ],
+            meetingLink: '',
             agenda: '',
             eventColor: '',
         },
     });
+
+    const todoForm = useForm<TEventFormType>({
+        resolver: zodResolver(EventFormSchema),
+        defaultValues: {
+            title: '',
+            priority: '',
+            courseLink: '',
+            start: new Date(),
+            end: new Date(),
+            isAllDay: false,
+            repeat: false,
+            notifications: [
+                {
+                    chatGroups: [],
+                    methods: ['push'],
+                    timeBefore: 15,
+                },
+            ],
+            meetingLink: '',
+            agenda: '',
+        },
+    });
+
+    useEffect(() => {
+        console.log(eventForm.formState?.errors);
+        const errors = Object.values(eventForm.formState?.errors);
+        if (errors.length > 0) {
+            toast.error(errors[0].message);
+        }
+    }, [eventForm.formState?.errors]);
 
     useEffect(() => {
         const startDate = eventForm.getValues('start');
@@ -70,8 +92,29 @@ const CreateEventModal = () => {
         }
     }, [eventForm.watch('start')]);
 
-    function onEventSubmit(values: z.infer<typeof EventFormSchema>) {
-        console.log(values);
+    async function onEventSubmit(values: z.infer<typeof EventFormSchema>) {
+        const data = values;
+        try {
+            const res = await createEvent({
+                ...data,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            }).unwrap();
+            console.log(res);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    async function onTodoSubmit(values: z.infer<typeof EventFormSchema>) {
+        const data = values;
+        try {
+            const res = await createEvent({
+                ...data,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            }).unwrap();
+            console.log(res);
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     const handleNext = () => {
@@ -91,7 +134,10 @@ const CreateEventModal = () => {
         <EventPopover
             title={
                 <div className='flex justify-between items-center w-full'>
-                    <Button icon={<BookmarkCheck size={18} />}>
+                    <Button
+                        onClick={eventForm.handleSubmit(onEventSubmit)}
+                        icon={<BookmarkCheck size={18} />}
+                    >
                         Save & Close
                     </Button>
                     <div className='flex gap-2'>
@@ -143,10 +189,10 @@ const CreateEventModal = () => {
                 </div>
             }
         >
-            {/* <Tabs defaultValue='event'>
+            <Tabs defaultValue='event'>
                 <TabsList>
-                    <TabsTrigger value='event'>Events</TabsTrigger>
-                    <TabsTrigger value='todo'>Events</TabsTrigger>
+                    <TabsTrigger value='event'>Event</TabsTrigger>
+                    <TabsTrigger value='todo'>Todo</TabsTrigger>
                 </TabsList>
                 <TabsContent value='event'>
                     <EventForm
@@ -156,14 +202,13 @@ const CreateEventModal = () => {
                     />
                 </TabsContent>
                 <TabsContent value='todo'>
-                    <TodoForm />
+                    <TodoForm
+                        setCurrentDate={setCurrentDate}
+                        form={todoForm}
+                        onSubmit={onTodoSubmit}
+                    />
                 </TabsContent>
-            </Tabs> */}
-            <EventForm
-                setCurrentDate={setCurrentDate}
-                form={eventForm}
-                onSubmit={onEventSubmit}
-            />
+            </Tabs>
         </EventPopover>
     );
 };

@@ -1,41 +1,47 @@
 'use client';
 
-import type React from 'react';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import { Play, Pause, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import { Button } from '@/components/ui/button';
+
+// Initialize dayjs duration plugin
+dayjs.extend(duration);
 
 interface AudioCardProps {
     audioUrl: string;
 }
 
 const formatTime = (time: number): string => {
-    return new Date(time * 1000).toISOString().substr(14, 5);
+    return dayjs.duration(time, 'seconds').format('mm:ss');
 };
 
-const AudioCard: React.FC<AudioCardProps> = ({ audioUrl }) => {
+const AudioCard = ({ audioUrl }: AudioCardProps) => {
     const [waveform, setWaveForm] = useState<WaveSurfer | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentPlaybackTime, setCurrentPlaybackTime] = useState(0);
     const [totalDuration, setTotalDuration] = useState(0);
     const [remainingTime, setRemainingTime] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
     const waveFormRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (!waveFormRef.current) {
+        if (!waveFormRef?.current) {
             return;
         }
 
         const wavesurfer = WaveSurfer.create({
             container: waveFormRef.current,
             waveColor: '#dbdada',
-            progressColor: 'white',
-            cursorColor: 'white',
+            progressColor: '#5C5958',
+            cursorColor: 'transparent',
             barWidth: 2,
-            height: 25,
-            barHeight: 3,
-            // responsive: true,
+            height: 30,
+            barHeight: 6,
         });
 
         setWaveForm(wavesurfer);
@@ -43,6 +49,7 @@ const AudioCard: React.FC<AudioCardProps> = ({ audioUrl }) => {
         wavesurfer.on('ready', () => {
             setRemainingTime(wavesurfer.getDuration());
             setTotalDuration(wavesurfer.getDuration());
+            setIsLoading(false);
         });
 
         wavesurfer.on('audioprocess', (time: number) => {
@@ -59,14 +66,21 @@ const AudioCard: React.FC<AudioCardProps> = ({ audioUrl }) => {
             setIsPlaying(false);
         });
 
+        wavesurfer.on('error', (error: any) => {
+            toast.error('Error loading audio file');
+            setIsLoading(false);
+        });
+
         if (audioUrl) {
             wavesurfer.load(audioUrl).catch((error: any) => {
                 console.error('Error loading audio:', error);
+                toast.error('Failed to load audio');
+                setIsLoading(false);
             });
         }
 
         return () => {
-            wavesurfer.destroy();
+            wavesurfer?.destroy();
         };
     }, [audioUrl, totalDuration]);
 
@@ -83,32 +97,34 @@ const AudioCard: React.FC<AudioCardProps> = ({ audioUrl }) => {
 
     return (
         <div className='w-full'>
-            <div className='flex items-center px-4 py-2 rounded-full bg-primary/90'>
-                <button
+            <div className='flex items-center p-2 rounded-full bg-white'>
+                <Button
                     onClick={handlePlayPause}
-                    className='mr-3 text-primary-foreground focus:outline-none'
+                    className='mr-3 h-7 w-7 rounded-full disabled:opacity-50'
                     aria-label={isPlaying ? 'Pause' : 'Play'}
+                    disabled={isLoading || !audioUrl}
                 >
-                    {isPlaying ? (
+                    {isLoading ? (
+                        <Loader2
+                            size={17}
+                            className='animate-spin text-white'
+                        />
+                    ) : isPlaying ? (
                         <Pause size={17} className='cursor-pointer' />
                     ) : (
                         <Play size={17} className='cursor-pointer' />
                     )}
-                </button>
-
-                {!audioUrl && (
-                    <Loader2
-                        size={15}
-                        className='text-destructive animate-spin'
-                    />
-                )}
+                </Button>
 
                 <div
                     ref={waveFormRef}
-                    className={cn('flex-grow mr-4', !audioUrl && 'opacity-50')}
+                    className={cn(
+                        'flex-grow mr-4 w-[200px]',
+                        (!audioUrl || isLoading) && 'opacity-50',
+                    )}
                 />
 
-                <span className='text-xs text-primary-foreground'>
+                <span className='text-xs text-primary'>
                     {formatTime(remainingTime)}
                 </span>
             </div>

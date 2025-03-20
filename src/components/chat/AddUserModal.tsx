@@ -1,22 +1,19 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
-import Image from 'next/image';
 import { toast } from 'sonner';
 import { useCallback } from 'react';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Plus, Check, Loader } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Plus, Check, Loader2, Search, X } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Using RTK but keeping the same naming convention as requested
 import { updateMembersCount } from '@/redux/features/chatReducer';
 import { useAppDispatch } from '@/redux/hooks';
+import GlobalModal from '../global/GlobalModal';
+import axios from 'axios';
 
 interface User {
     _id: string;
@@ -51,12 +48,18 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
     const [addingList, setAddingList] = useState<string[]>([]);
     const [addedUsers, setAddedUsers] = useState<ChannelMember[]>([]);
     const [users, setUsers] = useState<ChannelMember[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const dispatch = useAppDispatch();
 
+    // Reset state when modal opens
     useEffect(() => {
-        fetchMembers(channel);
-    }, [channel]);
+        if (opened) {
+            setSearchedUser([]);
+            setSearchQuery('');
+            fetchMembers(channel);
+        }
+    }, [opened, channel]);
 
     const fetchMembers = useCallback((channel: Channel) => {
         if (!channel?._id) {
@@ -109,10 +112,12 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
     );
 
     const handleSearchUser = useCallback(
-        (value?: string) => {
-            console.log(value, 'value');
-            setTimeout(() => {
-                setIsUserLoading(true);
+        (value: string) => {
+            setSearchQuery(value);
+            setIsUserLoading(true);
+
+            // Clear previous timeout if exists
+            const timeoutId = setTimeout(() => {
                 axios
                     .get(`/chat/searchuser?query=${value?.trim() || ''}`)
                     .then((res) => {
@@ -129,96 +134,147 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
                     })
                     .catch((err) => {
                         setIsUserLoading(false);
-                        console.log(err, '---->error');
+                        console.log(err);
                         toast.error(
                             err?.response?.data?.error ||
                                 'Failed to search users',
                         );
                     });
-            }, 200);
+            }, 300);
+
+            return () => clearTimeout(timeoutId);
         },
         [addedUsers],
     );
 
-    console.log('addedUsers: ', addedUsers);
+    // User skeleton loading component
+    const UserSkeleton = () => (
+        <div className='flex justify-between items-center p-3 rounded-lg bg-card/50'>
+            <div className='flex items-center gap-3'>
+                <Skeleton className='h-10 w-10 rounded-full' />
+                <Skeleton className='h-4 w-32' />
+            </div>
+            <Skeleton className='h-8 w-8 rounded-full' />
+        </div>
+    );
 
     return (
-        <Dialog open={opened} onOpenChange={() => handleCancel()}>
-            <DialogContent className='sm:max-w-[600px]'>
-                <DialogHeader>
-                    <DialogTitle className='text-xl font-medium'>
-                        Add user
-                    </DialogTitle>
-                </DialogHeader>
-                <div className='select-wrapper bg-background text-foreground'>
-                    <div className='select-container'>
-                        <Input
-                            ref={searchRef}
-                            placeholder='Search user'
-                            className='w-full'
-                            onFocus={() => handleSearchUser()}
-                            onChange={(e) => handleSearchUser(e.target.value)}
-                        />
-                    </div>
-                    {searchedUser.length > 0 && (
-                        <div className='user-list-wrapper bg-muted rounded-lg p-2 mt-4'>
-                            {searchedUser.map((user, i) => (
-                                <div
-                                    className='user-item flex justify-between items-center mb-2 bg-card p-2 rounded-lg'
-                                    key={i}
-                                >
-                                    <div className='flex items-center gap-3'>
-                                        <Image
-                                            width={50}
-                                            height={50}
-                                            alt={user.fullName}
-                                            className='rounded-full'
+        <GlobalModal
+            title='Add Member'
+            open={opened}
+            setOpen={() => handleCancel()}
+        >
+            <div className='py-4'>
+                <div className='relative'>
+                    <Search className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
+                    <Input
+                        ref={searchRef}
+                        placeholder='Search users...'
+                        className='pl-9 pr-4'
+                        value={searchQuery}
+                        onChange={(e) => handleSearchUser(e.target.value)}
+                        autoFocus
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => handleSearchUser('')}
+                            className='absolute right-3 top-2.5 text-muted-foreground hover:text-foreground'
+                        >
+                            <X className='h-4 w-4' />
+                        </button>
+                    )}
+                </div>
+
+                <div className='mt-4 max-h-[300px] overflow-y-auto space-y-2'>
+                    {isUserLoading ? (
+                        // Show skeletons while loading
+                        Array(3)
+                            .fill(0)
+                            .map((_, i) => <UserSkeleton key={i} />)
+                    ) : searchedUser.length > 0 ? (
+                        // Show search results
+                        searchedUser.map((user, i) => (
+                            <div
+                                className='flex justify-between items-center p-3 rounded-lg bg-card/50 hover:bg-card transition-colors'
+                                key={i}
+                            >
+                                <div className='flex items-center gap-3'>
+                                    <Avatar className='h-10 w-10'>
+                                        <AvatarImage
                                             src={
                                                 user.profilePicture ||
-                                                '/placeholder2.jpg'
+                                                '/placeholder.svg'
                                             }
+                                            alt={user.fullName}
                                         />
-                                        <div className='info'>
-                                            <h3 className='name text-sm font-medium'>
-                                                {user.fullName}
-                                            </h3>
-                                            {/* <span className="email">{user.email}</span> */}
-                                        </div>
-                                    </div>
-                                    <button
-                                        disabled={
-                                            users.some(
-                                                (u) =>
-                                                    u?.user?._id === user._id,
-                                            ) || addingList.includes(user._id)
-                                        }
-                                        onClick={() => adduserChannel(user._id)}
-                                        className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                                            users.some(
-                                                (u) =>
-                                                    u?.user?._id === user._id,
-                                            ) || addingList.includes(user._id)
-                                                ? 'bg-primary text-primary-foreground'
-                                                : 'bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors'
-                                        }`}
-                                    >
-                                        {addingList.includes(user._id) ? (
-                                            <Loader className='h-4 w-4 animate-spin' />
-                                        ) : users.some(
-                                              (u) => u?.user?._id === user._id,
-                                          ) ? (
-                                            <Check className='h-4 w-4' />
-                                        ) : (
-                                            <Plus className='h-4 w-4' />
+                                        <AvatarFallback>
+                                            {user.fullName?.charAt(0) || 'U'}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <h3 className='text-sm font-medium'>
+                                            {user.fullName}
+                                        </h3>
+                                        {user.email && (
+                                            <p className='text-xs text-muted-foreground'>
+                                                {user.email}
+                                            </p>
                                         )}
-                                    </button>
+                                    </div>
                                 </div>
-                            ))}
+                                <Button
+                                    size='icon'
+                                    variant={
+                                        users.some(
+                                            (u) => u?.user?._id === user._id,
+                                        ) || addingList.includes(user._id)
+                                            ? 'default'
+                                            : 'outline'
+                                    }
+                                    className='h-8 w-8 rounded-full'
+                                    disabled={
+                                        users.some(
+                                            (u) => u?.user?._id === user._id,
+                                        ) || addingList.includes(user._id)
+                                    }
+                                    onClick={() => adduserChannel(user._id)}
+                                >
+                                    {addingList.includes(user._id) ? (
+                                        <Loader2 className='h-4 w-4 animate-spin' />
+                                    ) : users.some(
+                                          (u) => u?.user?._id === user._id,
+                                      ) ? (
+                                        <Check className='h-4 w-4' />
+                                    ) : (
+                                        <Plus className='h-4 w-4' />
+                                    )}
+                                </Button>
+                            </div>
+                        ))
+                    ) : searchQuery ? (
+                        // No results message
+                        <div className='text-center py-8'>
+                            <p className='text-muted-foreground'>
+                                {` No users found matching "${searchQuery}"`}
+                            </p>
+                        </div>
+                    ) : (
+                        // Initial state message
+                        <div className='text-center py-8'>
+                            <p className='text-muted-foreground'>
+                                Search for users to add to this channel
+                            </p>
                         </div>
                     )}
                 </div>
-            </DialogContent>
-        </Dialog>
+            </div>
+
+            {/* <div className='flex justify-end mt-4'>
+                <Button variant='outline' onClick={handleCancel}>
+                    Close
+                </Button>
+            </div> */}
+        </GlobalModal>
     );
 }
 

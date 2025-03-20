@@ -428,7 +428,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
 
     return (
         <>
-            <div className='scrollbar-container h-[calc(100%-135px)]'>
+            <div className='scrollbar-container h-[calc(100%-135px)] pl-2'>
                 <div
                     className='h-full overflow-y-auto'
                     id='chat-body-id'

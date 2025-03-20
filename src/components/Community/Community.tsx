@@ -166,50 +166,50 @@ const Community = () => {
                                     <path
                                         d='M18.3333 14.584H12.5'
                                         stroke='#5C5958'
-                                        stroke-width='1.5'
-                                        stroke-miterlimit='10'
-                                        stroke-linecap='round'
-                                        stroke-linejoin='round'
+                                        strokeWidth='1.5'
+                                        strokeMiterlimit='10'
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
                                     />
                                     <path
                                         d='M4.16406 14.584H1.66406'
                                         stroke='#5C5958'
-                                        stroke-width='1.5'
-                                        stroke-miterlimit='10'
-                                        stroke-linecap='round'
-                                        stroke-linejoin='round'
+                                        strokeWidth='1.5'
+                                        strokeMiterlimit='10'
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
                                     />
                                     <path
                                         d='M18.3359 5.41602H15.8359'
                                         stroke='#5C5958'
-                                        stroke-width='1.5'
-                                        stroke-miterlimit='10'
-                                        stroke-linecap='round'
-                                        stroke-linejoin='round'
+                                        strokeWidth='1.5'
+                                        strokeMiterlimit='10'
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
                                     />
                                     <path
                                         d='M7.4974 5.41602H1.66406'
                                         stroke='#5C5958'
-                                        stroke-width='1.5'
-                                        stroke-miterlimit='10'
-                                        stroke-linecap='round'
-                                        stroke-linejoin='round'
+                                        strokeWidth='1.5'
+                                        strokeMiterlimit='10'
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
                                     />
                                     <path
                                         d='M5.83073 12.084H10.8307C11.7474 12.084 12.4974 12.5007 12.4974 13.7507V15.4173C12.4974 16.6673 11.7474 17.084 10.8307 17.084H5.83073C4.91406 17.084 4.16406 16.6673 4.16406 15.4173V13.7507C4.16406 12.5007 4.91406 12.084 5.83073 12.084Z'
                                         stroke='#5C5958'
-                                        stroke-width='1.5'
-                                        stroke-miterlimit='10'
-                                        stroke-linecap='round'
-                                        stroke-linejoin='round'
+                                        strokeWidth='1.5'
+                                        strokeMiterlimit='10'
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
                                     />
                                     <path
                                         d='M9.16667 2.91602H14.1667C15.0833 2.91602 15.8333 3.33268 15.8333 4.58268V6.24935C15.8333 7.49935 15.0833 7.91602 14.1667 7.91602H9.16667C8.25 7.91602 7.5 7.49935 7.5 6.24935V4.58268C7.5 3.33268 8.25 2.91602 9.16667 2.91602Z'
                                         stroke='#5C5958'
-                                        stroke-width='1.5'
-                                        stroke-miterlimit='10'
-                                        stroke-linecap='round'
-                                        stroke-linejoin='round'
+                                        strokeWidth='1.5'
+                                        strokeMiterlimit='10'
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
                                     />
                                 </svg>
                                 Filters{' '}

@@ -15,10 +15,12 @@ import {
 import { IAuthUser, ICommunityPost } from '@/types';
 import {
     Ellipsis,
+    EllipsisVertical,
     Heart,
     MessageSquare,
     Share2,
     SmileIcon,
+    SmilePlus,
     ThumbsUp,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -37,13 +39,14 @@ import Comment from '../global/Community/Comment&Reply/Comment';
 import NewGlobalModal from '../global/Community/modal/GlobalModal';
 import { copyToClipboard } from '@/utils/common';
 import dayjs from 'dayjs';
+import { describe } from 'node:test';
 
 interface ICommunityPostProps {
     post: ICommunityPost;
     refetch: number;
     setRefetch: (value: number) => void;
 }
-const emojies = ['❤️', '👍', '😍', '😂', '🥰', '😯'];
+const emojies = ['❤️', '👍', '🙏', '😂', '🥰', '😯'];
 // Use forwardRef to allow attaching refs
 const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
     ({ post, refetch, setRefetch }, ref) => {
@@ -173,8 +176,21 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
             }
         };
 
+        function splitText(description: string, minChars = 490) {
+            const splitIndex = description.indexOf('.', minChars);
+
+            if (splitIndex === -1) {
+                return { firstPart: description, secondPart: '' };
+            }
+
+            return {
+                firstPart: description.slice(0, splitIndex + 1).trim(),
+                secondPart: description.slice(splitIndex + 1).trim(),
+            };
+        }
+
         return (
-            <Card ref={ref} className='mb-2 p-2'>
+            <Card ref={ref} className='mb-2 p-2 bg-foreground'>
                 <CardTitle>
                     <div className='flex justify-between'>
                         <div className='flex items-center gap-3'>
@@ -196,10 +212,13 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                             </div>
                             <div>
                                 <div className='flex items-center'>
-                                    <span className='font-semibold text-black'>
+                                    <span className='text-base font-semibold text-black'>
                                         {post.createdBy.fullName}
                                     </span>
-                                    <div className='ml-2 text-xs text-gray flex items-center'>
+
+                                    <div className='mx-1 h-1 w-1 rounded-full bg-green-500 ring-1 ring-background'></div>
+
+                                    <div className='text-xs text-gray flex items-center'>
                                         <FormattingTime
                                             createdAt={post?.createdAt}
                                         />
@@ -214,7 +233,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger className='my-0 h-5 outline-none'>
-                                <Ellipsis />
+                                <EllipsisVertical />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align='end'>
                                 <DropdownMenuItem
@@ -274,7 +293,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     </div>
                 </CardTitle>
                 <CardContent className='relative p-0'>
-                    <h1 className='text-xl font-semibold text-black my-2'>
+                    <h1 className='text-xl font-semibold text-black mt-2.5 mb-2'>
                         {post.title}
                     </h1>
                     {/* {post?.attachments && (
@@ -315,67 +334,66 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                             See More
                         </button>
                     )} */}
-                    <p className='text-dark-gray mb-4'>
-                        Lorem Ipsum is simply dummy text of the printing and
-                        typesetting industry. Lorem Ipsum has been the
-                        industry&apos;s standard dummy text ever since the
-                        1500s, when an unknown printer took a galley of type and
-                        scrambled it to make a type specimen book. Lorem Ipsum
-                        is simply dummy text of the printing and typesetting
-                        industry. Lorem Ipsum has been the industry&apos;s
-                        standard dummy text ever since the 1500s, when an
-                        unknown printer took a galley of type and scrambled it
-                        to make a type specimen book.
+                    <p className='text-sm leading-[22px] text-gray'>
+                        {splitText(post.description).firstPart}
                     </p>
 
                     {/* Image Grid */}
-                    <div className='grid grid-cols-2 gap-2 mb-4'>
+                    <div className='grid grid-cols-3 gap-2 my-2'>
+                        <div className='space-y-2'>
+                            <div className='grid grid-cols-2 gap-2'>
+                                <Image
+                                    src='/images/community/1.png'
+                                    alt='Post image'
+                                    width={996}
+                                    height={747}
+                                    className='rounded-lg w-full h-[174px] object-cover'
+                                />
+                                <Image
+                                    src='/images/community/2.png'
+                                    alt='Post image'
+                                    width={1060}
+                                    height={706}
+                                    className='rounded-lg w-full h-[174px] object-cover'
+                                />
+                            </div>
+                            <Image
+                                src='/images/community/3.png'
+                                alt='Post image'
+                                width={740}
+                                height={1109}
+                                className='rounded-lg w-full h-[198px] object-cover'
+                            />
+                        </div>
                         <Image
-                            src='/placeholder.jpg'
+                            src='/images/community/4.png'
                             alt='Post image'
-                            width={300}
-                            height={200}
-                            className='rounded-lg w-full h-[120px] object-cover'
-                        />
-                        <Image
-                            src='/placeholder.jpg'
-                            alt='Post image'
-                            width={300}
-                            height={200}
-                            className='rounded-lg w-full h-[120px] object-cover'
-                        />
-                        <Image
-                            src='/placeholder.jpg'
-                            alt='Post image'
-                            width={300}
-                            height={200}
-                            className='rounded-lg w-full h-[120px] object-cover'
+                            width={1060}
+                            height={706}
+                            className='rounded-lg w-full h-[380px] object-cover'
                         />
                         <div className='relative'>
                             <Image
-                                src='/placeholder.jpg'
+                                src='/images/community/5.png'
                                 alt='Post image'
-                                width={300}
-                                height={200}
-                                className='rounded-lg w-full h-[120px] object-cover'
+                                width={1380}
+                                height={776}
+                                className='rounded-lg w-full h-[380px] object-cover'
                             />
-                            <div className='absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center'>
-                                <span className='text-white font-medium'>
+                            <div className='absolute bottom-1/4 right-1/3 bg-black/50 rounded-lg flex items-center justify-center'>
+                                <span className='text-white font-semibold text-2xl'>
                                     +5 more
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <p className='text-dark-gray mb-4'>
-                        Lorem Ipsum is simply dummy text of the printing and
-                        typesetting industry. Lorem Ipsum has been the
-                        industry&apos;s standard dummy text ever since the
-                        1500s, when an unknown printer took a galley of type and
-                        scrambled it to make a type specimen book.
+                    <p className='text-sm leading-[22px] text-gray'>
+                        {splitText(post.description).secondPart}
                     </p>
                 </CardContent>
-                <CardFooter className='space-x-common'>
+                <Separator className='border-border my-2' />
+                <CardFooter className='space-x-common p-0'>
                     {/* <div className='mt-common flex items-center gap-common'>
                         {Object.entries(post.reactions).map(
                             ([emoji, count]) => (
@@ -392,67 +410,95 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                         )}
                     </div> */}
                     <div className='flex items-center gap-4 mb-2'>
-                        <div className='flex items-center gap-1'>
-                            <ThumbsUp className='h-4 w-4 text-blue-600 fill-current' />
-                            <span className='text-sm text-dark-gray'>20</span>
-                        </div>
-                        <div className='flex items-center gap-1'>
+                        <div className='flex items-center gap-1 rounded-2xl bg-background p-1'>
                             <Heart className='h-4 w-4 text-red-500 fill-current' />
+                            <span className='text-sm text-primary'>20</span>
+                        </div>
+                        <div className='flex items-center gap-1 rounded-2xl bg-background p-1'>
+                            <span>🙏</span>
                             <span className='text-sm text-dark-gray'>5</span>
                         </div>
-                        <div className='flex items-center gap-1'>
+                        <div className='flex items-center gap-1 rounded-2xl bg-background p-1'>
                             <span className='text-yellow-500 text-lg leading-none'>
-                                😮
+                                👍
                             </span>
                             <span className='text-sm text-dark-gray'>8</span>
                         </div>
-                        <div className='flex items-center gap-1'>
-                            <MessageSquare className='h-4 w-4 text-gray-500' />
+                        <div className='flex items-center gap-1 rounded-2xl bg-background p-1'>
+                            <div
+                                className='relative inline-block cursor-pointer'
+                                onMouseEnter={() => setShowEmojis(true)}
+                                onMouseLeave={() => setShowEmojis(false)}
+                            >
+                                {isLoading ? (
+                                    <span className='flex items-center gap-1'>
+                                        <LoadingSpinner />{' '}
+                                        <SmilePlus className='h-4 w-4 text-gray' />
+                                    </span>
+                                ) : (
+                                    <SmilePlus className='h-4 w-4 text-gray' />
+                                )}
+
+                                {showEmojis && (
+                                    <div className='absolute left-24 top-[-50px] flex -translate-x-1/2 transform space-x-2 rounded-lg border bg-background p-2 shadow-lg'>
+                                        {emojies.map((emoji, index) => (
+                                            <button
+                                                key={index}
+                                                className='text-2xl transition-transform duration-200 hover:scale-110'
+                                                onClick={() =>
+                                                    onEmojiClick(
+                                                        emoji,
+                                                        post._id,
+                                                    )
+                                                }
+                                            >
+                                                {emoji}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <div className='flex items-center gap-1 rounded-2xl bg-background p-1'>
+                            <div
+                                onClick={() => handleShare(post)}
+                                className='cursor-pointer'
+                            >
+                                <span>
+                                    <svg
+                                        xmlns='http://www.w3.org/2000/svg'
+                                        width='15'
+                                        height='15'
+                                        viewBox='0 0 15 15'
+                                        fill='none'
+                                    >
+                                        <g clipPath='url(#clip0_27_30545)'>
+                                            <path
+                                                d='M10.7522 4.41529C11.9189 5.22612 12.7239 6.51529 12.8872 8.00279M2.89469 8.03195C2.96803 7.31864 3.19342 6.62933 3.55567 6.01048C3.91792 5.39164 4.40862 4.85763 4.99469 4.44445M5.63635 13.0311C6.31302 13.3753 7.08302 13.5678 7.89386 13.5678C8.67552 13.5678 9.41052 13.3928 10.0697 13.072M7.89386 5.30779C8.32395 5.30779 8.73643 5.13693 9.04055 4.83281C9.34467 4.52869 9.51552 4.11621 9.51552 3.68612C9.51552 3.25603 9.34467 2.84355 9.04055 2.53943C8.73643 2.23531 8.32395 2.06445 7.89386 2.06445C7.46376 2.06445 7.05128 2.23531 6.74716 2.53943C6.44304 2.84355 6.27219 3.25603 6.27219 3.68612C6.27219 4.11621 6.44304 4.52869 6.74716 4.83281C7.05128 5.13693 7.46376 5.30779 7.89386 5.30779ZM3.67635 12.4361C4.10645 12.4361 4.51892 12.2653 4.82305 11.9611C5.12717 11.657 5.29802 11.2445 5.29802 10.8145C5.29802 10.3844 5.12717 9.97188 4.82305 9.66776C4.51892 9.36364 4.10645 9.19279 3.67635 9.19279C3.24626 9.19279 2.83378 9.36364 2.52966 9.66776C2.22554 9.97188 2.05469 10.3844 2.05469 10.8145C2.05469 11.2445 2.22554 11.657 2.52966 11.9611C2.83378 12.2653 3.24626 12.4361 3.67635 12.4361ZM12.0414 12.4361C12.4714 12.4361 12.8839 12.2653 13.188 11.9611C13.4922 11.657 13.663 11.2445 13.663 10.8145C13.663 10.3844 13.4922 9.97188 13.188 9.66776C12.8839 9.36364 12.4714 9.19279 12.0414 9.19279C11.6113 9.19279 11.1988 9.36364 10.8947 9.66776C10.5905 9.97188 10.4197 10.3844 10.4197 10.8145C10.4197 11.2445 10.5905 11.657 10.8947 11.9611C11.1988 12.2653 11.6113 12.4361 12.0414 12.4361Z'
+                                                stroke='#5C5958'
+                                                strokeWidth='1.2'
+                                                stroke-linecap='round'
+                                                stroke-linejoin='round'
+                                            />
+                                        </g>
+                                        <defs>
+                                            <clipPath id='clip0_27_30545'>
+                                                <rect
+                                                    width='14'
+                                                    height='14'
+                                                    fill='white'
+                                                    transform='translate(0.859375 0.816406)'
+                                                />
+                                            </clipPath>
+                                        </defs>
+                                    </svg>
+                                </span>
+                            </div>
                             <span className='text-sm text-dark-gray'>8</span>
                         </div>
                     </div>
-                    {/* <div className='mt-common flex w-full items-center justify-between'>
-                        <div
-                            className='relative inline-block'
-                            onMouseEnter={() => setShowEmojis(true)}
-                            onMouseLeave={() => setShowEmojis(false)}
-                        >
-                            {isLoading ? (
-                                <Button className='relative rounded-lg bg-foreground px-2 py-1 text-black'>
-                                    <LoadingSpinner /> <SmileIcon />
-                                </Button>
-                            ) : (
-                                <Button className='relative rounded-lg bg-foreground px-2 py-1 text-black'>
-                                    <SmileIcon />
-                                </Button>
-                            )}
-
-                            {showEmojis && (
-                                <div className='absolute left-24 top-[-50px] flex -translate-x-1/2 transform space-x-2 rounded-lg border bg-background p-2 shadow-lg'>
-                                    {emojies.map((emoji, index) => (
-                                        <button
-                                            key={index}
-                                            className='text-2xl transition-transform duration-200 hover:scale-110'
-                                            onClick={() =>
-                                                onEmojiClick(emoji, post._id)
-                                            }
-                                        >
-                                            {emoji}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        <Button
-                            onClick={() => handleShare(post)}
-                            className='bg-transparent text-black'
-                        >
-                            <Share2 /> Share
-                        </Button>
-                    </div> */}
                 </CardFooter>
-                <Separator className='my-common border' />
+
                 {showComments ? (
                     <Comment media={post} />
                 ) : (

@@ -174,6 +174,15 @@ export function EventPopover({ children, title, sidebar }: EventPopoverProps) {
         }
     }, [position, isOpen, isFullScreen, x, y]);
 
+    React.useEffect(() => {
+        if (isOpen && isFullScreen) {
+            document.body.style.overflow = 'hidden';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen, isFullScreen]);
+
     // Add click outside handler
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -284,7 +293,7 @@ export function EventPopover({ children, title, sidebar }: EventPopoverProps) {
                         <div
                             className={cn(
                                 'flex-1 overflow-auto p-4 h-[350px]',
-                                { 'h-full': isFullScreen },
+                                { 'h-[calc(100vh-61px)]': isFullScreen },
                             )}
                         >
                             {children}

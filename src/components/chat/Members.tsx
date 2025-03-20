@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import axios from 'axios';
+import type React from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -19,7 +19,10 @@ import {
     Ban,
     Trash2,
     VolumeX,
-    Loader2,
+    Search,
+    SlidersHorizontal,
+    Plus,
+    ChevronDown,
 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -29,16 +32,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { updateChats, updateMembersCount } from '@/redux/features/chatReducer';
-import chats from './chats.json';
-import onlineUsers from './onlineUsers.json';
+import { instance } from '@/lib/axios/axiosInstance';
+import GlobalTooltip from '../global/GlobalTooltip';
+import AddUserModal from './AddUserModal';
 
 // Shared types for chat-related components
 export interface User {
@@ -88,7 +89,7 @@ export interface Chat {
 }
 
 interface MembersProps {
-    chat: Chat;
+    chat: any;
 }
 
 // Initialize dayjs plugins
@@ -96,7 +97,9 @@ dayjs.extend(relativeTime);
 
 const Members: React.FC<MembersProps> = ({ chat }) => {
     const [members, setMembers] = useState<Member[]>([]);
+    const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const [selectedMute, setSelectedMute] = useState<Member | null>(null);
     const [selectedRole, setSelectedRole] = useState<Member | null>(null);
     const [selectedBlock, setSelectedBlock] = useState<Member | null>(null);
@@ -104,27 +107,28 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
         null,
     );
     const [creating, setCreating] = useState(false);
+    const [showAll, setShowAll] = useState(false);
     const router = useRouter();
 
     // Redux state and dispatch
     const dispatch = useAppDispatch();
-    // const { chats, onlineUsers } = useAppSelector((state: any) => state.chat);
     const { user } = useAppSelector((state) => state.auth);
+    const { onlineUsers } = useAppSelector((state: any) => state.chat);
 
     const divRef = useRef<HTMLDivElement>(null);
 
     const fetchMembers = useCallback(
         (options: { limit: number; lastId?: string }) => {
-            console.log(chat?._id);
-
             if (!chat?._id) {
                 return;
             }
             setIsLoading(true);
-            axios
+            instance
                 .post(`/chat/members/${chat?._id}`, options)
                 .then((res) => {
-                    setMembers(res.data?.results || []);
+                    const membersData = res.data?.results || [];
+                    setMembers(membersData);
+                    setFilteredMembers(membersData);
                     setIsLoading(false);
                 })
                 .catch((err) => {
@@ -146,13 +150,30 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                 div &&
                 div.scrollTop + div.clientHeight >= div.scrollHeight - 1
             ) {
-                axios
+                instance
                     .post(`/chat/members/${chat?._id}`, { lastId, limit: 50 })
                     .then((res) => {
-                        setMembers((prev) => [
-                            ...prev,
-                            ...(res.data?.results || []),
-                        ]);
+                        const newMembers = res.data?.results || [];
+                        setMembers((prev) => [...prev, ...newMembers]);
+
+                        // Also update filtered members if search is active
+                        if (searchQuery) {
+                            const newFiltered = newMembers.filter(
+                                (member: any) =>
+                                    member.user.fullName
+                                        ?.toLowerCase()
+                                        .includes(searchQuery.toLowerCase()),
+                            );
+                            setFilteredMembers((prev) => [
+                                ...prev,
+                                ...newFiltered,
+                            ]);
+                        } else {
+                            setFilteredMembers((prev) => [
+                                ...prev,
+                                ...newMembers,
+                            ]);
+                        }
                     })
                     .catch((err) => {
                         console.log(err);
@@ -163,7 +184,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                     });
             }
         },
-        [chat],
+        [chat, searchQuery],
     );
 
     useEffect(() => {
@@ -172,16 +193,33 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
         }
     }, [chat, fetchMembers]);
 
+    // Search functionality
+    useEffect(() => {
+        if (searchQuery.trim() === '') {
+            setFilteredMembers(members);
+        } else {
+            const filtered = members.filter((member) =>
+                member.user.fullName
+                    ?.toLowerCase()
+                    .includes(searchQuery.toLowerCase()),
+            );
+            setFilteredMembers(filtered);
+        }
+    }, [searchQuery, members]);
+
     const handleRemoveUser = useCallback(
         (member: Member) => {
             const data = {
                 member,
             };
 
-            axios
+            instance
                 .patch(`/chat/channel/remove-user/${chat._id}`, data)
                 .then((res) => {
                     setMembers((prev) =>
+                        prev.filter((m) => m._id !== member?._id),
+                    );
+                    setFilteredMembers((prev) =>
                         prev.filter((m) => m._id !== member?._id),
                     );
 
@@ -205,27 +243,29 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
         [chat, dispatch],
     );
 
-    const handleUpdateCallback = useCallback(
-        (member: any) => {
-            const arr = [...members];
+    const handleUpdateCallback = useCallback((member: any) => {
+        const updateMembersList = (list: Member[]) => {
+            const arr = [...list];
             const index = arr.findIndex((x) => x._id === member?._id);
 
             if (index !== -1) {
                 arr[index] = { ...arr[index], ...member };
-                setMembers(arr);
+                return arr;
             }
+            return list;
+        };
 
-            setSelectedMute(null);
-        },
-        [members],
-    );
+        setMembers(updateMembersList);
+        setFilteredMembers(updateMembersList);
+        setSelectedMute(null);
+    }, []);
 
     // Modal states
     const [chatRoleOpened, setChatRoleOpened] = useState(false);
     const [muteOptionOpened, setMuteOptionOpened] = useState(false);
     const [userBlockOpened, setUserBlockOpened] = useState(false);
     const [userRemoveOpened, setUserRemoveOpened] = useState(false);
-
+    const [opened, setOpened] = useState(false);
     const handleChatClose = useCallback(() => {
         setSelectedRole(null);
         setChatRoleOpened(false);
@@ -237,7 +277,6 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
     }, []);
 
     const handleOpenMute = useCallback((member: Member) => {
-        console.log(member);
         setSelectedMute(member);
         setMuteOptionOpened(true);
     }, []);
@@ -273,12 +312,13 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
     const handleCreateChat = useCallback(
         (id: string) => {
             setCreating(true);
-            axios
+            instance
                 .post(`/chat/findorcreate/${id}`)
                 .then((res) => {
-                    const filtered = chats.filter(
-                        (c: any) => c._id === res.data.chat._id,
-                    );
+                    const filtered =
+                        (window as any).chats?.filter(
+                            (c: any) => c._id === res.data.chat._id,
+                        ) || [];
 
                     if (filtered.length > 0) {
                         router.push(`/chat/${res.data.chat._id}`);
@@ -297,269 +337,289 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                     );
                 });
         },
-        [chats, router, dispatch],
+        [router, dispatch],
     );
 
-    const findOnlineUser = useCallback((time?: string) => {
-        if (!time) {
-            return '';
-        }
-        const userTime = dayjs(time).fromNow();
-        const nowTime = dayjs(new Date()).fromNow();
+    // Display limited members or all based on showAll state
+    const displayMembers = showAll
+        ? filteredMembers
+        : filteredMembers.slice(0, 15);
 
-        return userTime === nowTime ? 'Active' : userTime || '';
-    }, []);
+    // Skeleton loading component
+    const MemberSkeleton = () => (
+        <div className='flex items-center justify-between p-3 border-b border-border'>
+            <div className='flex items-start gap-3'>
+                <Skeleton className='h-9 w-9 rounded-full' />
+                <div>
+                    <Skeleton className='h-4 w-32 mb-2' />
+                    <Skeleton className='h-3 w-20' />
+                </div>
+            </div>
+            <Skeleton className='h-8 w-8 rounded-full' />
+        </div>
+    );
 
     return (
         <>
-            <div
-                ref={divRef}
-                className='max-h-[400px] overflow-y-auto space-y-1 pr-1'
-                onScroll={() =>
-                    handleScroll({ lastId: members[members?.length - 1]?._id })
-                }
-            >
-                {isLoading ? (
-                    <div className='flex justify-center items-center py-5'>
-                        <Loader2 className='h-6 w-6 text-primary animate-spin' />
+            <div className='space-y-3'>
+                {/* Search and filter header */}
+                <div className='flex items-center gap-2'>
+                    <div className='relative flex-1'>
+                        <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+                        <Input
+                            type='text'
+                            placeholder='Search Members...'
+                            className='pl-7 h-9 bg-foreground'
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
                     </div>
-                ) : members?.length === 0 ? (
-                    <div className='text-center py-5'>
-                        <h2 className='text-muted-foreground'>
-                            {`Don't have any members!`}
-                        </h2>
-                    </div>
-                ) : (
-                    [...members].map((member, i) => (
-                        <div
-                            key={i}
-                            className='flex items-center justify-between p-3 border-b border-border last:border-0 members-card'
+                    <Button variant='secondary' size='icon' className='h-9 w-9'>
+                        <SlidersHorizontal className='h-4 w-4' />
+                    </Button>
+                    <GlobalTooltip tooltip='Add member'>
+                        <Button
+                            variant='secondary'
+                            size='icon'
+                            className='h-9 w-9 text-primary'
+                            onClick={() => setOpened(true)}
                         >
-                            <div className='flex items-start gap-3 side-content'>
-                                <div
-                                    className='relative cursor-pointer'
-                                    onClick={() =>
-                                        handleCreateChat(member?.user?._id)
-                                    }
-                                >
-                                    <Avatar className='h-9 w-9 avater avater-hover'>
-                                        <AvatarImage
-                                            src={
-                                                member?.user.profilePicture ||
-                                                '/chat/user.png'
-                                            }
-                                            alt='avatar'
+                            <Plus className='h-4 w-4' />
+                        </Button>
+                    </GlobalTooltip>
+                </div>
+
+                {/* Members list */}
+                <div
+                    ref={divRef}
+                    className='max-h-[500px] overflow-y-auto space-y-0.5 !mt-0 pr-1'
+                    onScroll={() =>
+                        handleScroll({
+                            lastId: members[members?.length - 1]?._id,
+                        })
+                    }
+                >
+                    {isLoading ? (
+                        // Skeleton loading state
+                        Array(6)
+                            .fill(0)
+                            .map((_, i) => <MemberSkeleton key={i} />)
+                    ) : filteredMembers?.length === 0 ? (
+                        <div className='text-center py-5'>
+                            <h2 className='text-muted-foreground'>
+                                {searchQuery
+                                    ? 'No members found matching your search'
+                                    : 'No members found'}
+                            </h2>
+                        </div>
+                    ) : (
+                        displayMembers.map((member, i) => (
+                            <div
+                                key={i}
+                                className={`flex items-center justify-between py-2 px-1 ${i !== displayMembers?.length - 1 && 'border-b'} pb-2`}
+                            >
+                                <div className='flex items-center gap-3'>
+                                    <div
+                                        className='relative cursor-pointer'
+                                        onClick={() =>
+                                            handleCreateChat(member?.user?._id)
+                                        }
+                                    >
+                                        <Avatar className='h-9 w-9'>
+                                            <AvatarImage
+                                                src={
+                                                    member?.user
+                                                        .profilePicture ||
+                                                    '/chat/user.png'
+                                                }
+                                                alt={
+                                                    member?.user?.fullName ||
+                                                    'User'
+                                                }
+                                            />
+                                            <AvatarFallback>
+                                                {member?.user?.fullName?.charAt(
+                                                    0,
+                                                ) || 'U'}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <span
+                                            className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-background ${
+                                                onlineUsers?.find(
+                                                    (x: any) =>
+                                                        x?._id ===
+                                                        member?.user?._id,
+                                                )
+                                                    ? 'bg-green-500'
+                                                    : 'bg-gray-400'
+                                            }`}
                                         />
-                                        <AvatarFallback>
-                                            {member?.user?.fullName?.charAt(
-                                                0,
-                                            ) || 'U'}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <span
-                                        className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background ${
-                                            onlineUsers?.find(
-                                                (x: any) =>
-                                                    x?._id ===
-                                                    member?.user?._id,
-                                            )
-                                                ? 'bg-green-500'
-                                                : 'bg-gray-500'
-                                        }`}
-                                    />
-                                </div>
-
-                                <div className='content-wrapper'>
-                                    <div>
-                                        <h4 className='text-sm font-medium flex items-center flex-wrap gap-1'>
-                                            {user?._id === member?.user?._id ? (
-                                                `${member?.user?.firstName || member?.user?.fullName} (Me)`
-                                            ) : (
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <span
-                                                                className='cursor-pointer'
-                                                                onClick={() =>
-                                                                    handleCreateChat(
-                                                                        member
-                                                                            ?.user
-                                                                            ?._id,
-                                                                    )
-                                                                }
-                                                            >
-                                                                {member?.user?.fullName?.slice(
-                                                                    0,
-                                                                    30,
-                                                                ) ||
-                                                                    'TS4U User (deleted)'}
-                                                            </span>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent>
-                                                            <p>
-                                                                {
-                                                                    member?.user
-                                                                        ?.fullName
-                                                                }
-                                                            </p>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
-                                            )}
-
-                                            {member?.role &&
-                                                member?.role !== 'member' && (
-                                                    <Badge
-                                                        variant='outline'
-                                                        className='bg-primary/10 text-xs font-medium flex items-center gap-1'
-                                                    >
-                                                        {member?.role ===
-                                                        'owner' ? (
-                                                            <>
-                                                                <Crown className='h-3 w-3 text-amber-500' />
-                                                                <span>
-                                                                    Owner
-                                                                </span>
-                                                            </>
-                                                        ) : member?.role ===
-                                                          'admin' ? (
-                                                            <>
-                                                                <ShieldCheck className='h-3 w-3 text-blue-600' />
-                                                                <span>
-                                                                    Admin
-                                                                </span>
-                                                            </>
-                                                        ) : member?.role ===
-                                                          'moderator' ? (
-                                                            <>
-                                                                <Shield className='h-3 w-3 text-blue-500' />
-                                                                <span>
-                                                                    Moderator
-                                                                </span>
-                                                            </>
-                                                        ) : null}
-                                                    </Badge>
-                                                )}
-                                        </h4>
                                     </div>
 
-                                    {member?.isBlocked ? (
-                                        <Badge
-                                            variant='destructive'
-                                            className='mt-1 text-xs'
-                                        >
-                                            Blocked
-                                        </Badge>
-                                    ) : dayjs(member?.user?.lastActive).diff(
-                                          dayjs(),
-                                          'months',
-                                      ) <= -2 ? (
-                                        <p className='text-xs text-muted-foreground mt-1 last-seen'>
-                                            Not Applicable
-                                        </p>
-                                    ) : (
-                                        <p className='text-xs text-muted-foreground mt-1 last-seen'>
-                                            {onlineUsers?.find(
-                                                (x: any) =>
-                                                    x?._id ===
-                                                    member?.user?._id,
-                                            ) ? (
-                                                <span className='text-green-500'>
-                                                    Active now
-                                                </span>
-                                            ) : (
-                                                dayjs(
-                                                    member?.user?.lastActive,
-                                                ).fromNow()
-                                            )}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
+                                    <div>
+                                        <div className='flex items-center'>
+                                            <span className='text-sm font-medium'>
+                                                {member?.user?.fullName ||
+                                                    'User'}
+                                            </span>
 
-                            {['owner', 'admin', 'moderator'].includes(
-                                chat?.myData?.role || '',
-                            ) &&
-                                member?.user?._id !== chat?.myData?.user &&
-                                member?.role !== 'owner' && (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <button className='p-1 rounded-md hover:bg-muted transition-colors action-btn'>
-                                                <MoreVertical className='h-4 w-4 text-muted-foreground' />
-                                            </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent
-                                            align='end'
-                                            className='w-48 member-card-menu'
-                                        >
-                                            {['owner', 'admin'].includes(
-                                                chat?.myData?.role || '',
-                                            ) && (
-                                                <>
-                                                    <DropdownMenuItem
-                                                        onClick={() =>
-                                                            handleOpenRole(
-                                                                member,
-                                                            )
-                                                        }
-                                                        className='flex items-center gap-2 member-card-item'
-                                                    >
-                                                        <UserPlus className='h-4 w-4' />
-                                                        <span>Role</span>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        onClick={() =>
-                                                            handleBlockOpen(
-                                                                member,
-                                                            )
-                                                        }
-                                                        className='flex items-center gap-2 member-card-item'
-                                                    >
-                                                        <Ban className='h-4 w-4' />
-                                                        <span>
-                                                            {member?.isBlocked
-                                                                ? 'Unblock'
-                                                                : 'Block'}
+                                            {member?.role && (
+                                                <Badge className='text-xs text-gray bg-transparent font-normal h-5 px-1.5 shadow-none'>
+                                                    {member?.role ===
+                                                    'owner' ? (
+                                                        <span className='flex items-center gap-0.5'>
+                                                            <Crown className='h-3 w-3 text-amber-500' />
+                                                            Owner
                                                         </span>
-                                                    </DropdownMenuItem>
+                                                    ) : member?.role ===
+                                                      'admin' ? (
+                                                        <span className='flex items-center gap-0.5'>
+                                                            <ShieldCheck className='h-3 w-3 text-blue-600' />
+                                                            Admin
+                                                        </span>
+                                                    ) : member?.role ===
+                                                      'moderator' ? (
+                                                        <span className='flex items-center gap-0.5'>
+                                                            <Shield className='h-3 w-3 text-blue-500' />
+                                                            Moderator
+                                                        </span>
+                                                    ) : (
+                                                        <span className='flex items-center gap-0.5'>
+                                                            <Shield className='h-3 w-3 text-gray-500' />
+                                                            Member
+                                                        </span>
+                                                    )}
+                                                </Badge>
+                                            )}
+                                        </div>
+
+                                        {member?.isBlocked ? (
+                                            <Badge
+                                                variant='destructive'
+                                                className='mt-1 text-xs'
+                                            >
+                                                Blocked Member
+                                            </Badge>
+                                        ) : (
+                                            <p className='text-xs text-muted-foreground mt-0.5'>
+                                                {onlineUsers?.find(
+                                                    (x: any) =>
+                                                        x?._id ===
+                                                        member?.user?._id,
+                                                ) ? (
+                                                    <span className='text-green-500'>
+                                                        Active Now
+                                                    </span>
+                                                ) : (
+                                                    `${dayjs(member?.user?.lastActive).fromNow()}`
+                                                )}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {['owner', 'admin', 'moderator'].includes(
+                                    chat?.myData?.role || '',
+                                ) &&
+                                    member?.user?._id !== chat?.myData?.user &&
+                                    member?.role !== 'owner' && (
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant='ghost'
+                                                    size='icon'
+                                                    className='h-8 w-8'
+                                                >
+                                                    <MoreVertical className='h-4 w-4' />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent
+                                                align='end'
+                                                className='w-48'
+                                            >
+                                                {['owner', 'admin'].includes(
+                                                    chat?.myData?.role || '',
+                                                ) && (
+                                                    <>
+                                                        <DropdownMenuItem
+                                                            onClick={() =>
+                                                                handleOpenRole(
+                                                                    member,
+                                                                )
+                                                            }
+                                                            className='flex items-center gap-2'
+                                                        >
+                                                            <UserPlus className='h-4 w-4' />
+                                                            <span>Role</span>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={() =>
+                                                                handleBlockOpen(
+                                                                    member,
+                                                                )
+                                                            }
+                                                            className='flex items-center gap-2'
+                                                        >
+                                                            <Ban className='h-4 w-4' />
+                                                            <span>
+                                                                {member?.isBlocked
+                                                                    ? 'Unblock'
+                                                                    : 'Block'}
+                                                            </span>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={() =>
+                                                                handleUserRemoveOpen(
+                                                                    member,
+                                                                )
+                                                            }
+                                                            className='flex items-center gap-2'
+                                                        >
+                                                            <Trash2 className='h-4 w-4' />
+                                                            <span>Remove</span>
+                                                        </DropdownMenuItem>
+                                                    </>
+                                                )}
+                                                {[
+                                                    'owner',
+                                                    'admin',
+                                                    'moderator',
+                                                ].includes(
+                                                    chat?.myData?.role || '',
+                                                ) && (
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            handleUserRemoveOpen(
+                                                            handleOpenMute(
                                                                 member,
                                                             )
                                                         }
-                                                        className='flex items-center gap-2 member-card-item'
+                                                        className='flex items-center gap-2'
                                                     >
-                                                        <Trash2 className='h-4 w-4' />
-                                                        <span>Remove</span>
+                                                        <VolumeX className='h-4 w-4' />
+                                                        <span>Mute</span>
                                                     </DropdownMenuItem>
-                                                </>
-                                            )}
-                                            {[
-                                                'owner',
-                                                'admin',
-                                                'moderator',
-                                            ].includes(
-                                                chat?.myData?.role || '',
-                                            ) && (
-                                                <DropdownMenuItem
-                                                    onClick={() =>
-                                                        handleOpenMute(member)
-                                                    }
-                                                    className='flex items-center gap-2 member-card-item'
-                                                >
-                                                    <VolumeX className='h-4 w-4' />
-                                                    <span>Mute</span>
-                                                </DropdownMenuItem>
-                                            )}
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                )}
-                        </div>
-                    ))
+                                                )}
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    )}
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* View more button */}
+                {!isLoading && filteredMembers.length > 15 && !showAll && (
+                    <Button
+                        variant='ghost'
+                        className='w-full text-primary text-sm'
+                        onClick={() => setShowAll(true)}
+                    >
+                        View More <ChevronDown className='h-4 w-4 ml-1' />
+                    </Button>
                 )}
             </div>
 
+            {/* Modals */}
             <ChatRole
                 opened={chatRoleOpened}
                 close={handleChatClose}
@@ -567,7 +627,11 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                 handleUpdateCallback={handleUpdateCallback}
                 member={selectedRole}
             />
-
+            <AddUserModal
+                channel={chat}
+                opened={opened}
+                handleCancel={() => setOpened(false)}
+            />
             <MuteOption
                 opened={muteOptionOpened}
                 close={handleMuteClose}
