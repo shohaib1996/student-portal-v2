@@ -53,6 +53,8 @@ export type TUser = {
     _id: string;
     updatedAt?: string;
     id?: string;
+    middleInitial?: string;
+    education?: string;
     profilePicture?: string;
     fullName?: string;
     lastPasswordChange?: string;
@@ -75,6 +77,14 @@ export type TUser = {
             state?: string;
             street?: string;
         };
+        resume?: string;
+        socialMedia?: {
+            facebook?: string;
+            linkedin?: string;
+            instagram?: string;
+            twitter?: string;
+            github?: string;
+        };
     };
     phone?:
         | {
@@ -84,6 +94,8 @@ export type TUser = {
           }
         | string;
     about?: string;
+    website?: string;
+    dateOfBirth?: Date | string;
     isActive?: boolean;
 };
 

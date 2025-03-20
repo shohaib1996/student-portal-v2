@@ -1,22 +1,21 @@
 'use client';
 
-import Fuse from 'fuse.js';
-import { useState } from 'react';
 import { GlobalPagination } from '@/components/global/global-pagination';
-
-import { TMediaItem } from '@/types/audio-videos/audio-videos';
-import { useMyAudioVideoQuery } from '@/redux/api/audio-video/audioVideos';
-
-import AudioVideosCard from './AudioVideosCard';
-import MediaCardSkeleton from './MediaCardSkeleton';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useMyAudioVideoQuery } from '@/redux/api/audio-video/audioVideos';
+import { TMediaItem } from '@/types/audio-videos/audio-videos';
+import Fuse from 'fuse.js';
+import { TvMinimalPlay, Volume2 } from 'lucide-react';
+import { useState } from 'react';
+import AudioVideosCard from './AudioVideosCard';
 
-const AudioVideos = () => {
+const AudioAndVideos = () => {
+    const [isAudio, setIsAudio] = useState(true);
+
+    const ITEMS_PER_PAGE = 8;
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-    const ITEMS_PER_PAGE = 8;
-    const [audioVideo, setAudioVideo] = useState(true);
     const { data, error, isLoading } = useMyAudioVideoQuery({});
 
     if (error) {
@@ -24,16 +23,7 @@ const AudioVideos = () => {
     }
 
     if (isLoading) {
-        return (
-            <div className='mt-11 rounded-md bg-background p-4'>
-                <div className='grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4'>
-                    <MediaCardSkeleton />
-                    <MediaCardSkeleton />
-                    <MediaCardSkeleton />
-                    <MediaCardSkeleton />
-                </div>
-            </div>
-        );
+        return <div className=''>please wait...</div>;
     }
 
     const medias: TMediaItem[] = data.medias;
@@ -58,52 +48,40 @@ const AudioVideos = () => {
     const currentItems = filteredItems.slice(startIndex, endIndex);
 
     return (
-        <div className=''>
+        <div>
             <div className='flex items-center gap-1'>
                 <Button
                     variant='ghost'
-                    onClick={() => setAudioVideo(true)}
+                    onClick={() => setIsAudio(true)}
                     className={cn(
-                        'rounded-none',
-                        audioVideo
-                            ? 'text-primary border-b-2 border-primary'
-                            : '',
+                        'rounded-none flex items-center gap-1',
+                        isAudio ? 'text-primary border-b-2 border-primary' : '',
                     )}
                 >
-                    Audios
+                    <Volume2 /> Audios
                 </Button>
                 <Button
                     variant='ghost'
-                    onClick={() => setAudioVideo(false)}
+                    onClick={() => setIsAudio(false)}
                     className={cn(
-                        'rounded-none',
-                        audioVideo === false
+                        'rounded-none flex items-center gap-1',
+                        isAudio === false
                             ? 'text-primary border-b-2 border-primary'
                             : '',
                     )}
                 >
+                    <TvMinimalPlay />
                     Videos
                 </Button>
             </div>
-            <div className=''>
-                {/* Search Input */}
-                {/* <input
-                    type='text'
-                    placeholder='Search by title...'
-                    value={searchQuery}
-                    onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setCurrentPage(1);
-                    }}
-                    className='mb-4 w-full rounded-md border p-2'
-                /> */}
 
+            <div>
                 <div className='my-common grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4'>
                     {currentItems.map((media: TMediaItem) => (
                         <AudioVideosCard
                             key={media._id}
                             media={media}
-                            isAudio={audioVideo}
+                            isAudio={isAudio}
                         />
                     ))}
                 </div>
@@ -123,4 +101,4 @@ const AudioVideos = () => {
     );
 };
 
-export default AudioVideos;
+export default AudioAndVideos;
