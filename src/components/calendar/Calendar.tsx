@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { CalendarIcon, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { MonthView } from './monthView';
 import { WeekView } from './WeekView';
 import { DayView } from './DayView';
+import { SheetTrigger } from '../ui/sheet';
 
 type CalendarView = 'day' | 'week' | 'month';
 
@@ -70,8 +71,8 @@ export default function Calendar() {
     };
 
     return (
-        <div className='flex flex-col overflow-hidden'>
-            <div className='flex items-center justify-between py-2 border-b border-forground-border bg-background'>
+        <div className='flex flex-col overflow-hidden w-full'>
+            <div className='flex flex-wrap gap-2 items-center justify-between py-2 border-b border-forground-border bg-background'>
                 <div className='flex items-center gap-2'>
                     <div className='flex items-center gap-1'>
                         <Button
@@ -91,7 +92,7 @@ export default function Calendar() {
                             <ChevronRight className='h-4 w-4' />
                         </Button>
                     </div>
-                    <h3 className='text-base text-black font-medium'>
+                    <h3 className='text-base text-dark-gray font-medium'>
                         {getHeaderText()}
                     </h3>
                     <Select
@@ -141,6 +142,12 @@ export default function Calendar() {
                             className='pl-8 h-8 w-[220px]'
                         />
                     </div>
+                    <SheetTrigger className='min-[1000px]:hidden' asChild>
+                        <Button variant="outline" size="icon">
+                            <CalendarIcon className="h-4 w-4" />
+                            <span className="sr-only">Open calendar sidebar</span>
+                        </Button>
+                    </SheetTrigger>
                 </div>
             </div>
 

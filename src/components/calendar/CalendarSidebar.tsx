@@ -272,7 +272,7 @@ export function CalendarSidebar({
     );
 
     return (
-        <div className='w-full border-l flex flex-col h-full overflow-y-auto'>
+        <div className='w-full border-l flex flex-col h-full overflow-y-auto md:min-w-[270px] xl:min-w-[380px]'>
             {/* Month Accordion */}
             <div className='border-b'>
                 <button
@@ -323,8 +323,8 @@ export function CalendarSidebar({
                                         'w-full border border-forground-border bg-secondary rounded-full flex flex-col items-center justify-center h-[72px]',
                                         isToday(day) && 'bg-primary text-',
                                         isSameDay(day, currentDate) &&
-                                            !isToday(day) &&
-                                            'bg-blue-100 text-pure-white',
+                                        !isToday(day) &&
+                                        'bg-blue-100 text-pure-white',
                                     )}
                                     onClick={() => onDateSelect(day)}
                                 >
@@ -335,8 +335,8 @@ export function CalendarSidebar({
                                                 ? 'text-pure-white'
                                                 : 'text-black',
                                             isSameDay(day, currentDate) &&
-                                                !isToday(day) &&
-                                                'text-blue-700',
+                                            !isToday(day) &&
+                                            'text-blue-700',
                                         )}
                                     >
                                         {format(day, 'EEE').charAt(0)}
@@ -486,8 +486,8 @@ export function CalendarSidebar({
                                             val === true
                                                 ? [...prev, item.value]
                                                 : prev.filter(
-                                                      (f) => f !== item.value,
-                                                  ),
+                                                    (f) => f !== item.value,
+                                                ),
                                         )
                                     }
                                 />
@@ -545,8 +545,8 @@ export function CalendarSidebar({
                                             val === true
                                                 ? [...prev, item.value]
                                                 : prev.filter(
-                                                      (f) => f !== item.value,
-                                                  ),
+                                                    (f) => f !== item.value,
+                                                ),
                                         )
                                     }
                                 />
@@ -605,8 +605,8 @@ export function CalendarSidebar({
                                             val === true
                                                 ? [...prev, item.value]
                                                 : prev.filter(
-                                                      (f) => f !== item.value,
-                                                  ),
+                                                    (f) => f !== item.value,
+                                                ),
                                         )
                                     }
                                 />
