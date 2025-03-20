@@ -27,6 +27,7 @@ import {
     Share,
     Info,
     Share2,
+    Pin,
 } from 'lucide-react';
 
 import {
@@ -545,7 +546,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                 toast.info('Coming soon!')
                                             }
                                         >
-                                            <Clock className='h-4 w-4' />
+                                            <Pin className='h-4 w-4 rotate-45' />
                                             Pin Message
                                         </DropdownMenuItem>
                                         <DropdownMenuItem

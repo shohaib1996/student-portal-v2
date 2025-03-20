@@ -1,19 +1,13 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { X, Loader2 } from 'lucide-react';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+import { Loader2, SaveIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
 
 interface Member {
     _id: string;
@@ -42,11 +36,15 @@ const ChatRole: React.FC<ChatRoleProps> = ({
     const [role, setRole] = useState('');
     const [isUpdating, setIsUpdating] = useState(false);
 
+    const modalClose = useCallback(() => {
+        close();
+    }, [close]);
+
     useEffect(() => {
         setRole(member?.role || 'member');
     }, [member]);
 
-    const handleSave = () => {
+    const handleSave = useCallback(() => {
         if (!member) {
             return;
         }
@@ -65,7 +63,7 @@ const ChatRole: React.FC<ChatRoleProps> = ({
                 setIsUpdating(false);
                 toast.success('Role updated successfully');
                 handleUpdateCallback(res.data?.member);
-                close();
+                modalClose();
             })
             .catch((err) => {
                 setIsUpdating(false);
@@ -74,88 +72,87 @@ const ChatRole: React.FC<ChatRoleProps> = ({
                     err?.response?.data?.error || 'Failed to update role',
                 );
             });
-    };
+    }, [member, role, chat, handleUpdateCallback, modalClose]);
 
     return (
-        <Dialog open={opened} onOpenChange={(open) => !open && close()}>
-            <DialogContent className='sm:max-w-[400px] p-0 bModalContent'>
-                <DialogHeader className='px-6 py-4 border-b bModalHeader bg-primary dark:bg-zinc-800'>
-                    <div className='flex items-center justify-between'>
-                        <DialogTitle className='text-primary-foreground dark:text-zinc-100 bModalTitle'>
-                            Update{' '}
-                            {member?.user?.firstName || member?.user?.fullName}{' '}
-                            Role!
-                        </DialogTitle>
-                        <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={close}
-                            className='h-8 w-8 rounded-full bg-muted/50 hover:bg-muted btn-close'
-                        >
-                            <X className='h-4 w-4 text-muted-foreground' />
-                            <span className='sr-only'>Close</span>
-                        </Button>
+        <GlobalDialog
+            open={opened}
+            setOpen={(open) => !open && modalClose()}
+            title={`${member?.user?.fullName || member?.user?.fullName}'s Role Options`}
+            subTitle={`Assign a role to ${member?.user?.fullName || member?.user?.fullName}.`}
+            className='sm:max-w-[550px]'
+            allowFullScreen={false}
+            buttons={
+                <Button
+                    onClick={handleSave}
+                    disabled={isUpdating}
+                    className='text-lg'
+                >
+                    {isUpdating ? (
+                        <Loader2 className='h-4 w-4 animate-spin' />
+                    ) : (
+                        <SaveIcon size={18} />
+                    )}
+                    Save & Close
+                </Button>
+            }
+        >
+            <div className='py-2'>
+                <RadioGroup
+                    value={role}
+                    onValueChange={setRole}
+                    className='space-y-2'
+                >
+                    <div className='flex items-center space-x-2 bg-foreground rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300'>
+                        <RadioGroupItem value='admin' id='admin' />
+                        <div className=''>
+                            <label
+                                htmlFor='admin'
+                                className='text-black font-medium text-base cursor-pointer'
+                            >
+                                Admin
+                            </label>
+                            <p className='text-gray text-sm leading-tight'>
+                                Oversees users, chats, settings, and security
+                                for seamless communication
+                            </p>
+                        </div>
                     </div>
-                </DialogHeader>
 
-                <div className='p-6 bModalBody dark:bg-background'>
-                    <form className='space-y-6 role-form-container'>
-                        <RadioGroup
-                            value={role}
-                            onValueChange={setRole}
-                            className='space-y-4 role-form'
-                        >
-                            <div className='flex items-center space-x-2 input-wrapper'>
-                                <RadioGroupItem value='admin' id='admin' />
-                                <Label
-                                    htmlFor='admin'
-                                    className='text-base font-normal cursor-pointer'
-                                >
-                                    Admin
-                                </Label>
-                            </div>
+                    <div className='flex items-center space-x-2 bg-foreground rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300'>
+                        <RadioGroupItem value='moderator' id='moderator' />
+                        <div>
+                            <label
+                                htmlFor='moderator'
+                                className='text-black font-medium text-base cursor-pointer'
+                            >
+                                Moderator
+                            </label>
+                            <p className='text-gray text-sm'>
+                                Monitors chats, enforces guidelines, and manages
+                                user interactions
+                            </p>
+                        </div>
+                    </div>
 
-                            <div className='flex items-center space-x-2 input-wrapper'>
-                                <RadioGroupItem
-                                    value='moderator'
-                                    id='moderator'
-                                />
-                                <Label
-                                    htmlFor='moderator'
-                                    className='text-base font-normal cursor-pointer'
-                                >
-                                    Moderator
-                                </Label>
-                            </div>
-
-                            <div className='flex items-center space-x-2 input-wrapper'>
-                                <RadioGroupItem value='member' id='member' />
-                                <Label
-                                    htmlFor='member'
-                                    className='text-base font-normal cursor-pointer'
-                                >
-                                    Member
-                                </Label>
-                            </div>
-                        </RadioGroup>
-
-                        <Button
-                            disabled={isUpdating}
-                            className='w-full button primary'
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleSave();
-                            }}
-                        >
-                            {isUpdating ? (
-                                <Loader2 className='h-4 w-4 mr-2 animate-spin' />
-                            ) : null}
-                            {isUpdating ? 'Updating...' : 'Update'}
-                        </Button>
-                    </form>
-                </div>
-            </DialogContent>
-        </Dialog>
+                    <div className='flex items-center space-x-2 bg-foreground rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300'>
+                        <RadioGroupItem value='member' id='member' />
+                        <div>
+                            <label
+                                htmlFor='member'
+                                className='text-black font-medium text-base cursor-pointer'
+                            >
+                                Member
+                            </label>
+                            <p className='text-gray text-sm'>
+                                Participates in chats and collaborates with team
+                                members
+                            </p>
+                        </div>
+                    </div>
+                </RadioGroup>
+            </div>
+        </GlobalDialog>
     );
 };
 

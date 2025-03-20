@@ -2,24 +2,14 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'sonner';
-
-// Redux actions
-// import { updateChats } from '../../../store/reducer/chatReducer';
 
 // ShadCN UI components
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from '@/components/ui/dialog';
 import {
     Select,
     SelectContent,
@@ -31,7 +21,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 
 // Lucide Icons
-import { Trash2, Plus, Loader2 } from 'lucide-react';
+import { Trash2, Plus, Loader2, ChevronLeft } from 'lucide-react';
+
+// Custom components
+import GlobalModal from '@/components/global/GlobalModal';
 
 interface User {
     _id: string;
@@ -50,17 +43,11 @@ interface CreateCrowdProps {
     opened?: boolean;
 }
 
-interface RootState {
-    theme: {
-        displayMode: string;
-    };
-}
-
 function CreateCrowd({
     isNewChannelModalVisible,
     handleCancelNewChannelModal,
     close,
-}: any) {
+}: CreateCrowdProps) {
     const dispatch = useDispatch();
     const router = useRouter();
     const searchRef = useRef<HTMLInputElement>(null);
@@ -152,7 +139,6 @@ function CreateCrowd({
         members,
         isReadOnly,
         isPublic,
-        dispatch,
         handleCancelNewChannelModal,
         router,
     ]);
@@ -177,234 +163,229 @@ function CreateCrowd({
         return () => clearTimeout(timeoutId);
     }, []);
 
+    // Custom buttons for the modal based on current step
+    const renderButtons = () => {
+        if (step === 1) {
+            return (
+                <Button
+                    onClick={handleNext}
+                    className=' bg-blue-600 hover:bg-blue-700'
+                >
+                    Next
+                </Button>
+            );
+        } else {
+            return (
+                <>
+                    <Button
+                        variant='outline'
+                        onClick={handlePrev}
+                        className=' flex items-center gap-1'
+                    >
+                        <ChevronLeft className='h-4 w-4' />
+                        Back
+                    </Button>
+                    <Button
+                        onClick={handleCreateChannel}
+                        disabled={isCreatingChannel}
+                        className=' bg-blue-600 hover:bg-blue-700'
+                    >
+                        {isCreatingChannel ? (
+                            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        ) : null}
+                        Create
+                    </Button>
+                </>
+            );
+        }
+    };
+
     return (
-        <Dialog open={isNewChannelModalVisible} onOpenChange={close}>
-            <DialogContent className='sm:max-w-[500px] max-h-[90vh] overflow-y-auto'>
-                <DialogHeader>
-                    <DialogTitle className='text-xl font-semibold'>
-                        Create New Crowd
-                    </DialogTitle>
-                </DialogHeader>
-
-                {step === 1 ? (
-                    <div className='space-y-4 mt-4'>
-                        <div className='space-y-2'>
-                            <label
-                                htmlFor='name'
-                                className='text-sm font-medium'
-                            >
-                                Name <span className='text-red-500'>*</span>
-                            </label>
-                            <Input
-                                id='name'
-                                maxLength={40}
-                                placeholder='Maximum 40 characters'
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className='bg-background dark:bg-gray-800'
-                            />
-                        </div>
-
-                        <div className='space-y-2'>
-                            <label
-                                htmlFor='description'
-                                className='text-sm font-medium'
-                            >
-                                Description
-                            </label>
-                            <Textarea
-                                id='description'
-                                maxLength={200}
-                                placeholder='Maximum 200 characters'
-                                value={description}
-                                onChange={(e: any) =>
-                                    setDescription(e.target.value)
-                                }
-                                className='bg-background dark:bg-gray-800 resize-none min-h-[100px]'
-                            />
-                        </div>
-
-                        <div className='space-y-2'>
-                            <label
-                                htmlFor='type'
-                                className='text-sm font-medium'
-                            >
-                                Type
-                            </label>
-                            <Select
-                                defaultValue='true'
-                                onValueChange={(value) =>
-                                    setIsPublic(value === 'true')
-                                }
-                            >
-                                <SelectTrigger className='w-full bg-background dark:bg-gray-800'>
-                                    <SelectValue placeholder='Select type' />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value='true'>Public</SelectItem>
-                                    <SelectItem value='false'>
-                                        Private
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className='space-y-2'>
-                            <label
-                                htmlFor='readonly'
-                                className='text-sm font-medium'
-                            >
-                                Read Only
-                            </label>
-                            <Select
-                                defaultValue='false'
-                                onValueChange={(value) =>
-                                    setIsReadOnly(value === 'true')
-                                }
-                            >
-                                <SelectTrigger className='w-full bg-background dark:bg-gray-800'>
-                                    <SelectValue placeholder='Select option' />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value='true'>Yes</SelectItem>
-                                    <SelectItem value='false'>No</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+        <GlobalModal
+            open={isNewChannelModalVisible}
+            setOpen={(open) => !open && close()}
+            title='Create New Crowd'
+            subTitle='Create a new crowd to chat with multiple users'
+            className='sm:max-w-[500px]'
+            buttons={renderButtons()}
+        >
+            {step === 1 ? (
+                <div className='space-y-2 mt-2'>
+                    <div>
+                        <label htmlFor='name' className='text-sm font-medium'>
+                            Name <span className='text-red-500'>*</span>
+                        </label>
+                        <Input
+                            id='name'
+                            maxLength={40}
+                            placeholder='Maximum 40 characters'
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className='bg-background '
+                        />
                     </div>
-                ) : (
-                    <div className='space-y-4 mt-4'>
-                        <div className='relative'>
-                            <Input
-                                ref={searchRef}
-                                placeholder='Search users'
-                                className='bg-background dark:bg-gray-800'
-                                onFocus={() => handleSearchUser()}
-                                onChange={(e) =>
-                                    handleSearchUser(e.target.value)
-                                }
-                            />
-                        </div>
 
-                        {members.length > 0 && (
-                            <div className='flex flex-wrap gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-md'>
-                                {members.map((member, i) => (
-                                    <Badge
-                                        key={i}
-                                        variant='secondary'
-                                        className='flex items-center gap-2 px-2 py-1'
+                    <div>
+                        <label
+                            htmlFor='description'
+                            className='text-sm font-medium'
+                        >
+                            Description
+                        </label>
+                        <Textarea
+                            id='description'
+                            maxLength={200}
+                            placeholder='Maximum 200 characters'
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className='bg-background  resize-none min-h-[100px]'
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor='type' className='text-sm font-medium'>
+                            Type
+                        </label>
+                        <Select
+                            defaultValue='true'
+                            onValueChange={(value) =>
+                                setIsPublic(value === 'true')
+                            }
+                        >
+                            <SelectTrigger className='w-full bg-background '>
+                                <SelectValue placeholder='Select type' />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value='true'>Public</SelectItem>
+                                <SelectItem value='false'>Private</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor='readonly'
+                            className='text-sm font-medium'
+                        >
+                            Read Only
+                        </label>
+                        <Select
+                            defaultValue='false'
+                            onValueChange={(value) =>
+                                setIsReadOnly(value === 'true')
+                            }
+                        >
+                            <SelectTrigger className='w-full bg-background '>
+                                <SelectValue placeholder='Select option' />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value='true'>Yes</SelectItem>
+                                <SelectItem value='false'>No</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+            ) : (
+                <div className='space-y-2 mt-2'>
+                    <div className='relative'>
+                        <Input
+                            ref={searchRef}
+                            placeholder='Search users'
+                            className='bg-background '
+                            onFocus={() => handleSearchUser()}
+                            onChange={(e) => handleSearchUser(e.target.value)}
+                        />
+                    </div>
+
+                    {members.length > 0 && (
+                        <div className='flex flex-wrap gap-2 p-2 bg-background rounded-md'>
+                            {members.map((member, i) => (
+                                <Badge
+                                    key={i}
+                                    variant='secondary'
+                                    className='flex items-center gap-2 px-2 py-1'
+                                >
+                                    <Avatar className='h-6 w-6'>
+                                        <AvatarImage
+                                            src={
+                                                member.profilePicture ||
+                                                '/chat/user.png'
+                                            }
+                                            alt={member.fullName}
+                                        />
+                                        <AvatarFallback>
+                                            {member.fullName?.charAt(0) || 'U'}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <span className='text-xs'>
+                                        {member.fullName}
+                                    </span>
+                                    <Button
+                                        variant='ghost'
+                                        size='icon'
+                                        className='h-4 w-4 p-0 text-red-500 hover:text-red-700 hover:bg-transparent'
+                                        onClick={() => handleRemove(member)}
                                     >
-                                        <Avatar className='h-6 w-6'>
+                                        <Trash2 className='h-3 w-3' />
+                                    </Button>
+                                </Badge>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className='bg-background rounded-md p-2 max-h-[300px] overflow-y-auto'>
+                        {isUserLoading ? (
+                            <div className='flex justify-center py-2'>
+                                <Loader2 className='h-8 w-8 animate-spin text-primary' />
+                            </div>
+                        ) : users.length > 0 ? (
+                            users.map((user, i) => (
+                                <div
+                                    key={i}
+                                    className='flex justify-between items-center p-2 mb-2 bg-foreground rounded-md'
+                                >
+                                    <div className='flex items-center gap-4'>
+                                        <Avatar className='h-10 w-10'>
                                             <AvatarImage
                                                 src={
-                                                    member.profilePicture ||
+                                                    user.profilePicture ||
                                                     '/chat/user.png'
                                                 }
-                                                alt={member.fullName}
+                                                alt={user.fullName}
                                             />
                                             <AvatarFallback>
-                                                {member.fullName?.charAt(0) ||
+                                                {user.fullName?.charAt(0) ||
                                                     'U'}
                                             </AvatarFallback>
                                         </Avatar>
-                                        <span className='text-xs'>
-                                            {member.fullName}
-                                        </span>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='h-4 w-4 p-0 text-red-500 hover:text-red-700 hover:bg-transparent'
-                                            onClick={() => handleRemove(member)}
-                                        >
-                                            <Trash2 className='h-3 w-3' />
-                                        </Button>
-                                    </Badge>
-                                ))}
+                                        <div>
+                                            <h3 className='text-sm text-dark-gray font-medium'>
+                                                {user.fullName}
+                                            </h3>
+                                            <span className='text-xs text-gray'>
+                                                {user.email}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        variant='primary_light'
+                                        size='icon'
+                                        className='h-8 w-8 rounded-full'
+                                        onClick={() => handleAdd(user)}
+                                    >
+                                        <Plus className='h-4 w-4' />
+                                    </Button>
+                                </div>
+                            ))
+                        ) : (
+                            <div className='text-center py-4 text-gray'>
+                                No users found
                             </div>
                         )}
-
-                        <div className='bg-gray-100 dark:bg-gray-800 rounded-md p-2 max-h-[300px] overflow-y-auto'>
-                            {isUserLoading ? (
-                                <div className='flex justify-center py-8'>
-                                    <Loader2 className='h-8 w-8 animate-spin text-primary' />
-                                </div>
-                            ) : users.length > 0 ? (
-                                users.map((user, i) => (
-                                    <div
-                                        key={i}
-                                        className='flex justify-between items-center p-2 mb-2 bg-white dark:bg-gray-700 rounded-md'
-                                    >
-                                        <div className='flex items-center gap-4'>
-                                            <Avatar className='h-10 w-10'>
-                                                <AvatarImage
-                                                    src={
-                                                        user.profilePicture ||
-                                                        '/chat/user.png'
-                                                    }
-                                                    alt={user.fullName}
-                                                />
-                                                <AvatarFallback>
-                                                    {user.fullName?.charAt(0) ||
-                                                        'U'}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <h3 className='text-sm font-medium'>
-                                                    {user.fullName}
-                                                </h3>
-                                                <span className='text-xs text-gray-500 dark:text-gray-400'>
-                                                    {user.email}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-600'
-                                            onClick={() => handleAdd(user)}
-                                        >
-                                            <Plus className='h-4 w-4' />
-                                        </Button>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className='text-center py-4 text-gray-500'>
-                                    No users found
-                                </div>
-                            )}
-                        </div>
                     </div>
-                )}
-
-                <DialogFooter className='flex justify-center gap-4 mt-4'>
-                    {step === 1 ? (
-                        <Button onClick={handleNext} className='w-40'>
-                            Next
-                        </Button>
-                    ) : (
-                        <>
-                            <Button
-                                variant='outline'
-                                onClick={handlePrev}
-                                className='w-40'
-                            >
-                                Go Back
-                            </Button>
-                            <Button
-                                onClick={handleCreateChannel}
-                                disabled={isCreatingChannel}
-                                className='w-40'
-                            >
-                                {isCreatingChannel && (
-                                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                                )}
-                                Create
-                            </Button>
-                        </>
-                    )}
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                </div>
+            )}
+        </GlobalModal>
     );
 }
 

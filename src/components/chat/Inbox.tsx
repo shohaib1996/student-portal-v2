@@ -18,11 +18,13 @@ import {
     Video,
     VideoOff,
     SearchIcon,
+    PinOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { markRead, updateMyData } from '@/redux/features/chatReducer';
 import onlineUsers from './onlineUsers.json';
 import { Input } from '../ui/input';
+import NotificationOptionModal from './ChatForm/NotificationModal';
 // Dynamic imports
 const ChatBody = lazy(() => import('./ChatBody'));
 // const NotificationOptionModal = lazy(() => import("./ChatForm/NotificationModal"));
@@ -316,22 +318,10 @@ const Inbox: React.FC<InboxProps> = ({
                                     handleFavourite(!chat?.myData?.isFavourite)
                                 }
                             >
-                                {chat?.myData?.isFavourite ? (
+                                {!chat?.myData?.isFavourite ? (
                                     <Pin className='h-5 w-5 rotate-45' />
                                 ) : (
-                                    <svg
-                                        width='13'
-                                        height='13'
-                                        viewBox='0 0 13 13'
-                                        fill='none'
-                                        xmlns='http://www.w3.org/2000/svg'
-                                        className='h-5 w-5'
-                                    >
-                                        <path
-                                            d='M7.06609 0.986328L12.0158 5.93609L11.1909 6.76104L10.7784 6.34856L8.30351 8.82341L7.89104 10.8858L7.06609 11.7108L4.59122 9.23589L1.70387 12.1233L0.878906 11.2983L3.76626 8.41094L1.29139 5.93609L2.11634 5.11112L4.17874 4.69864L6.65361 2.22376L6.24114 1.81129L7.06609 0.986328ZM7.47856 3.04873L4.75392 5.77338L3.10782 6.10257L6.89955 9.89435L7.22878 8.24824L9.95347 5.5236L7.47856 3.04873Z'
-                                            className='fill-current text-muted-foreground'
-                                        />
-                                    </svg>
+                                    <PinOff className='h-5 w-5 rotate-45' />
                                 )}
                             </Button>
                         </div>
@@ -391,12 +381,12 @@ const Inbox: React.FC<InboxProps> = ({
                 </div>
 
                 <Suspense fallback={null}>
-                    {/* <NotificationOptionModal
-            chatId={chat?._id}
-            opened={notificationOption.isVisible}
-            close={closeNotificationModal}
-            member={chat?.myData}
-          /> */}
+                    <NotificationOptionModal
+                        chatId={chat?._id}
+                        opened={notificationOption.isVisible}
+                        close={closeNotificationModal}
+                        member={chat?.myData}
+                    />
                 </Suspense>
             </div>
         </>

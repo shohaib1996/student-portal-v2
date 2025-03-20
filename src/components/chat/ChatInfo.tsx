@@ -2,7 +2,7 @@
 
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import type React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -39,6 +39,9 @@ import {
     ShieldCheck,
     Shield,
     FolderOpenDot,
+    SaveIcon,
+    Loader2,
+    LogOut,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { removeChat, updateChats } from '@/redux/features/chatReducer';
@@ -51,6 +54,18 @@ import { Button } from '../ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import Files from './Files';
+import Links from './Links';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '../ui/select';
+import { Textarea } from '../ui/textarea';
+import { Input } from '../ui/input';
+import NotificationOptionModal from './ChatForm/NotificationModal';
+import ReportModal from './ChatForm/ReportModal';
 
 interface ChatInfoProps {
     handleToggleInfo: () => void;
@@ -162,9 +177,7 @@ const ImageUploader = ({
                                         <span className='text-white underline'>
                                             Upload
                                         </span>{' '}
-                                        <span className='text-green-400'>
-                                            or
-                                        </span>
+                                        <span className='text-white'>or</span>
                                     </p>
                                     <p className='text-white text-xs'>
                                         Drag & drop
@@ -176,7 +189,7 @@ const ImageUploader = ({
                                 <Camera className='h-6 w-6 text-white mb-1' />
                                 <p className='text-white text-xs font-medium'>
                                     <span className='text-white'>Upload</span>{' '}
-                                    <span className='text-green-400'>or</span>
+                                    <span className='text-white'>or</span>
                                 </p>
                                 <p className='text-white text-xs'>
                                     Drag & drop
@@ -245,7 +258,40 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     const [ownerMember, setOwnerMember] = useState<Member | null>(null);
     const [loadingMembers, setLoadingMembers] = useState(false);
     const { user } = useSelector((s: any) => s.auth);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [updateField, setUpdateField] = useState('');
+    const descriptionEditRef = useRef(null);
+    const [isDescriptionEditing, setIsDescriptionEditing] = useState(false);
+    const [descriptionValue, setDescriptionValue] = useState('');
+    const [notificationOption, setNotificationOption] = useState({
+        isVisible: false,
+    });
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const handleReport = async (reason: string, details?: string) => {
+        setIsSubmitting(true);
+
+        try {
+            // Simulate API call
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
+            console.log('Report submitted:', { reason, details });
+            toast.success('Report feature is coming soon!');
+            setIsReportModalOpen(false);
+        } catch (error) {
+            toast.error('Failed to submit report');
+            console.error(error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    useEffect(() => {
+        if (chat?.description) {
+            setDescriptionValue(chat.description);
+        }
+    }, [chat?.description]);
     // const { chatMessages, chats, onlineUsers } = useAppSelector(
     //     (state: any) => state.chat,
     // );
@@ -311,8 +357,12 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
 
     const isWoner = chat?.myData?.role === 'owner';
 
-    console.log(chat);
-
+    const handleNoti = useCallback(() => {
+        setNotificationOption({ isVisible: true });
+    }, []);
+    const closeNotificationModal = useCallback(() => {
+        setNotificationOption({ isVisible: false });
+    }, []);
     const handleCopy = useCallback(() => {
         const newPathname = pathname.replace('/chat/', '/channel-invitation/');
         navigator.clipboard
@@ -415,7 +465,263 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
             });
     }, [chat, dispatch, router]);
 
-    console.log(chat);
+    const handleInlineUpdate = useCallback(
+        (value: any, field: any) => {
+            setIsUpdating(true);
+            setUpdateField(field);
+
+            const data = { [field]: value };
+
+            axios
+                .patch(`/chat/channel/update/${chat?._id}`, data)
+                .then((res) => {
+                    dispatch(updateChats(res?.data?.channel));
+                    setChat((prev: any) => ({ ...prev, [field]: value }));
+                    toast.success(
+                        `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`,
+                    );
+                    setIsUpdating(false);
+                    setUpdateField('');
+                })
+                .catch((err) => {
+                    setIsUpdating(false);
+                    setUpdateField('');
+                    toast.error(
+                        err?.response?.data?.error ||
+                            `Failed to update ${field}`,
+                    );
+                });
+        },
+        [chat, dispatch],
+    );
+
+    // Update the description section in ChatInfo component
+
+    // First, modify the InlineTextEdit component to support the new layout:
+    const InlineTextEdit = ({
+        value,
+        onSave,
+        placeholder = '',
+        multiline = false,
+        isLoading = false,
+        fieldName = '',
+        hideEditButton = false,
+        innerRef = null,
+        showButtonsInHeader = false,
+    }: {
+        value: any;
+        onSave: any;
+        placeholder: string;
+        multiline?: boolean;
+        isLoading: boolean;
+        fieldName: string;
+        hideEditButton?: boolean;
+        innerRef?: any | null;
+        showButtonsInHeader?: boolean;
+    }) => {
+        const [isEditing, setIsEditing] = useState(false);
+        const [inputValue, setInputValue] = useState(value);
+        const inputRef: any = useRef(null);
+
+        useEffect(() => {
+            if (isEditing && inputRef.current) {
+                inputRef.current.focus();
+            }
+        }, [isEditing]);
+
+        useEffect(() => {
+            setInputValue(value);
+        }, [value]);
+
+        // If innerRef is provided, expose the setIsEditing method and state
+        useEffect(() => {
+            if (innerRef) {
+                innerRef.current = {
+                    startEditing: () => setIsEditing(true),
+                    isEditing: isEditing,
+                    handleSave,
+                    handleCancel,
+                };
+            }
+        }, [innerRef, isEditing]);
+
+        const handleSave = () => {
+            onSave(inputValue, fieldName);
+            setIsEditing(false);
+        };
+
+        const handleCancel = () => {
+            setInputValue(value);
+            setIsEditing(false);
+        };
+
+        const handleKeyDown = (e: any) => {
+            if (e.key === 'Escape') {
+                handleCancel();
+            } else if (e.key === 'Enter' && !multiline) {
+                handleSave();
+            }
+        };
+
+        // Only render the input and not the buttons when showButtonsInHeader is true
+        return isEditing ? (
+            <div className='w-full flex flex-row items-center gap-1'>
+                {multiline ? (
+                    <Textarea
+                        ref={inputRef}
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder={placeholder}
+                        className='min-h-[100px] bg-background w-full'
+                        disabled={isLoading}
+                    />
+                ) : (
+                    <Input
+                        ref={inputRef}
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder={placeholder}
+                        className='w-full h-7'
+                        disabled={isLoading}
+                    />
+                )}
+                {!showButtonsInHeader && (
+                    <div className='flex gap-1 justify-end'>
+                        <Button
+                            tooltip='Update'
+                            size='icon'
+                            variant={'primary_light'}
+                            onClick={handleSave}
+                            className='h-7 w-7'
+                            icon={
+                                isLoading ? (
+                                    <Loader2
+                                        size={16}
+                                        className='animate-spin'
+                                    />
+                                ) : (
+                                    <SaveIcon size={16} />
+                                )
+                            }
+                            disabled={isLoading}
+                        />
+                        <Button
+                            tooltip='Cancel Update'
+                            size='icon'
+                            onClick={handleCancel}
+                            disabled={isLoading}
+                            className='bg-red-500/10 h-7 w-7'
+                            icon={<X size={16} className='text-danger' />}
+                        />
+                    </div>
+                )}
+            </div>
+        ) : (
+            <>
+                {value || placeholder}
+                {!hideEditButton && (
+                    <button onClick={() => setIsEditing(true)} className='ml-2'>
+                        <PencilLine size={16} />
+                    </button>
+                )}
+            </>
+        );
+    };
+
+    const InlineSelectEdit = ({
+        value,
+        options,
+        onSave,
+        isLoading = false,
+        fieldName = '',
+    }: {
+        value: any;
+        options: any;
+        onSave: any;
+        isLoading: boolean;
+        fieldName: string;
+    }) => {
+        const [isEditing, setIsEditing] = useState(false);
+        const [selectedValue, setSelectedValue] = useState(String(value));
+
+        useEffect(() => {
+            setSelectedValue(String(value));
+        }, [value]);
+
+        const handleSave = () => {
+            // Convert string "true"/"false" to boolean if needed
+            const finalValue =
+                selectedValue === 'true'
+                    ? true
+                    : selectedValue === 'false'
+                      ? false
+                      : selectedValue;
+
+            onSave(finalValue, fieldName);
+            setIsEditing(false);
+        };
+
+        const handleCancel = () => {
+            setSelectedValue(String(value));
+            setIsEditing(false);
+        };
+
+        return isEditing ? (
+            <div className='flex flex-row gap-1'>
+                <Select
+                    value={selectedValue}
+                    onValueChange={setSelectedValue}
+                    disabled={isLoading}
+                >
+                    <SelectTrigger className='w-full h-7'>
+                        <SelectValue placeholder='Select option' />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {options.map((option: any) => (
+                            <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <div className='flex gap-1'>
+                    <Button
+                        tooltip='Update'
+                        size='icon'
+                        variant={'primary_light'}
+                        icon={
+                            isLoading ? (
+                                <Loader2 size={16} className='animate-spin' />
+                            ) : (
+                                <SaveIcon size={16} />
+                            )
+                        }
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        className='h-7 w-7'
+                    ></Button>
+                    <Button
+                        tooltip='Cancel Update'
+                        size='icon'
+                        className='bg-red-500/10 h-7 w-7'
+                        icon={<X size={16} className='text-danger' />}
+                        onClick={handleCancel}
+                        disabled={isLoading}
+                    ></Button>
+                </div>
+            </div>
+        ) : (
+            <>
+                {options.find((o: any) => String(o.value) === String(value))
+                    ?.label || value}
+                <button onClick={() => setIsEditing(true)} className='ml-2'>
+                    <PencilLine size={16} />
+                </button>
+            </>
+        );
+    };
 
     const [
         leaveConfirmOpened,
@@ -478,7 +784,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                     <div className=''>
                         {chat && (
                             <Tabs defaultValue='about'>
-                                <TabsList className='w-full bg-transparent'>
+                                <TabsList className='w-full bg-transparent overflow-x-auto [&::-webkit-scrollbar]:h-[3px] overflow-y-hidden'>
                                     <TabsTrigger
                                         value='about'
                                         className='flex-1 bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:text-blue-600'
@@ -519,6 +825,16 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                         />
                                         Files ({chat?.voiceCount || 0})
                                     </TabsTrigger>
+                                    <TabsTrigger
+                                        value='link'
+                                        className='flex-1 bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:text-blue-600'
+                                    >
+                                        <FolderOpenDot
+                                            size={16}
+                                            className='mr-1'
+                                        />
+                                        Links ({chat?.voiceCount || 0})
+                                    </TabsTrigger>
                                 </TabsList>
 
                                 {/* About Tab Content */}
@@ -557,33 +873,35 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                                         ) : (
                                                             <User size={20} />
                                                         )}
-                                                        {chat?.isChannel
-                                                            ? chat?.name
-                                                            : chat?.otherUser
-                                                                  ?.fullName}
+
                                                         {chat?.isChannel &&
-                                                            [
-                                                                'owner',
-                                                                'admin',
-                                                            ].includes(
-                                                                chat?.myData
-                                                                    ?.role,
-                                                            ) && (
-                                                                <button
-                                                                    onClick={() =>
-                                                                        setIsUpdateVisible(
-                                                                            true,
-                                                                        )
-                                                                    }
-                                                                    className='ml-2'
-                                                                >
-                                                                    <PencilLine
-                                                                        size={
-                                                                            16
-                                                                        }
-                                                                    />
-                                                                </button>
-                                                            )}
+                                                        [
+                                                            'owner',
+                                                            'admin',
+                                                        ].includes(
+                                                            chat?.myData?.role,
+                                                        ) ? (
+                                                            <InlineTextEdit
+                                                                value={
+                                                                    chat?.name
+                                                                }
+                                                                onSave={
+                                                                    handleInlineUpdate
+                                                                }
+                                                                placeholder='Enter channel name'
+                                                                isLoading={
+                                                                    isUpdating &&
+                                                                    updateField ===
+                                                                        'name'
+                                                                }
+                                                                fieldName='name'
+                                                            />
+                                                        ) : chat?.isChannel ? (
+                                                            chat?.name
+                                                        ) : (
+                                                            chat?.otherUser
+                                                                ?.fullName
+                                                        )}
                                                     </div>
                                                 </p>
                                                 <div className='text-xs text-gray flex-flex-row items-center gap-1'>
@@ -670,6 +988,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                                 <Button
                                                     variant={'primary_light'}
                                                     className='!p-2'
+                                                    onClick={() => handleNoti()}
                                                 >
                                                     Mute Notification
                                                 </Button>
@@ -747,67 +1066,162 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                         <div className='type_readonly grid grid-cols-2 gap-2 w-full'>
                                             <div className='type flex flex-row items-center gap-2 text-start text-dark-gray text-sm font-semibold '>
                                                 Type:{' '}
-                                                <p className='text-gray font-normal'>
-                                                    {chat?.isPublic
-                                                        ? 'Public'
-                                                        : 'Private'}
-                                                </p>{' '}
                                                 {chat?.isChannel &&
-                                                    ['owner', 'admin'].includes(
-                                                        chat?.myData?.role,
-                                                    ) && (
-                                                        <button
-                                                            onClick={() =>
-                                                                setIsUpdateVisible(
-                                                                    true,
-                                                                )
-                                                            }
-                                                            className='ml-2'
-                                                        >
-                                                            <PencilLine
-                                                                size={16}
-                                                            />
-                                                        </button>
-                                                    )}
+                                                ['owner', 'admin'].includes(
+                                                    chat?.myData?.role,
+                                                ) ? (
+                                                    <InlineSelectEdit
+                                                        value={chat?.isPublic}
+                                                        options={[
+                                                            {
+                                                                value: 'true',
+                                                                label: 'Public',
+                                                            },
+                                                            {
+                                                                value: 'false',
+                                                                label: 'Private',
+                                                            },
+                                                        ]}
+                                                        onSave={
+                                                            handleInlineUpdate
+                                                        }
+                                                        isLoading={
+                                                            isUpdating &&
+                                                            updateField ===
+                                                                'isPublic'
+                                                        }
+                                                        fieldName='isPublic'
+                                                    />
+                                                ) : (
+                                                    <p className='text-gray font-normal'>
+                                                        {chat?.isPublic
+                                                            ? 'Public'
+                                                            : 'Private'}
+                                                    </p>
+                                                )}
                                             </div>
                                             <div className='readonly flex flex-row items-center gap-2 text-start text-dark-gray text-sm font-semibold '>
                                                 Read Only:{' '}
-                                                <p className='text-gray font-normal'>
-                                                    {chat?.isReadOnly
-                                                        ? 'Yes'
-                                                        : 'No'}
-                                                </p>{' '}
                                                 {chat?.isChannel &&
-                                                    ['owner', 'admin'].includes(
-                                                        chat?.myData?.role,
-                                                    ) && (
-                                                        <button
-                                                            onClick={() =>
-                                                                setIsUpdateVisible(
-                                                                    true,
-                                                                )
-                                                            }
-                                                            className='ml-2'
-                                                        >
-                                                            <PencilLine
-                                                                size={16}
-                                                            />
-                                                        </button>
-                                                    )}
+                                                ['owner', 'admin'].includes(
+                                                    chat?.myData?.role,
+                                                ) ? (
+                                                    <InlineSelectEdit
+                                                        value={chat?.isReadOnly}
+                                                        options={[
+                                                            {
+                                                                value: 'true',
+                                                                label: 'Yes',
+                                                            },
+                                                            {
+                                                                value: 'false',
+                                                                label: 'No',
+                                                            },
+                                                        ]}
+                                                        onSave={
+                                                            handleInlineUpdate
+                                                        }
+                                                        isLoading={
+                                                            isUpdating &&
+                                                            updateField ===
+                                                                'isReadOnly'
+                                                        }
+                                                        fieldName='isReadOnly'
+                                                    />
+                                                ) : (
+                                                    <p className='text-gray font-normal'>
+                                                        {chat?.isReadOnly
+                                                            ? 'Yes'
+                                                            : 'No'}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
-                                        <div className='description flex flex-col gap-1 bg-foreground border rounded-md p-2'>
-                                            <div className='flex flex-row items-center gap-3 justify-between'>
+                                        <div className='description flex flex-col gap-1 bg-foreground border rounded-md p-2 w-full'>
+                                            <div className='flex flex-row items-center justify-between'>
                                                 <p className='text-sm text-dark-gray font-semibold'>
                                                     Description
                                                 </p>
                                                 {chat?.isChannel &&
                                                     ['owner', 'admin'].includes(
                                                         chat?.myData?.role,
-                                                    ) && (
+                                                    ) &&
+                                                    (isDescriptionEditing ? (
+                                                        // Show save/cancel buttons when in edit mode
+                                                        <div className='flex gap-1'>
+                                                            <Button
+                                                                tooltip='Update'
+                                                                size='icon'
+                                                                variant={
+                                                                    'primary_light'
+                                                                }
+                                                                onClick={() => {
+                                                                    handleInlineUpdate(
+                                                                        descriptionValue,
+                                                                        'description',
+                                                                    );
+                                                                    setIsDescriptionEditing(
+                                                                        false,
+                                                                    );
+                                                                }}
+                                                                className='h-7 w-7'
+                                                                icon={
+                                                                    isUpdating &&
+                                                                    updateField ===
+                                                                        'description' ? (
+                                                                        <Loader2
+                                                                            size={
+                                                                                16
+                                                                            }
+                                                                            className='animate-spin'
+                                                                        />
+                                                                    ) : (
+                                                                        <SaveIcon
+                                                                            size={
+                                                                                16
+                                                                            }
+                                                                        />
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    isUpdating &&
+                                                                    updateField ===
+                                                                        'description'
+                                                                }
+                                                            />
+                                                            <Button
+                                                                tooltip='Cancel Update'
+                                                                size='icon'
+                                                                onClick={() => {
+                                                                    setDescriptionValue(
+                                                                        chat?.description ||
+                                                                            '',
+                                                                    );
+                                                                    setIsDescriptionEditing(
+                                                                        false,
+                                                                    );
+                                                                }}
+                                                                disabled={
+                                                                    isUpdating &&
+                                                                    updateField ===
+                                                                        'description'
+                                                                }
+                                                                className='bg-red-500/10 h-7 w-7'
+                                                                icon={
+                                                                    <X
+                                                                        size={
+                                                                            16
+                                                                        }
+                                                                        className='text-danger'
+                                                                    />
+                                                                }
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        // Show edit button when not in edit mode
                                                         <button
                                                             onClick={() =>
-                                                                setIsUpdateVisible(
+                                                                setIsDescriptionEditing(
                                                                     true,
                                                                 )
                                                             }
@@ -817,13 +1231,43 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                                                 size={16}
                                                             />
                                                         </button>
-                                                    )}
+                                                    ))}
                                             </div>
-                                            <p className='text-xs text-gray'>
-                                                {chat?.isChannel &&
-                                                    (chat?.description ||
-                                                        'No description added yet...')}
-                                            </p>
+
+                                            {chat?.isChannel &&
+                                            ['owner', 'admin'].includes(
+                                                chat?.myData?.role,
+                                            ) ? (
+                                                isDescriptionEditing ? (
+                                                    <Textarea
+                                                        value={descriptionValue}
+                                                        onChange={(e) =>
+                                                            setDescriptionValue(
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                        placeholder='Add crowd description...'
+                                                        className='min-h-[100px] bg-background w-full'
+                                                        disabled={
+                                                            isUpdating &&
+                                                            updateField ===
+                                                                'description'
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <p className='text-sm text-gray'>
+                                                        {chat?.description ||
+                                                            'No description added yet...'}
+                                                    </p>
+                                                )
+                                            ) : (
+                                                <p className='text-sm text-gray'>
+                                                    {chat?.isChannel
+                                                        ? chat?.description ||
+                                                          'No description added yet...'
+                                                        : ''}
+                                                </p>
+                                            )}
 
                                             {/* User details for direct messages */}
                                             {!chat?.isChannel &&
@@ -845,6 +1289,22 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                                 )}
                                         </div>
                                         <div className='border-t pt-2 grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
+                                            {/* <Button
+                                                onClick={handleCopy}
+                                                icon={
+                                                    !copied ? (
+                                                        <Copy />
+                                                    ) : (
+                                                        <CopyCheck />
+                                                    )
+                                                }
+                                                variant={'secondary'}
+                                                className='text-start text-gray'
+                                            >
+                                                {!copied
+                                                    ? 'Copy invitation link'
+                                                    : 'Link copied!'}
+                                            </Button> */}
                                             <Button
                                                 onClick={handleCopy}
                                                 icon={
@@ -873,9 +1333,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                             </Button>
                                             <Button
                                                 onClick={() =>
-                                                    toast.info(
-                                                        'Report feature is coming soon!',
-                                                    )
+                                                    setIsReportModalOpen(true)
                                                 }
                                                 icon={<TriangleAlert />}
                                                 variant={'secondary'}
@@ -915,6 +1373,9 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                 <TabsContent value='file' className='mt-4'>
                                     <Files chat={chat} />
                                 </TabsContent>
+                                <TabsContent value='link' className='mt-4'>
+                                    <Links chat={chat} />
+                                </TabsContent>
                             </Tabs>
                         )}
                     </div>
@@ -934,11 +1395,53 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
             />
 
             <ConfirmModal
-                text={'Are you sure you want to leave this group?'}
+                text={'Do you want to leave this crowd?'}
+                subtitle='Leaving this crowd will remove your access to its messages and activities.'
                 opened={leaveConfirmOpened}
                 close={leaveConfirmClose}
                 handleConfirm={handleLeave}
+                confirmText='Leave'
+                cancelText='Cancel'
+                icon={
+                    <div className='p-5 bg-red-500/20 rounded-full'>
+                        <svg
+                            width='47'
+                            height='46'
+                            viewBox='0 0 47 46'
+                            fill='none'
+                            xmlns='http://www.w3.org/2000/svg'
+                        >
+                            <path
+                                d='M14.7955 8.40008C14.3488 10.4905 15.3904 12.4851 17.1219 12.8552C18.8535 13.2252 20.6194 11.8306 21.0661 9.74013C21.5129 7.6497 20.4713 5.6551 18.7397 5.28506C17.0081 4.91501 15.2422 6.30966 14.7955 8.40008Z'
+                                fill='#DF2B2B'
+                            />
+                            <path
+                                d='M22.6982 29.9051C22.6133 29.354 22.3028 28.8639 21.8392 28.5534L18.5564 26.3552C18.9262 25.0601 19.3146 23.4289 19.5242 21.7782L21.5004 23.8897C21.7977 24.2091 22.2108 24.3807 22.6301 24.3807C22.8238 24.3807 23.0202 24.3435 23.2069 24.2692L28.442 22.1647C29.2346 21.8463 29.6203 20.944 29.301 20.1514C28.9834 19.3587 28.0811 18.9739 27.2885 19.2924L23.0361 21.0024C23.0361 21.0024 20.2876 14.5305 16.3944 14.0519C12.5021 13.5742 8.43113 18.383 8.43113 18.383C8.2321 18.5334 8.07198 18.7298 7.96494 18.9553L4.94133 25.3095C4.5751 26.0818 4.90329 27.0054 5.67467 27.3725C5.88963 27.4742 6.1161 27.5229 6.33902 27.5229C6.91756 27.5229 7.47221 27.1973 7.7376 26.6391L10.5958 20.629L11.5857 19.8851C11.3902 22.2514 9.75187 31.7257 9.75187 31.7257L4.99883 36.0567C4.18675 36.7972 4.12837 38.0569 4.86967 38.8689C5.26156 39.2997 5.80117 39.5182 6.34167 39.5182C6.82025 39.5182 7.3006 39.3466 7.68098 38.999L12.7879 34.3441C13.0196 34.1327 13.1992 33.8691 13.3098 33.5745L15.0976 28.8285L18.897 31.3727L20.0806 39.0865C20.2328 40.0711 21.0794 40.7753 22.0454 40.7753C22.1453 40.7753 22.2479 40.7673 22.3514 40.7523C23.4369 40.586 24.1826 39.5695 24.0154 38.4832L22.6982 29.9051Z'
+                                fill='#DF2B2B'
+                            />
+                            <path
+                                d='M42.3011 29.2387L35.8257 24.2168C35.3596 23.855 34.9774 24.0416 34.9774 24.6325V26.8627H26.5859V32.9285H34.9774V35.1586C34.9774 35.7495 35.3596 35.9362 35.8257 35.5744L42.3011 30.5524C42.7673 30.1924 42.7673 29.6005 42.3011 29.2387Z'
+                                fill='#DF2B2B'
+                            />
+                        </svg>
+                    </div>
+                }
+                confirmIcon={<LogOut />}
             />
+            <ReportModal
+                opened={isReportModalOpen}
+                close={() => setIsReportModalOpen(false)}
+                onSubmit={handleReport}
+                isLoading={isSubmitting}
+            />
+            <Suspense fallback={null}>
+                <NotificationOptionModal
+                    chatId={chat?._id}
+                    opened={notificationOption.isVisible}
+                    close={closeNotificationModal}
+                    member={chat?.myData}
+                />
+            </Suspense>
         </>
     );
 };

@@ -100,7 +100,7 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
                                                             (prev) => !prev,
                                                         )
                                                     }
-                                                    variant={'secondary'}
+                                                    variant={'primary_light'}
                                                     size={'icon'}
                                                 >
                                                     {isFullScreen ? (

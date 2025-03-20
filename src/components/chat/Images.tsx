@@ -270,7 +270,7 @@ const Images: React.FC<ImagesProps> = ({ chat }) => {
 
         return (
             <div className='h-[calc(100vh-200px)] overflow-y-auto'>
-                <div className='grid grid-cols-2 md:grid-cols-3 gap-2 h-full'>
+                <div className='grid grid-cols-2 md:grid-cols-3 gap-2'>
                     {filteredMedias.map((media, i) => (
                         <div
                             key={media._id || i}

@@ -164,7 +164,7 @@ const FileCard = ({ file, index }: FileCardProps) => {
                 onMouseLeave={() => setIsHovered(false)}
             >
                 {/* Image */}
-                <div className='aspect-square w-full relative'>
+                <div className='w-full relative'>
                     <img
                         className='w-full h-full object-contain'
                         src={file?.url || iconSrc || '/default_image.png'}

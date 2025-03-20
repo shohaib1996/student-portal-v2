@@ -60,6 +60,7 @@
         "html-react-parser": "^5.2.2",
         "husky": "^9.1.7",
         "js-cookie": "^3.0.5",
+        "link-preview-js": "^3.0.14",
         "lint-staged": "^15.5.0",
         "localforage": "^1.10.0",
         "lodash": "^4.17.21",

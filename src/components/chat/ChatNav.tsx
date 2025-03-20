@@ -119,10 +119,7 @@ const Archived = dynamic(() => import('./Chatgroup/Archived'), {
 });
 
 // Dynamic import for CreateCrowd
-const CreateCrowd = dynamic(() => import('./Chatgroup/CreateCrowd'), {
-    loading: () => <div className='p-4 text-center'>Loading...</div>,
-    ssr: false,
-});
+import CreateCrowd from './Chatgroup/CreateCrowd';
 
 // Skeleton component for loading states
 const SidebarSkeleton = () => (
@@ -777,100 +774,12 @@ const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
             </div>
 
             {/* Create Crowd Modal */}
-            <Dialog open={createCrowdOpen} onOpenChange={setCreateCrowdOpen}>
-                <DialogContent className='sm:max-w-md'>
-                    <DialogHeader>
-                        <DialogTitle>Create New Crowd</DialogTitle>
-                        <DialogDescription>
-                            Create a new group for team collaboration
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <Tabs defaultValue='public' className='w-full'>
-                        <TabsList className='grid w-full grid-cols-2'>
-                            <TabsTrigger value='public'>Public</TabsTrigger>
-                            <TabsTrigger value='private'>Private</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value='public' className='mt-4'>
-                            <div className='space-y-4'>
-                                <div className='space-y-2'>
-                                    <label
-                                        htmlFor='crowd-name'
-                                        className='text-sm font-medium'
-                                    >
-                                        Crowd Name
-                                    </label>
-                                    <Input
-                                        id='crowd-name'
-                                        placeholder='Enter crowd name'
-                                    />
-                                </div>
-                                <div className='space-y-2'>
-                                    <label
-                                        htmlFor='crowd-description'
-                                        className='text-sm font-medium'
-                                    >
-                                        Description
-                                    </label>
-                                    <Input
-                                        id='crowd-description'
-                                        placeholder='Describe this crowd'
-                                    />
-                                </div>
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value='private' className='mt-4'>
-                            <div className='space-y-4'>
-                                <div className='space-y-2'>
-                                    <label
-                                        htmlFor='private-crowd-name'
-                                        className='text-sm font-medium'
-                                    >
-                                        Crowd Name
-                                    </label>
-                                    <Input
-                                        id='private-crowd-name'
-                                        placeholder='Enter crowd name'
-                                    />
-                                </div>
-                                <div className='space-y-2'>
-                                    <label
-                                        htmlFor='private-crowd-description'
-                                        className='text-sm font-medium'
-                                    >
-                                        Description
-                                    </label>
-                                    <Input
-                                        id='private-crowd-description'
-                                        placeholder='Describe this crowd'
-                                    />
-                                </div>
-                                <div className='space-y-2'>
-                                    <label className='text-sm font-medium'>
-                                        Privacy
-                                    </label>
-                                    <p className='text-xs text-gray-500'>
-                                        This crowd will be private and members
-                                        can only join by invitation.
-                                    </p>
-                                </div>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
-
-                    <DialogFooter className='mt-4'>
-                        <Button
-                            variant='outline'
-                            onClick={() => setCreateCrowdOpen(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button type='submit'>Create Crowd</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <CreateCrowd
+                isNewChannelModalVisible={createCrowdOpen}
+                handleCancelNewChannelModal={() => setCreateCrowdOpen(false)}
+                close={() => setCreateCrowdOpen(false)}
+                opened={createCrowdOpen}
+            />
         </div>
     );
 };
