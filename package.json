@@ -79,6 +79,7 @@
         "react-mentions": "^4.4.10",
         "react-phone-input-2": "^2.15.1",
         "react-redux": "^9.2.0",
+        "recharts": "^2.15.1",
         "redux-persist": "^6.0.0",
         "socket.io-client": "^4.8.1",
         "sonner": "^2.0.1",
