@@ -394,23 +394,21 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                 </CardContent>
                 <Separator className='border-border my-2' />
                 <CardFooter className='space-x-common p-0'>
-                    {/* <div className='mt-common flex items-center gap-common'>
+                    <div className='flex items-center gap-4 mb-2'>
                         {Object.entries(post.reactions).map(
                             ([emoji, count]) => (
                                 <div
                                     key={emoji}
-                                    className='flex items-center space-x-1 rounded-lg bg-foreground px-2 py-1'
+                                    className='flex items-center gap-1 rounded-2xl bg-background p-1'
                                 >
-                                    <span className='text-lg'>{emoji}</span>
-                                    <span className='text-sm font-medium'>
+                                    <span>{emoji}</span>
+                                    <span className='text-sm text-dark-gray'>
                                         {count as number}
                                     </span>
                                 </div>
                             ),
                         )}
-                    </div> */}
-                    <div className='flex items-center gap-4 mb-2'>
-                        <div className='flex items-center gap-1 rounded-2xl bg-background p-1'>
+                        {/* <div className='flex items-center gap-1 rounded-2xl bg-background p-1'>
                             <Heart className='h-4 w-4 text-red-500 fill-current' />
                             <span className='text-sm text-primary'>20</span>
                         </div>
@@ -423,7 +421,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                 👍
                             </span>
                             <span className='text-sm text-dark-gray'>8</span>
-                        </div>
+                        </div> */}
                         <div className='flex items-center gap-1 rounded-2xl bg-background p-1'>
                             <div
                                 className='relative inline-block cursor-pointer'
@@ -440,7 +438,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                 )}
 
                                 {showEmojis && (
-                                    <div className='absolute left-24 top-[-50px] flex -translate-x-1/2 transform space-x-2 rounded-lg border bg-background p-2 shadow-lg'>
+                                    <div className='absolute left-28 top-[-50px] flex -translate-x-1/2 transform space-x-2 rounded-lg border bg-background p-2 shadow-lg'>
                                         {emojies.map((emoji, index) => (
                                             <button
                                                 key={index}
@@ -477,8 +475,8 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                                 d='M10.7522 4.41529C11.9189 5.22612 12.7239 6.51529 12.8872 8.00279M2.89469 8.03195C2.96803 7.31864 3.19342 6.62933 3.55567 6.01048C3.91792 5.39164 4.40862 4.85763 4.99469 4.44445M5.63635 13.0311C6.31302 13.3753 7.08302 13.5678 7.89386 13.5678C8.67552 13.5678 9.41052 13.3928 10.0697 13.072M7.89386 5.30779C8.32395 5.30779 8.73643 5.13693 9.04055 4.83281C9.34467 4.52869 9.51552 4.11621 9.51552 3.68612C9.51552 3.25603 9.34467 2.84355 9.04055 2.53943C8.73643 2.23531 8.32395 2.06445 7.89386 2.06445C7.46376 2.06445 7.05128 2.23531 6.74716 2.53943C6.44304 2.84355 6.27219 3.25603 6.27219 3.68612C6.27219 4.11621 6.44304 4.52869 6.74716 4.83281C7.05128 5.13693 7.46376 5.30779 7.89386 5.30779ZM3.67635 12.4361C4.10645 12.4361 4.51892 12.2653 4.82305 11.9611C5.12717 11.657 5.29802 11.2445 5.29802 10.8145C5.29802 10.3844 5.12717 9.97188 4.82305 9.66776C4.51892 9.36364 4.10645 9.19279 3.67635 9.19279C3.24626 9.19279 2.83378 9.36364 2.52966 9.66776C2.22554 9.97188 2.05469 10.3844 2.05469 10.8145C2.05469 11.2445 2.22554 11.657 2.52966 11.9611C2.83378 12.2653 3.24626 12.4361 3.67635 12.4361ZM12.0414 12.4361C12.4714 12.4361 12.8839 12.2653 13.188 11.9611C13.4922 11.657 13.663 11.2445 13.663 10.8145C13.663 10.3844 13.4922 9.97188 13.188 9.66776C12.8839 9.36364 12.4714 9.19279 12.0414 9.19279C11.6113 9.19279 11.1988 9.36364 10.8947 9.66776C10.5905 9.97188 10.4197 10.3844 10.4197 10.8145C10.4197 11.2445 10.5905 11.657 10.8947 11.9611C11.1988 12.2653 11.6113 12.4361 12.0414 12.4361Z'
                                                 stroke='#5C5958'
                                                 strokeWidth='1.2'
-                                                stroke-linecap='round'
-                                                stroke-linejoin='round'
+                                                strokeLinecap='round'
+                                                strokeLinejoin='round'
                                             />
                                         </g>
                                         <defs>
