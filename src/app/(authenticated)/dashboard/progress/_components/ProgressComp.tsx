@@ -573,6 +573,7 @@ const ProgressComp = () => {
                                     <Progress
                                         value={35}
                                         className='h-2 bg-white text-green-500'
+                                        indicatorClass='bg-green-700'
                                     />
                                     <div className='text-xs text-gray-500 text-right mt-1'>
                                         35%
@@ -595,6 +596,7 @@ const ProgressComp = () => {
                                     <Progress
                                         value={28}
                                         className='h-2 bg-white text-orange-500'
+                                        indicatorClass='bg-orange-700'
                                     />
                                     <div className='text-xs text-gray-500 text-right mt-1'>
                                         28%
@@ -632,6 +634,7 @@ const ProgressComp = () => {
                                     <Progress
                                         value={15}
                                         className='h-2 bg-white'
+                                        indicatorClass='bg-red-700'
                                     />
                                     <div className='text-xs text-gray-500 text-right mt-1'>
                                         15%
@@ -669,6 +672,7 @@ const ProgressComp = () => {
                                     <Progress
                                         value={21}
                                         className='h-2 bg-white'
+                                        indicatorClass='bg-cyan-700'
                                     />
                                     <div className='text-xs text-gray-500 text-right mt-1'>
                                         21%
