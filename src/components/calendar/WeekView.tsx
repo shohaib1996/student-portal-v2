@@ -6,7 +6,7 @@ import { addDays, format, isToday, startOfWeek, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import GlobalTooltip from '../global/GlobalTooltip';
 import { renderStatus } from './monthView';
-import staticEvents from '../../../public/calendarData.json';
+const staticEvents = '/calendarData.json';
 import { TEvent } from '@/types/calendar/calendarTypes';
 import dayjs from 'dayjs';
 import GlobalDropdown from '../global/GlobalDropdown';

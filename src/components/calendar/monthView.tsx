@@ -16,7 +16,6 @@ import { Badge } from '@/components/ui/badge';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
 import { TEvent } from '@/types/calendar/calendarTypes';
 
-import staticEvents from '../../../public/calendarData.json';
 import GlobalDropdown from '../global/GlobalDropdown';
 import { Button } from '../ui/button';
 import AcceptedIcon from '../svgs/calendar/AcceptedIcon';
@@ -25,6 +24,8 @@ import DeniedIcon from '../svgs/calendar/DeniedIcon';
 import GlobalTooltip from '../global/GlobalTooltip';
 import FinishedIcon from '../svgs/calendar/FinishedIcon';
 import { EventPopover, EventPopoverTrigger } from './CreateEvent/EventPopover';
+
+const staticEvents = '/calendarData.json';
 
 interface MonthViewProps {
     currentDate: Date;
