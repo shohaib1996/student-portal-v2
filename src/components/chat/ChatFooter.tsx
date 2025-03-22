@@ -94,7 +94,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
 
     return (
         <>
-            <div className='border-t border-border p-2'>
+            <div className=''>
                 {isMutedWithoutDate || isMutedWithFutureDate ? (
                     <MuteMessage muteData={chat?.myData?.mute as MuteData} />
                 ) : (
