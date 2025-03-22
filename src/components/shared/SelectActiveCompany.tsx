@@ -1,4 +1,5 @@
 'use client';
+
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -13,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { useGetOrganizationsQuery } from '@/redux/api/auth/authApi';
 import { IApiResponse, IOrganization } from '@/types';
 import { useEffect, useState } from 'react';
+
 const SelectActiveCompany = () => {
     return (
         <section className='flex h-screen w-screen items-center justify-center bg-background'>
@@ -137,7 +139,7 @@ export const SelectActiveCompanyModal = ({
                                     : selectedCompany?._id === organization?._id
                             }
                         >
-                            Select
+                            Select/Choose
                         </Button>
                     </div>
                 ))}
