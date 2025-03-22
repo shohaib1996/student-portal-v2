@@ -3,7 +3,7 @@ import { Filters } from './filters';
 
 export function DashboardTitle() {
     return (
-        <div className='flex justify-between items-center border-b pb-2'>
+        <div className='flex justify-between items-center border-b'>
             <div>
                 <h1 className='text-2xl font-bold'>Dashboard</h1>
                 <p className='text-muted-foreground text-sm'>

@@ -16,6 +16,7 @@ import comapnyReducer from './features/comapnyReducer';
 import notificationReducer from './features/notificationReducer';
 import navigationReducer from './features/navigationReducer';
 import programReducer from './features/programReducer';
+import selectionModalReducer from './features/selectionModalSlice';
 
 // Create a noop storage for SSR
 const createNoopStorage = () => {
@@ -51,6 +52,7 @@ export const reducer = {
     notification: notificationReducer,
     navigations: navigationReducer,
     program: programReducer,
+    selectionModal: selectionModalReducer,
 };
 
 // Middleware configuration

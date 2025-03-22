@@ -139,7 +139,7 @@ export const SelectActiveCompanyModal = ({
                                     : selectedCompany?._id === organization?._id
                             }
                         >
-                            Select/Choose
+                            Select
                         </Button>
                     </div>
                 ))}
