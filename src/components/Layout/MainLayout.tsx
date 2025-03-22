@@ -3,17 +3,18 @@ import React, { ReactNode } from 'react';
 import { AppSidebar } from '../shared/AppSidebar';
 import SelectActiveCompany from '../shared/SelectActiveCompany';
 import Cookies from 'js-cookie';
-import {
-    SidebarInset,
-    SidebarProvider,
-    SidebarTrigger,
-    useSidebar,
-} from '../ui/sidebar';
+import { SidebarInset, useSidebar } from '../ui/sidebar';
 import Navbar from '../shared/Navbar';
+import ChatPopup from '../chat/PopUpChat/ChatPopup';
+import { usePathname } from 'next/navigation';
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
     const activeCompany = Cookies.get('activeCompany');
     const { state } = useSidebar();
+    const pathName = usePathname();
+    console.log({ pathName });
+    const isChat = pathName.includes('/chat') ? true : false;
+
     return (
         <>
             {activeCompany ? (
@@ -27,6 +28,7 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
                             </div>
                         </main>
                     </SidebarInset>
+                    {!isChat && <ChatPopup />}
                 </>
             ) : (
                 <SelectActiveCompany />

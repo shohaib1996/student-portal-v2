@@ -1,9 +1,8 @@
 'use client';
 
-import type React from 'react';
+import type { FC } from 'react';
 import { useEffect, useRef, useState, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { useDispatch } from 'react-redux';
 import { useParams, useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -65,8 +64,8 @@ import {
     SlidersHorizontal,
     ChevronDown,
 } from 'lucide-react';
-import { useAppSelector } from '@/redux/hooks';
 import chats from './chats.json';
+import { useAppSelector } from '@/redux/hooks';
 
 // Dynamic imports for better performance
 const MessagePreview = dynamic(() => import('./Message/MessagePreview'), {
@@ -119,7 +118,10 @@ const Archived = dynamic(() => import('./Chatgroup/Archived'), {
 });
 
 // Dynamic import for CreateCrowd
-import CreateCrowd from './Chatgroup/CreateCrowd';
+const CreateCrowd = dynamic(() => import('./Chatgroup/CreateCrowd'), {
+    loading: () => <SidebarSkeleton />,
+    ssr: false,
+});
 
 // Skeleton component for loading states
 const SidebarSkeleton = () => (
@@ -201,24 +203,6 @@ interface UserType {
     profilePicture?: string;
 }
 
-interface RootState {
-    chat: {
-        chats: any[];
-        onlineUsers: UserType[];
-        fetchingMore: boolean;
-        drafts: Array<{
-            chat: string;
-            message: string;
-        }>;
-    };
-    auth: {
-        user: UserType;
-    };
-    theme: {
-        displayMode: string;
-    };
-}
-
 /**
  * Sort chats by latest message timestamp
  */
@@ -263,9 +247,9 @@ interface ChatNavProps {
     reloading?: boolean;
 }
 
-const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
+const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const fetchingMore = false;
-    const { user } = useAppSelector((state: any) => state.auth);
+    const { user } = useAppSelector((state) => state.auth);
     const router = useRouter();
 
     const [hoveredChatId, setHoveredChatId] = useState<string | null>(null);
@@ -278,14 +262,13 @@ const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
 
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
     const params = useParams();
-    const dispatch = useDispatch();
 
     // Update records when chats change
     useEffect(() => {
         if (chats.length > 0) {
             setRecords(sortByLatestMessage(chats).slice(0, 10)); // Load initial chats
         }
-    }, [chats]);
+    }, []);
 
     // Handle scroll to load more chats
     const handleScroll = useCallback(() => {
@@ -332,13 +315,13 @@ const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
                 setRecords(sortByLatestMessage(chats).slice(0, 10));
             }
         },
-        [chats],
+        [],
     );
 
     // Handle navigation click
     const handleNavClick = useCallback(() => {
-        // dispatch(setCurrentPage(1));
-    }, [dispatch]);
+        // Will be implemented with RTK
+    }, []);
 
     // Handle create chat
     const handleCreateChat = useCallback(
@@ -352,7 +335,7 @@ const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
                     if (filtered.length > 0) {
                         router.push(`/chat/${res.data.chat._id}`);
                     } else {
-                        // dispatch(updateChats(res.data.chat));
+                        // Will be implemented with RTK
                         router.push(`/chat/${res.data.chat._id}`);
                     }
                 })
@@ -362,424 +345,427 @@ const ChatNav: React.FC<ChatNavProps> = ({ reloading }) => {
                     );
                 });
         },
-        [chats, dispatch, router],
+        [router],
     );
 
     return (
         <div className='chat-nav h-full'>
             <div className='flex flex-row h-full border-r'>
                 {/* Side Navigation - Fixed */}
-                <div className='bg-primary-light p-1 border border-primary  h-[calc(100vh-60px)]'>
+                <div className='bg-primary-light p-1 border border-primary h-[calc(100vh-60px)]'>
                     <SideNavigation active={active} setActive={setActive} />
                 </div>
 
-                {/* Chat List Container - Fixed layout with scrollable content */}
-                <div className='w-[calc(100%-60px)] bg-background chat-list flex flex-col  h-[calc(100vh-60px)]'>
-                    {/* Header with title and actions - Fixed */}
-                    <div className='flex items-center justify-between p-2'>
-                        <h1 className='text-lg font-semibold'>
-                            {active === 'crowds' ? (
-                                'All Crowds'
-                            ) : active === 'favourites' ? (
-                                'All Pinned Messages'
-                            ) : active === 'onlines' ? (
-                                'All Online Users'
-                            ) : active === 'search' ? (
-                                'Search User'
-                            ) : active === 'readOnly' ? (
-                                'All Readonly Mesages'
-                            ) : active === 'unread' ? (
-                                'All Unread Messages'
-                            ) : active === 'blocked' ? (
-                                'All Blocked Users'
-                            ) : active === 'archived' ? (
-                                'All Archived Message'
-                            ) : active === 'ai' ? (
-                                'All AI Bots'
-                            ) : (
-                                <>All Chats</>
-                            )}
-                        </h1>
-                        <div className='flex items-center gap-2'>
-                            {/* New Chat/Crowd Action Button */}
-                            <GlobalTooltip
-                                tooltip='New Chat/Crowd'
-                                side='bottom'
-                            >
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='text-gray-500 hover:bg-blue-50'
-                                        >
-                                            <Edit className='h-5 w-5' />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align='end'>
-                                        <DropdownMenuLabel>
-                                            Create New
-                                        </DropdownMenuLabel>
-                                        <DropdownMenuItem
-                                            onClick={() => setActive('search')}
-                                            className='flex items-center gap-2'
-                                        >
-                                            <PenSquare className='h-4 w-4' />
-                                            <span>New Chat</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            onClick={() =>
-                                                setCreateCrowdOpen(true)
-                                            }
-                                            className='flex items-center gap-2'
-                                        >
-                                            <UsersIcon className='h-4 w-4' />
-                                            <span>New Crowd</span>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </GlobalTooltip>
-
-                            <Button variant='ghost' size='icon'>
-                                <MoreVertical className='h-5 w-5 text-gray-500' />
-                            </Button>
-                        </div>
+                {/* Chat List Container or Create Crowd Interface */}
+                {createCrowdOpen ? (
+                    <div className='w-[calc(100%-60px)] bg-background'>
+                        <CreateCrowd
+                            isOpen={createCrowdOpen}
+                            onClose={() => setCreateCrowdOpen(false)}
+                        />
                     </div>
+                ) : (
+                    <div className='w-[calc(100%-60px)] bg-background chat-list flex flex-col h-[calc(100vh-60px)]'>
+                        {/* Header with title and actions - Fixed */}
+                        <div className='flex items-center justify-between p-2'>
+                            <h1 className='text-lg font-semibold'>
+                                {active === 'crowds' ? (
+                                    'All Crowds'
+                                ) : active === 'favourites' ? (
+                                    'All Pinned Messages'
+                                ) : active === 'onlines' ? (
+                                    'All Online Users'
+                                ) : active === 'search' ? (
+                                    'Search User'
+                                ) : active === 'readOnly' ? (
+                                    'All Readonly Mesages'
+                                ) : active === 'unread' ? (
+                                    'All Unread Messages'
+                                ) : active === 'blocked' ? (
+                                    'All Blocked Users'
+                                ) : active === 'archived' ? (
+                                    'All Archived Message'
+                                ) : active === 'ai' ? (
+                                    'All AI Bots'
+                                ) : (
+                                    <>All Chats</>
+                                )}
+                            </h1>
+                            <div className='flex items-center gap-2'>
+                                {/* New Chat/Crowd Action Button */}
+                                <GlobalTooltip
+                                    tooltip='New Chat/Crowd'
+                                    side='bottom'
+                                >
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant='ghost'
+                                                size='icon'
+                                                className='text-gray-500 hover:bg-blue-50'
+                                            >
+                                                <Edit className='h-5 w-5' />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align='end'>
+                                            <DropdownMenuLabel>
+                                                Create New
+                                            </DropdownMenuLabel>
+                                            <DropdownMenuItem
+                                                onClick={() =>
+                                                    setActive('search')
+                                                }
+                                                className='flex items-center gap-2'
+                                            >
+                                                <PenSquare className='h-4 w-4' />
+                                                <span>New Chat</span>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onClick={() =>
+                                                    setCreateCrowdOpen(true)
+                                                }
+                                                className='flex items-center gap-2'
+                                            >
+                                                <UsersIcon className='h-4 w-4' />
+                                                <span>New Crowd</span>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </GlobalTooltip>
 
-                    {/* Chat list - Scrollable */}
-                    <div
-                        className='flex-1 overflow-y-auto  h-[calc(100vh-140px)] px-2'
-                        ref={scrollContainerRef}
-                        onScroll={handleScroll}
-                    >
-                        {active === 'chats' || active === 'ai' ? (
-                            <>
-                                {' '}
-                                {/* Search input - Fixed */}
-                                <div className='pb-2 border-b'>
-                                    <div className='relative flex flex-row items-center gap-2'>
-                                        <Input
-                                            className='pl-10 bg-foreground'
-                                            onChange={handleChangeSearch}
-                                            value={searchQuery}
-                                            type='search'
-                                            placeholder='Search Chat...'
-                                        />
-                                        <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
-                                        <Button
-                                            variant='secondary'
-                                            size='icon'
-                                            className=''
-                                        >
-                                            <SlidersHorizontal className='h-4 w-4 text-gray' />
-                                        </Button>
+                                <Button variant='ghost' size='icon'>
+                                    <MoreVertical className='h-5 w-5 text-gray-500' />
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Chat list - Scrollable */}
+                        <div
+                            className='flex-1 overflow-y-auto h-[calc(100vh-140px)] px-2'
+                            ref={scrollContainerRef}
+                            onScroll={handleScroll}
+                        >
+                            {active === 'chats' || active === 'ai' ? (
+                                <>
+                                    {/* Search input - Fixed */}
+                                    <div className='pb-2 border-b'>
+                                        <div className='relative flex flex-row items-center gap-2'>
+                                            <Input
+                                                className='pl-10 bg-foreground'
+                                                onChange={handleChangeSearch}
+                                                value={searchQuery}
+                                                type='search'
+                                                placeholder='Search Chat...'
+                                            />
+                                            <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
+                                            <Button
+                                                variant='secondary'
+                                                size='icon'
+                                                className=''
+                                            >
+                                                <SlidersHorizontal className='h-4 w-4 text-gray' />
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className='divide-y divide-gray-200 h-[calc(100vh - 200px)] overflow-y-auto'>
-                                    {sortByLatestMessage(records)?.map(
-                                        (chat, i) => {
-                                            const draft = (drafts as any)?.find(
-                                                (f: any) =>
-                                                    f.chat === chat?._id,
-                                            );
+                                    <div className='divide-y divide-gray-200 h-[calc(100vh-200px)] overflow-y-auto'>
+                                        {sortByLatestMessage(records)?.map(
+                                            (chat, i) => {
+                                                const draft = drafts?.find(
+                                                    (f: any) =>
+                                                        f.chat === chat?._id,
+                                                );
 
-                                            const isActive =
-                                                params?.chatid === chat?._id;
-                                            const hasUnread =
-                                                chat?.unreadCount > 0;
-                                            const hasMention = i % 3 === 0;
-                                            const isMuted =
-                                                chat?.myData?.notification
-                                                    ?.isOn === false ||
-                                                i % 4 === 0;
-                                            const isPinned =
-                                                chat?.myData?.isFavourite ||
-                                                i % 5 === 0;
-                                            const isDelivered =
-                                                chat?.latestMessage?.sender
-                                                    ?._id === user?._id &&
-                                                i % 2 === 0;
-                                            const isRead =
-                                                chat?.latestMessage?.sender
-                                                    ?._id === user?._id &&
-                                                i % 5 === 0;
+                                                const isActive =
+                                                    params?.chatid ===
+                                                    chat?._id;
+                                                const hasUnread =
+                                                    chat?.unreadCount > 0;
+                                                const hasMention = i % 3 === 0;
+                                                const isMuted =
+                                                    chat?.myData?.notification
+                                                        ?.isOn === false ||
+                                                    i % 4 === 0;
+                                                const isPinned =
+                                                    chat?.myData?.isFavourite ||
+                                                    i % 5 === 0;
+                                                const isDelivered =
+                                                    chat?.latestMessage?.sender
+                                                        ?._id === user?._id &&
+                                                    i % 2 === 0;
+                                                const isRead =
+                                                    chat?.latestMessage?.sender
+                                                        ?._id === user?._id &&
+                                                    i % 5 === 0;
 
-                                            return (
-                                                <Link
-                                                    key={i}
-                                                    href={`/chat/${chat?._id}`}
-                                                    className={`block border-l-[2px] ${
-                                                        isActive
-                                                            ? 'bg-blue-700/20 border-blue-800'
-                                                            : 'hover:bg-blue-700/20 border-transparent hover:border-blue-800'
-                                                    }`}
-                                                    onClick={handleNavClick}
-                                                >
-                                                    <div className='flex items-start p-4 gap-3'>
-                                                        {/* Avatar */}
-                                                        <div className='relative flex-shrink-0'>
-                                                            <Avatar className='h-10 w-10'>
-                                                                <AvatarImage
-                                                                    src={
-                                                                        chat.isChannel
-                                                                            ? chat?.avatar ||
-                                                                              '/chat/group.svg'
-                                                                            : chat
-                                                                                    ?.otherUser
-                                                                                    ?.type ===
-                                                                                'bot'
-                                                                              ? '/chat/bot.png'
-                                                                              : chat
-                                                                                    ?.otherUser
-                                                                                    ?.profilePicture ||
-                                                                                '/chat/user.svg'
-                                                                    }
-                                                                    alt={
-                                                                        chat?.isChannel
-                                                                            ? `${chat?.name}`
+                                                return (
+                                                    <Link
+                                                        key={i}
+                                                        href={`/chat/${chat?._id}`}
+                                                        className={`block border-l-[2px] ${
+                                                            isActive
+                                                                ? 'bg-blue-700/20 border-blue-800'
+                                                                : 'hover:bg-blue-700/20 border-transparent hover:border-blue-800'
+                                                        }`}
+                                                        onClick={handleNavClick}
+                                                    >
+                                                        <div className='flex items-start p-4 gap-3'>
+                                                            {/* Avatar */}
+                                                            <div className='relative flex-shrink-0'>
+                                                                <Avatar className='h-10 w-10'>
+                                                                    <AvatarImage
+                                                                        src={
+                                                                            chat.isChannel
+                                                                                ? chat?.avatar ||
+                                                                                  '/chat/group.svg'
+                                                                                : chat
+                                                                                        ?.otherUser
+                                                                                        ?.type ===
+                                                                                    'bot'
+                                                                                  ? '/chat/bot.png'
+                                                                                  : chat
+                                                                                        ?.otherUser
+                                                                                        ?.profilePicture ||
+                                                                                    '/chat/user.svg'
+                                                                        }
+                                                                        alt={
+                                                                            chat?.isChannel
+                                                                                ? `${chat?.name}`
+                                                                                : chat
+                                                                                      ?.otherUser
+                                                                                      ?.fullName ||
+                                                                                  'User'
+                                                                        }
+                                                                    />
+                                                                    <AvatarFallback>
+                                                                        {chat?.isChannel
+                                                                            ? chat?.name?.charAt(
+                                                                                  0,
+                                                                              )
+                                                                            : chat?.otherUser?.firstName?.charAt(
+                                                                                  0,
+                                                                              ) ||
+                                                                              'U'}
+                                                                    </AvatarFallback>
+                                                                </Avatar>
+
+                                                                {/* Online indicator */}
+                                                                {chat?.isChannel ||
+                                                                onlineUsers?.find(
+                                                                    (x) =>
+                                                                        x?._id ===
+                                                                        chat
+                                                                            ?.otherUser
+                                                                            ?._id,
+                                                                ) ? (
+                                                                    <span className='absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white'></span>
+                                                                ) : null}
+                                                            </div>
+
+                                                            {/* Chat content */}
+                                                            <div className='flex-1 min-w-0'>
+                                                                <div className='flex justify-between items-start'>
+                                                                    <div className='font-medium flex flex-row items-center gap-1 text-sm truncate'>
+                                                                        {chat?.isChannel && (
+                                                                            <span className='mr-1'>
+                                                                                {chat?.isPublic ? (
+                                                                                    '#'
+                                                                                ) : (
+                                                                                    <Lock className='inline h-3 w-3' />
+                                                                                )}
+                                                                            </span>
+                                                                        )}
+                                                                        {chat?.isChannel
+                                                                            ? chat?.name
                                                                             : chat
                                                                                   ?.otherUser
                                                                                   ?.fullName ||
-                                                                              'User'
-                                                                    }
-                                                                />
-                                                                <AvatarFallback>
-                                                                    {chat?.isChannel
-                                                                        ? chat?.name?.charAt(
-                                                                              0,
-                                                                          )
-                                                                        : chat?.otherUser?.firstName?.charAt(
-                                                                              0,
-                                                                          ) ||
-                                                                          'U'}
-                                                                </AvatarFallback>
-                                                            </Avatar>
-
-                                                            {/* Online indicator */}
-                                                            {chat?.isChannel ||
-                                                            onlineUsers?.find(
-                                                                (x) =>
-                                                                    x?._id ===
-                                                                    chat
-                                                                        ?.otherUser
-                                                                        ?._id,
-                                                            ) ? (
-                                                                <span className='absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white'></span>
-                                                            ) : null}
-                                                        </div>
-
-                                                        {/* Chat content */}
-                                                        <div className='flex-1 min-w-0'>
-                                                            <div className='flex justify-between items-start'>
-                                                                <div className='font-medium flex flex-row items-center gap-1 text-sm truncate'>
-                                                                    {chat?.isChannel && (
-                                                                        <span className='mr-1'>
-                                                                            {chat?.isPublic ? (
-                                                                                '#'
-                                                                            ) : (
-                                                                                <Lock className='inline h-3 w-3' />
-                                                                            )}
-                                                                        </span>
-                                                                    )}
-                                                                    {chat?.isChannel
-                                                                        ? chat?.name
-                                                                        : chat
-                                                                              ?.otherUser
-                                                                              ?.fullName ||
-                                                                          'User'}
-                                                                    {chat
-                                                                        ?.otherUser
-                                                                        ?.type ===
-                                                                        'verified' && (
-                                                                        <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
-                                                                    )}
-                                                                    {/* Pin icon */}
-                                                                    {isPinned && (
-                                                                        <Pin className='h-4 w-4 text-dark-gray rotate-45' />
-                                                                    )}
+                                                                              'User'}
+                                                                        {chat
+                                                                            ?.otherUser
+                                                                            ?.type ===
+                                                                            'verified' && (
+                                                                            <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
+                                                                        )}
+                                                                        {/* Pin icon */}
+                                                                        {isPinned && (
+                                                                            <Pin className='h-4 w-4 text-dark-gray rotate-45' />
+                                                                        )}
+                                                                    </div>
+                                                                    <span className='text-xs text-gray-500 whitespace-nowrap'>
+                                                                        {formatDate(
+                                                                            chat
+                                                                                ?.latestMessage
+                                                                                ?.createdAt,
+                                                                        )}
+                                                                    </span>
                                                                 </div>
-                                                                <span className='text-xs text-gray-500 whitespace-nowrap'>
-                                                                    {formatDate(
-                                                                        chat
-                                                                            ?.latestMessage
-                                                                            ?.createdAt,
-                                                                    )}
-                                                                </span>
-                                                            </div>
 
-                                                            {/* Message preview */}
-                                                            <div className='flex justify-between items-center mt-1'>
-                                                                <div className='flex items-center gap-1 flex-1 w-full'>
-                                                                    {/* Message status for sent messages */}
-                                                                    {chat
-                                                                        ?.latestMessage
-                                                                        ?.sender
-                                                                        ?._id ===
-                                                                        user?._id && (
-                                                                        <>
-                                                                            {isRead ? (
-                                                                                <CheckCheck className='h-3 w-3 text-blue-500 flex-shrink-0' />
-                                                                            ) : isDelivered ? (
-                                                                                <CheckCheck className='h-3 w-3 text-gray-400 flex-shrink-0' />
-                                                                            ) : (
-                                                                                <Check className='h-3 w-3 text-gray-400 flex-shrink-0' />
-                                                                            )}
-                                                                        </>
-                                                                    )}
-
-                                                                    <p className='text-xs text-gray-500 truncate max-w-[80%]'>
+                                                                {/* Message preview */}
+                                                                <div className='flex justify-between items-center mt-1'>
+                                                                    <div className='flex items-center gap-1 flex-1 w-full'>
+                                                                        {/* Message status for sent messages */}
                                                                         {chat
                                                                             ?.latestMessage
-                                                                            ?.type ===
-                                                                        'activity' ? (
-                                                                            <span className='italic'>
-                                                                                Activity
-                                                                                message
-                                                                            </span>
-                                                                        ) : chat
-                                                                              ?.latestMessage
-                                                                              ?.type ===
-                                                                          'delete' ? (
-                                                                            <span className='italic'>
-                                                                                Message
-                                                                                deleted
-                                                                            </span>
-                                                                        ) : chat
-                                                                              ?.latestMessage
-                                                                              ?.files
-                                                                              ?.length >
-                                                                          0 ? (
-                                                                            <span>
-                                                                                {chat
-                                                                                    ?.latestMessage
-                                                                                    ?.sender
-                                                                                    ?._id !==
-                                                                                user?._id
-                                                                                    ? '• '
-                                                                                    : ''}
-                                                                                Sent
-                                                                                a
-                                                                                file
-                                                                            </span>
-                                                                        ) : (
+                                                                            ?.sender
+                                                                            ?._id ===
+                                                                            user?._id && (
                                                                             <>
-                                                                                {chat
-                                                                                    ?.latestMessage
-                                                                                    ?.sender
-                                                                                    ?._id !==
-                                                                                user?._id
-                                                                                    ? '• '
-                                                                                    : ''}
-                                                                                {getText(
-                                                                                    chat
-                                                                                        ?.latestMessage
-                                                                                        ?.text ||
-                                                                                        'New conversation',
+                                                                                {isRead ? (
+                                                                                    <CheckCheck className='h-3 w-3 text-blue-500 flex-shrink-0' />
+                                                                                ) : isDelivered ? (
+                                                                                    <CheckCheck className='h-3 w-3 text-gray flex-shrink-0' />
+                                                                                ) : (
+                                                                                    <Check className='h-3 w-3 text-gray flex-shrink-0' />
                                                                                 )}
                                                                             </>
                                                                         )}
-                                                                    </p>
-                                                                </div>
 
-                                                                {/* Right side indicators */}
-                                                                <div className='flex items-center gap-1'>
-                                                                    {/* Mention icon */}
-                                                                    {hasMention && (
-                                                                        <AtSign className='h-4 w-4 text-blue-500' />
-                                                                    )}
+                                                                        <p className='text-xs text-gray-500 truncate max-w-[80%]'>
+                                                                            {chat
+                                                                                ?.latestMessage
+                                                                                ?.type ===
+                                                                            'activity' ? (
+                                                                                <span className='italic'>
+                                                                                    Activity
+                                                                                    message
+                                                                                </span>
+                                                                            ) : chat
+                                                                                  ?.latestMessage
+                                                                                  ?.type ===
+                                                                              'delete' ? (
+                                                                                <span className='italic'>
+                                                                                    Message
+                                                                                    deleted
+                                                                                </span>
+                                                                            ) : chat
+                                                                                  ?.latestMessage
+                                                                                  ?.files
+                                                                                  ?.length >
+                                                                              0 ? (
+                                                                                <span>
+                                                                                    {chat
+                                                                                        ?.latestMessage
+                                                                                        ?.sender
+                                                                                        ?._id !==
+                                                                                    user?._id
+                                                                                        ? '• '
+                                                                                        : ''}
+                                                                                    Sent
+                                                                                    a
+                                                                                    file
+                                                                                </span>
+                                                                            ) : (
+                                                                                <>
+                                                                                    {chat
+                                                                                        ?.latestMessage
+                                                                                        ?.sender
+                                                                                        ?._id !==
+                                                                                    user?._id
+                                                                                        ? '• '
+                                                                                        : ''}
+                                                                                    {getText(
+                                                                                        chat
+                                                                                            ?.latestMessage
+                                                                                            ?.text ||
+                                                                                            'New conversation',
+                                                                                    )}
+                                                                                </>
+                                                                            )}
+                                                                        </p>
+                                                                    </div>
 
-                                                                    {/* Bell icon (muted or not) */}
-                                                                    {isMuted && (
-                                                                        <BellOff className='h-4 w-4 text-gray-400' />
-                                                                    )}
-
-                                                                    {/* Unread indicator */}
-                                                                    {hasUnread &&
-                                                                        chat
-                                                                            ?.latestMessage
-                                                                            ?.sender
-                                                                            ?._id !==
-                                                                            user?._id && (
-                                                                            <span className='flex-shrink-0 h-5 w-5 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-medium'>
-                                                                                {
-                                                                                    chat.unreadCount
-                                                                                }
-                                                                            </span>
+                                                                    {/* Right side indicators */}
+                                                                    <div className='flex items-center gap-1'>
+                                                                        {/* Mention icon */}
+                                                                        {hasMention && (
+                                                                            <AtSign className='h-4 w-4 text-blue-500' />
                                                                         )}
+
+                                                                        {/* Bell icon (muted or not) */}
+                                                                        {isMuted && (
+                                                                            <BellOff className='h-4 w-4 text-gray' />
+                                                                        )}
+
+                                                                        {/* Unread indicator */}
+                                                                        {hasUnread &&
+                                                                            chat
+                                                                                ?.latestMessage
+                                                                                ?.sender
+                                                                                ?._id !==
+                                                                                user?._id && (
+                                                                                <span className='flex-shrink-0 h-5 w-5 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-medium'>
+                                                                                    {
+                                                                                        chat.unreadCount
+                                                                                    }
+                                                                                </span>
+                                                                            )}
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </Link>
-                                            );
-                                        },
-                                    )}
+                                                    </Link>
+                                                );
+                                            },
+                                        )}
 
-                                    {records.length === 0 && (
-                                        <div className='p-4 text-center text-gray-500'>
-                                            No conversations found
-                                        </div>
-                                    )}
+                                        {records.length === 0 && (
+                                            <div className='p-4 text-center text-gray-500'>
+                                                No conversations found
+                                            </div>
+                                        )}
 
-                                    {hasMore && fetchingMore && (
-                                        <div className='p-4 text-center'>
-                                            <Skeleton className='h-10 w-10 rounded-full mx-auto' />
-                                        </div>
-                                    )}
+                                        {hasMore && fetchingMore && (
+                                            <div className='p-4 text-center'>
+                                                <Skeleton className='h-10 w-10 rounded-full mx-auto' />
+                                            </div>
+                                        )}
 
-                                    {records.length > 0 && (
-                                        <div className='p-2 text-center flex flex-row items-center gap-1'>
-                                            <div className='w-full h-[2px] bg-border'></div>
-                                            <Button
-                                                variant='primary_light'
-                                                size='sm'
-                                                className='text-xs rounded-3xl text-primary'
-                                            >
-                                                View More{' '}
-                                                <ChevronDown
-                                                    size={16}
-                                                    className='text-gray'
-                                                />
-                                            </Button>
-                                            <div className='w-full h-[2px] bg-border'></div>
-                                        </div>
+                                        {records.length > 0 && (
+                                            <div className='p-2 text-center flex flex-row items-center gap-1'>
+                                                <div className='w-full h-[2px] bg-border'></div>
+                                                <Button
+                                                    variant='primary_light'
+                                                    size='sm'
+                                                    className='text-xs rounded-3xl text-primary'
+                                                >
+                                                    View More{' '}
+                                                    <ChevronDown
+                                                        size={16}
+                                                        className='text-gray'
+                                                    />
+                                                </Button>
+                                                <div className='w-full h-[2px] bg-border'></div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <Suspense fallback={<SidebarSkeleton />}>
+                                    {active === 'crowds' ? (
+                                        <CrowdSidebar />
+                                    ) : active === 'favourites' ? (
+                                        <FavouriteSidebar />
+                                    ) : active === 'onlines' ? (
+                                        <OnlineSidebar />
+                                    ) : active === 'search' ? (
+                                        <SearchSidebar />
+                                    ) : active === 'readOnly' ? (
+                                        <ReadOnly />
+                                    ) : active === 'unread' ? (
+                                        <UnRead />
+                                    ) : active === 'blocked' ? (
+                                        <BlockedUser />
+                                    ) : active === 'archived' ? (
+                                        <Archived />
+                                    ) : (
+                                        <></>
                                     )}
-                                </div>
-                            </>
-                        ) : (
-                            <Suspense fallback={<SidebarSkeleton />}>
-                                {active === 'crowds' ? (
-                                    <CrowdSidebar />
-                                ) : active === 'favourites' ? (
-                                    <FavouriteSidebar />
-                                ) : active === 'onlines' ? (
-                                    <OnlineSidebar />
-                                ) : active === 'search' ? (
-                                    <SearchSidebar />
-                                ) : active === 'readOnly' ? (
-                                    <ReadOnly />
-                                ) : active === 'unread' ? (
-                                    <UnRead />
-                                ) : active === 'blocked' ? (
-                                    <BlockedUser />
-                                ) : active === 'archived' ? (
-                                    <Archived />
-                                ) : (
-                                    <></>
-                                )}
-                            </Suspense>
-                        )}
+                                </Suspense>
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
-
-            {/* Create Crowd Modal */}
-            <CreateCrowd
-                isNewChannelModalVisible={createCrowdOpen}
-                handleCancelNewChannelModal={() => setCreateCrowdOpen(false)}
-                close={() => setCreateCrowdOpen(false)}
-                opened={createCrowdOpen}
-            />
         </div>
     );
 };

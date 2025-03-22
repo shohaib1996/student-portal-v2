@@ -32,6 +32,8 @@ import {
 } from '@/redux/features/chatReducer';
 import { useAppSelector } from '@/redux/hooks';
 import drafts from '../drafts.json';
+import FileItem from './FileItem';
+import CaptureAudio from './CaptureAudio';
 // Dynamically import EmojiPicker to prevent blocking the main bundle
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
     ssr: false,
@@ -259,6 +261,9 @@ const TextEditor: React.FC<TextEditorProps> = ({
             });
     };
 
+    const [isSendingAudio, setIsSendingAudio] = useState<boolean>(false);
+
+    // Modify the sendRenderedAudio function to track sending state
     const sendRenderedAudio = async (audio: File) => {
         const totalCount = uploadFiles?.length + 1;
         if (totalCount > 5) {
@@ -269,7 +274,13 @@ const TextEditor: React.FC<TextEditorProps> = ({
             setDraft({ chat: params?.chatid as string, uploadFiles: newFiles }),
         );
         setIsVoiceRecordVisible(false);
-        await uploadFile(audio);
+        setIsSendingAudio(true);
+
+        try {
+            await uploadFile(audio);
+        } finally {
+            setIsSendingAudio(false);
+        }
     };
 
     const uploadFile = async (file: File) => {
@@ -560,9 +571,9 @@ const TextEditor: React.FC<TextEditorProps> = ({
                     accept='image/*,video/*'
                 />
 
-                <div className='bg-background border-t border-border'>
-                    <div className='flex flex-wrap gap-2 p-2'>
-                        {/* {uploadFiles.map((uploadFile, index) => (
+                <div className='bg-background border-t border-border pt-2'>
+                    {uploadFiles.map((uploadFile, index) => (
+                        <div key={index} className='flex flex-wrap gap-2 p-2'>
                             <FileItem
                                 handleRemove={() =>
                                     handleRemoveItem(uploadFile)
@@ -571,19 +582,20 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                 index={index}
                                 key={index}
                             />
-                        ))} */}
-                    </div>
+                        </div>
+                    ))}
 
                     {isVoiceRecordVisible ? (
-                        // <CaptureAudio
-                        //     sendRenderedAudio={sendRenderedAudio}
-                        //     setIsRecorderVisible={() =>
-                        //         setIsVoiceRecordVisible(false)
-                        //     }
-                        // />
-                        <p>Capture Audio coming soon!</p>
+                        <CaptureAudio
+                            sendRenderedAudio={sendRenderedAudio}
+                            setIsRecorderVisible={() =>
+                                setIsVoiceRecordVisible(false)
+                            }
+                            isSendingAudio={isSendingAudio}
+                        />
                     ) : (
-                        <div className='flex items-center p-2'>
+                        // <p>Capture Audio coming soon!</p>
+                        <div className='flex items-center p-2 border rounded-md'>
                             <div className='flex items-center w-full'>
                                 <div className='mt-auto'>
                                     <DropdownMenu>

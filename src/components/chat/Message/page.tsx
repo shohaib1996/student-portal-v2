@@ -263,7 +263,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                     !hideAlign &&
                                     message?.sender?._id === user?._id
                                         ? 'bg-primary text-primary-light'
-                                        : 'bg-muted'
+                                        : 'bg-primary-light border border-blue-600/20'
                                 }`}
                             >
                                 <div className='flex flex-col'>
@@ -439,7 +439,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
 
                                 {/* Emoji List */}
                                 {isEmojiPickerOpen && (
-                                    <div className='flex flex-wrap gap-1 mt-1 absolute -top-10 left-2 bg-primary-light shadow-md rounded-full p-1'>
+                                    <div className='flex flex-row items-center gap-1 mt-1 absolute -top-10 left-2 bg-primary-light shadow-md rounded-full p-1'>
                                         {emojies?.map((x, i) => (
                                             <div
                                                 key={i}

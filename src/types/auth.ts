@@ -63,7 +63,7 @@ export type TUser = {
     firstName?: string;
     createdAt?: string;
     lastName?: string;
-    enrollment: TEnrollment;
+    enrollment?: TEnrollment;
     lastActive?: string;
     isEmailVerified?: {
         status: boolean;

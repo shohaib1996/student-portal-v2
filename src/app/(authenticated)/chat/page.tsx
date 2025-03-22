@@ -17,7 +17,7 @@ const Chatbox = dynamic(() => import('@/components/chat/Chatbox'), {
 
 const Chat: React.FC = () => {
     return (
-        <div className='min-h-screen'>
+        <div className='min-h-[calc(100vh-60px)] h-[calc(100vh-60px)]'>
             {/* Main chat container */}
             <div className='chat-container h-full'>
                 <Suspense
