@@ -27,6 +27,8 @@ interface EventPopoverContextType {
     position: { x: number; y: number };
     isFullScreen: boolean;
     setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
+    updateId: string | null;
+    setUpdateId: (_: string | null) => void;
     renderPopover: (children: ReactNode) => ReactNode | null;
 }
 
@@ -42,6 +44,7 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [title, setTitle] = useState('');
+    const [updateId, setUpdateId] = useState<string | null>(null);
     const [popoverContent, setPopoverContent] = useState<ReactNode | null>(
         null,
     );
@@ -104,6 +107,8 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
                 setTitle,
                 position,
                 renderPopover,
+                updateId,
+                setUpdateId,
                 isFullScreen,
                 setIsFullScreen,
             }}
@@ -126,14 +131,17 @@ export function useEventPopover() {
 interface EventPopoverTriggerProps {
     children: ReactNode;
     side?: Side;
+    updateId?: string | null;
 }
 
 export function EventPopoverTrigger({
     children,
     side = 'bottom',
+    updateId,
 }: EventPopoverTriggerProps) {
     const triggerRef = useRef<HTMLDivElement>(null);
-    const { openPopover, closePopover, isOpen } = useEventPopover();
+    const { openPopover, closePopover, isOpen, setUpdateId, setIsFullScreen } =
+        useEventPopover();
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
@@ -143,6 +151,10 @@ export function EventPopoverTrigger({
         if (triggerRef.current) {
             const rect = triggerRef.current.getBoundingClientRect();
             openPopover(rect, side);
+        }
+        if (updateId) {
+            setUpdateId(updateId);
+            setIsFullScreen(true);
         }
     };
 
@@ -157,9 +169,17 @@ interface EventPopoverProps {
     children?: ReactNode;
     title?: ReactNode;
     sidebar?: ReactNode;
+    allowFullScreen?: boolean;
+    className?: string;
 }
 
-export function EventPopover({ children, title, sidebar }: EventPopoverProps) {
+export function EventPopover({
+    children,
+    title,
+    sidebar,
+    allowFullScreen = true,
+    className,
+}: EventPopoverProps) {
     const { isOpen, closePopover, position, isFullScreen, setIsFullScreen } =
         useEventPopover();
     const dragControls = useDragControls();
@@ -237,6 +257,7 @@ export function EventPopover({ children, title, sidebar }: EventPopoverProps) {
                     isFullScreen
                         ? 'fixed inset-0 w-full h-full rounded-none'
                         : 'w-[500px] h-fit max-h-[80vh] absolute',
+                    className,
                 )}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{
@@ -277,18 +298,20 @@ export function EventPopover({ children, title, sidebar }: EventPopoverProps) {
                             }}
                         >
                             {title}
-                            <Button
-                                variant='secondary'
-                                size='icon'
-                                onClick={toggleFullScreen}
-                                className='ms-2 text-dark-gray'
-                            >
-                                {isFullScreen ? (
-                                    <Minimize2 className='h-4 w-4' />
-                                ) : (
-                                    <Maximize2 className='h-4 w-4' />
-                                )}
-                            </Button>
+                            {allowFullScreen && (
+                                <Button
+                                    variant='secondary'
+                                    size='icon'
+                                    onClick={toggleFullScreen}
+                                    className='ms-2 text-dark-gray'
+                                >
+                                    {isFullScreen ? (
+                                        <Minimize2 className='h-4 w-4' />
+                                    ) : (
+                                        <Maximize2 className='h-4 w-4' />
+                                    )}
+                                </Button>
+                            )}
                         </div>
                         <div
                             className={cn(

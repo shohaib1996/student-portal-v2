@@ -24,7 +24,10 @@ import PendingIcon from '../svgs/calendar/PendingIcon';
 import DeniedIcon from '../svgs/calendar/DeniedIcon';
 import GlobalTooltip from '../global/GlobalTooltip';
 import FinishedIcon from '../svgs/calendar/FinishedIcon';
-import { EventPopover, EventPopoverTrigger, useEventPopover } from './CreateEvent/EventPopover';
+import {
+    EventPopoverTrigger,
+    useEventPopover,
+} from './CreateEvent/EventPopover';
 import { useRouter } from 'next/navigation';
 
 interface MonthViewProps {
@@ -51,19 +54,17 @@ export function MonthView({ currentDate }: MonthViewProps) {
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
     const startDate = subDays(monthStart, getDay(monthStart));
-    const { isOpen, openPopover } = useEventPopover()
+    const { isOpen, openPopover } = useEventPopover();
     const days = [];
     let day = startDate;
-    const router = useRouter()
+    const router = useRouter();
 
     const { data } = useGetMyEventsQuery({
-        queryDate: {
-            from: monthStart.toISOString(),
-            to: monthEnd.toISOString(),
-        },
+        from: monthStart.toISOString(),
+        to: monthEnd.toISOString(),
     });
 
-    console.log(data)
+    console.log(data);
 
     const handleDayClick = (day: Date) => {
         console.log('Day clicked:', format(day, 'yyyy-MM-dd'));
@@ -135,30 +136,31 @@ export function MonthView({ currentDate }: MonthViewProps) {
                                         className={cn(
                                             'inline-flex h-6 w-6 text-dark-gray font-semibold items-center justify-center rounded-full text-base',
                                             isToday(day) &&
-                                            'bg-primary text-primary-foreground font-medium',
+                                                'bg-primary text-primary-foreground font-medium',
                                             !isCurrentMonth &&
-                                            'text-gray font-medium',
+                                                'text-gray font-medium',
                                         )}
                                     >
                                         {format(day, 'd')}
                                     </span>
                                 </div>
                                 <div
-                                    // onClick={(e) => e.stopPropagation()}
+                                    onClick={(e) => e.stopPropagation()}
                                     className='mt-1 space-y-1 max-h-[80px]'
                                 >
                                     {dayEvents.slice(0, 4).map((event) => (
                                         <button
-                                            onClick={() => {
-                                                // openPopover(true)
-                                                router.push(`/calendar?detail=${event._id}`)
+                                            onClick={(e) => {
+                                                router.push(
+                                                    `/calendar?detail=${event._id}`,
+                                                );
                                             }}
                                             key={event._id}
                                             className={cn(
                                                 'w-full flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-foreground justify-start font-normal',
                                             )}
                                         >
-                                            { }
+                                            {}
                                             <p>
                                                 {renderStatus(
                                                     event?.myParticipantData

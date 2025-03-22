@@ -11,6 +11,7 @@ type TProps = {
     children?: ReactNode;
     triggerText?: string | ReactNode;
     title?: string | ReactNode;
+    withTitle?: boolean;
     withTrigger?: boolean;
     resizable?: boolean;
     allowFullScreen?: boolean;
@@ -35,6 +36,7 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
             allowFullScreen = true,
             buttons,
             customFooter,
+            withTitle = true,
             ...rest
         },
         ref,

@@ -17,7 +17,7 @@ export function TdUser({
     return (
         <div className={cn('flex items-center gap-3', className)}>
             <div className='relative'>
-                <div className='size-8 rounded-full overflow-hidden'>
+                <div className='size-7 rounded-full overflow-hidden'>
                     <Image
                         src={user?.profilePicture || '/avatar.png'}
                         alt={`${user?.firstName}'s avatar`}

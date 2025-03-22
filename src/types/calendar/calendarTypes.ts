@@ -1,3 +1,5 @@
+import { TUser } from '../auth';
+
 export type TEventNotification = {
     type: string;
     label: string;
@@ -6,7 +8,7 @@ export type TEventNotification = {
 
 export type TNotification = {
     chatGroups: string[];
-    methods: ("email" | "push" | "text" | "directMessage" | "crowds")[];
+    methods: ('email' | 'push' | 'text' | 'directMessage' | 'crowds')[];
     offsetMinutes: number;
 };
 
@@ -148,7 +150,7 @@ export type TEvent = {
     title: string;
     description?: string;
     location?: {
-        type: "meet" | "zoom" | "call" | "custom";
+        type: 'meet' | 'zoom' | 'call' | 'custom';
         link?: string;
     };
     isAllDay?: boolean;
@@ -158,17 +160,21 @@ export type TEvent = {
     eventColor?: string;
     recurrence?: {
         isRecurring: boolean;
-        frequency: "daily" | "weekly" | "monthly" | "yearly";
+        frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
         interval: number;
         daysOfWeek?: number[]; // 1 = Monday, 7 = Sunday
         endRecurrence: string; // ISO 8601 format
     };
-    attendees?: string[];
+    attendees?: {
+        responseStatus: 'accepted' | 'needsAction' | 'denied' | 'finished';
+        user?: TUser;
+    }[];
+    organizer?: TUser;
     reminders?: {
-        method: "email" | "push" | "text" | "directMessage" | "crowds";
+        method: 'email' | 'push' | 'text' | 'directMessage' | 'crowds';
         offsetMinutes: number;
     }[];
-    priority?: "low" | "medium" | "high" | "notdefined";
+    priority?: 'low' | 'medium' | 'high';
     attachments?: {
         name: string;
         type: string;
@@ -179,7 +185,7 @@ export type TEvent = {
         category: string;
         resourceId: string;
     };
-    type: "event" | "task";
+    type: 'event' | 'task';
     permissions?: {
         modifyEvent?: boolean;
         inviteOthers?: boolean;
@@ -191,7 +197,6 @@ export type TEvent = {
         _id?: string;
     };
 };
-
 
 export type TInterval = {
     _id?: string;

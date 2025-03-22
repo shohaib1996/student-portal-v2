@@ -10,10 +10,10 @@ type TParams = {
 const calendarApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getMyEvents: build.query({
-            query: (params: TParams) => ({
-                url: `/v2/calendar/event/myevents?from=${params.queryDate.from}&to=${params.queryDate.to}`,
+            query: (params: any) => ({
+                url: `/v2/calendar/event/myevents`,
                 method: 'GET',
-                // params
+                params,
             }),
         }),
         fetchUsers: build.query({
@@ -36,6 +36,12 @@ const calendarApi = baseApi.injectEndpoints({
                 data,
             }),
         }),
+        getSingleEvent: build.query({
+            query: (id: string) => ({
+                url: `v2/calendar/event/details/${id}`,
+                method: 'GET',
+            }),
+        }),
     }),
 });
 
@@ -44,4 +50,5 @@ export const {
     useFetchUsersQuery,
     useFindUserAvailabilityQuery,
     useCreateEventMutation,
+    useGetSingleEventQuery,
 } = calendarApi;

@@ -10,6 +10,7 @@ import GlobalTooltip from '../global/GlobalTooltip';
 import { renderStatus } from './monthView';
 import staticEvents from '../../../public/calendarData.json';
 import { TEvent } from '@/types/calendar/calendarTypes';
+import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
 
 interface DayViewProps {
     currentDate: Date;
@@ -17,7 +18,12 @@ interface DayViewProps {
 }
 
 export function DayView({ currentDate, onChange }: DayViewProps) {
-    const events: TEvent[] = (staticEvents as unknown as TEvent[]) || [];
+    const { data } = useGetMyEventsQuery({
+        from: dayjs(currentDate).startOf('day').toISOString(), // Start of the day (00:00:00)
+        to: dayjs(currentDate).endOf('day').toISOString(), // End of the day (23:59:59.999)
+    });
+
+    const events: TEvent[] = (data?.events as TEvent[]) || [];
 
     const handleHourClick = (hour: number) => {
         console.log('Hour clicked:', hour);
@@ -40,7 +46,7 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
 
         return events.filter((event) => {
             // Parse the event start date
-            const eventTime = dayjs(event.start);
+            const eventTime = dayjs(event.startTime);
 
             // Check if the event is on the same date as currentDate
             const sameDate = eventTime.isSame(current, 'day');
@@ -86,6 +92,9 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
                             {getEventsForHour(hour).map((event) => (
                                 <button
                                     key={event._id}
+                                    style={{
+                                        backgroundColor: event?.eventColor,
+                                    }}
                                     className={cn(
                                         'w-fit h-fit flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-foreground justify-start font-normal',
                                     )}
