@@ -2,12 +2,13 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Expand, Eye, Minimize, Shrink, XIcon } from 'lucide-react';
+import { Expand, Shrink, XIcon } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import GlobalTooltip from './GlobalTooltip';
 
 type TProps = {
     open: boolean;
+    setOpen: (_: boolean) => void;
     children?: ReactNode;
     triggerText?: string | ReactNode;
     title?: string | ReactNode;
@@ -18,7 +19,6 @@ type TProps = {
     customTitle?: string | ReactNode;
     buttons?: ReactNode;
     subTitle?: string;
-    setOpen: (_: boolean) => void;
     customFooter?: ReactNode;
 };
 
@@ -80,7 +80,7 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
                                 {customTitle ? (
                                     customTitle
                                 ) : (
-                                    <div className='flex items-center justify-between border-b border-forground-border px-5 py-3 pb-2 sticky top-0 rounded-tr-lg rounded-tl-lg bg-foreground'>
+                                    <div className='flex items-center justify-between border-b border-forground-border px-5 py-3 pb-2 sticky top-0 rounded-tr-lg rounded-tl-lg'>
                                         <div>
                                             <h3 className='text-black font-medium text-xl'>
                                                 {title}
