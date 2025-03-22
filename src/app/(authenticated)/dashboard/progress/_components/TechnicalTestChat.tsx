@@ -66,56 +66,61 @@ export function TechnicalTestChart() {
                                 config={chartConfig}
                                 className='mx-auto aspect-square h-full'
                             >
-                                <ResponsiveContainer width='100%' height='100%'>
-                                    <PieChart>
-                                        <ChartTooltip
-                                            cursor={false}
-                                            content={
-                                                <ChartTooltipContent
-                                                    hideLabel
-                                                />
-                                            }
-                                        />
-                                        <Pie
-                                            data={technicalTestData}
-                                            dataKey='percentage'
-                                            nameKey='name'
-                                            cx='50%'
-                                            cy='50%'
-                                            innerRadius={30}
-                                            outerRadius={90}
-                                            paddingAngle={1}
-                                            startAngle={90}
-                                            endAngle={-270}
-                                        >
-                                            {technicalTestData.map(
-                                                (entry, index) => (
-                                                    <Cell
-                                                        key={`cell-${index}`}
-                                                        fill={entry.fill}
+                                <>
+                                    <ResponsiveContainer
+                                        width='100%'
+                                        height='100%'
+                                    >
+                                        <PieChart>
+                                            <ChartTooltip
+                                                cursor={false}
+                                                content={
+                                                    <ChartTooltipContent
+                                                        hideLabel
                                                     />
-                                                ),
-                                            )}
-                                        </Pie>
-                                    </PieChart>
-                                </ResponsiveContainer>
+                                                }
+                                            />
+                                            <Pie
+                                                data={technicalTestData}
+                                                dataKey='percentage'
+                                                nameKey='name'
+                                                cx='50%'
+                                                cy='50%'
+                                                innerRadius={30}
+                                                outerRadius={90}
+                                                paddingAngle={1}
+                                                startAngle={90}
+                                                endAngle={-270}
+                                            >
+                                                {technicalTestData.map(
+                                                    (entry, index) => (
+                                                        <Cell
+                                                            key={`cell-${index}`}
+                                                            fill={entry.fill}
+                                                        />
+                                                    ),
+                                                )}
+                                            </Pie>
+                                        </PieChart>
+                                    </ResponsiveContainer>
 
-                                {/* Percentage labels */}
-                                <div className='absolute top-[18%] right-[10%] text-xs font-medium text-white'>
-                                    35%
-                                </div>
-                                <div className='absolute bottom-[10%] right-[35%] text-xs font-medium text-white'>
-                                    25%
-                                </div>
-                                <div className='absolute bottom-[30%] left-[10%] text-xs font-medium text-white'>
-                                    22%
-                                </div>
-                                <div className='absolute top-[10%] left-[18%] text-xs font-medium text-white'>
-                                    10%
-                                </div>
-                                <div className='absolute top-[0%] left-[40%] text-xs font-medium text-white'>
-                                    5%
-                                </div>
+                                    {/* Percentage labels */}
+                                    <div className='absolute top-[18%] right-[10%] text-xs font-medium text-white'>
+                                        35%
+                                    </div>
+                                    <div className='absolute bottom-[10%] right-[35%] text-xs font-medium text-white'>
+                                        25%
+                                    </div>
+                                    <div className='absolute bottom-[30%] left-[10%] text-xs font-medium text-white'>
+                                        22%
+                                    </div>
+                                    <div className='absolute top-[10%] left-[18%] text-xs font-medium text-white'>
+                                        10%
+                                    </div>
+                                    <div className='absolute top-[0%] left-[40%] text-xs font-medium text-white'>
+                                        5%
+                                    </div>
+                                </>
                             </ChartContainer>
                         </div>
                     </div>

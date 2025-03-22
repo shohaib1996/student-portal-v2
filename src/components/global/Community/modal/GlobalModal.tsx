@@ -12,8 +12,9 @@ import {
     DialogClose,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { IGlobalModalProps } from '@/types';
+// import { IGlobalModalProps } from '@/types';
 
+type IGlobalModalProps = any;
 /**
  * 🚀 **NewGlobalModal Component**
  * A flexible and customizable modal dialog, designed for triggering actions and displaying content with ease.
