@@ -118,6 +118,7 @@ const MultiSelect = ({
                         >
                             {options.find((op) => op.value === v)?.label}
                             <button
+                                type='button'
                                 className='cursor-pointer'
                                 onClick={(e) => handleRemove(e, v)}
                             >

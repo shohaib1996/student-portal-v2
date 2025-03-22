@@ -23,10 +23,14 @@ import {
     TEventFormType,
 } from '../validations/eventValidation';
 import TodoForm from '../CreateTodo/TodoForm';
+import { TodoFormSchema, TTodoFormType } from '../validations/todoValidation';
+import { useSearchParams } from 'next/navigation';
 
 const CreateEventModal = () => {
     const { closePopover, isFullScreen } = useEventPopover();
     const [currentDate, setCurrentDate] = useState(dayjs());
+    const searchParams = useSearchParams()
+    const id = searchParams.get('detail')
 
     const [createEvent] = useCreateEventMutation();
 
@@ -34,28 +38,42 @@ const CreateEventModal = () => {
         resolver: zodResolver(EventFormSchema),
         defaultValues: {
             title: '',
-            priority: '',
-            courseLink: '',
-            invitations: [],
-            start: new Date(),
-            end: new Date(),
+            priority: undefined,
+            attendees: [],
+            startTime: new Date(),
+            endTime: new Date(),
             isAllDay: false,
-            repeat: false,
-            notifications: [
+            // repeat: false,
+            reminders: [
                 {
                     chatGroups: [],
                     methods: ['push'],
-                    timeBefore: 15,
+                    offsetMinutes: 15,
                 },
             ],
-            meetingLink: '',
-            agenda: '',
+            location: {
+                type: 'custom',
+                link: ''
+            },
+            recurrence: {
+                isRecurring: false,
+                daysOfWeek: [],
+                frequency: undefined,
+                interval: 1,
+                endRecurrence: ''
+            },
+            description: '',
             eventColor: '',
+            permissions: {
+                modifyEvent: false,
+                inviteOthers: false,
+                seeGuestList: false
+            }
         },
     });
 
-    const todoForm = useForm<TEventFormType>({
-        resolver: zodResolver(EventFormSchema),
+    const todoForm = useForm<TTodoFormType>({
+        resolver: zodResolver(TodoFormSchema),
         defaultValues: {
             title: '',
             priority: '',
@@ -85,12 +103,12 @@ const CreateEventModal = () => {
     }, [eventForm.formState?.errors]);
 
     useEffect(() => {
-        const startDate = eventForm.getValues('start');
+        const startDate = eventForm.getValues('startTime');
         if (startDate) {
             const date = dayjs(startDate);
-            eventForm.setValue('end', date.add(15, 'minute').toDate());
+            eventForm.setValue('endTime', date.add(15, 'minute').toDate());
         }
-    }, [eventForm.watch('start')]);
+    }, [eventForm.watch('startTime')]);
 
     async function onEventSubmit(values: z.infer<typeof EventFormSchema>) {
         const data = values;
@@ -99,12 +117,14 @@ const CreateEventModal = () => {
                 ...data,
                 timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             }).unwrap();
-            console.log(res);
+            if (res) {
+                eventForm.reset(eventForm.formState.defaultValues)
+            }
         } catch (err) {
             console.log(err);
         }
     }
-    async function onTodoSubmit(values: z.infer<typeof EventFormSchema>) {
+    async function onTodoSubmit(values: z.infer<typeof TodoFormSchema>) {
         const data = values;
         try {
             const res = await createEvent({
@@ -182,7 +202,7 @@ const CreateEventModal = () => {
                     </div>
                     <DayView
                         onChange={(date) =>
-                            eventForm.setValue('start', date.toDate())
+                            eventForm.setValue('startTime', date.toDate())
                         }
                         currentDate={currentDate.toDate()}
                     />

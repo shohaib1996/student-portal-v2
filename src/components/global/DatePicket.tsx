@@ -20,6 +20,7 @@ interface DatePickerDemoProps {
     disabled?: boolean;
     bordered?: boolean;
     disableFuture?: boolean;
+    allowDeselect?: boolean
     calendarClassName?: string;
 }
 
@@ -29,6 +30,7 @@ export function DatePicker({
     className,
     placeholder = 'Pick a date',
     disabled = false,
+    allowDeselect = true,
     bordered = false,
     disableFuture = false,
     calendarClassName,
@@ -86,7 +88,7 @@ export function DatePicker({
                         <span className='text-gray'>{placeholder}</span>
                     )}
 
-                    {date && (
+                    {date && allowDeselect && (
                         <div
                             onClick={handleClearDate}
                             className='absolute right-2 bg-transparent'
