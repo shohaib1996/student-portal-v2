@@ -10,7 +10,7 @@ export enum LessonType {
 export type TLessonInfo = {
     type: LessonType;
     isFree: boolean;
-    duration: number;
+    duration?: string | number | undefined;
     _id: string;
     data?: {
         behavioral: string;
@@ -77,6 +77,7 @@ export type TChapter = {
     isLocked: boolean;
     isSpecial: boolean;
     createdAt?: string;
+    lesson?: string;
 };
 
 export type TContent = TChapter | TLesson;
