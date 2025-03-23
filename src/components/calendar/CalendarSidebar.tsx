@@ -43,6 +43,7 @@ import {
 } from '@/redux/features/calendarReducer';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
 import { TEvent } from '@/types/calendar/calendarTypes';
+import dayjs from 'dayjs';
 
 interface CalendarAccordionsProps {
     currentDate: Date;
@@ -294,7 +295,7 @@ export function CalendarSidebar({
                         </div>
 
                         {/* Events for selected week */}
-                        <div className='space-y-3'>
+                        <div className='space-y-3 max-h-[40vh] overflow-y-auto'>
                             {Object.keys(groupedWeekEvents).length > 0 ? (
                                 Object.entries(groupedWeekEvents)
                                     .sort(
@@ -313,17 +314,51 @@ export function CalendarSidebar({
                                             {dayEvents.map((event) => (
                                                 <div
                                                     key={event._id}
+                                                    style={{
+                                                        borderColor:
+                                                            event.eventColor,
+                                                    }}
                                                     className={cn(
-                                                        'p-2 mb-1 rounded bg-foreground text-xs',
+                                                        'p-2 mb-1 rounded flex gap-2 relative border-l-4 bg-foreground text-xs',
                                                         event.eventColor,
                                                     )}
                                                 >
-                                                    <div className='font-medium'>
-                                                        {event.title}
+                                                    <div
+                                                        style={{
+                                                            backgroundColor:
+                                                                event.eventColor,
+                                                            opacity: 0.1,
+                                                        }}
+                                                        className='absolute size-full top-0 left-0 z-10'
+                                                    ></div>
+                                                    <div className='text-dark-gray text-[10px] whitespace-nowrap'>
+                                                        <p>
+                                                            {dayjs(
+                                                                event?.startTime,
+                                                            ).format('hh:mm A')}
+                                                        </p>
+                                                        <p>
+                                                            {dayjs(
+                                                                event.endTime,
+                                                            ).diff(
+                                                                dayjs(
+                                                                    event.startTime,
+                                                                ),
+                                                                'minutes',
+                                                            )}{' '}
+                                                            min
+                                                        </p>
                                                     </div>
-                                                    <div className='text-gray-500'>
-                                                        {event.startTime}
+                                                    <div className='font-medium truncate'>
+                                                        <p>{event.title}</p>
+                                                        <p>
+                                                            {
+                                                                event.organizer
+                                                                    ?.email
+                                                            }
+                                                        </p>
                                                     </div>
+                                                    <div className='text-gray'></div>
                                                 </div>
                                             ))}
                                         </div>

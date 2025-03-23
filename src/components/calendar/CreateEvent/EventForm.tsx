@@ -991,7 +991,8 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                                     </label>
                                                                     <MultiSelect
                                                                         disabled={
-                                                                            !isMyEvent
+                                                                            !isMyEvent &&
+                                                                            edit
                                                                         }
                                                                         onChange={(
                                                                             val,
@@ -1087,6 +1088,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                                                     <div
                                                                                         onClick={() => {
                                                                                             if (
+                                                                                                !edit ||
                                                                                                 isMyEvent ||
                                                                                                 event
                                                                                                     ?.permissions
