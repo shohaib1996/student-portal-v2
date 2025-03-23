@@ -89,7 +89,9 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
 
     const closePopover = useCallback(() => {
         setIsOpen(false);
+        setIsFullScreen(false);
         setPopoverContent(null);
+        setUpdateId(null);
     }, []);
 
     const renderPopover = useCallback((content: ReactNode) => {
@@ -218,7 +220,8 @@ export function EventPopover({
                     target.closest('[role="menu"]') ||
                     target.closest('[role="dialog"]') ||
                     target.closest('.popover') ||
-                    target.closest('.dropdown');
+                    target.closest('.dropdown') ||
+                    target.closest('#global_modal');
 
                 // Only close if it's not a select/dropdown element
                 if (!isSelectOrDropdown) {
@@ -290,7 +293,7 @@ export function EventPopover({
                 <div className='flex'>
                     <div className='border-r border-forground-border w-full'>
                         <div
-                            className='flex items-center justify-between p-4 pb-2 border-b cursor-move'
+                            className='flex items-center justify-between p-4 py-2 border-b cursor-move'
                             onPointerDown={(e) => {
                                 if (!isFullScreen) {
                                     dragControls.start(e);
@@ -339,12 +342,6 @@ export function RenderInPopover({
     title?: string;
 }) {
     const { renderPopover, setTitle } = useEventPopover();
-
-    React.useEffect(() => {
-        if (title) {
-            setTitle(title);
-        }
-    }, [title, setTitle]);
 
     return renderPopover(children);
 }

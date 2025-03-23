@@ -3,7 +3,7 @@ npx lint-staged
 
 echo '🤔🤔🤔🤔... Alright... Code looks good to me... Trying to build now. 🤔🤔🤔🤔'
 
-npm run build ||
+npm run build:staging ||
 (
     echo '❌👷🔨❌ Better call Bob... Because your build failed ❌👷🔨❌
             Next build failed: View the errors above to see why. 

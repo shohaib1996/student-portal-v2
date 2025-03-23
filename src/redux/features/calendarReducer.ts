@@ -1,0 +1,87 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+type TInitialState = {
+    eventFilter: (
+        | 'accepted'
+        | 'pending'
+        | 'denied'
+        | 'finished'
+        | 'proposedTime'
+    )[];
+    todoFilter: (
+        | 'confirmed'
+        | 'cancelled'
+        | 'todo'
+        | 'inprogress'
+        | 'completed'
+    )[];
+    holidayFilter: string[];
+    rolesFilter: ('organizer' | 'attendee')[];
+    priorityFilter: ('low' | 'medium' | 'high')[];
+    currentDate: Date | null;
+};
+
+const initialState: TInitialState = {
+    eventFilter: [],
+    todoFilter: [],
+    holidayFilter: [],
+    rolesFilter: [],
+    priorityFilter: [],
+    currentDate: null,
+};
+
+const calendarSlice = createSlice({
+    name: 'calendar',
+    initialState,
+    reducers: {
+        setEventFilter: (
+            state,
+            action: PayloadAction<TInitialState['eventFilter']>,
+        ) => {
+            state.eventFilter = action.payload;
+        },
+        setTodoFilter: (
+            state,
+            action: PayloadAction<TInitialState['todoFilter']>,
+        ) => {
+            state.todoFilter = action.payload;
+        },
+        setHolidayFilter: (state, action: PayloadAction<string[]>) => {
+            state.holidayFilter = action.payload;
+        },
+        setRolesFilter: (
+            state,
+            action: PayloadAction<('organizer' | 'attendee')[]>,
+        ) => {
+            state.rolesFilter = action.payload;
+        },
+        setPriorityFilter: (
+            state,
+            action: PayloadAction<('low' | 'medium' | 'high')[]>,
+        ) => {
+            state.priorityFilter = action.payload;
+        },
+        setCurrentDate: (state, action: PayloadAction<Date | null>) => {
+            state.currentDate = action.payload;
+        },
+        resetFilters: (state) => {
+            state.eventFilter = [];
+            state.todoFilter = [];
+            state.holidayFilter = [];
+            state.rolesFilter = [];
+            state.priorityFilter = [];
+        },
+    },
+});
+
+export const {
+    setEventFilter,
+    setTodoFilter,
+    setHolidayFilter,
+    setRolesFilter,
+    setPriorityFilter,
+    setCurrentDate,
+    resetFilters,
+} = calendarSlice.actions;
+
+export default calendarSlice.reducer;

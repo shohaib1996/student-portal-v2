@@ -109,7 +109,7 @@ export default function Calendar() {
                             <ChevronRight className='h-4 w-4' />
                         </Button>
                     </div>
-                    <h3 className='text-base text-dark-gray font-medium'>
+                    <h3 className='text-base text-dark-gray font-medium truncate'>
                         {getHeaderText()}
                     </h3>
                     <Select

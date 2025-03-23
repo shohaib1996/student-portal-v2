@@ -29,10 +29,12 @@ const AddNotification = ({
     notificaiton,
     setNotification,
     className,
+    disabled,
 }: {
     notificaiton: TNotification;
     setNotification: (_: TNotification) => void;
     className?: string;
+    disabled?: boolean;
 }) => {
     const { chats } = useAppSelector((state) => state?.chat);
     return (
@@ -45,6 +47,7 @@ const AddNotification = ({
             <div>
                 <label className='text-dark-gray text-sm'>Time Before</label>
                 <Select
+                    disabled={disabled}
                     onValueChange={(val) =>
                         setNotification({
                             ...notificaiton,
@@ -75,12 +78,17 @@ const AddNotification = ({
                     Methods (max:3)
                 </label>
                 <MultiSelect
+                    disabled={disabled}
                     placeholder='Select Methods'
                     onChange={(val) =>
                         setNotification({
                             ...notificaiton,
                             methods: val as (
-                                "email" | "push" | "text" | "directMessage" | "crowds"
+                                | 'email'
+                                | 'push'
+                                | 'text'
+                                | 'directMessage'
+                                | 'crowds'
                             )[],
                         })
                     }
@@ -94,7 +102,7 @@ const AddNotification = ({
                     ]}
                 />
             </div>
-            {notificaiton?.methods.find(m => m === 'crowds') && (
+            {notificaiton?.methods.find((m) => m === 'crowds') && (
                 <div className='col-span-2'>
                     <label className='text-dark-gray text-sm'>
                         Chat Groups (max:3)

@@ -24,6 +24,7 @@ type TProps = {
     searchable?: boolean;
     className?: string;
     wrapperClassName?: string;
+    disabled?: boolean;
 };
 
 const MultiSelect = ({
@@ -32,6 +33,7 @@ const MultiSelect = ({
     options,
     placeholder,
     wrapperClassName,
+    disabled,
     className,
     searchable = false,
 }: TProps) => {
@@ -101,13 +103,20 @@ const MultiSelect = ({
     return (
         <div ref={menuRef} className={cn('relative w-full', wrapperClassName)}>
             <div
+                aria-disabled={disabled}
                 onClick={(e) => {
                     e.stopPropagation();
+                    if (disabled) {
+                        return;
+                    }
                     setOpen((prev) => !prev);
                 }}
                 className={cn(
-                    'border flex flex-wrap py-1 px-2 text-gray text-xs items-center gap-1 border-forground-border w-full bg-background min-h-10 rounded-md',
+                    'border flex cursor-pointer flex-wrap py-1 px-2 text-gray text-xs items-center gap-1 border-forground-border w-full bg-background min-h-10 rounded-md',
                     className,
+                    {
+                        'opacity-50 cursor-not-allowed': disabled,
+                    },
                 )}
             >
                 {value.length > 0 ? (
@@ -118,8 +127,8 @@ const MultiSelect = ({
                         >
                             {options.find((op) => op.value === v)?.label}
                             <button
+                                disabled={disabled}
                                 type='button'
-                                className='cursor-pointer'
                                 onClick={(e) => handleRemove(e, v)}
                             >
                                 <XIcon size={14} />

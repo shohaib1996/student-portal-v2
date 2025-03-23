@@ -62,7 +62,11 @@ import {
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import timesArray from '../../../../public/times';
-import { TAvailability, TNotification } from '@/types/calendar/calendarTypes';
+import {
+    TAvailability,
+    TEvent,
+    TNotification,
+} from '@/types/calendar/calendarTypes';
 import { MarkdownEditor } from '@/components/global/MarkdownEditor/MarkdownEditor';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import Image from 'next/image';
@@ -74,14 +78,33 @@ const customImg = '/calendar/custom.png';
 import AddNotification from './AddNotification';
 import { TEventFormType } from '../validations/eventValidation';
 import MultiSelect from '@/components/global/MultiSelect';
+import { useAppSelector } from '@/redux/hooks';
+import { toast } from 'sonner';
 
 type TProps = {
     form: UseFormReturn<TEventFormType>;
     onSubmit: SubmitHandler<TEventFormType>;
     setCurrentDate: Dispatch<SetStateAction<Dayjs>>;
+    edit: boolean;
+    event?: TEvent;
 };
 
-const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
+export const renderRecurrence = (
+    val?: 'weekly' | 'daily' | 'monthly' | 'yearly' | '',
+) => {
+    switch (val) {
+        case 'weekly':
+            return 'Week';
+        case 'daily':
+            return 'Day';
+        case 'monthly':
+            return 'Month';
+        case 'yearly':
+            return 'Year';
+    }
+};
+
+const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
     const [openUser, setOpenUser] = useState<string>('');
     const [query, setQuery] = useState('');
     const {
@@ -105,9 +128,14 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>(
         [],
     );
+    const { user } = useAppSelector((s) => s.auth);
+
+    const isMyEvent = event?.organizer?._id === user?._id;
 
     useEffect(() => {
-        handleSetAvailibility(date);
+        if (userAvailability) {
+            handleSetAvailibility(date);
+        }
     }, [userAvailability]);
 
     const handleDateSelect = (date: Date | undefined) => {
@@ -138,17 +166,6 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
         : [];
 
     const { isFullScreen, setIsFullScreen } = useEventPopover();
-
-    const findUser = useCallback(
-        (id: string) => {
-            const user = users?.find((u) => u._id === id);
-
-            return user;
-        },
-        [users],
-    );
-
-    console.log(form.getValues());
 
     const titleField = (className?: string) => {
         return (
@@ -240,7 +257,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                 control={form.control}
                 name='eventColor'
                 render={({ field }) => (
-                    <FormItem>
+                    <FormItem className={className}>
                         {isFullScreen && <FormLabel>Color</FormLabel>}
                         <FormControl>
                             <div>
@@ -255,21 +272,6 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                 )}
             />
         );
-    };
-
-    const renderRecurrence = (
-        val?: 'weekly' | 'daily' | 'monthly' | 'yearly',
-    ) => {
-        switch (val) {
-            case 'weekly':
-                return 'Week';
-            case 'daily':
-                return 'Day';
-            case 'monthly':
-                return 'Month';
-            case 'yearly':
-                return 'Year';
-        }
     };
 
     const dateField = (className?: string) => {
@@ -413,7 +415,11 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                         <div>
                                             <Select
                                                 allowDeselect
-                                                value={field.value?.frequency}
+                                                value={
+                                                    field.value?.isRecurring
+                                                        ? field.value?.frequency
+                                                        : ''
+                                                }
                                                 onValueChange={(val) =>
                                                     field.onChange({
                                                         frequency: val,
@@ -445,50 +451,53 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                 </SelectContent>
                                             </Select>
 
-                                            {field.value?.frequency ===
-                                                'weekly' && (
-                                                <div className='flex gap-1 pt-2'>
-                                                    {days.map((day) => (
-                                                        <p
-                                                            key={day.label}
-                                                            onClick={() =>
-                                                                field.onChange({
-                                                                    ...field.value,
-                                                                    daysOfWeek:
-                                                                        field.value?.daysOfWeek?.includes(
-                                                                            day.value,
-                                                                        )
-                                                                            ? field.value?.daysOfWeek.filter(
-                                                                                  (
-                                                                                      v,
-                                                                                  ) =>
-                                                                                      v !==
-                                                                                      day.value,
-                                                                              )
-                                                                            : [
-                                                                                  ...(field
-                                                                                      .value
-                                                                                      ?.daysOfWeek ||
-                                                                                      []),
-                                                                                  day.value,
-                                                                              ],
-                                                                })
-                                                            }
-                                                            className={`hover:bg-primary text-xs size-8 flex items-center justify-center py-1 px-2 cursor-pointer hover:text-pure-white rounded-full ${
-                                                                field.value?.daysOfWeek?.includes(
-                                                                    day.value,
-                                                                )
-                                                                    ? 'bg-primary text-pure-white'
-                                                                    : 'bg-background'
-                                                            }`}
-                                                        >
-                                                            <span>
-                                                                {day.label}
-                                                            </span>
-                                                        </p>
-                                                    ))}
-                                                </div>
-                                            )}
+                                            {field.value?.isRecurring &&
+                                                field.value?.frequency ===
+                                                    'weekly' && (
+                                                    <div className='flex gap-1 pt-2'>
+                                                        {days.map((day) => (
+                                                            <p
+                                                                key={day.label}
+                                                                onClick={() =>
+                                                                    field.onChange(
+                                                                        {
+                                                                            ...field.value,
+                                                                            daysOfWeek:
+                                                                                field.value?.daysOfWeek?.includes(
+                                                                                    day.value,
+                                                                                )
+                                                                                    ? field.value?.daysOfWeek.filter(
+                                                                                          (
+                                                                                              v,
+                                                                                          ) =>
+                                                                                              v !==
+                                                                                              day.value,
+                                                                                      )
+                                                                                    : [
+                                                                                          ...(field
+                                                                                              .value
+                                                                                              ?.daysOfWeek ||
+                                                                                              []),
+                                                                                          day.value,
+                                                                                      ],
+                                                                        },
+                                                                    )
+                                                                }
+                                                                className={`hover:bg-primary text-xs size-8 flex items-center justify-center py-1 px-2 cursor-pointer hover:text-pure-white rounded-full ${
+                                                                    field.value?.daysOfWeek?.includes(
+                                                                        day.value,
+                                                                    )
+                                                                        ? 'bg-primary text-pure-white'
+                                                                        : 'bg-background'
+                                                                }`}
+                                                            >
+                                                                <span>
+                                                                    {day.label}
+                                                                </span>
+                                                            </p>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             {field.value?.isRecurring && (
                                                 <div className='flex items-center text-xs text-dark-gray'>
                                                     <p>
@@ -502,10 +511,10 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                     <DatePicker
                                                         allowDeselect={false}
                                                         className='border-none h-fit w-fit'
-                                                        value={
+                                                        value={dayjs(
                                                             field.value
-                                                                .endRecurrence
-                                                        }
+                                                                .endRecurrence,
+                                                        )}
                                                         onChange={(val) =>
                                                             field.onChange({
                                                                 ...field.value,
@@ -516,6 +525,17 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                         placeholder='Choose an end date'
                                                     />
                                                 </div>
+                                            )}
+                                            {form.formState.errors?.recurrence
+                                                ?.endRecurrence && (
+                                                <p className='text-xs text-destructive'>
+                                                    {
+                                                        form.formState.errors
+                                                            ?.recurrence
+                                                            ?.endRecurrence
+                                                            ?.message
+                                                    }
+                                                </p>
                                             )}
                                         </div>
                                     </FormControl>
@@ -549,6 +569,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                             )}
                             {field.value?.map((noti, i) => (
                                 <AddNotification
+                                    disabled={edit}
                                     setNotification={(val) =>
                                         field.onChange([val])
                                     }
@@ -603,7 +624,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                 <FormLabel reqired>Location</FormLabel>
                             )}
                             <div className='bg-foreground space-y-2 rounded-md border border-forground-border p-3 mt-2'>
-                                <div className='grid grid-cols-4 gap-2'>
+                                <div className='grid grid-cols-2 md:grid-cols-4 gap-2'>
                                     {options.map((op) => (
                                         <div
                                             onClick={() =>
@@ -747,7 +768,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                 (
                                                                                     u,
                                                                                 ) =>
-                                                                                    u ===
+                                                                                    u._id ===
                                                                                     user._id,
                                                                             );
                                                                         return (
@@ -761,7 +782,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                                 (
                                                                                                     u,
                                                                                                 ) =>
-                                                                                                    u !==
+                                                                                                    u._id !==
                                                                                                     user._id,
                                                                                             ),
                                                                                         );
@@ -769,7 +790,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                         field.onChange(
                                                                                             [
                                                                                                 ...field.value,
-                                                                                                user._id,
+                                                                                                user,
                                                                                             ],
                                                                                         );
                                                                                     }
@@ -782,7 +803,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                     },
                                                                                 )}
                                                                                 key={
-                                                                                    user._id
+                                                                                    i
                                                                                 }
                                                                             >
                                                                                 <TdUser
@@ -890,16 +911,22 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                     ) : (
                         <div className='space-y-2 h-full w-full pb-2'>
                             <div className='grid grid-cols-10 gap-2 items-start'>
-                                {titleField('col-span-5')}
-                                {courseLink('col-span-2')}
-                                {priorityField('col-span-2')}
-                                {colorField('col-span-1')}
+                                {titleField('col-span-10 lg:col-span-5')}
+                                {courseLink(
+                                    'md:col-span-5 col-span-10 2xl:col-span-2',
+                                )}
+                                {priorityField(
+                                    'col-span-5 md:col-span-5 2xl:col-span-2',
+                                )}
+                                {colorField(
+                                    'col-span-5 md:col-span-5 2xl:col-span-1',
+                                )}
                             </div>
-                            <div className='grid grid-cols-2 gap-2'>
+                            <div className='grid md:grid-cols-2 grid-cols-1 gap-2'>
                                 {dateField('')}
                                 {locationField()}
                             </div>
-                            <div className='grid grid-cols-[2fr_1fr] gap-2'>
+                            <div className='grid md:grid-cols-2 grid-cols-1 lg:grid-cols-[2fr_1fr] gap-2'>
                                 {agendaField()}
                                 <div className='h-full'>
                                     {isFullScreen && (
@@ -927,10 +954,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                             <div
                                                                                 className='relative bg-background px-2 py-1 flex items-center justify-between rounded-md'
                                                                                 key={
-                                                                                    (
-                                                                                        user as TUser
-                                                                                    )
-                                                                                        ._id
+                                                                                    i
                                                                                 }
                                                                             >
                                                                                 <TdUser
@@ -938,23 +962,25 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                         user as TUser
                                                                                     }
                                                                                 />
-                                                                                <X
-                                                                                    onClick={() =>
-                                                                                        field.onChange(
-                                                                                            field.value?.filter(
-                                                                                                (
-                                                                                                    u,
-                                                                                                ) =>
-                                                                                                    u !==
-                                                                                                    user,
-                                                                                            ),
-                                                                                        )
-                                                                                    }
-                                                                                    className='text-danger cursor-pointer'
-                                                                                    size={
-                                                                                        18
-                                                                                    }
-                                                                                />
+                                                                                {isMyEvent && (
+                                                                                    <X
+                                                                                        onClick={() =>
+                                                                                            field.onChange(
+                                                                                                field.value?.filter(
+                                                                                                    (
+                                                                                                        u,
+                                                                                                    ) =>
+                                                                                                        u !==
+                                                                                                        user,
+                                                                                                ),
+                                                                                            )
+                                                                                        }
+                                                                                        className='text-danger cursor-pointer'
+                                                                                        size={
+                                                                                            18
+                                                                                        }
+                                                                                    />
+                                                                                )}
                                                                             </div>
                                                                         ),
                                                                     )}
@@ -964,6 +990,9 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                         Permission
                                                                     </label>
                                                                     <MultiSelect
+                                                                        disabled={
+                                                                            !isMyEvent
+                                                                        }
                                                                         onChange={(
                                                                             val,
                                                                         ) => {
@@ -1036,7 +1065,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                 (
                                                                                     u,
                                                                                 ) =>
-                                                                                    u ===
+                                                                                    u._id ===
                                                                                     user._id,
                                                                             );
                                                                         return (
@@ -1051,30 +1080,41 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                     )
                                                                                 }
                                                                                 key={
-                                                                                    user._id
+                                                                                    i
                                                                                 }
                                                                             >
                                                                                 <PopoverTrigger className='w-full block'>
                                                                                     <div
                                                                                         onClick={() => {
                                                                                             if (
-                                                                                                selected
+                                                                                                isMyEvent ||
+                                                                                                event
+                                                                                                    ?.permissions
+                                                                                                    ?.inviteOthers
                                                                                             ) {
-                                                                                                field.onChange(
-                                                                                                    field.value?.filter(
-                                                                                                        (
-                                                                                                            u,
-                                                                                                        ) =>
-                                                                                                            u !==
-                                                                                                            user._id,
-                                                                                                    ),
-                                                                                                );
+                                                                                                if (
+                                                                                                    selected
+                                                                                                ) {
+                                                                                                    field.onChange(
+                                                                                                        field.value?.filter(
+                                                                                                            (
+                                                                                                                u,
+                                                                                                            ) =>
+                                                                                                                u._id !==
+                                                                                                                user._id,
+                                                                                                        ),
+                                                                                                    );
+                                                                                                } else {
+                                                                                                    field.onChange(
+                                                                                                        [
+                                                                                                            ...field.value,
+                                                                                                            user,
+                                                                                                        ],
+                                                                                                    );
+                                                                                                }
                                                                                             } else {
-                                                                                                field.onChange(
-                                                                                                    [
-                                                                                                        ...field.value,
-                                                                                                        user._id,
-                                                                                                    ],
+                                                                                                toast.warning(
+                                                                                                    'You do not have permission to invite users',
                                                                                                 );
                                                                                             }
                                                                                         }}
