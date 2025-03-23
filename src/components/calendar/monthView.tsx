@@ -16,7 +16,6 @@ import { Badge } from '@/components/ui/badge';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
 import { TEvent } from '@/types/calendar/calendarTypes';
 
-import staticEvents from '../../../public/calendarData.json';
 import GlobalDropdown from '../global/GlobalDropdown';
 import { Button } from '../ui/button';
 import AcceptedIcon from '../svgs/calendar/AcceptedIcon';
@@ -29,6 +28,8 @@ import {
     useEventPopover,
 } from './CreateEvent/EventPopover';
 import { useRouter } from 'next/navigation';
+
+const staticEvents = '/calendarData.json';
 
 interface MonthViewProps {
     currentDate: Date;

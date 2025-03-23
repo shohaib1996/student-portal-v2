@@ -1,0 +1,31 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bh-student-portal
+  namespace: {{ .Values.namespace }}
+  labels:
+    date: "{{ now | unixEpoch }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: bh-student-portal
+  template:
+    metadata:
+      labels:
+        app: bh-student-portal
+    spec:
+      containers:
+        - name: {{ .Values.image.name }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: {{ .Values.limits.cpu }}
+              memory: {{ .Values.limits.memory }}
+            requests:
+              cpu: {{ .Values.requests.cpu }}
+              memory: {{ .Values.requests.memory }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets.name }}

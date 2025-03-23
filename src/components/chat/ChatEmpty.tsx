@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import Image from 'next/image';
-import emptyChat from '/public/chat/empty_chat.png';
+const emptyChat = '/chat/empty_chat.png';
 import { Button } from '../ui/button';
 import { MessagesSquare } from 'lucide-react';
 

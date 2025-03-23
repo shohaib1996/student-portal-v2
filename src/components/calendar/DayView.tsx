@@ -8,9 +8,11 @@ import dayjs, { Dayjs } from 'dayjs';
 import { toast } from 'sonner';
 import GlobalTooltip from '../global/GlobalTooltip';
 import { renderStatus } from './monthView';
-import staticEvents from '../../../public/calendarData.json';
+
 import { TEvent } from '@/types/calendar/calendarTypes';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
+
+const staticEvents = '/calendarData.json';
 
 interface DayViewProps {
     currentDate: Date;

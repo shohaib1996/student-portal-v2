@@ -1,0 +1,25 @@
+# Default values for ts4u-backend.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+namespace: ms-staging
+
+limits:
+  cpu: "500m"
+  memory: "512Mi"
+
+requests:
+  cpu: "250m"
+  memory: "512Mi"
+
+host: beta-staging-portal.bootcampshub.ai
+
+image:
+  name: bh-student-portal
+  repository: ts4udocker/bh-student-portal
+  tag: staging-latest
+  pullPolicy: IfNotPresent
+imagePullSecrets:
+  name: regcred
