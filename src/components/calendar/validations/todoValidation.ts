@@ -19,6 +19,19 @@ export const TodoFormSchema = z.object({
         { message: 'Please select a future date' },
     ),
     endTime: z.date(),
+    recurrence: z
+        .object({
+            isRecurring: z.boolean(),
+            frequency: z
+                .enum(['daily', 'weekly', 'monthly', 'yearly'])
+                .optional(),
+            interval: z.number().int().positive(), // Ensures a positive integer
+            daysOfWeek: z.array(z.number().int().min(1).max(7)).optional(), // 1 = Monday, 7 = Sunday
+            endRecurrence: z.string().refine((val) => !isNaN(Date.parse(val)), {
+                message: 'Invalid ISO 8601 date format',
+            }),
+        })
+        .optional(),
     isAllDay: z.boolean().default(false),
     reminders: z.array(
         z

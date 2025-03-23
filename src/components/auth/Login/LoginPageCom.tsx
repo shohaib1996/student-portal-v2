@@ -150,7 +150,13 @@ const LoginPageCom = () => {
                 </PortalForm>
             </div>
             <div className='flex min-h-screen w-1/2 flex-col items-center justify-center bg-primary text-center'>
-                <Image alt='bootcampsHub logo' className='w-64' src={logo1} />
+                <Image
+                    alt='bootcampsHub logo'
+                    className='w-64'
+                    width={250}
+                    height={50}
+                    src={logo1}
+                />
                 <h3 className='mt-common text-4xl font-bold text-pure-white'>
                     Welcome Back!
                 </h3>

@@ -1,4 +1,5 @@
 import { baseApi } from '../baseApi';
+import { tagTypes } from '../tagType/tagTypes';
 
 type TParams = {
     queryDate: {
@@ -41,6 +42,30 @@ const calendarApi = baseApi.injectEndpoints({
                 url: `v2/calendar/event/details/${id}`,
                 method: 'GET',
             }),
+            providesTags: (result, error, id) => [
+                { type: tagTypes.singleEvent, id },
+            ],
+        }),
+        updateEvent: build.mutation({
+            query: ({
+                id,
+                updateOption,
+                changes,
+            }: {
+                id: string;
+                updateOption: 'thisAndFollowing' | 'thisEvent' | 'allEvents';
+                changes: any;
+            }) => ({
+                url: `v2/calendar/event/update/${id}`,
+                method: 'PATCH',
+                data: {
+                    updateOption,
+                    changes,
+                },
+            }),
+            invalidatesTags: (result, error, { id }) => [
+                { type: tagTypes.singleEvent, id },
+            ],
         }),
     }),
 });
@@ -51,4 +76,5 @@ export const {
     useFindUserAvailabilityQuery,
     useCreateEventMutation,
     useGetSingleEventQuery,
+    useUpdateEventMutation,
 } = calendarApi;
