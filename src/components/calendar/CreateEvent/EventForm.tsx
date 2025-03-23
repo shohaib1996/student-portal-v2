@@ -79,9 +79,25 @@ type TProps = {
     form: UseFormReturn<TEventFormType>;
     onSubmit: SubmitHandler<TEventFormType>;
     setCurrentDate: Dispatch<SetStateAction<Dayjs>>;
+    edit: boolean;
 };
 
-const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
+export const renderRecurrence = (
+    val?: 'weekly' | 'daily' | 'monthly' | 'yearly' | '',
+) => {
+    switch (val) {
+        case 'weekly':
+            return 'Week';
+        case 'daily':
+            return 'Day';
+        case 'monthly':
+            return 'Month';
+        case 'yearly':
+            return 'Year';
+    }
+};
+
+const EventForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
     const [openUser, setOpenUser] = useState<string>('');
     const [query, setQuery] = useState('');
     const {
@@ -107,7 +123,9 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
     );
 
     useEffect(() => {
-        handleSetAvailibility(date);
+        if (userAvailability) {
+            handleSetAvailibility(date);
+        }
     }, [userAvailability]);
 
     const handleDateSelect = (date: Date | undefined) => {
@@ -138,17 +156,6 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
         : [];
 
     const { isFullScreen, setIsFullScreen } = useEventPopover();
-
-    const findUser = useCallback(
-        (id: string) => {
-            const user = users?.find((u) => u._id === id);
-
-            return user;
-        },
-        [users],
-    );
-
-    console.log(form.getValues());
 
     const titleField = (className?: string) => {
         return (
@@ -255,21 +262,6 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                 )}
             />
         );
-    };
-
-    const renderRecurrence = (
-        val?: 'weekly' | 'daily' | 'monthly' | 'yearly',
-    ) => {
-        switch (val) {
-            case 'weekly':
-                return 'Week';
-            case 'daily':
-                return 'Day';
-            case 'monthly':
-                return 'Month';
-            case 'yearly':
-                return 'Year';
-        }
     };
 
     const dateField = (className?: string) => {
@@ -413,7 +405,11 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                         <div>
                                             <Select
                                                 allowDeselect
-                                                value={field.value?.frequency}
+                                                value={
+                                                    field.value?.isRecurring
+                                                        ? field.value?.frequency
+                                                        : ''
+                                                }
                                                 onValueChange={(val) =>
                                                     field.onChange({
                                                         frequency: val,
@@ -445,50 +441,53 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                 </SelectContent>
                                             </Select>
 
-                                            {field.value?.frequency ===
-                                                'weekly' && (
-                                                <div className='flex gap-1 pt-2'>
-                                                    {days.map((day) => (
-                                                        <p
-                                                            key={day.label}
-                                                            onClick={() =>
-                                                                field.onChange({
-                                                                    ...field.value,
-                                                                    daysOfWeek:
-                                                                        field.value?.daysOfWeek?.includes(
-                                                                            day.value,
-                                                                        )
-                                                                            ? field.value?.daysOfWeek.filter(
-                                                                                  (
-                                                                                      v,
-                                                                                  ) =>
-                                                                                      v !==
-                                                                                      day.value,
-                                                                              )
-                                                                            : [
-                                                                                  ...(field
-                                                                                      .value
-                                                                                      ?.daysOfWeek ||
-                                                                                      []),
-                                                                                  day.value,
-                                                                              ],
-                                                                })
-                                                            }
-                                                            className={`hover:bg-primary text-xs size-8 flex items-center justify-center py-1 px-2 cursor-pointer hover:text-pure-white rounded-full ${
-                                                                field.value?.daysOfWeek?.includes(
-                                                                    day.value,
-                                                                )
-                                                                    ? 'bg-primary text-pure-white'
-                                                                    : 'bg-background'
-                                                            }`}
-                                                        >
-                                                            <span>
-                                                                {day.label}
-                                                            </span>
-                                                        </p>
-                                                    ))}
-                                                </div>
-                                            )}
+                                            {field.value?.isRecurring &&
+                                                field.value?.frequency ===
+                                                    'weekly' && (
+                                                    <div className='flex gap-1 pt-2'>
+                                                        {days.map((day) => (
+                                                            <p
+                                                                key={day.label}
+                                                                onClick={() =>
+                                                                    field.onChange(
+                                                                        {
+                                                                            ...field.value,
+                                                                            daysOfWeek:
+                                                                                field.value?.daysOfWeek?.includes(
+                                                                                    day.value,
+                                                                                )
+                                                                                    ? field.value?.daysOfWeek.filter(
+                                                                                          (
+                                                                                              v,
+                                                                                          ) =>
+                                                                                              v !==
+                                                                                              day.value,
+                                                                                      )
+                                                                                    : [
+                                                                                          ...(field
+                                                                                              .value
+                                                                                              ?.daysOfWeek ||
+                                                                                              []),
+                                                                                          day.value,
+                                                                                      ],
+                                                                        },
+                                                                    )
+                                                                }
+                                                                className={`hover:bg-primary text-xs size-8 flex items-center justify-center py-1 px-2 cursor-pointer hover:text-pure-white rounded-full ${
+                                                                    field.value?.daysOfWeek?.includes(
+                                                                        day.value,
+                                                                    )
+                                                                        ? 'bg-primary text-pure-white'
+                                                                        : 'bg-background'
+                                                                }`}
+                                                            >
+                                                                <span>
+                                                                    {day.label}
+                                                                </span>
+                                                            </p>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             {field.value?.isRecurring && (
                                                 <div className='flex items-center text-xs text-dark-gray'>
                                                     <p>
@@ -502,10 +501,10 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                     <DatePicker
                                                         allowDeselect={false}
                                                         className='border-none h-fit w-fit'
-                                                        value={
+                                                        value={dayjs(
                                                             field.value
-                                                                .endRecurrence
-                                                        }
+                                                                .endRecurrence,
+                                                        )}
                                                         onChange={(val) =>
                                                             field.onChange({
                                                                 ...field.value,
@@ -516,6 +515,17 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                         placeholder='Choose an end date'
                                                     />
                                                 </div>
+                                            )}
+                                            {form.formState.errors?.recurrence
+                                                ?.endRecurrence && (
+                                                <p className='text-xs text-destructive'>
+                                                    {
+                                                        form.formState.errors
+                                                            ?.recurrence
+                                                            ?.endRecurrence
+                                                            ?.message
+                                                    }
+                                                </p>
                                             )}
                                         </div>
                                     </FormControl>
@@ -549,6 +559,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                             )}
                             {field.value?.map((noti, i) => (
                                 <AddNotification
+                                    disabled={edit}
                                     setNotification={(val) =>
                                         field.onChange([val])
                                     }
@@ -747,7 +758,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                 (
                                                                                     u,
                                                                                 ) =>
-                                                                                    u ===
+                                                                                    u._id ===
                                                                                     user._id,
                                                                             );
                                                                         return (
@@ -761,7 +772,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                                 (
                                                                                                     u,
                                                                                                 ) =>
-                                                                                                    u !==
+                                                                                                    u._id !==
                                                                                                     user._id,
                                                                                             ),
                                                                                         );
@@ -769,7 +780,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                         field.onChange(
                                                                                             [
                                                                                                 ...field.value,
-                                                                                                user._id,
+                                                                                                user,
                                                                                             ],
                                                                                         );
                                                                                     }
@@ -782,7 +793,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                     },
                                                                                 )}
                                                                                 key={
-                                                                                    user._id
+                                                                                    i
                                                                                 }
                                                                             >
                                                                                 <TdUser
@@ -927,10 +938,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                             <div
                                                                                 className='relative bg-background px-2 py-1 flex items-center justify-between rounded-md'
                                                                                 key={
-                                                                                    (
-                                                                                        user as TUser
-                                                                                    )
-                                                                                        ._id
+                                                                                    i
                                                                                 }
                                                                             >
                                                                                 <TdUser
@@ -1036,7 +1044,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                 (
                                                                                     u,
                                                                                 ) =>
-                                                                                    u ===
+                                                                                    u._id ===
                                                                                     user._id,
                                                                             );
                                                                         return (
@@ -1051,7 +1059,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                     )
                                                                                 }
                                                                                 key={
-                                                                                    user._id
+                                                                                    i
                                                                                 }
                                                                             >
                                                                                 <PopoverTrigger className='w-full block'>
@@ -1065,7 +1073,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                                         (
                                                                                                             u,
                                                                                                         ) =>
-                                                                                                            u !==
+                                                                                                            u._id !==
                                                                                                             user._id,
                                                                                                     ),
                                                                                                 );
@@ -1073,7 +1081,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                                                 field.onChange(
                                                                                                     [
                                                                                                         ...field.value,
-                                                                                                        user._id,
+                                                                                                        user,
                                                                                                     ],
                                                                                                 );
                                                                                             }

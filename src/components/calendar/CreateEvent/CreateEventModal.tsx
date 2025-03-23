@@ -19,6 +19,7 @@ import dayjs from 'dayjs';
 import {
     useCreateEventMutation,
     useGetSingleEventQuery,
+    useUpdateEventMutation,
 } from '@/redux/api/calendar/calendarApi';
 import { toast } from 'sonner';
 import {
@@ -30,20 +31,45 @@ import { TodoFormSchema, TTodoFormType } from '../validations/todoValidation';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { TEvent } from '@/types/calendar/calendarTypes';
 import EventDetails from '../EventDetails';
+import { cn } from '@/lib/utils';
+import { TUser } from '@/types/auth';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+import GlobalModal from '@/components/global/GlobalModal';
 
 const CreateEventModal = () => {
     const { closePopover, isFullScreen, updateId } = useEventPopover();
     const [currentDate, setCurrentDate] = useState(dayjs());
     const [tab, setTab] = useState('event');
-    const [createEvent] = useCreateEventMutation();
+    const [createEvent, { isLoading: isCreatingEvent }] =
+        useCreateEventMutation();
+    const [updateEvent, { isLoading: isUpdating }] = useUpdateEventMutation();
+    const [updateOption, setUpdateOption] = useState<
+        'thisEvent' | 'thisAndFollowing' | 'allEvents'
+    >('thisEvent');
 
     const { data: eventDetails } = useGetSingleEventQuery(updateId as string, {
         skip: !updateId,
     });
 
+    const handleClose = () => {
+        closePopover();
+        eventForm.reset(eventDefaultValues);
+        todoForm.reset(todoDefalultValues);
+        setUpdateOpen(false);
+    };
+
     useEffect(() => {
         const event: TEvent | undefined = eventDetails?.event;
-        if (event) {
+        if (!event) {
+            return;
+        }
+        if (updateId || event.type === 'event') {
+            setTab('event');
             eventForm.reset({
                 title: event.title,
                 priority: event.priority || undefined,
@@ -59,8 +85,21 @@ const CreateEventModal = () => {
                 eventColor: event.eventColor,
                 permissions: event.permissions,
             });
+        } else if (event && event.type === 'task') {
+            setTab('todo');
+            todoForm.reset({
+                title: event.title,
+                priority: event.priority || undefined,
+                startTime: new Date(event.startTime),
+                endTime: new Date(event.endTime),
+                isAllDay: event.isAllDay,
+                // repeat: false,
+                reminders: event.reminders,
+                recurrence: event.recurrence,
+                description: event.description,
+            });
         }
-    }, [eventDetails]);
+    }, [eventDetails, updateId]);
 
     const eventDefaultValues: TEventFormType = {
         title: '',
@@ -123,22 +162,87 @@ const CreateEventModal = () => {
     });
 
     useEffect(() => {
-        console.log(eventForm.formState?.errors);
         const errors = Object.values(eventForm.formState?.errors);
+        console.log(errors);
         if (errors.length > 0) {
-            toast.error(errors[0].message);
+            if (eventForm.formState.errors.recurrence?.endRecurrence) {
+                toast.error(
+                    eventForm.formState.errors.recurrence?.endRecurrence
+                        .message,
+                );
+            } else {
+                toast.error(errors[0].message);
+            }
         }
     }, [eventForm.formState?.errors]);
+
+    const getAttendeeChanges = (
+        prevAttendees: TUser[],
+        newAttendees: TUser[],
+    ): { removed: string[]; added: string[] } => {
+        // Convert arrays to sets for easy comparison
+        const prevSet = new Set(prevAttendees.map((a) => a._id));
+        const newSet = new Set(newAttendees.map((a) => a._id));
+
+        // Find removed attendees
+        const removed = prevAttendees
+            .filter((a) => !newSet.has(a._id))
+            .map((u) => u._id);
+
+        // Find added attendees
+        const added = newAttendees
+            .filter((a) => !prevSet.has(a._id))
+            .map((u) => u._id);
+
+        return { removed, added };
+    };
 
     async function onEventSubmit(values: z.infer<typeof EventFormSchema>) {
         const data = values;
         try {
-            const res = await createEvent({
-                ...data,
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            }).unwrap();
-            if (res) {
-                eventForm.reset(eventForm.formState.defaultValues);
+            if (updateId) {
+                const event = eventDetails?.event as TEvent;
+                const prevAttendee =
+                    event?.attendees && event.attendees?.length > 0
+                        ? event.attendees?.map((at) => at.user as TUser)
+                        : [];
+                const { removed, added } = getAttendeeChanges(
+                    prevAttendee,
+                    values.attendees,
+                );
+
+                const changes: any = {
+                    ...data,
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                };
+
+                if (removed && removed.length > 0) {
+                    changes['attendeesToRemove'] = removed;
+                }
+                if (added && added.length > 0) {
+                    changes['attendeesToAdd'] = removed;
+                }
+
+                const res = await updateEvent({
+                    id: updateId,
+                    changes,
+                    updateOption,
+                }).unwrap();
+                if (res) {
+                    eventForm.reset(eventForm.formState.defaultValues);
+                    toast.success('Successfully added a new event');
+                    handleClose();
+                }
+            } else {
+                const res = await createEvent({
+                    ...data,
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                }).unwrap();
+                if (res) {
+                    eventForm.reset(eventForm.formState.defaultValues);
+                    toast.success('Successfully updated event');
+                    handleClose();
+                }
             }
         } catch (err) {
             console.log(err);
@@ -149,6 +253,7 @@ const CreateEventModal = () => {
         try {
             const res = await createEvent({
                 ...data,
+                type: 'todo',
                 timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             }).unwrap();
             console.log(res);
@@ -169,19 +274,69 @@ const CreateEventModal = () => {
         setCurrentDate(removeOneDay);
     };
 
-    const router = useRouter();
+    const [updateOpen, setUpdateOpen] = useState(false);
+
+    const submitButton = () => {
+        return (
+            <Button
+                onClick={() => {
+                    if (updateId) {
+                        setUpdateOpen(true);
+                    } else {
+                        if (tab === 'event') {
+                            eventForm.handleSubmit(onEventSubmit)();
+                        } else {
+                            todoForm.handleSubmit(onTodoSubmit)();
+                        }
+                    }
+                }}
+                icon={<BookmarkCheck size={18} />}
+                isLoading={isCreatingEvent || isUpdating}
+            >
+                Save & Close
+            </Button>
+        );
+    };
+
+    const updateOptionsOptions: {
+        label: string;
+        value: typeof updateOption;
+    }[] = [
+        {
+            label: 'This event',
+            value: 'thisEvent',
+        },
+        {
+            label: 'This Event and Following Events',
+            value: 'thisAndFollowing',
+        },
+        {
+            label: 'All events',
+            value: 'allEvents',
+        },
+    ];
 
     return (
         <div>
             <EventPopover
                 title={
                     <div className='flex justify-between items-center w-full'>
-                        <Button
-                            onClick={eventForm.handleSubmit(onEventSubmit)}
-                            icon={<BookmarkCheck size={18} />}
-                        >
-                            Save & Close
-                        </Button>
+                        {isFullScreen && (
+                            <div>
+                                <h2 className='text-xl text-black font-semibold'>
+                                    {updateId !== null ? 'Update' : 'Add New'}{' '}
+                                    {tab === 'todo' ? 'To-Do' : 'Event'}{' '}
+                                </h2>
+                                <p className='text-sm'>
+                                    Fill out the form to{' '}
+                                    {updateId !== null
+                                        ? 'update'
+                                        : 'create new'}{' '}
+                                    {tab === 'todo' ? 'to-do' : 'event'}
+                                </p>
+                            </div>
+                        )}
+                        {!isFullScreen && submitButton()}
                         <div className='flex gap-2'>
                             <Button
                                 tooltip='My Availibility'
@@ -190,16 +345,13 @@ const CreateEventModal = () => {
                                 icon={<AvailabilityIcon />}
                             />
                             <Button
-                                onClick={() => {
-                                    closePopover();
-                                    eventForm.reset(eventDefaultValues);
-                                    todoForm.reset(todoDefalultValues);
-                                }}
+                                onClick={handleClose}
                                 variant={'secondary'}
                                 icon={<XCircle size={18} />}
                             >
                                 Close
                             </Button>
+                            {isFullScreen && submitButton()}
                         </div>
                     </div>
                 }
@@ -227,9 +379,27 @@ const CreateEventModal = () => {
                             </Button>
                         </div>
                         <DayView
-                            onChange={(date) =>
-                                eventForm.setValue('startTime', date.toDate())
-                            }
+                            onChange={(date) => {
+                                if (tab === 'event') {
+                                    eventForm.setValue(
+                                        'startTime',
+                                        date.toDate(),
+                                    );
+                                    eventForm.setValue(
+                                        'endTime',
+                                        date.add(15, 'minutes').toDate(),
+                                    );
+                                } else {
+                                    todoForm.setValue(
+                                        'startTime',
+                                        date.toDate(),
+                                    );
+                                    todoForm.setValue(
+                                        'endTime',
+                                        date.add(15, 'minutes').toDate(),
+                                    );
+                                }
+                            }}
                             currentDate={currentDate.toDate()}
                         />
                     </div>
@@ -239,14 +409,14 @@ const CreateEventModal = () => {
                     <TabsList>
                         <TabsTrigger
                             disabled={updateId !== null}
-                            onChange={() => setTab('event')}
+                            onClick={() => setTab('event')}
                             value='event'
                         >
                             Event
                         </TabsTrigger>
                         <TabsTrigger
                             disabled={updateId !== null}
-                            onChange={() => setTab('todo')}
+                            onClick={() => setTab('todo')}
                             value='todo'
                         >
                             Todo
@@ -254,20 +424,65 @@ const CreateEventModal = () => {
                     </TabsList>
                     <TabsContent value='event'>
                         <EventForm
+                            edit={updateId !== null && eventDetails?.event}
                             setCurrentDate={setCurrentDate}
                             form={eventForm}
                             onSubmit={onEventSubmit}
                         />
                     </TabsContent>
                     <TabsContent value='todo'>
-                        <TodoForm
+                        {/* <TodoForm
                             setCurrentDate={setCurrentDate}
                             form={todoForm}
                             onSubmit={onTodoSubmit}
-                        />
+                        /> */}
                     </TabsContent>
                 </Tabs>
             </EventPopover>
+
+            <GlobalModal
+                open={updateOpen}
+                setOpen={setUpdateOpen}
+                allowFullScreen={false}
+                buttons={
+                    <div className='flex gap-2 items-center'>
+                        <Button
+                            onClick={() => setUpdateOpen(false)}
+                            variant={'primary_light'}
+                            icon={<XCircle size={18} />}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={
+                                tab === 'event'
+                                    ? eventForm.handleSubmit(onEventSubmit)
+                                    : todoForm.handleSubmit(onTodoSubmit)
+                            }
+                            icon={<BookmarkCheck size={18} />}
+                            isLoading={isCreatingEvent || isUpdating}
+                        >
+                            Save & Close
+                        </Button>
+                    </div>
+                }
+                subTitle='Select events to update from the series.'
+                title='Update recurring event'
+            >
+                <div className='flex flex-col gap-2 py-2'>
+                    {updateOptionsOptions.map((item) => (
+                        <Button
+                            onClick={() => setUpdateOption(item.value)}
+                            key={item.value}
+                            className='text-start'
+                            variant={'secondary'}
+                        >
+                            <Checkbox checked={item.value === updateOption} />{' '}
+                            {item.label}
+                        </Button>
+                    ))}
+                </div>
+            </GlobalModal>
         </div>
     );
 };

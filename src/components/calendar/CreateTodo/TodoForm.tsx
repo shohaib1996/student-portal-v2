@@ -22,6 +22,7 @@ import {
     Repeat2,
     CircleCheck,
     Loader,
+    RepeatIcon,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -63,6 +64,7 @@ import Image from 'next/image';
 import { useEventPopover } from '../CreateEvent/EventPopover';
 import { TTodoFormType } from '../validations/todoValidation';
 import AddNotification from '../CreateEvent/AddNotification';
+import { renderRecurrence } from '../CreateEvent/EventForm';
 
 type TProps = {
     form: UseFormReturn<TTodoFormType>;
@@ -102,6 +104,16 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
             handleSetAvailibility(date);
         }
     };
+
+    const days = [
+        { value: 0, label: 'Sun' },
+        { value: 1, label: 'Mon' },
+        { value: 2, label: 'Tue' },
+        { value: 3, label: 'Wed' },
+        { value: 4, label: 'Thu' },
+        { value: 5, label: 'Fri' },
+        { value: 6, label: 'Sat' },
+    ];
 
     const { data: userData, isLoading } = useFetchUsersQuery(query);
 
@@ -207,11 +219,15 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                 )}
                 <div
                     className={cn(
-                        'border border-forground-border bg-foreground rounded-md p-2 mt-2',
+                        'border border-forground-border bg-foreground rounded-md p-2 mt-2 min-h-[calc(100%-20px)]',
                         className,
                     )}
                 >
-                    <div className='space-y-2'>
+                    <div
+                        className={cn('w-full space-y-3', {
+                            'h-[calc(100%-19px)]': isFullScreen,
+                        })}
+                    >
                         {/* Date Picker */}
                         <div className='flex gap-3'>
                             <div className='flex-1 space-y-1'>
@@ -231,6 +247,15 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                             field.onChange(
                                                                 val?.toDate(),
                                                             );
+                                                            form.setValue(
+                                                                'endTime',
+                                                                dayjs(val)
+                                                                    .add(
+                                                                        15,
+                                                                        'minute',
+                                                                    )
+                                                                    .toDate(),
+                                                            );
                                                             setCurrentDate(
                                                                 val || dayjs(),
                                                             );
@@ -240,9 +265,18 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                     <TimePicker
                                                         className='bg-background '
                                                         value={field.value}
-                                                        onChange={(val) =>
-                                                            field.onChange(val)
-                                                        }
+                                                        onChange={(val) => {
+                                                            field.onChange(val);
+                                                            form.setValue(
+                                                                'endTime',
+                                                                dayjs(val)
+                                                                    .add(
+                                                                        15,
+                                                                        'minute',
+                                                                    )
+                                                                    .toDate(),
+                                                            );
+                                                        }}
                                                     />
                                                 </div>
                                             </FormControl>
@@ -309,15 +343,124 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                         </div>
 
                         {/* Repeat Button */}
-                        <Button
-                            type='button'
-                            variant='plain'
-                            className='flex items-center gap-2'
-                            size='sm'
-                        >
-                            <Repeat2 size={16} />
-                            Repeat
-                        </Button>
+                        <FormField
+                            control={form.control}
+                            name='recurrence'
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <div>
+                                            <Select
+                                                allowDeselect
+                                                value={field.value?.frequency}
+                                                onValueChange={(val) =>
+                                                    field.onChange({
+                                                        frequency: val,
+                                                        isRecurring: true,
+                                                        interval: 1,
+                                                        endRecurrence:
+                                                            field.value
+                                                                ?.endRecurrence,
+                                                    })
+                                                }
+                                            >
+                                                <SelectTrigger className='w-fit gap-2 bg-background h-8 flex'>
+                                                    <RepeatIcon size={16} />
+                                                    <SelectValue placeholder='Repeat'></SelectValue>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value='daily'>
+                                                        Daily
+                                                    </SelectItem>
+                                                    <SelectItem value='weekly'>
+                                                        Weekly
+                                                    </SelectItem>
+                                                    <SelectItem value='monthly'>
+                                                        Monthly
+                                                    </SelectItem>
+                                                    <SelectItem value='yearly'>
+                                                        Yearly
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
+
+                                            {field.value?.frequency ===
+                                                'weekly' && (
+                                                <div className='flex gap-1 pt-2'>
+                                                    {days.map((day) => (
+                                                        <p
+                                                            key={day.label}
+                                                            onClick={() =>
+                                                                field.onChange({
+                                                                    ...field.value,
+                                                                    daysOfWeek:
+                                                                        field.value?.daysOfWeek?.includes(
+                                                                            day.value,
+                                                                        )
+                                                                            ? field.value?.daysOfWeek.filter(
+                                                                                  (
+                                                                                      v,
+                                                                                  ) =>
+                                                                                      v !==
+                                                                                      day.value,
+                                                                              )
+                                                                            : [
+                                                                                  ...(field
+                                                                                      .value
+                                                                                      ?.daysOfWeek ||
+                                                                                      []),
+                                                                                  day.value,
+                                                                              ],
+                                                                })
+                                                            }
+                                                            className={`hover:bg-primary text-xs size-8 flex items-center justify-center py-1 px-2 cursor-pointer hover:text-pure-white rounded-full ${
+                                                                field.value?.daysOfWeek?.includes(
+                                                                    day.value,
+                                                                )
+                                                                    ? 'bg-primary text-pure-white'
+                                                                    : 'bg-background'
+                                                            }`}
+                                                        >
+                                                            <span>
+                                                                {day.label}
+                                                            </span>
+                                                        </p>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {field.value?.isRecurring && (
+                                                <div className='flex items-center text-xs text-dark-gray'>
+                                                    <p>
+                                                        Occurs every{' '}
+                                                        {renderRecurrence(
+                                                            field.value
+                                                                .frequency,
+                                                        )}{' '}
+                                                        till -
+                                                    </p>
+                                                    <DatePicker
+                                                        allowDeselect={false}
+                                                        className='border-none h-fit w-fit'
+                                                        value={
+                                                            field.value
+                                                                .endRecurrence
+                                                        }
+                                                        onChange={(val) =>
+                                                            field.onChange({
+                                                                ...field.value,
+                                                                endRecurrence:
+                                                                    val?.toISOString(),
+                                                            })
+                                                        }
+                                                        placeholder='Choose an end date'
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
                     </div>
                 </div>
             </div>
