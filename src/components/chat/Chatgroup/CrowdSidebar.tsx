@@ -4,7 +4,6 @@ import type React from 'react';
 import { useCallback, useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -17,7 +16,6 @@ dayjs.extend(isSameOrBefore);
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 
 // Lucide Icons
 import {
@@ -34,9 +32,11 @@ import {
     ChevronDown,
 } from 'lucide-react';
 import { getText, replaceMentionToNode } from '@/helper/utilities';
-import onlineUsers from '../onlineUsers.json';
 import { useAppSelector } from '@/redux/hooks';
-import chats from '../chats.json';
+import {
+    useGetChatsQuery,
+    useGetOnlineUsersQuery,
+} from '@/redux/api/chats/chatApi';
 
 interface Message {
     _id?: string;
@@ -126,6 +126,8 @@ const formatDate = (date: string | Date | undefined): string => {
 };
 
 function CrowdSidebar() {
+    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
     const { user } = useAppSelector((state: any) => state.auth);
     const [records, setRecords] = useState<any[]>([]);
     const [channels, setChannels] = useState<any[]>([]);
@@ -251,7 +253,7 @@ function CrowdSidebar() {
 
                                 {/* Chat content */}
                                 <div className='flex-1 min-w-0'>
-                                    <div className='flex justify-between items-start'>
+                                    <div className='flex justify-between items-start gap-1'>
                                         <div className='font-medium flex flex-row items-center gap-1 text-sm truncate'>
                                             {chat?.isChannel && (
                                                 <span className='mr-1'>
@@ -262,18 +264,20 @@ function CrowdSidebar() {
                                                     )}
                                                 </span>
                                             )}
-                                            {chat?.isChannel
-                                                ? chat?.name
-                                                : chat?.otherUser?.fullName ||
-                                                  'User'}
-                                            {chat?.otherUser?.type ===
-                                                'verified' && (
-                                                <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
-                                            )}
-                                            {/* Pin icon */}
-                                            {isPinned && (
-                                                <Pin className='h-4 w-4 text-dark-gray rotate-45' />
-                                            )}
+                                            <span className='truncate'>
+                                                {chat?.isChannel
+                                                    ? chat?.name
+                                                    : chat?.otherUser
+                                                          ?.fullName || 'User'}
+                                                {chat?.otherUser?.type ===
+                                                    'verified' && (
+                                                    <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
+                                                )}
+                                                {/* Pin icon */}
+                                                {isPinned && (
+                                                    <Pin className='h-4 w-4 text-dark-gray rotate-45' />
+                                                )}
+                                            </span>
                                         </div>
                                         <span className='text-xs text-gray-500 whitespace-nowrap'>
                                             {formatDate(
@@ -284,7 +288,7 @@ function CrowdSidebar() {
 
                                     {/* Message preview */}
                                     <div className='flex justify-between items-center mt-1'>
-                                        <div className='flex items-center gap-1 flex-1 w-full'>
+                                        <div className='flex items-center gap-1 flex-1 w-[calc(100%-50px)]'>
                                             {/* Message status for sent messages */}
                                             {chat?.latestMessage?.sender
                                                 ?._id === user?._id && (

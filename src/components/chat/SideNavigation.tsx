@@ -19,9 +19,9 @@ import {
     UserMinus,
     MessageSquareText,
 } from 'lucide-react';
-import chats from './chats.json';
 import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '../global/GlobalTooltip';
+import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
 
 interface SideNavigationProps {
     setActive: (section: string) => void;
@@ -48,7 +48,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
     setActive,
     active,
 }) => {
-    // const { chats } = useAppSelector((state) => state.chat || {});
+    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const router = useRouter();
     const dispatch = useDispatch();
 

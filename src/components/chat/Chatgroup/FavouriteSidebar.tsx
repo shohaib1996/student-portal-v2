@@ -36,8 +36,10 @@ import {
 } from 'lucide-react';
 
 import { useAppSelector } from '@/redux/hooks';
-import chats from '../chats.json';
-import onlineUsers from '../onlineUsers.json';
+import {
+    useGetChatsQuery,
+    useGetOnlineUsersQuery,
+} from '@/redux/api/chats/chatApi';
 
 interface Message {
     _id?: string;
@@ -125,6 +127,8 @@ function sortByLatestMessage(data: any[]): any[] {
 
 function FavouriteSidebar() {
     const { user } = useAppSelector((state: any) => state.auth);
+    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
     const [records, setRecords] = useState<any[]>([]);
     const [favourites, setFavourites] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -271,7 +275,7 @@ function FavouriteSidebar() {
 
                                     {/* Chat content */}
                                     <div className='flex-1 min-w-0'>
-                                        <div className='flex justify-between items-start'>
+                                        <div className='flex justify-between items-start gap-1'>
                                             <div className='font-medium flex flex-row items-center gap-1 text-sm truncate'>
                                                 {chat?.isChannel && (
                                                     <span className='mr-1'>
@@ -282,16 +286,19 @@ function FavouriteSidebar() {
                                                         )}
                                                     </span>
                                                 )}
-                                                {chat?.isChannel
-                                                    ? chat?.name
-                                                    : chat?.otherUser
-                                                          ?.fullName || 'User'}
-                                                {chat?.otherUser?.type ===
-                                                    'verified' && (
-                                                    <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
-                                                )}
-                                                {/* Pin icon */}
-                                                <Pin className='h-4 w-4 text-primary rotate-45' />
+                                                <span className='truncate'>
+                                                    {chat?.isChannel
+                                                        ? chat?.name
+                                                        : chat?.otherUser
+                                                              ?.fullName ||
+                                                          'User'}
+                                                    {chat?.otherUser?.type ===
+                                                        'verified' && (
+                                                        <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
+                                                    )}
+                                                    {/* Pin icon */}
+                                                    <Pin className='h-4 w-4 text-primary rotate-45' />
+                                                </span>
                                             </div>
                                             <span className='text-xs text-gray-500 whitespace-nowrap'>
                                                 {formatDate(
@@ -303,7 +310,7 @@ function FavouriteSidebar() {
 
                                         {/* Message preview */}
                                         <div className='flex justify-between items-center mt-1'>
-                                            <div className='flex items-center gap-1 flex-1 w-full'>
+                                            <div className='flex items-center gap-1 flex-1 w-[calc(100%-50px)]'>
                                                 {/* Message status for sent messages */}
                                                 {chat?.latestMessage?.sender
                                                     ?._id === user?._id && (

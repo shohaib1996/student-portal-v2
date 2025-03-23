@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Loader2, X, Check, UserX, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
+import { instance } from '@/lib/axios/axiosInstance';
 
 interface User {
     _id: string;
@@ -54,7 +55,7 @@ const UserBlock: React.FC<UserBlockProps> = ({
             actionType: member?.isBlocked ? 'Unblock' : 'block',
         };
 
-        axios
+        instance
             .post('/chat/member/update', data)
             .then((res) => {
                 toast.success(

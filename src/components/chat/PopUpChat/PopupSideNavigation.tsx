@@ -18,9 +18,9 @@ import {
     UserMinus,
     MessageSquareText,
 } from 'lucide-react';
-import chats from '../chats.json';
 import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
+import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
 
 interface PopupSideNavigationProps {
     setActive: (section: string) => void;
@@ -35,8 +35,8 @@ const PopupSideNavigation: React.FC<PopupSideNavigationProps> = ({
     isPopup = true,
     directChatSelect,
 }) => {
+    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const router = useRouter();
-    const dispatch = useDispatch();
 
     // State for unread messages
     const [unread, setUnread] = useState<any[]>([]);

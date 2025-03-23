@@ -35,9 +35,8 @@ import {
     Pin,
     ChevronDown,
 } from 'lucide-react';
-
 import { useAppSelector } from '@/redux/hooks';
-import chats from '../chats.json';
+import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
 
 interface Chat {
     _id: string;
@@ -124,6 +123,7 @@ function formatDate(date: string | Date | undefined): string {
 
 function UnRead() {
     const { user } = useAppSelector((state: any) => state.auth);
+    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const [records, setRecords] = useState<any[]>([]);
     const [channels, setChannels] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -265,7 +265,7 @@ function UnRead() {
 
                                     {/* Chat content */}
                                     <div className='flex-1 min-w-0'>
-                                        <div className='flex justify-between items-start'>
+                                        <div className='flex justify-between items-start gap-1'>
                                             <div className='font-medium flex flex-row items-center gap-1 text-sm truncate'>
                                                 {chat?.isChannel && (
                                                     <span className='mr-1'>
@@ -276,18 +276,21 @@ function UnRead() {
                                                         )}
                                                     </span>
                                                 )}
-                                                {chat?.isChannel
-                                                    ? chat?.name
-                                                    : chat?.otherUser
-                                                          ?.fullName || 'User'}
-                                                {chat?.otherUser?.type ===
-                                                    'verified' && (
-                                                    <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
-                                                )}
-                                                {/* Pin icon */}
-                                                {isPinned && (
-                                                    <Pin className='h-4 w-4 text-dark-gray rotate-45' />
-                                                )}
+                                                <span className='truncate'>
+                                                    {chat?.isChannel
+                                                        ? chat?.name
+                                                        : chat?.otherUser
+                                                              ?.fullName ||
+                                                          'User'}
+                                                    {chat?.otherUser?.type ===
+                                                        'verified' && (
+                                                        <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
+                                                    )}
+                                                    {/* Pin icon */}
+                                                    {isPinned && (
+                                                        <Pin className='h-4 w-4 text-dark-gray rotate-45' />
+                                                    )}
+                                                </span>
                                             </div>
                                             <span className='text-xs text-gray-500 whitespace-nowrap'>
                                                 {formatDate(
@@ -299,7 +302,7 @@ function UnRead() {
 
                                         {/* Message preview */}
                                         <div className='flex justify-between items-center mt-1'>
-                                            <div className='flex items-center gap-1 flex-1 w-full'>
+                                            <div className='flex items-center gap-1 flex-1 w-[calc(100%-50px)]'>
                                                 {/* Message status for sent messages */}
                                                 {chat?.latestMessage?.sender
                                                     ?._id === user?._id && (

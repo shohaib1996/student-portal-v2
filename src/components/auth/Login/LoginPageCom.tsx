@@ -9,17 +9,16 @@ import { useLoginUserMutation } from '@/redux/api/auth/authApi';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import Image from 'next/image';
-
 import PortalInput from '@/components/global/Form/Inputs/PortalInput';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Cookies from 'js-cookie';
+import logo1 from '../../../../public/logo.png';
+
 interface LoginFormValues {
     email: string;
     password: string;
 }
-
-const logo1 = '/logo.png';
 
 const LoginPageCom = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -153,9 +152,9 @@ const LoginPageCom = () => {
                 <Image
                     alt='bootcampsHub logo'
                     className='w-64'
-                    width={250}
-                    height={50}
                     src={logo1}
+                    height={80}
+                    width={200}
                 />
                 <h3 className='mt-common text-4xl font-bold text-pure-white'>
                     Welcome Back!

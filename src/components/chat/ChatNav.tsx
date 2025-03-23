@@ -30,21 +30,16 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogClose,
-} from '@/components/ui/dialog';
 import GlobalTooltip from '../global/GlobalTooltip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import onlineUsers from './onlineUsers.json';
-import drafts from './drafts.json';
+// Replace local JSON with RTK Query
+import {
+    useChats,
+    useChatMessages,
+    useTypingIndicator,
+    useDraftMessages,
+} from '@/redux/hooks/chat/chatHooks';
 
 // Lucide Icons
 import {
@@ -64,8 +59,12 @@ import {
     SlidersHorizontal,
     ChevronDown,
 } from 'lucide-react';
-import chats from './chats.json';
 import { useAppSelector } from '@/redux/hooks';
+import {
+    useFindOrCreateChatMutation,
+    useGetChatsQuery,
+    useGetOnlineUsersQuery,
+} from '@/redux/api/chats/chatApi';
 
 // Dynamic imports for better performance
 const MessagePreview = dynamic(() => import('./Message/MessagePreview'), {
@@ -251,7 +250,20 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const fetchingMore = false;
     const { user } = useAppSelector((state) => state.auth);
     const router = useRouter();
+    const { drafts, saveDraft, getDraft, clearDraft } = useDraftMessages();
+    const {
+        data: chats = [],
+        isLoading: isChatsLoading,
+        isError: isChatsError,
+        refetch: refetchChats,
+    } = useGetChatsQuery();
 
+    const { data: onlineUsers = [], isLoading: isOnlineUsersLoading } =
+        useGetOnlineUsersQuery();
+
+    // Replace direct API call with RTK mutation
+    const [findOrCreateChat, { isLoading: isCreatingChat }] =
+        useFindOrCreateChatMutation();
     const [hoveredChatId, setHoveredChatId] = useState<string | null>(null);
     const [records, setRecords] = useState<any[]>([]);
     const [hasMore, setHasMore] = useState<boolean>(true);
@@ -263,13 +275,12 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
     const params = useParams();
 
-    // Update records when chats change
+    // Update records when chats change - now using RTK Query data
     useEffect(() => {
-        if (chats.length > 0) {
+        if (chats && chats.length > 0) {
             setRecords(sortByLatestMessage(chats).slice(0, 10)); // Load initial chats
         }
-    }, []);
-
+    }, [chats]);
     // Handle scroll to load more chats
     const handleScroll = useCallback(() => {
         if (!scrollContainerRef.current) {
@@ -323,31 +334,40 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
         // Will be implemented with RTK
     }, []);
 
-    // Handle create chat
+    // Handle create chat with RTK mutation
     const handleCreateChat = useCallback(
         (id: string) => {
-            instance
-                .post(`/chat/findorcreate/${id}`)
+            findOrCreateChat(id)
+                .unwrap()
                 .then((res) => {
-                    const filtered = chats.filter(
-                        (c) => c._id === res.data.chat._id,
-                    );
-                    if (filtered.length > 0) {
-                        router.push(`/chat/${res.data.chat._id}`);
-                    } else {
-                        // Will be implemented with RTK
-                        router.push(`/chat/${res.data.chat._id}`);
-                    }
+                    router.push(`/chat/${res.chat._id}`);
                 })
                 .catch((err) => {
-                    toast.error(
-                        err?.response?.data?.error || 'Failed to create chat',
-                    );
+                    toast.error(err?.data?.error || 'Failed to create chat');
                 });
         },
-        [router],
+        [findOrCreateChat, router],
     );
 
+    const loadMoreChats = useCallback(() => {
+        const newRecords = sortByLatestMessage(chats).slice(
+            0,
+            records.length + 10,
+        );
+        setRecords(newRecords);
+        if (newRecords.length >= chats.length) {
+            setHasMore(false);
+        }
+    }, [chats, records]);
+
+    // Add loading state handling
+    if (isChatsLoading && chats.length === 0) {
+        return (
+            <div className='w-full h-full flex items-center justify-center'>
+                <div className='h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent'></div>
+            </div>
+        );
+    }
     return (
         <div className='chat-nav h-full'>
             <div className='flex flex-row h-full border-r'>
@@ -467,12 +487,11 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                             </Button>
                                         </div>
                                     </div>
-                                    <div className='divide-y divide-gray-200 h-[calc(100vh-200px)] overflow-y-auto'>
+                                    <div className='divide-y divide-gray-200 h-[calc(100vh-162px)] overflow-y-auto'>
                                         {sortByLatestMessage(records)?.map(
                                             (chat, i) => {
-                                                const draft = drafts?.find(
-                                                    (f: any) =>
-                                                        f.chat === chat?._id,
+                                                const draft = getDraft(
+                                                    chat?._id,
                                                 );
 
                                                 const isActive =
@@ -563,7 +582,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                             {/* Chat content */}
                                                             <div className='flex-1 min-w-0'>
-                                                                <div className='flex justify-between items-start'>
+                                                                <div className='flex justify-between items-start gap-1'>
                                                                     <div className='font-medium flex flex-row items-center gap-1 text-sm truncate'>
                                                                         {chat?.isChannel && (
                                                                             <span className='mr-1'>
@@ -574,18 +593,20 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                 )}
                                                                             </span>
                                                                         )}
-                                                                        {chat?.isChannel
-                                                                            ? chat?.name
-                                                                            : chat
-                                                                                  ?.otherUser
-                                                                                  ?.fullName ||
-                                                                              'User'}
-                                                                        {chat
-                                                                            ?.otherUser
-                                                                            ?.type ===
-                                                                            'verified' && (
-                                                                            <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
-                                                                        )}
+                                                                        <span className='truncate'>
+                                                                            {chat?.isChannel
+                                                                                ? chat?.name
+                                                                                : chat
+                                                                                      ?.otherUser
+                                                                                      ?.fullName ||
+                                                                                  'User'}
+                                                                            {chat
+                                                                                ?.otherUser
+                                                                                ?.type ===
+                                                                                'verified' && (
+                                                                                <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
+                                                                            )}
+                                                                        </span>
                                                                         {/* Pin icon */}
                                                                         {isPinned && (
                                                                             <Pin className='h-4 w-4 text-dark-gray rotate-45' />
@@ -602,7 +623,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                                 {/* Message preview */}
                                                                 <div className='flex justify-between items-center mt-1'>
-                                                                    <div className='flex items-center gap-1 flex-1 w-full'>
+                                                                    <div className='flex items-center gap-1 flex-1 w-[calc(100%-50px)]'>
                                                                         {/* Message status for sent messages */}
                                                                         {chat
                                                                             ?.latestMessage
@@ -727,6 +748,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                     variant='primary_light'
                                                     size='sm'
                                                     className='text-xs rounded-3xl text-primary'
+                                                    onClick={loadMoreChats}
                                                 >
                                                     View More{' '}
                                                     <ChevronDown

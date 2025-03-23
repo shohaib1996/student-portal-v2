@@ -2,7 +2,6 @@
 
 import type React from 'react';
 import { useCallback, useState, Suspense } from 'react';
-import axios from 'axios'; // TODO: Replace with RTK query in the future
 import dynamic from 'next/dynamic';
 import { toast } from 'sonner';
 
@@ -13,6 +12,7 @@ import { Button } from '@/components/ui/button';
 
 // Lucide Icons
 import { Search, Loader2, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { instance } from '@/lib/axios/axiosInstance';
 
 // Dynamic imports
 const UserCard = dynamic(() => import('./UserCard'), {
@@ -57,7 +57,7 @@ function SearchSidebar() {
             setIsUserLoading(true);
 
             // TODO: Replace with RTK query in the future
-            axios
+            instance
                 .get(`/chat/searchuser?query=${value?.trim() || ''}`)
                 .then((res) => {
                     setUsers(res.data.users);

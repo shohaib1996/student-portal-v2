@@ -38,7 +38,11 @@ import {
 import onlineUsers from '../onlineUsers.json';
 import { TChat } from '../ChatNav';
 import { useAppSelector } from '@/redux/hooks';
-import chats from '../chats.json';
+import {
+    ChatData,
+    ChatUser,
+    useGetChatsQuery,
+} from '@/redux/api/chats/chatApi';
 
 interface Message {
     _id?: string;
@@ -95,6 +99,7 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function Archived() {
+    const { data: chats = [] } = useGetChatsQuery();
     const { user } = useAppSelector((state: any) => state.auth);
     const [records, setRecords] = useState<any[]>([]);
     const [channels, setChannels] = useState<any[]>([]);
@@ -127,7 +132,8 @@ function Archived() {
     useEffect(() => {
         setIsLoading(true);
         try {
-            const archivedChannels = chats?.filter((x) => x?.isArchived) || [];
+            const archivedChannels =
+                chats?.filter((x: ChatData) => x?.isArchived) || [];
             setChannels(archivedChannels);
             setRecords(archivedChannels);
         } catch (error) {
@@ -243,7 +249,7 @@ function Archived() {
 
                                     {/* Chat content */}
                                     <div className='flex-1 min-w-0'>
-                                        <div className='flex justify-between items-start'>
+                                        <div className='flex justify-between items-start gap-1'>
                                             <div className='font-medium flex flex-row items-center gap-1 text-sm truncate'>
                                                 {chat?.isChannel && (
                                                     <span className='mr-1'>
@@ -254,18 +260,21 @@ function Archived() {
                                                         )}
                                                     </span>
                                                 )}
-                                                {chat?.isChannel
-                                                    ? chat?.name
-                                                    : chat?.otherUser
-                                                          ?.fullName || 'User'}
-                                                {chat?.otherUser?.type ===
-                                                    'verified' && (
-                                                    <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
-                                                )}
-                                                {/* Pin icon */}
-                                                {isPinned && (
-                                                    <Pin className='h-4 w-4 text-dark-gray rotate-45' />
-                                                )}
+                                                <span className='truncate'>
+                                                    {chat?.isChannel
+                                                        ? chat?.name
+                                                        : chat?.otherUser
+                                                              ?.fullName ||
+                                                          'User'}
+                                                    {chat?.otherUser?.type ===
+                                                        'verified' && (
+                                                        <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
+                                                    )}
+                                                    {/* Pin icon */}
+                                                    {isPinned && (
+                                                        <Pin className='h-4 w-4 text-dark-gray rotate-45' />
+                                                    )}
+                                                </span>
                                             </div>
                                             <span className='text-xs text-gray-500 whitespace-nowrap'>
                                                 {formatDate(
@@ -277,7 +286,7 @@ function Archived() {
 
                                         {/* Message preview */}
                                         <div className='flex justify-between items-center mt-1'>
-                                            <div className='flex items-center gap-1 flex-1 w-full'>
+                                            <div className='flex items-center gap-1 flex-1 w-[calc(100%-50px)]'>
                                                 {/* Message status for sent messages */}
                                                 {chat?.latestMessage?.sender
                                                     ?._id === user?._id && (

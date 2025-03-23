@@ -7,6 +7,7 @@ import { SidebarInset, useSidebar } from '../ui/sidebar';
 import Navbar from '../shared/Navbar';
 import ChatPopup from '../chat/PopUpChat/ChatPopup';
 import { usePathname } from 'next/navigation';
+import ChatModalsWrapper from '../chat/PopUpChat/ChatModalsWrapper';
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
     const activeCompany = Cookies.get('activeCompany');
@@ -28,7 +29,11 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
                             </div>
                         </main>
                     </SidebarInset>
-                    {!isChat && <ChatPopup />}
+                    {!isChat && (
+                        <ChatModalsWrapper>
+                            <ChatPopup />
+                        </ChatModalsWrapper>
+                    )}
                 </>
             ) : (
                 <SelectActiveCompany />

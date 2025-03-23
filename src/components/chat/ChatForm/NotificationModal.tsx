@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
 import { TimePicker } from '@/components/global/TimePicker';
+import { instance } from '@/lib/axios/axiosInstance';
 
 dayjs.extend(customParseFormat);
 
@@ -109,7 +110,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
 
         setIsUpdating(true);
 
-        axios
+        instance
             .post('/chat/member/update', data)
             .then((res) => {
                 // Using RTK would replace this dispatch
