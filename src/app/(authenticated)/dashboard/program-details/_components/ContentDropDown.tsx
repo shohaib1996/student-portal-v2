@@ -49,7 +49,7 @@ const ContentDropDown = ({
         }>
     >;
     setParentId: React.Dispatch<React.SetStateAction<string | null>>;
-    toggleSidebar: () => void;
+    toggleSidebar: any;
 }) => {
     const [expandedModules, setExpandedModules] = useState<
         Record<string, boolean>
@@ -345,12 +345,13 @@ const ContentDropDown = ({
                                 {item.lesson.type === 'video' ? (
                                     <Play
                                         className='h-5 w-5 text-gray-500 cursor-pointer'
-                                        onClick={() =>
+                                        onClick={() => {
                                             setVideoData({
                                                 videoInfo: item.lesson,
                                                 isSideOpen: true,
-                                            })
-                                        }
+                                            });
+                                            toggleSidebar();
+                                        }}
                                     />
                                 ) : (
                                     <Link
