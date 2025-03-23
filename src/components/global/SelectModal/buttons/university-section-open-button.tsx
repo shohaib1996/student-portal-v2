@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@/components/ui/button';
 import { openModal } from '@/redux/features/selectionModalSlice';
 import { RootState } from '@/redux/store';
-import { CombinedSelectionModal } from './combined-selection-modal';
+import { CombinedSelectionModal } from '../combined-selection-modal';
 
 export default function UniversitySectionOpenButton() {
     const dispatch = useDispatch();
@@ -20,7 +20,6 @@ export default function UniversitySectionOpenButton() {
 
     return (
         <>
-            {' '}
             <Button
                 variant='outline'
                 onClick={handleOpenUniversity}

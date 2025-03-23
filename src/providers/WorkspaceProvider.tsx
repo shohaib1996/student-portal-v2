@@ -16,6 +16,7 @@ import GlobalModal from '@/components/global/GlobalModal';
 import { toast } from 'sonner';
 import { instance } from '@/lib/axios/axiosInstance';
 import { UniversitySelectModal } from '@/components/global/SelectModal/university-select-modal';
+import UniversitySectionOpenButton from '@/components/global/SelectModal/buttons/university-section-open-button';
 
 // Define interfaces for TypeScript
 interface Company {
@@ -118,12 +119,13 @@ function WorkspaceProvider({ children }: WorkspaceProviderProps) {
             <p className='mb-4 text-sm text-gray-500'>
                 Please select a company/university to continue.
             </p>
-            <Button
+            {/* <Button
                 variant='default'
                 onClick={() => dispatch(setCompanySwitcher(true))}
             >
                 Select Company/University
-            </Button>
+            </Button> */}
+            <UniversitySectionOpenButton />
         </div>
     );
 
@@ -145,14 +147,14 @@ function WorkspaceProvider({ children }: WorkspaceProviderProps) {
                 <EmptyState />
             )}
 
-            <UniversitySelectModal
+            {/* <UniversitySelectModal
                 open={isSwitcherVisible}
                 onOpenChange={(open) => {
                     setIsSwitcherVisible(open);
                     dispatch(setCompanySwitcher(open));
                 }}
                 onSelect={(company) => handleCompanySelect(company._id)}
-            />
+            /> */}
         </>
     );
 }

@@ -62,7 +62,9 @@ interface SwitchModalProps {
 
 export function SwitchModal({ opened, handleClose }: SwitchModalProps) {
     const dispatch = useDispatch();
+
     const { myEnrollments } = useAppSelector((state) => state.auth);
+
     const { companies, activeCompany } = useSelector(
         (state: RootState) => state.company,
     );

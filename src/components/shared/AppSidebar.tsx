@@ -41,7 +41,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'nextjs-toploader/app';
 import { Button } from '../ui/button';
-import UniversitySectionOpenButton from '../global/SelectModal/university-section-open-button';
+import UniversitySectionOpenButton from '../global/SelectModal/buttons/university-section-open-button';
 
 export type TLoookup = {
     data: any;

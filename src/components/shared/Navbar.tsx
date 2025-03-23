@@ -24,7 +24,7 @@ import { useTheme } from 'next-themes';
 import GlobalDropdown, { DropdownItems } from '../global/GlobalDropdown';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { getInitialsFromName } from '@/utils/common';
-import CourseSectionOpenButton from '../global/SelectModal/course-section-open-button';
+import CourseSectionOpenButton from '../global/SelectModal/buttons/course-section-open-button';
 
 const Navbar = () => {
     const dispatch = useAppDispatch();

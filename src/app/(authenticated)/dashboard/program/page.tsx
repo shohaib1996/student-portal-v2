@@ -1,8 +1,7 @@
-import React from 'react';
-import Program from './_components/Program';
+import BootcampPage from './_components/new-program-design';
 
 const page = () => {
-    return <Program />;
+    return <BootcampPage />;
 };
 
 export default page;

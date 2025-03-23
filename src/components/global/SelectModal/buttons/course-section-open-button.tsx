@@ -1,14 +1,16 @@
-// components/SelectionPreview.tsx
 'use client';
 
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Button } from '@/components/ui/button';
 import { openModal } from '@/redux/features/selectionModalSlice';
-import { RootState } from '@/redux/store';
-import { CombinedSelectionModal } from './combined-selection-modal';
+import { CombinedSelectionModal } from '../combined-selection-modal';
 
-export default function CourseSectionOpenButton() {
+interface Props {
+    title?: string;
+    icon?: React.ReactNode;
+}
+
+export default function CourseSectionOpenButton({ title, icon }: Props) {
     const dispatch = useDispatch();
 
     const handleOpenCourse = () => {
@@ -18,10 +20,9 @@ export default function CourseSectionOpenButton() {
     return (
         <>
             <Button variant='outline' onClick={handleOpenCourse} className=''>
-                Select Course
+                {icon} {title || 'Select Course'}
             </Button>
 
-            {/* Include the CombinedSelectionModal */}
             <CombinedSelectionModal />
         </>
     );
