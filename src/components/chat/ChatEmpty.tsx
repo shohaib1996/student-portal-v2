@@ -3,8 +3,6 @@
 import type React from 'react';
 import Image from 'next/image';
 const emptyChat = '/chat/empty_chat.png';
-import { Button } from '../ui/button';
-import { MessagesSquare } from 'lucide-react';
 
 const ChatEmpty: React.FC = () => {
     return (

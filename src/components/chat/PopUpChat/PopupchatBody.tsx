@@ -26,7 +26,6 @@ import {
 } from '@/redux/features/chatReducer';
 import { toast } from 'sonner';
 import { useAppSelector } from '@/redux/hooks';
-// import chats from './chats.json';
 import { instance } from '@/lib/axios/axiosInstance';
 import chatStateData from '../ChatStateData.json';
 import Thread from '../thread';

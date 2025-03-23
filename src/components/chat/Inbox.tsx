@@ -22,16 +22,13 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { markRead, updateMyData } from '@/redux/features/chatReducer';
-import onlineUsers from './onlineUsers.json';
 import { Input } from '../ui/input';
 import NotificationOptionModal from './ChatForm/NotificationModal';
-import { EventPopoverTrigger } from '../calendar/CreateEvent/EventPopover';
+import { useGetOnlineUsersQuery } from '@/redux/api/chats/chatApi';
+
 // Dynamic imports
 const ChatBody = lazy(() => import('./ChatBody'));
-// const NotificationOptionModal = lazy(() => import("./ChatForm/NotificationModal"));
-// const Meet = lazy(() => import("./jitsi/Meet"));
 
-// Initialize dayjs plugins
 dayjs.extend(relativeTime);
 
 // Loading fallback
@@ -95,7 +92,7 @@ const Inbox: React.FC<InboxProps> = ({
     const [chat, setChatInfo] = useState<any>({} as any);
     const [isMeeting, setIsMeeting] = useState(false);
     const dispatch = useDispatch();
-
+    const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
     // Search state: controls whether the search box is open and holds the search query
     const [search, setSearch] = useState({
         isOpen: false,

@@ -6,9 +6,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { motion } from 'framer-motion';
 import { Maximize2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import chats from '../chats.json';
+import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
 
 const MinimizedChatTabs: React.FC = () => {
+    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const { openModals, restoreChatModal, closeChatModal } = useChatModals();
     const [minimizedChats, setMinimizedChats] = useState<
         { id: string; chatId: string; name: string; avatar: string }[]

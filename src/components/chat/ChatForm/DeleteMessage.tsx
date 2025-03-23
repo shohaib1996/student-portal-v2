@@ -2,12 +2,12 @@
 
 import type React from 'react';
 import { useState } from 'react';
-import axios from 'axios';
 import { toast } from 'sonner';
 import { X, Loader2, Check, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
+import { instance } from '@/lib/axios/axiosInstance';
 
 interface Message {
     _id: string;
@@ -42,7 +42,7 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
         }
 
         setIsDeleting(true);
-        axios
+        instance
             .delete(`/chat/delete/message/${selectedMessage?._id}`)
             .then((res) => {
                 toast.success('Message deleted successfully');

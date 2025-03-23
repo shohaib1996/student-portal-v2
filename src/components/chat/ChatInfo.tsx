@@ -4,7 +4,6 @@ import { useParams, usePathname, useRouter } from 'next/navigation';
 import type React from 'react';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
 import { toast } from 'sonner';
 import AddUserModal from './AddUserModal';
 import Members from './Members';
@@ -47,7 +46,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { removeChat, updateChats } from '@/redux/features/chatReducer';
 import UpdateChannelModal from './UpdateChannelModal';
 import { useAppSelector } from '@/redux/hooks';
-import chats from './chats.json';
 import dayjs from 'dayjs';
 import GlobalTooltip from '../global/GlobalTooltip';
 import { Button } from '../ui/button';
@@ -66,6 +64,8 @@ import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import NotificationOptionModal from './ChatForm/NotificationModal';
 import ReportModal from './ChatForm/ReportModal';
+import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
+import { instance } from '@/lib/axios/axiosInstance';
 
 interface ChatInfoProps {
     handleToggleInfo: () => void;
@@ -247,6 +247,7 @@ const resizeFile = (file: File): Promise<File> =>
 const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     const params = useParams();
     const pathname = usePathname();
+    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const router = useRouter();
     const dispatch = useDispatch();
     const [copied, setCopied] = useState(false);
@@ -299,7 +300,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     useEffect(() => {
         if (chat?._id) {
             setLoadingMembers(true);
-            axios
+            instance
                 .post(`/chat/members/${chat?._id}`, { limit: 50 })
                 .then((res) => {
                     const membersList = res.data?.results || [];
@@ -325,7 +326,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
 
     useEffect(() => {
         if (chat?._id && (!chat.imagesCount || !chat.voiceCount)) {
-            axios
+            instance
                 .get(`/chat/media-counts/${chat?._id}`)
                 .then((res) => {
                     setChat((prev: any) => ({
@@ -334,7 +335,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                         voiceCount: res.data.voiceCount || 0,
                     }));
                 })
-                .catch((err) => {
+                .catch((err: any) => {
                     console.log(err);
                     // Set default values if the API fails
                     setChat((prev: any) => ({
@@ -394,7 +395,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                     formData.append('image', newFile);
                     formData.append('channel-avatar', 'chat-image');
 
-                    const response = await axios.post(
+                    const response = await instance.post(
                         '/settings/watermark-image',
                         formData,
                     );
@@ -402,7 +403,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                     const data = {
                         avatar: url,
                     };
-                    const updateRes = await axios.patch(
+                    const updateRes = await instance.patch(
                         `/chat/channel/update/${chat?._id}`,
                         data,
                     );
@@ -430,7 +431,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     );
 
     const handleArchive = useCallback(() => {
-        axios
+        instance
             .patch(`/chat/channel/archive/${chat?._id}`, {
                 isArchived: !chat?.isArchived,
             })
@@ -452,7 +453,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     }, [chat, dispatch]);
 
     const handleLeave = useCallback(() => {
-        axios
+        instance
             .patch(`/chat/channel/leave/${chat?._id}`)
             .then((res) => {
                 dispatch(removeChat(chat?._id));
@@ -472,7 +473,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
 
             const data = { [field]: value };
 
-            axios
+            instance
                 .patch(`/chat/channel/update/${chat?._id}`, data)
                 .then((res) => {
                     dispatch(updateChats(res?.data?.channel));

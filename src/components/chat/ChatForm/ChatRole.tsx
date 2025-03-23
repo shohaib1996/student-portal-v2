@@ -8,6 +8,7 @@ import { Loader2, SaveIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
+import { instance } from '@/lib/axios/axiosInstance';
 
 interface Member {
     _id: string;
@@ -57,7 +58,7 @@ const ChatRole: React.FC<ChatRoleProps> = ({
         };
 
         setIsUpdating(true);
-        axios
+        instance
             .post('/chat/member/update', data)
             .then((res) => {
                 setIsUpdating(false);

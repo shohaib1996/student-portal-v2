@@ -3,15 +3,12 @@
 import React, { useState, useCallback, Suspense, useEffect } from 'react';
 import { MessageCircle, MessageCircleMore } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 // Import our new context
 import { useChatModals } from './ChatModalsContext';
 import ChatListModal from './ChatListModal';
 import ChatConversationModal from './ChatConversationModal';
 import MinimizedChatTabs from './MinimizedChatTabs';
-
-// Import data
-import chats from '../chats.json';
+import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
 
 // Loading fallback
 const LoadingFallback = () => (
@@ -23,7 +20,7 @@ const LoadingFallback = () => (
 const ChatPopup = () => {
     const { isListOpen, openModals, openListModal, closeListModal } =
         useChatModals();
-
+    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
 
     // Check for unread messages
@@ -52,7 +49,7 @@ const ChatPopup = () => {
                 <Button
                     tooltip='Chat Head'
                     onClick={toggleChatList}
-                    className='rounded-full h-12 w-12 p-2 shadow-lg relative hover:bg-primary hover:text-pure-white'
+                    className='rounded-full h-12 w-12 p-2 shadow-[0px_2px_20px_0px_rgba(0,0,0,0.50)] relative hover:bg-primary hover:text-pure-white'
                 >
                     <MessageCircleMore className='h-6 w-6' />
 

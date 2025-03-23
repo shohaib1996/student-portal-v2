@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateMessage } from '@/redux/features/chatReducer';
 import ChatFooter from '../ChatFooter';
@@ -15,7 +14,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
+import { instance } from '@/lib/axios/axiosInstance';
 
 function formatDateForDisplay(date: string | Date) {
     const today = dayjs();
@@ -93,7 +92,7 @@ const Thread: React.FC<ThreadProps> = ({
                 chat: chat?._id,
             };
 
-            axios
+            instance
                 .post(`/chat/messages`, options)
                 .then((res) => {
                     setIsLoading(false);

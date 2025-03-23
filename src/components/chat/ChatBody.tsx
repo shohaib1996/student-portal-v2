@@ -5,15 +5,8 @@ import Message from './Message/page';
 import { useParams } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
-// import { markRead, updateChatMessages } from '@/redux/features/chatReducer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import ChatFooter, { type ChatData } from './ChatFooter';
 import Cookies from 'js-cookie';
 import { Loader2 } from 'lucide-react';
@@ -27,11 +20,15 @@ import {
 } from '@/redux/features/chatReducer';
 import { toast } from 'sonner';
 import { useAppSelector } from '@/redux/hooks';
-// import chats from './chats.json';
 import { instance } from '@/lib/axios/axiosInstance';
 import chatStateData from './ChatStateData.json';
 import Thread from './thread';
-import GlobalModal from '../global/GlobalModal';
+import { useGetChatMessagesQuery } from '@/redux/api/chats/chatApi';
+import {
+    useChatMessages,
+    useChats,
+    useDraftMessages,
+} from '@/redux/hooks/chat/chatHooks';
 interface ChatMessage {
     _id: string;
     sender: {
@@ -129,24 +126,42 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     searchQuery,
 }) => {
     const params = useParams();
-    console.log({ params });
     const dispatch = useDispatch();
-    // Fix: Add fallbacks for when state.chat is undefined
-    const chatState = useAppSelector((state) => state.chat || {});
-    const chatData = chatStateData || [];
-    console.log({ chatState });
-    const chatMessages = chatState.chatMessages || {};
-    const { chats } = useAppSelector((state) => state.chat || {});
-    const onlineUsers = chatData.onlineUsers || [];
-    const currentPage = chatData.currentPage || 1;
-    const fetchedMore = chatData.fetchedMore || false;
-    const drafts = chatData.drafts || [];
-    console.log({ chats });
+    // Get chats data from RTK Query
+    const { chats, isLoading: isChatsLoading } = useChats();
+
+    // Get drafts data from the hook
+    const { drafts, getDraft } = useDraftMessages();
+
+    // Get messages for current chat
+    const {
+        messages,
+        totalCount: count,
+        chatInfo,
+        isLoading: isMessagesLoading,
+        isFetchingMore: isFetching,
+        loadMoreMessages,
+        hasMore,
+    } = useChatMessages(params?.chatid as string, 15);
+
+    // Rest of your component logic
+    // ...
+
+    // Get draft for this chat
+    const draft = getDraft(params?.chatid as string);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [fetchedMore, setFetchedMore] = useState(false);
+
+    // Update fetchMore to also update currentPage
+    const fetchMore = (page: number) => {
+        loadMoreMessages();
+        setCurrentPage((prev) => prev + 1);
+        setFetchedMore(true);
+    };
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [chat, setChat] = useState<any | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [count, setCount] = useState<number>(0);
-    const [isFetching, setIsFetching] = useState<boolean>(false);
     const [editMessage, setEditMessage] = useState<ChatMessage | null>(null);
     const [threadMessage, setThreadMessage] = useState<ChatMessage | null>(
         null,
@@ -155,12 +170,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     //for ai
     const [aiIncomingMessage, setAiIncomingMessage] = useState<string>('');
     const [isThinking, setIsThinking] = useState<boolean>(false);
-    const [hasMore, setHasMore] = useState<boolean>(true);
-
     const [initialLoaded, setInitalLoaded] = useState<boolean>(false);
-
-    const messages = chatMessages?.[params?.chatid as string];
-
     const [refIndex, setRefIndex] = useState<number>(15);
     const bottomTextRef = useRef<any | null>(null);
     const [reload, setReload] = useState<number>(0);
@@ -176,29 +186,28 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     useEffect(() => {
         setInitalLoaded(false);
     }, [params?.chatid]);
-    console.log({ Chats: chats, ID: params?.chatid });
+
     useEffect(() => {
         if (chats && params?.chatid) {
             const findChat = chats?.find(
                 (chat: any) => chat?._id === params?.chatid,
             );
-            console.log({ findChat });
             if (findChat) {
                 setChat(findChat);
                 setChatInfo(findChat);
             }
         }
-        dispatch(markRead({ chatId: params?.chatid as string }));
-    }, [chats, params?.chatid, dispatch, setChatInfo]);
+    }, [chats, params?.chatid, setChatInfo]);
 
     useEffect(() => {
         if (chat?.otherUser?._id === process.env.NEXT_PUBLIC_AI_BOT_ID) {
-            const messages = chatMessages?.[params?.chatid as string] || [];
+            // Change this line
+            const currentMessages: any = messages || [];
 
-            if (messages?.length === 0) {
+            if (currentMessages?.length === 0) {
                 return;
             }
-            const lastMessage = messages[messages?.length - 1];
+            const lastMessage = currentMessages[currentMessages?.length - 1];
 
             if (
                 lastMessage?.sender?._id === process.env.NEXT_PUBLIC_AI_BOT_ID
@@ -206,106 +215,18 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                 setAiIncomingMessage('');
             }
         }
-    }, [chatMessages, chat, params?.chatid]);
+    }, [messages, chat, params?.chatid]);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const lastMessageRef = useRef<HTMLDivElement>(null);
 
-    const fetchMore = (page: number) => {
-        const options = {
-            page: page + 1,
-            chat: params?.chatid,
-            limit,
-            query: searchQuery || '',
-        };
-        setIsFetching(true);
-        instance
-            .post(`/chat/messages`, options)
-            .then((res) => {
-                dispatch(setFetchedMore(true));
-                dispatch(
-                    pushHistoryMessages({
-                        chat: res.data.chat?._id,
-                        messages: res.data.messages || [],
-                    }),
-                );
-                dispatch(setCurrentPage(page + 1));
-                if (res.data?.messages?.length < limit) {
-                    setHasMore(false);
-                } else {
-                    setHasMore(true);
-                }
-                setRefIndex(messages?.length > 15 ? 15 : messages?.length - 1);
-                setIsFetching(false);
-                setRefIndex(15);
-
-                if (lastMessageRef.current) {
-                    lastMessageRef.current.scrollIntoView({
-                        behavior: 'instant',
-                        block: 'center',
-                        inline: 'nearest',
-                    });
-                }
-            })
-            .catch((err) => {
-                setIsFetching(false);
-                setError(err.response?.data);
-                toast.error(err?.response?.data?.message);
-                // console.log(err);
-            });
-    };
-
+    // Remove or simplify this useEffect since RTK Query handles the data fetching
     useEffect(() => {
         if (params?.chatid) {
-            setIsFetching(true);
-            dispatch(
-                updateChatMessages({
-                    chat: params?.chatid as string,
-                    messages: [],
-                }),
-            );
-            setIsLoading(true);
-            setError(null);
-            dispatch(setCurrentPage(1));
-            setCount(0);
-            const options = {
-                page: currentPage,
-                chat: params?.chatid,
-                limit,
-                query: searchQuery || '',
-            };
-            instance
-                .post(`/chat/messages`, options)
-                .then((res) => {
-                    setIsLoading(false);
-                    // setChat(res.data.chat)
-                    setCount(res.data.count);
-                    // fetchPinned(res.data.chat._id)
-                    dispatch(
-                        updateChatMessages({
-                            chat: res.data.chat._id,
-                            messages: res.data.messages,
-                        }),
-                    );
-                    setInitalLoaded(true);
-                    if (res.data?.messages?.length < limit) {
-                        setHasMore(false);
-                    } else {
-                        setHasMore(true);
-                    }
-                    dispatch(markRead({ chatId: params?.chatid as string }));
-                    setIsFetching(false);
-                })
-                .catch((err) => {
-                    setIsLoading(false);
-                    setError(err?.response?.data?.error);
-                    toast.error(err?.response?.data?.error?.message);
-                    setInitalLoaded(true);
-                    setIsFetching(false);
-                });
+            // Just mark as read
+            dispatch(markRead({ chatId: params?.chatid as string }));
         }
-    }, [params?.chatid, reload, searchQuery, dispatch, currentPage, limit]);
-
+    }, [params?.chatid, searchQuery, dispatch]);
     interface SentCallbackObject {
         action: string;
         message?: {
@@ -316,12 +237,10 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     const onSentCallback = async (object: SentCallbackObject) => {
         if (object?.action === 'create') {
             if (chat?.otherUser?._id === process.env.NEXT_PUBLIC_AI_BOT_ID) {
-                const histories = chatMessages?.[params?.chatid as string]
-                    ?.slice(-3)
-                    ?.map((x: any) => ({
-                        role: 'assistant',
-                        content: x?.text,
-                    }));
+                const histories = messages?.slice(-3)?.map((x: any) => ({
+                    role: 'assistant',
+                    content: x?.text,
+                }));
                 const data = {
                     chat: chat?._id,
                     messages: [
@@ -422,10 +341,6 @@ const ChatBody: React.FC<ChatBodyProps> = ({
         }
     }, [messages, reload, setReloading, reloading]);
 
-    const draft =
-        drafts.length > 0 &&
-        drafts?.find((f: any) => f?.chat === params?.chatid);
-
     return (
         <>
             <div className='scrollbar-container h-[calc(100%-135px)] pl-2'>
@@ -442,18 +357,24 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     ) : (
                         <div>
                             {!isLoading && currentPage * 20 < count ? (
-                                <div className='text-center'>
-                                    <Button
-                                        disabled={isFetching}
-                                        className='bg-primary hover:bg-primary/90 text-white'
-                                        onClick={() => fetchMore(currentPage)}
-                                    >
-                                        {isFetching ? (
-                                            <Loader2 className='h-5 w-5 animate-spin' />
-                                        ) : (
-                                            'Load More'
-                                        )}{' '}
-                                    </Button>
+                                <div className='w-full flex flex-row items-center gap-2 my-2'>
+                                    <div className='w-full h-[2px] bg-border'></div>
+                                    <div className='text-center'>
+                                        <Button
+                                            disabled={isFetching}
+                                            className='bg-primary-light text-primary rounded-full h-8 border text-xs'
+                                            onClick={() =>
+                                                fetchMore(currentPage)
+                                            }
+                                        >
+                                            {isFetching ? (
+                                                <Loader2 className='h-5 w-5 animate-spin' />
+                                            ) : (
+                                                'Load More'
+                                            )}{' '}
+                                        </Button>
+                                    </div>
+                                    <div className='w-full h-[2px] bg-border'></div>
                                 </div>
                             ) : (
                                 <div className='p-2.5 text-center flex flex-col items-center gap-2.5'>
@@ -509,8 +430,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                     <Loader2 className='h-14 w-14 text-primary animate-spin' />
                                 </div>
                             ) : (
-                                chatMessages?.[params?.chatid as string]
-                                    ?.length === 0 && (
+                                messages?.length === 0 && (
                                     <div className='text-center mt-15 pb-[25vh]'>
                                         <h3 className='font-bold text-dark-gray'>
                                             No messages found!

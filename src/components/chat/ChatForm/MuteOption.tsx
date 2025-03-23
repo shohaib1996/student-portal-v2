@@ -23,6 +23,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAppDispatch } from '@/redux/hooks';
 import { updateMyData } from '@/redux/features/chatReducer';
+import { instance } from '@/lib/axios/axiosInstance';
 
 dayjs.extend(customParseFormat);
 
@@ -139,7 +140,7 @@ const MuteOption: React.FC<MuteOptionProps> = ({
 
         setIsUpdating(true);
 
-        axios
+        instance
             .post('/chat/member/update', data)
             .then((res) => {
                 // Update the member data in the callback

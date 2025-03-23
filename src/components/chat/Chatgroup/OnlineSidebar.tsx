@@ -20,9 +20,9 @@ import {
     MessageCircle,
     ChevronDown,
 } from 'lucide-react';
-import onlineUsers from '../onlineUsers.json';
 import { useAppSelector } from '@/redux/hooks';
 import { instance } from '@/lib/axios/axiosInstance';
+import { ChatUser, useGetOnlineUsersQuery } from '@/redux/api/chats/chatApi';
 
 // Skeleton component for UserCard
 function UserCardSkeleton() {
@@ -65,8 +65,9 @@ interface RootState {
 
 function OnlineSidebar() {
     const { user } = useAppSelector((state) => state.auth);
+    const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
     const router = useRouter();
-    const [records, setRecords] = useState<User[]>([]);
+    const [records, setRecords] = useState<ChatUser[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState<string>('online');
@@ -91,10 +92,13 @@ function OnlineSidebar() {
                 setSearchQuery(value);
 
                 if (value) {
-                    const filteredUsers = onlineUsers.filter((user) =>
-                        user?.fullName
-                            .toLowerCase()
-                            .includes(value.toLowerCase()),
+                    const filteredUsers = onlineUsers.filter(
+                        (user) =>
+                            user?.fullName ??
+                            user?.firstName ??
+                            'Unknown User'
+                                .toLowerCase()
+                                .includes(value.toLowerCase()),
                     );
                     setRecords(filteredUsers);
                 } else {
