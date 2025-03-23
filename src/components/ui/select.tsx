@@ -8,18 +8,55 @@ import { cn } from '@/lib/utils';
 
 // Create a context to share search term between components
 const SelectSearchContext = React.createContext('');
+const SelectDeselectContext = React.createContext<{
+    onDeselect?: () => void;
+    showDeselect: boolean;
+}>({ showDeselect: false });
 
-const Select = SelectPrimitive.Root;
+const Select = React.forwardRef<
+    React.ComponentRef<typeof SelectPrimitive.Root>,
+    React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root> & {
+        allowDeselect?: boolean;
+        onValueChange?: (value: string) => void;
+    }
+>(({ allowDeselect = false, onValueChange, ...props }, ref) => {
+    // Create handler to pass through context
+    const handleDeselect = React.useCallback(() => {
+        if (onValueChange) {
+            onValueChange('');
+        }
+    }, [onValueChange]);
+
+    return (
+        <SelectDeselectContext.Provider value={{ onDeselect: handleDeselect, showDeselect: allowDeselect }}>
+            <SelectPrimitive.Root onValueChange={onValueChange} {...props} />
+        </SelectDeselectContext.Provider>
+    );
+});
+Select.displayName = 'Select';
 
 const SelectGroup = SelectPrimitive.Group;
 
 const SelectValue = SelectPrimitive.Value;
 
+
+
 const SelectTrigger = React.forwardRef<
     React.ComponentRef<typeof SelectPrimitive.Trigger>,
     React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-    <SelectPrimitive.Trigger
+>(({ className, children, ...props }, ref) => {
+
+    const { onDeselect, showDeselect } = React.useContext(SelectDeselectContext);
+    const hasValue = Boolean(props.value);
+
+    const handleClearClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (onDeselect) {
+            onDeselect();
+        }
+    };
+
+    return <SelectPrimitive.Trigger
         ref={ref}
         className={cn(
             'flex h-10 items-center justify-between bg-background whitespace-nowrap w-full rounded-md border border-forground-border px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-gray outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 text-gray focus:ring-2 focus:ring-blue-700/30 focus:border-[0px] focus:ring-offset-1',
@@ -28,11 +65,23 @@ const SelectTrigger = React.forwardRef<
         {...props}
     >
         {children}
-        <SelectPrimitive.Icon asChild>
-            <ChevronDown className='h-4 w-4 opacity-50' />
-        </SelectPrimitive.Icon>
+        <div className="flex items-center gap-1">
+            {showDeselect && hasValue && (
+                <button
+                    onClick={handleClearClick}
+                    className="opacity-70 hover:opacity-100 focus:outline-none"
+                    type="button"
+                    aria-label="Clear selection"
+                >
+                    <X className="h-4 w-4 text-gray" />
+                </button>
+            )}
+            <SelectPrimitive.Icon asChild>
+                <ChevronDown className='h-4 w-4 opacity-50' />
+            </SelectPrimitive.Icon>
+        </div>
     </SelectPrimitive.Trigger>
-));
+});
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 const SelectScrollUpButton = React.forwardRef<
@@ -88,6 +137,7 @@ const SelectContent = React.forwardRef<
         ref,
     ) => {
         const [searchTerm, setSearchTerm] = React.useState('');
+        const { onDeselect, showDeselect } = React.useContext(SelectDeselectContext);
 
         // Prevent select from closing when clicking the search input
         const handleSearchClick = (e: React.MouseEvent) => {
@@ -102,7 +152,7 @@ const SelectContent = React.forwardRef<
                         className={cn(
                             'relative z-[99999999] max-h-96 overflow-hidden rounded-md border border-forground-border bg-dropdown text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
                             position === 'popper' &&
-                                'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
+                            'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
                             // Add this to ensure the width matches the trigger
                             'w-[var(--radix-select-trigger-width)] min-w-52',
                             className,
@@ -146,7 +196,7 @@ const SelectContent = React.forwardRef<
                             className={cn(
                                 'p-1',
                                 position === 'popper' &&
-                                    'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] text-gray',
+                                'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] text-gray',
                             )}
                         >
                             {children}

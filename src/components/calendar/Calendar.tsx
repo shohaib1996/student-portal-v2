@@ -24,6 +24,9 @@ import { MonthView } from './monthView';
 import { WeekView } from './WeekView';
 import { DayView } from './DayView';
 import { SheetTrigger } from '../ui/sheet';
+import { useRouter, useSearchParams } from 'next/navigation';
+import EventDetails from './EventDetails';
+import { useGetSingleEventQuery } from '@/redux/api/calendar/calendarApi';
 
 type CalendarView = 'day' | 'week' | 'month';
 
@@ -31,6 +34,14 @@ export default function Calendar() {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [view, setView] = useState<CalendarView>('month');
     const [hoursView, setHoursView] = useState<string>('24 hours view');
+    const router = useRouter();
+
+    const searchParams = useSearchParams();
+    const id = searchParams.get('detail');
+
+    const { data: eventDetails } = useGetSingleEventQuery(id as string, {
+        skip: !id,
+    });
 
     const navigateToPrevious = () => {
         setCurrentDate((prev) => {
@@ -173,6 +184,11 @@ export default function Calendar() {
                 )}
                 {view === 'day' && <DayView currentDate={currentDate} />}
             </div>
+            <EventDetails
+                event={eventDetails?.event}
+                open={id !== null}
+                setOpen={(_) => router.push('/calendar')}
+            />
         </div>
     );
 }

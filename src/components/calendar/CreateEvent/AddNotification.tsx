@@ -48,10 +48,10 @@ const AddNotification = ({
                     onValueChange={(val) =>
                         setNotification({
                             ...notificaiton,
-                            timeBefore: Number(val),
+                            offsetMinutes: Number(val),
                         })
                     }
-                    defaultValue={String(notificaiton.timeBefore)}
+                    defaultValue={String(notificaiton.offsetMinutes)}
                 >
                     <FormControl>
                         <SelectTrigger className='bg-background'>
@@ -80,25 +80,21 @@ const AddNotification = ({
                         setNotification({
                             ...notificaiton,
                             methods: val as (
-                                | 'push'
-                                | 'text'
-                                | 'email'
-                                | 'inbox'
-                                | 'groups'
+                                "email" | "push" | "text" | "directMessage" | "crowds"
                             )[],
                         })
                     }
                     value={notificaiton.methods}
                     options={[
-                        { value: 'inbox', label: 'Chat DM' },
-                        { value: 'groups', label: 'Chat Crowds' },
+                        { value: 'directMessage', label: 'Chat DM' },
+                        { value: 'crowds', label: 'Chat Crowds' },
                         { value: 'push', label: 'Notification' },
                         { value: 'text', label: 'Text Message' },
                         { value: 'email', label: 'Email' },
                     ]}
                 />
             </div>
-            {notificaiton?.methods?.find((m) => m === 'groups') && (
+            {notificaiton?.methods.find(m => m === 'crowds') && (
                 <div className='col-span-2'>
                     <label className='text-dark-gray text-sm'>
                         Chat Groups (max:3)

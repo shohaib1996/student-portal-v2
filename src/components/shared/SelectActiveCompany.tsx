@@ -12,7 +12,6 @@ import CookiesHandler from '@/lib/axios/CookiesHandler';
 import { cn } from '@/lib/utils';
 import { useGetOrganizationsQuery } from '@/redux/api/auth/authApi';
 import { IApiResponse, IOrganization } from '@/types';
-import { useEffect, useState } from 'react';
 const SelectActiveCompany = () => {
     return (
         <section className='flex h-screen w-screen items-center justify-center bg-background'>

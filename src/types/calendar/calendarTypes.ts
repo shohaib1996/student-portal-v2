@@ -1,3 +1,5 @@
+import { TUser } from '../auth';
+
 export type TEventNotification = {
     type: string;
     label: string;
@@ -6,8 +8,8 @@ export type TEventNotification = {
 
 export type TNotification = {
     chatGroups: string[];
-    methods: ('push' | 'inbox' | 'groups' | 'text' | 'email')[];
-    timeBefore: number;
+    methods: ('email' | 'push' | 'text' | 'directMessage' | 'crowds')[];
+    offsetMinutes: number;
 };
 
 export type TWeeks = 'Sun' | 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat';
@@ -144,40 +146,55 @@ export type TCalendarInitialState = {
 };
 
 export type TEvent = {
-    _id: string; // Assuming it's a string representation of an ObjectId
-    repeatDays?: {
-        repeatDays: TWeeks[];
-        turnOn: boolean;
-        repeatPeriod: 'week' | 'day' | 'month';
-    }; // Adjust based on the actual data structure
-    turnOn: boolean;
-    timeRange: TTimeRange;
-    eventType: TCalendarEventType;
-    invitations?: [];
-    repeatPeriod: string; // Example: "week"
-    isAllDay: boolean;
-    meetingLink: string;
-    actionItems: string;
-    followUp: string; // Assuming HTML string
-    attachments?: any[]; // Adjust type based on attachment structure
+    _id: string;
     title: string;
+    description?: string;
+    location?: {
+        type: 'meet' | 'zoom' | 'call' | 'custom';
+        link?: string;
+    };
+    isAllDay?: boolean;
     timeZone?: string;
-    start: string; // ISO 8601 date string
-    end: string; // ISO 8601 date string
-    createdBy: TParticipentUser; // User ID as string
-    createdAt: string; // ISO 8601 date string
-    updatedAt: string; // ISO 8601 date string
-    participants: Participant[];
-    agenda: string;
-    pinned: boolean;
+    startTime: string; // ISO 8601 format
+    endTime: string; // ISO 8601 format
+    eventColor?: string;
+    recurrence?: {
+        isRecurring: boolean;
+        frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+        interval: number;
+        daysOfWeek?: number[]; // 1 = Monday, 7 = Sunday
+        endRecurrence: string; // ISO 8601 format
+    };
+    attendees?: {
+        responseStatus: 'accepted' | 'needsAction' | 'denied' | 'finished';
+        user?: TUser;
+    }[];
+    organizer?: TUser;
+    reminders?: {
+        method: 'email' | 'push' | 'text' | 'directMessage' | 'crowds';
+        offsetMinutes: number;
+    }[];
+    priority?: 'low' | 'medium' | 'high';
+    attachments?: {
+        name: string;
+        type: string;
+        size: number;
+        url: string;
+    }[];
+    purpose?: {
+        category: string;
+        resourceId: string;
+    };
+    type: 'event' | 'task';
+    permissions?: {
+        modifyEvent?: boolean;
+        inviteOthers?: boolean;
+        seeGuestList?: boolean;
+    };
     myParticipantData: {
         user: string;
         status: 'accepted' | 'pending' | 'denied' | 'canceled'; // Add more statuses if applicable
         _id?: string;
-    };
-    ref?: {
-        source: TCalendarRefSource;
-        id: string;
     };
 };
 

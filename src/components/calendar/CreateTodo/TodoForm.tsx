@@ -78,7 +78,7 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
         isLoading: availibilityLoading,
         isFetching,
     } = useFindUserAvailabilityQuery(openUser, { skip: !openUser });
-    const [date, setDate] = useState<Date>(form.getValues('start'));
+    const [date, setDate] = useState<Date>(form.getValues('startTime'));
     const [availability, setAvailibility] = useState<
         TAvailability | undefined
     >();
@@ -171,7 +171,7 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
         return (
             <FormField
                 control={form.control}
-                name='courseLink'
+                name='purpose'
                 render={({ field }) => (
                     <FormItem className={className}>
                         {isFullScreen && <FormLabel>Purpose</FormLabel>}
@@ -179,8 +179,14 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                             <div className='flex items-center border rounded-md h-10 bg-foreground border-forground-border'>
                                 <LinkIcon className='ml-3 h-4 w-4 text-muted-foreground' />
                                 <Input
+                                    onChange={(e) =>
+                                        field.onChange({
+                                            category: '',
+                                            resourceId: e.target.value,
+                                        })
+                                    }
                                     placeholder='Bootcamps/course link'
-                                    {...field}
+                                    value={field.value?.resourceId}
                                     className='border-0 h-8 focus-visible:ring-0 bg-foreground'
                                 />
                                 <ChevronDown className='mr-3 h-4 w-4 opacity-50' />
@@ -210,7 +216,7 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                         <div className='flex gap-3'>
                             <div className='flex-1 space-y-1'>
                                 <FormField
-                                    name='start'
+                                    name='startTime'
                                     control={form.control}
                                     render={({ field }) => (
                                         <FormItem>
@@ -245,7 +251,7 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                     )}
                                 />
                                 <FormField
-                                    name='end'
+                                    name='endTime'
                                     control={form.control}
                                     render={({ field }) => (
                                         <FormItem>
@@ -329,10 +335,10 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                         ref={agendaRef}
                         placeholder='Enter agenda/follow up/action item...'
                         className='bg-foreground h-full overflow-y-auto'
-                        markdown={form.getValues('agenda') || ''}
+                        markdown={form.getValues('description') || ''}
                         onChange={() => {
                             const value = agendaRef.current?.getMarkdown();
-                            form.setValue('agenda', value);
+                            form.setValue('description', value);
                         }}
                     />
                 </div>
@@ -344,7 +350,7 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
         return (
             <FormField
                 control={form.control}
-                name='notifications'
+                name='reminders'
                 render={({ field }) => (
                     <FormItem>
                         <div className={isFullScreen ? '' : ''}>

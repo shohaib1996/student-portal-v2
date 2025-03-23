@@ -23,7 +23,11 @@ import PendingIcon from '../svgs/calendar/PendingIcon';
 import DeniedIcon from '../svgs/calendar/DeniedIcon';
 import GlobalTooltip from '../global/GlobalTooltip';
 import FinishedIcon from '../svgs/calendar/FinishedIcon';
-import { EventPopover, EventPopoverTrigger } from './CreateEvent/EventPopover';
+import {
+    EventPopoverTrigger,
+    useEventPopover,
+} from './CreateEvent/EventPopover';
+import { useRouter } from 'next/navigation';
 
 const staticEvents = '/calendarData.json';
 
@@ -51,24 +55,24 @@ export function MonthView({ currentDate }: MonthViewProps) {
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
     const startDate = subDays(monthStart, getDay(monthStart));
-    const [open, setOpen] = useState(false);
+    const { isOpen, openPopover } = useEventPopover();
     const days = [];
     let day = startDate;
+    const router = useRouter();
 
     const { data } = useGetMyEventsQuery({
-        queryDate: {
-            from: monthStart.toISOString(),
-            to: monthEnd.toISOString(),
-        },
+        from: monthStart.toISOString(),
+        to: monthEnd.toISOString(),
     });
+
+    console.log(data);
 
     const handleDayClick = (day: Date) => {
         console.log('Day clicked:', format(day, 'yyyy-MM-dd'));
-        setOpen(true);
         // You can implement custom logic here, like opening a modal to add an event
     };
 
-    const events: TEvent[] = (staticEvents as unknown as TEvent[]) || [];
+    const events: TEvent[] = (data?.events as TEvent[]) || [];
 
     // Create 6 weeks (42 days) to ensure we have enough rows for any month
     for (let i = 0; i < 42; i++) {
@@ -80,7 +84,7 @@ export function MonthView({ currentDate }: MonthViewProps) {
     const getEventsForDay = (day: Date) => {
         return events.filter(
             (event) =>
-                format(new Date(event.start), 'yyyy-MM-dd') ===
+                format(new Date(event?.startTime), 'yyyy-MM-dd') ===
                 format(day, 'yyyy-MM-dd'),
         );
     };
@@ -147,6 +151,11 @@ export function MonthView({ currentDate }: MonthViewProps) {
                                 >
                                     {dayEvents.slice(0, 4).map((event) => (
                                         <button
+                                            onClick={(e) => {
+                                                router.push(
+                                                    `/calendar?detail=${event._id}`,
+                                                );
+                                            }}
                                             key={event._id}
                                             className={cn(
                                                 'w-full flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-foreground justify-start font-normal',
