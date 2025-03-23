@@ -3,7 +3,7 @@ interface Function {
     [Symbol.metadata]: DecoratorMetadata | null;
 }
 
-const uploadFile = async (attachment, uploadDocument) => {
+const uploadFile = async (attachment: any, uploadDocument: any) => {
     if (!attachment || attachment.length === 0) {
         // toast.error("No file selected");
         return null;

@@ -23,7 +23,7 @@ export default {
             spacing: {
                 ...defaultTheme.spacing,
                 common: '0.75rem',
-                'common-multiplied': '`${0.75 * 2}rem`',
+                'common-multiplied': `${0.75 * 2}rem`,
             },
             colors: {
                 background: 'hsl(var(--background))',

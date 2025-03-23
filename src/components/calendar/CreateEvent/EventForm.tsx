@@ -71,10 +71,10 @@ import { MarkdownEditor } from '@/components/global/MarkdownEditor/MarkdownEdito
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import Image from 'next/image';
 
-import zoomImg from '../../../../public/calendar/zoom.png';
-import meetImg from '../../../../public/calendar/meet.png';
-import phoneImg from '../../../../public/calendar/phone.png';
-import customImg from '../../../../public/calendar/custom.png';
+const zoomImg = '/calendar/zoom.png';
+const meetImg = '/calendar/meet.png';
+const phoneImg = '/calendar/phone.png';
+const customImg = '/calendar/custom.png';
 import AddNotification from './AddNotification';
 import { TEventFormType } from '../validations/eventValidation';
 

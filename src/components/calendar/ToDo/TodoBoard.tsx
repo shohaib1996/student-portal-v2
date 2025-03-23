@@ -15,7 +15,6 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { createPortal } from 'react-dom';
 import TodoColumn from './TodoColumn';
 import TaskCard from './TaskCard';
-import staticTodo from '../../../../public/calendar/staticTodo.json';
 
 export interface TaskType {
     id: string;

@@ -456,7 +456,7 @@ function ReadOnly() {
                 }
             >
                 {opened && (
-                    <CreateCrowd opened={opened} close={closeCreateModal} />
+                    <CreateCrowd isOpen={opened} onClose={closeCreateModal} />
                 )}
             </Suspense>
         </>

@@ -1,6 +1,5 @@
 'use client';
 import React, { useEffect, useState, useCallback, lazy, Suspense } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
@@ -19,17 +18,18 @@ import {
     VideoOff,
     SearchIcon,
     PinOff,
+    Maximize2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { markRead, updateMyData } from '@/redux/features/chatReducer';
-import onlineUsers from './onlineUsers.json';
-import { Input } from '../ui/input';
-import NotificationOptionModal from './ChatForm/NotificationModal';
-import { EventPopoverTrigger } from '../calendar/CreateEvent/EventPopover';
+import onlineUsers from '../onlineUsers.json';
+import NotificationOptionModal from '../ChatForm/NotificationModal';
+import { Input } from '@/components/ui/input';
+import PopUpChatBody from './PopupchatBody';
+import { useRouter } from 'nextjs-toploader/app';
+
 // Dynamic imports
-const ChatBody = lazy(() => import('./ChatBody'));
-// const NotificationOptionModal = lazy(() => import("./ChatForm/NotificationModal"));
-// const Meet = lazy(() => import("./jitsi/Meet"));
+const ChatBody = lazy(() => import('../ChatBody'));
 
 // Initialize dayjs plugins
 dayjs.extend(relativeTime);
@@ -41,52 +41,22 @@ const LoadingFallback = () => (
     </div>
 );
 
-interface ChatUser {
-    _id: string;
-    fullName: string;
-    profilePicture: string;
-    lastActive: string;
-    type?: string;
-}
-
-interface ChatData {
-    _id: string;
-    isChannel: boolean;
-    name?: string;
-    avatar?: string;
-    membersCount?: number;
-    otherUser?: ChatUser;
-    myData?: {
-        isFavourite: boolean;
-        notification?: {
-            isOn: boolean;
-        };
-    };
-}
-
-interface ChatState {
-    onlineUsers: ChatUser[];
-}
-
-interface RootState {
-    chat: ChatState;
-    theme: {
-        displayMode: string;
-    };
-}
-
-interface InboxProps {
+interface PopupInboxProps {
+    chatId?: string;
+    onBack: () => void;
+    onClose: () => void;
     handleToggleInfo: () => void;
-    isThinking?: boolean;
     setProfileInfoShow: (value: boolean) => void;
     profileInfoShow: boolean;
     setReloading: (value: boolean) => void;
     reloading: boolean;
 }
 
-const Inbox: React.FC<InboxProps> = ({
+const PopupInbox: React.FC<PopupInboxProps> = ({
+    chatId,
+    onBack,
+    onClose,
     handleToggleInfo,
-    isThinking,
     setProfileInfoShow,
     profileInfoShow,
     setReloading,
@@ -95,7 +65,7 @@ const Inbox: React.FC<InboxProps> = ({
     const [chat, setChatInfo] = useState<any>({} as any);
     const [isMeeting, setIsMeeting] = useState(false);
     const dispatch = useDispatch();
-
+    const router = useRouter();
     // Search state: controls whether the search box is open and holds the search query
     const [search, setSearch] = useState({
         isOpen: false,
@@ -112,11 +82,6 @@ const Inbox: React.FC<InboxProps> = ({
         if (chat?._id) {
             dispatch(markRead({ chatId: chat._id }));
         }
-        // handleSearchSubmit("");
-        // setSearch({
-        //   isOpen: false,
-        //   query: "",
-        // })
     }, [chat, dispatch]);
 
     const handleFavourite = useCallback(
@@ -173,20 +138,21 @@ const Inbox: React.FC<InboxProps> = ({
     const toggleMeeting = useCallback(() => {
         setIsMeeting((prev) => !prev);
     }, []);
-    console.log({ chat });
+
     return (
         <>
-            {/* Set position relative so the absolute search box is positioned relative to this container */}
-            <div className='relative bg-background rounded-md shadow-sm h-[calc(100vh-60px)]'>
+            {/* Adjusted container height for dropdown context */}
+            <div className='relative rounded-md h-full'>
                 <div className='flex flex-col h-full'>
-                    <div className='flex items-center justify-between p-2 border-b'>
+                    <div className=' flex items-center justify-between pb-2 border-b'>
                         <div className='flex items-center space-x-3'>
-                            <Link
-                                className='text-dark-gray hover:text-primary'
-                                href='/chat'
+                            {/* Back button instead of Link for popup context */}
+                            <div
+                                className='text-dark-gray hover:text-primary cursor-pointer'
+                                onClick={onBack}
                             >
                                 <ArrowLeft className='h-5 w-5 text-dark-gray' />
-                            </Link>
+                            </div>
 
                             <div className='relative'>
                                 <Image
@@ -230,11 +196,7 @@ const Inbox: React.FC<InboxProps> = ({
                                           'unknown'}
                                 </h4>
                                 <span className='text-sm text-muted-foreground whitespace-nowrap'>
-                                    {isThinking ? (
-                                        <span className='text-green-500 whitespace-nowrap'>
-                                            Ai is generating your answer...
-                                        </span>
-                                    ) : chat?.isChannel ? (
+                                    {chat?.isChannel ? (
                                         `${chat?.membersCount || 0} members`
                                     ) : onlineUsers?.find(
                                           (x) =>
@@ -258,7 +220,7 @@ const Inbox: React.FC<InboxProps> = ({
                             <Button
                                 variant='primary_light'
                                 size='icon'
-                                className='border'
+                                className='border h-8 w-8'
                                 onClick={() =>
                                     setSearch((prev) => ({
                                         ...prev,
@@ -266,70 +228,66 @@ const Inbox: React.FC<InboxProps> = ({
                                     }))
                                 }
                             >
-                                <Search className='h-5 w-5' />
+                                <Search className='h-4 w-4' />
                             </Button>
-                            {chat?.otherUser?.type !== 'bot' && (
-                                <>
-                                    <Button
-                                        variant='primary_light'
-                                        size='icon'
-                                        className='border cursor-pointer'
-                                        asChild
-                                        onClick={() =>
-                                            toast.info('Coming soon!')
-                                        }
-                                        // onClick={(e)=> openPopover(e.currentTarget.getBoundingClientRect(),{side:'right'})}
-                                    >
-                                        <Calendar className='h-5 w-5' />
-                                    </Button>
-
-                                    <Button
-                                        variant='primary_light'
-                                        size='icon'
-                                        className='border'
-                                        onClick={toggleMeeting}
-                                    >
-                                        {isMeeting ? (
-                                            <VideoOff className='h-5 w-5' />
-                                        ) : (
-                                            <Video className='h-5 w-5' />
-                                        )}
-                                    </Button>
-                                </>
-                            )}
                             <Button
                                 variant='primary_light'
                                 size='icon'
-                                className='border'
+                                className='border cursor-pointer h-8 w-8'
+                                asChild
+                            >
+                                <Calendar className='h-4 w-4' />
+                            </Button>
+
+                            <Button
+                                variant='primary_light'
+                                size='icon'
+                                className='border h-8 w-8'
                                 onClick={() => handleNoti()}
                             >
                                 {chat?.myData?.notification?.isOn ? (
-                                    <Bell className='h-5 w-5' />
+                                    <Bell className='h-4 w-4' />
                                 ) : (
-                                    <BellOff className='h-5 w-5' />
+                                    <BellOff className='h-4 w-4' />
                                 )}
                             </Button>
 
                             <Button
                                 variant='primary_light'
                                 size='icon'
-                                className='border'
+                                className='border h-8 w-8'
                                 onClick={() =>
                                     handleFavourite(!chat?.myData?.isFavourite)
                                 }
                             >
                                 {!chat?.myData?.isFavourite ? (
-                                    <Pin className='h-5 w-5 rotate-45' />
+                                    <Pin className='h-4 w-4 rotate-45' />
                                 ) : (
-                                    <PinOff className='h-5 w-5 rotate-45' />
+                                    <PinOff className='h-4 w-4 rotate-45' />
                                 )}
                             </Button>
+                            <Button
+                                variant='primary_light'
+                                size='icon'
+                                className='border h-8 w-8'
+                                onClick={() => router.push(`/chat/${chatId}`)}
+                                icon={<Maximize2 className='h-4 w-4' />}
+                            ></Button>
+
+                            {/* <Button
+                                variant='primary_light'
+                                size='icon'
+                                className='h-8 w-8'
+                                onClick={onClose}
+                            >
+                                <X className='h-5 w-5' />
+                            </Button> */}
                         </div>
                     </div>
 
                     {/* Search box appears when search.isOpen is true */}
                     {search.isOpen && (
-                        <div className='absolute top-[60px] left-0 right-0 bg-background p-2 shadow-md z-10 flex items-center gap-2'>
+                        <div className='absolute top-[48px] left-0 right-0 bg-background p-2 shadow-md z-10 flex items-center gap-2'>
                             <div className='relative w-full'>
                                 <Input
                                     type='text'
@@ -360,24 +318,29 @@ const Inbox: React.FC<InboxProps> = ({
                         </div>
                     )}
 
-                    {isMeeting ? (
-                        <Suspense fallback={<LoadingFallback />}>
-                            {/* <Meet chat={chat} setIsMeeting={setIsMeeting} /> */}
-                            <p>Meeting is coming soon!</p>
-                        </Suspense>
-                    ) : (
-                        <Suspense fallback={<LoadingFallback />}>
-                            <ChatBody
-                                setChatInfo={setChatInfo}
-                                setProfileInfoShow={setProfileInfoShow}
-                                profileInfoShow={profileInfoShow}
-                                setReloading={setReloading}
-                                reloading={reloading}
-                                isAi={isAi}
-                                searchQuery={finalQuery}
-                            />
-                        </Suspense>
-                    )}
+                    <div className='flex-1 h-[calc(100%-48px)] overflow-hidden'>
+                        {isMeeting ? (
+                            <Suspense fallback={<LoadingFallback />}>
+                                <p className='text-center p-4'>
+                                    Meeting is coming soon!
+                                </p>
+                            </Suspense>
+                        ) : (
+                            <Suspense fallback={<LoadingFallback />}>
+                                <PopUpChatBody
+                                    setChatInfo={setChatInfo}
+                                    setProfileInfoShow={setProfileInfoShow}
+                                    profileInfoShow={profileInfoShow}
+                                    setReloading={setReloading}
+                                    reloading={reloading}
+                                    isAi={isAi}
+                                    searchQuery={finalQuery}
+                                    isPopup={true}
+                                    chatId={chatId}
+                                />
+                            </Suspense>
+                        )}
+                    </div>
                 </div>
 
                 <Suspense fallback={null}>
@@ -393,4 +356,4 @@ const Inbox: React.FC<InboxProps> = ({
     );
 };
 
-export default Inbox;
+export default PopupInbox;

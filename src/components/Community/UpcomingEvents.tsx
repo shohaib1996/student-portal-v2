@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,11 +49,56 @@ const mockEvents: Event[] = [
         },
         interested: false,
     },
+    {
+        id: 'event3',
+        title: 'Virtual Tech Meetup',
+        description:
+            'Join us for an exciting virtual meetup to discuss the latest trends in technology and innovation.',
+        image: '/images/community/one.png',
+        date: {
+            month: 'April',
+            day: '05',
+        },
+        interested: false,
+    },
+    {
+        id: 'event4',
+        title: 'Community Hackathon',
+        description:
+            'A 24-hour coding challenge to build innovative solutions for real-world problems.',
+        image: '/images/community/two.png',
+        date: {
+            month: 'April',
+            day: '15',
+        },
+        interested: false,
+    },
+    {
+        id: 'event5',
+        title: 'Networking Night',
+        description:
+            'An evening of networking with professionals and enthusiasts from various industries.',
+        image: '/images/community/one.png',
+        date: {
+            month: 'May',
+            day: '03',
+        },
+        interested: false,
+    },
 ];
 
 const UpcomingEvents = ({ setEvent }: UpcomingEventsProps) => {
-    const [events, setEvents] = useState<Event[]>(mockEvents);
+    const [events, setEvents] = useState<Event[]>(mockEvents.slice(0, 2));
     const [isLoading, setIsLoading] = useState(false);
+    const [showAllEvents, setShowAllEvents] = useState(false);
+
+    useEffect(() => {
+        if (showAllEvents) {
+            setEvents(mockEvents);
+        } else {
+            setEvents(mockEvents.slice(0, 2));
+        }
+    }, [showAllEvents]);
 
     const toggleInterested = (eventId: string) => {
         setEvents(
@@ -131,11 +176,12 @@ const UpcomingEvents = ({ setEvent }: UpcomingEventsProps) => {
                     <div className='flex items-center w-full px-4'>
                         <div className='h-px bg-border flex-grow'></div>
                         <Button
+                            onClick={() => setShowAllEvents(!showAllEvents)}
                             variant='outline'
                             size='sm'
                             className='mx-4 rounded-full px-4 bg-primary-light text-primary border-border-primary-light hover:bg-primary-light hover:text-primary'
                         >
-                            View More
+                            {showAllEvents ? 'View Less' : 'View More'}
                             <ChevronDown className='h-4 w-4 ml-1' />
                         </Button>
                         <div className='h-px bg-border flex-grow'></div>
