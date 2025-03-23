@@ -6,17 +6,12 @@ import { format, isToday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import dayjs, { Dayjs } from 'dayjs';
 import { toast } from 'sonner';
-import GlobalTooltip from '../global/GlobalTooltip';
-import { renderStatus } from './monthView';
-
 import { TEvent } from '@/types/calendar/calendarTypes';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
 import { useAppDispatch } from '@/redux/hooks';
 import { useEventPopover } from './CreateEvent/EventPopover';
 import { setCurrentDate } from '@/redux/features/calendarReducer';
-
-const staticEvents = '/calendarData.json';
-
+import EventButton from './EventButton';
 interface DayViewProps {
     currentDate: Date;
     onChange?: (_: Dayjs) => void;
@@ -108,27 +103,7 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
                             className='mt-1 flex flex-wrap gap-2'
                         >
                             {getEventsForHour(hour).map((event) => (
-                                <button
-                                    key={event._id}
-                                    style={{
-                                        backgroundColor: event?.eventColor,
-                                    }}
-                                    className={cn(
-                                        'w-fit h-fit flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-foreground justify-start font-normal',
-                                    )}
-                                >
-                                    {}
-                                    <p>
-                                        {renderStatus(
-                                            event?.myParticipantData?.status,
-                                        )}
-                                    </p>
-                                    <GlobalTooltip tooltip={event?.title}>
-                                        <h2 className='truncate'>
-                                            {event?.title}
-                                        </h2>
-                                    </GlobalTooltip>
-                                </button>
+                                <EventButton key={event._id} event={event} />
                             ))}
                         </div>
                     </div>

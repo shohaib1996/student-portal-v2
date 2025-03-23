@@ -62,7 +62,11 @@ import {
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import timesArray from '../../../../public/times';
-import { TAvailability, TNotification } from '@/types/calendar/calendarTypes';
+import {
+    TAvailability,
+    TEvent,
+    TNotification,
+} from '@/types/calendar/calendarTypes';
 import { MarkdownEditor } from '@/components/global/MarkdownEditor/MarkdownEditor';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import Image from 'next/image';
@@ -74,12 +78,15 @@ const customImg = '/calendar/custom.png';
 import AddNotification from './AddNotification';
 import { TEventFormType } from '../validations/eventValidation';
 import MultiSelect from '@/components/global/MultiSelect';
+import { useAppSelector } from '@/redux/hooks';
+import { toast } from 'sonner';
 
 type TProps = {
     form: UseFormReturn<TEventFormType>;
     onSubmit: SubmitHandler<TEventFormType>;
     setCurrentDate: Dispatch<SetStateAction<Dayjs>>;
     edit: boolean;
+    event?: TEvent;
 };
 
 export const renderRecurrence = (
@@ -97,7 +104,7 @@ export const renderRecurrence = (
     }
 };
 
-const EventForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
+const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
     const [openUser, setOpenUser] = useState<string>('');
     const [query, setQuery] = useState('');
     const {
@@ -121,6 +128,9 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>(
         [],
     );
+    const { user } = useAppSelector((s) => s.auth);
+
+    const isMyEvent = event?.organizer?._id === user?._id;
 
     useEffect(() => {
         if (userAvailability) {
@@ -952,23 +962,25 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
                                                                                         user as TUser
                                                                                     }
                                                                                 />
-                                                                                <X
-                                                                                    onClick={() =>
-                                                                                        field.onChange(
-                                                                                            field.value?.filter(
-                                                                                                (
-                                                                                                    u,
-                                                                                                ) =>
-                                                                                                    u !==
-                                                                                                    user,
-                                                                                            ),
-                                                                                        )
-                                                                                    }
-                                                                                    className='text-danger cursor-pointer'
-                                                                                    size={
-                                                                                        18
-                                                                                    }
-                                                                                />
+                                                                                {isMyEvent && (
+                                                                                    <X
+                                                                                        onClick={() =>
+                                                                                            field.onChange(
+                                                                                                field.value?.filter(
+                                                                                                    (
+                                                                                                        u,
+                                                                                                    ) =>
+                                                                                                        u !==
+                                                                                                        user,
+                                                                                                ),
+                                                                                            )
+                                                                                        }
+                                                                                        className='text-danger cursor-pointer'
+                                                                                        size={
+                                                                                            18
+                                                                                        }
+                                                                                    />
+                                                                                )}
                                                                             </div>
                                                                         ),
                                                                     )}
@@ -978,6 +990,9 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
                                                                         Permission
                                                                     </label>
                                                                     <MultiSelect
+                                                                        disabled={
+                                                                            !isMyEvent
+                                                                        }
                                                                         onChange={(
                                                                             val,
                                                                         ) => {
@@ -1072,23 +1087,34 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
                                                                                     <div
                                                                                         onClick={() => {
                                                                                             if (
-                                                                                                selected
+                                                                                                isMyEvent ||
+                                                                                                event
+                                                                                                    ?.permissions
+                                                                                                    ?.inviteOthers
                                                                                             ) {
-                                                                                                field.onChange(
-                                                                                                    field.value?.filter(
-                                                                                                        (
-                                                                                                            u,
-                                                                                                        ) =>
-                                                                                                            u._id !==
-                                                                                                            user._id,
-                                                                                                    ),
-                                                                                                );
+                                                                                                if (
+                                                                                                    selected
+                                                                                                ) {
+                                                                                                    field.onChange(
+                                                                                                        field.value?.filter(
+                                                                                                            (
+                                                                                                                u,
+                                                                                                            ) =>
+                                                                                                                u._id !==
+                                                                                                                user._id,
+                                                                                                        ),
+                                                                                                    );
+                                                                                                } else {
+                                                                                                    field.onChange(
+                                                                                                        [
+                                                                                                            ...field.value,
+                                                                                                            user,
+                                                                                                        ],
+                                                                                                    );
+                                                                                                }
                                                                                             } else {
-                                                                                                field.onChange(
-                                                                                                    [
-                                                                                                        ...field.value,
-                                                                                                        user,
-                                                                                                    ],
+                                                                                                toast.warning(
+                                                                                                    'You do not have permission to invite users',
                                                                                                 );
                                                                                             }
                                                                                         }}

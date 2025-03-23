@@ -561,11 +561,11 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                     ) : (
                         <div className='space-y-2 h-full w-full pb-2'>
                             <div className='grid grid-cols-10 gap-2 items-start'>
-                                {titleField('col-span-5')}
-                                {courseLink('col-span-2')}
-                                {priorityField('col-span-2')}
+                                {titleField('col-span-10 md:col-span-5')}
+                                {courseLink('col-span-5 md:col-span-3')}
+                                {priorityField('col-span-5 md:col-span-2')}
                             </div>
-                            <div className='grid grid-cols-2 gap-2'>
+                            <div className='grid grid-cols-1 lg:grid-cols-2 gap-2'>
                                 {dateField('')}
                                 {reminderField()}
                             </div>

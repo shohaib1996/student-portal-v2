@@ -30,27 +30,13 @@ import {
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setCurrentDate } from '@/redux/features/calendarReducer';
+import EventButton from './EventButton';
 
 const staticEvents = '/calendarData.json';
 
 interface MonthViewProps {
     currentDate: Date;
 }
-
-export const renderStatus = (
-    status: 'accepted' | 'pending' | 'denied' | 'canceled' | 'finished',
-) => {
-    switch (status) {
-        case 'accepted':
-            return <AcceptedIcon />;
-        case 'pending':
-            return <PendingIcon />;
-        case 'denied':
-            return <DeniedIcon />;
-        default:
-            return <FinishedIcon />;
-    }
-};
 
 export function MonthView({ currentDate }: MonthViewProps) {
     // Generate calendar days
@@ -159,32 +145,10 @@ export function MonthView({ currentDate }: MonthViewProps) {
                                     className='mt-1 space-y-1 max-h-[80px]'
                                 >
                                     {dayEvents.slice(0, 4).map((event) => (
-                                        <button
-                                            onClick={(e) => {
-                                                router.push(
-                                                    `/calendar?detail=${event._id}`,
-                                                );
-                                            }}
+                                        <EventButton
                                             key={event._id}
-                                            className={cn(
-                                                'w-full flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-foreground justify-start font-normal',
-                                            )}
-                                        >
-                                            {}
-                                            <p>
-                                                {renderStatus(
-                                                    event?.myParticipantData
-                                                        ?.status,
-                                                )}
-                                            </p>
-                                            <GlobalTooltip
-                                                tooltip={event?.title}
-                                            >
-                                                <h2 className='truncate'>
-                                                    {event?.title}
-                                                </h2>
-                                            </GlobalTooltip>
-                                        </button>
+                                            event={event}
+                                        />
                                     ))}
                                     {dayEvents?.length > 4 && (
                                         <GlobalDropdown
@@ -193,25 +157,10 @@ export function MonthView({ currentDate }: MonthViewProps) {
                                                     {dayEvents
                                                         .slice(4)
                                                         .map((event) => (
-                                                            <button
+                                                            <EventButton
                                                                 key={event._id}
-                                                                className={cn(
-                                                                    'w-full flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-background justify-start font-normal',
-                                                                )}
-                                                            >
-                                                                <p>
-                                                                    {renderStatus(
-                                                                        event
-                                                                            ?.myParticipantData
-                                                                            ?.status,
-                                                                    )}
-                                                                </p>
-                                                                <p className='truncate'>
-                                                                    {
-                                                                        event?.title
-                                                                    }
-                                                                </p>
-                                                            </button>
+                                                                event={event}
+                                                            />
                                                         ))}
                                                 </div>
                                             }

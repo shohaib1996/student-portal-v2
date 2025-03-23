@@ -41,6 +41,8 @@ import {
     setHolidayFilter,
     setTodoFilter,
 } from '@/redux/features/calendarReducer';
+import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
+import { TEvent } from '@/types/calendar/calendarTypes';
 
 interface CalendarAccordionsProps {
     currentDate: Date;
@@ -110,18 +112,6 @@ const holidayOptions = [
     },
 ];
 
-interface Event {
-    id: string;
-    title: string;
-    date: Date;
-    time: string;
-    duration: string;
-    attendees: string[];
-    color: string;
-    completed?: boolean;
-    isTodo?: boolean;
-}
-
 export function CalendarSidebar({
     currentDate,
     onDateSelect,
@@ -145,69 +135,11 @@ export function CalendarSidebar({
 
     const [sentFilter, setSentFilter] = useState('');
     const [selectedWeek, setSelectedWeek] = useState(startOfWeek(currentDate));
-
-    // Sample events and todos
-    const [items] = useState<Event[]>([
-        {
-            id: '1',
-            title: 'Review meeting',
-            date: new Date(2025, 1, 15, 10, 30),
-            time: '10:30 AM',
-            duration: '30 min',
-            attendees: ['smith.wilson23@gmail.com'],
-            color: 'border-l-4 border-green-500',
-        },
-        {
-            id: '2',
-            title: 'Executive team sync up meeting',
-            date: new Date(2025, 1, 15, 12, 30),
-            time: '12:30 PM',
-            duration: '30 min',
-            attendees: ['sarah.johnson@example.com'],
-            color: 'border-l-4 border-blue-500',
-        },
-        {
-            id: '3',
-            title: 'Development team',
-            date: new Date(2025, 1, 16, 14, 0),
-            time: '2:00 PM',
-            duration: '1 hr',
-            attendees: ['dev.team@example.com'],
-            color: 'border-l-4 border-purple-500',
-        },
-        {
-            id: '4',
-            title: 'Complete project proposal',
-            date: new Date(2025, 1, 15, 9, 0),
-            time: '9:00 AM',
-            duration: '2 hrs',
-            attendees: [],
-            color: 'border-l-4 border-yellow-500',
-            isTodo: true,
-        },
-        {
-            id: '5',
-            title: 'Review code PR',
-            date: new Date(2025, 1, 16, 11, 0),
-            time: '11:00 AM',
-            duration: '1 hr',
-            attendees: [],
-            color: 'border-l-4 border-yellow-500',
-            isTodo: true,
-            completed: true,
-        },
-        {
-            id: '6',
-            title: 'Prepare presentation',
-            date: new Date(2025, 1, 17, 13, 0),
-            time: '1:00 PM',
-            duration: '3 hrs',
-            attendees: [],
-            color: 'border-l-4 border-yellow-500',
-            isTodo: true,
-        },
-    ]);
-
+    const { data } = useGetMyEventsQuery({
+        from: selectedWeek.toISOString(), // Start of the day (00:00:00)
+        to: endOfWeek(selectedWeek).toISOString(), // End of the day (23:59:59.999)
+    });
+    const events: TEvent[] = (data?.events as TEvent[]) || [];
     const toggleSection = (section: keyof typeof expanded) => {
         setExpanded((prev) => ({
             ...prev,
@@ -228,24 +160,12 @@ export function CalendarSidebar({
         addDays(selectedWeek, i),
     );
 
-    // Get events for the selected week
-    const getEventsForWeek = () => {
-        const weekEnd = endOfWeek(selectedWeek);
-
-        return items.filter((item) => {
-            const itemDate = new Date(item.date);
-            return (
-                !item.isTodo && itemDate >= selectedWeek && itemDate <= weekEnd
-            );
-        });
-    };
-
     // Group events by day
-    const groupEventsByDay = (events: Event[]) => {
-        const grouped: Record<string, Event[]> = {};
+    const groupEventsByDay = (events: TEvent[]) => {
+        const grouped: Record<string, TEvent[]> = {};
 
         events.forEach((event) => {
-            const dateKey = format(event.date, 'yyyy-MM-dd');
+            const dateKey = format(event.startTime, 'yyyy-MM-dd');
             if (!grouped[dateKey]) {
                 grouped[dateKey] = [];
             }
@@ -255,8 +175,7 @@ export function CalendarSidebar({
         return grouped;
     };
 
-    const weekEvents = getEventsForWeek();
-    const groupedWeekEvents = groupEventsByDay(weekEvents);
+    const groupedWeekEvents = groupEventsByDay(events);
 
     const isFilterActive = useCallback(
         (type: 'event' | 'holiday' | 'todo', value: string) => {
@@ -393,24 +312,24 @@ export function CalendarSidebar({
                                             </div>
                                             {dayEvents.map((event) => (
                                                 <div
-                                                    key={event.id}
+                                                    key={event._id}
                                                     className={cn(
-                                                        'p-2 mb-1 rounded bg-gray-50 text-xs',
-                                                        event.color,
+                                                        'p-2 mb-1 rounded bg-foreground text-xs',
+                                                        event.eventColor,
                                                     )}
                                                 >
                                                     <div className='font-medium'>
                                                         {event.title}
                                                     </div>
                                                     <div className='text-gray-500'>
-                                                        {event.time}
+                                                        {event.startTime}
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     ))
                             ) : (
-                                <div className='text-center text-gray-500 text-xs py-2'>
+                                <div className='text-center text-gray text-xs py-2'>
                                     No events this week
                                 </div>
                             )}

@@ -12,7 +12,6 @@ import {
 
 import { cn } from '@/lib/utils';
 import GlobalTooltip from '../global/GlobalTooltip';
-import { renderStatus } from './monthView';
 import { TEvent } from '@/types/calendar/calendarTypes';
 import dayjs from 'dayjs';
 import GlobalDropdown from '../global/GlobalDropdown';
@@ -23,6 +22,7 @@ import {
 } from './CreateEvent/EventPopover';
 import { useAppDispatch } from '@/redux/hooks';
 import { setCurrentDate } from '@/redux/features/calendarReducer';
+import EventButton from './EventButton';
 
 interface WeekViewProps {
     currentDate: Date;
@@ -139,27 +139,10 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
                                     {getEventsForCell(day, hour)
                                         .slice(0, 3)
                                         .map((event) => (
-                                            <button
+                                            <EventButton
                                                 key={event._id}
-                                                className={cn(
-                                                    'w-full flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-foreground justify-start font-normal',
-                                                )}
-                                            >
-                                                {}
-                                                <p>
-                                                    {renderStatus(
-                                                        event?.myParticipantData
-                                                            ?.status,
-                                                    )}
-                                                </p>
-                                                <GlobalTooltip
-                                                    tooltip={event?.title}
-                                                >
-                                                    <h2 className='truncate'>
-                                                        {event?.title}
-                                                    </h2>
-                                                </GlobalTooltip>
-                                            </button>
+                                                event={event}
+                                            />
                                         ))}
                                     {getEventsForCell(day, hour)?.length >
                                         3 && (
@@ -169,25 +152,10 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
                                                     {getEventsForCell(day, hour)
                                                         .slice(3)
                                                         .map((event) => (
-                                                            <button
+                                                            <EventButton
                                                                 key={event._id}
-                                                                className={cn(
-                                                                    'w-full flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-background justify-start font-normal',
-                                                                )}
-                                                            >
-                                                                <p>
-                                                                    {renderStatus(
-                                                                        event
-                                                                            ?.myParticipantData
-                                                                            ?.status,
-                                                                    )}
-                                                                </p>
-                                                                <p className='truncate'>
-                                                                    {
-                                                                        event?.title
-                                                                    }
-                                                                </p>
-                                                            </button>
+                                                                event={event}
+                                                            />
                                                         ))}
                                                 </div>
                                             }

@@ -457,6 +457,7 @@ const CreateEventModal = () => {
                     </TabsList>
                     <TabsContent value='event'>
                         <EventForm
+                            event={eventDetails?.event as TEvent}
                             edit={updateId !== null && eventDetails?.event}
                             setCurrentDate={setCurrentDate}
                             form={eventForm}
