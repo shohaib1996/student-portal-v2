@@ -230,7 +230,7 @@ const CreateEventModal = () => {
                 }).unwrap();
                 if (res) {
                     eventForm.reset(eventForm.formState.defaultValues);
-                    toast.success('Successfully added a new event');
+                    toast.success('Successfully updated event');
                     handleClose();
                 }
             } else {
@@ -240,7 +240,7 @@ const CreateEventModal = () => {
                 }).unwrap();
                 if (res) {
                     eventForm.reset(eventForm.formState.defaultValues);
-                    toast.success('Successfully updated event');
+                    toast.success('Successfully added a new event');
                     handleClose();
                 }
             }
@@ -251,12 +251,33 @@ const CreateEventModal = () => {
     async function onTodoSubmit(values: z.infer<typeof TodoFormSchema>) {
         const data = values;
         try {
-            const res = await createEvent({
-                ...data,
-                type: 'todo',
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            }).unwrap();
-            console.log(res);
+            if (updateId) {
+                const res = await updateEvent({
+                    id: updateId,
+                    updateOption,
+                    changes: {
+                        ...data,
+                        timeZone:
+                            Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    },
+                }).unwrap();
+                if (res) {
+                    todoForm.reset(todoForm.formState.defaultValues);
+                    toast.success('Successfully added a new event');
+                    handleClose();
+                }
+            } else {
+                const res = await createEvent({
+                    ...data,
+                    type: 'task',
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                }).unwrap();
+                if (res) {
+                    todoForm.reset(todoForm.formState.defaultValues);
+                    toast.success('Successfully added a new event');
+                    handleClose();
+                }
+            }
         } catch (err) {
             console.log(err);
         }
@@ -431,11 +452,11 @@ const CreateEventModal = () => {
                         />
                     </TabsContent>
                     <TabsContent value='todo'>
-                        {/* <TodoForm
+                        <TodoForm
                             setCurrentDate={setCurrentDate}
                             form={todoForm}
                             onSubmit={onTodoSubmit}
-                        /> */}
+                        />
                     </TabsContent>
                 </Tabs>
             </EventPopover>

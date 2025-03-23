@@ -35,13 +35,23 @@ import InProgressIcon from '../svgs/calendar/InProgressIcon';
 import TodoIcon from '../svgs/calendar/TodoIcon';
 import HolidayIcon from '../svgs/calendar/HolidayIcon';
 import EventsIcon from '../svgs/calendar/EventsIcon';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import {
+    setEventFilter,
+    setHolidayFilter,
+    setTodoFilter,
+} from '@/redux/features/calendarReducer';
 
 interface CalendarAccordionsProps {
     currentDate: Date;
     onDateSelect: (date: Date) => void;
 }
 
-const eventOptions = [
+const eventOptions: {
+    value: 'accepted' | 'pending' | 'denied' | 'finished' | 'proposedTime';
+    label: string;
+    icon: any;
+}[] = [
     {
         value: 'accepted',
         label: 'Accepted',
@@ -68,9 +78,13 @@ const eventOptions = [
         icon: <FinishedIcon />,
     },
 ];
-const todoOptions = [
+const todoOptions: {
+    value: 'confirmed' | 'cancelled' | 'todo' | 'inprogress' | 'completed';
+    label: string;
+    icon: any;
+}[] = [
     {
-        value: 'inProgress',
+        value: 'inprogress',
         label: 'In-Progress',
         icon: <InProgressIcon />,
     },
@@ -120,11 +134,16 @@ export function CalendarSidebar({
         holiday: true,
     });
 
-    const [eventFilter, setEventFilter] = useState<string[]>([]);
-    const [todoFilter, setTodoFilter] = useState<string[]>([]);
-    const [holidayFilter, setHolidayFilter] = useState<string[]>([]);
-    const [sentFilter, setSentFilter] = useState('');
+    const {
+        eventFilter,
+        holidayFilter,
+        priorityFilter,
+        rolesFilter,
+        todoFilter,
+    } = useAppSelector((s) => s.calendar);
+    const dispatch = useAppDispatch();
 
+    const [sentFilter, setSentFilter] = useState('');
     const [selectedWeek, setSelectedWeek] = useState(startOfWeek(currentDate));
 
     // Sample events and todos
@@ -323,8 +342,8 @@ export function CalendarSidebar({
                                         'w-full border border-forground-border bg-secondary rounded-full flex flex-col items-center justify-center h-[72px]',
                                         isToday(day) && 'bg-primary text-',
                                         isSameDay(day, currentDate) &&
-                                        !isToday(day) &&
-                                        'bg-blue-100 text-pure-white',
+                                            !isToday(day) &&
+                                            'bg-blue-100 text-pure-white',
                                     )}
                                     onClick={() => onDateSelect(day)}
                                 >
@@ -335,8 +354,8 @@ export function CalendarSidebar({
                                                 ? 'text-pure-white'
                                                 : 'text-black',
                                             isSameDay(day, currentDate) &&
-                                            !isToday(day) &&
-                                            'text-blue-700',
+                                                !isToday(day) &&
+                                                'text-blue-700',
                                         )}
                                     >
                                         {format(day, 'EEE').charAt(0)}
@@ -455,10 +474,12 @@ export function CalendarSidebar({
                             className='ms-auto'
                             checked={eventFilter.length === 5}
                             onCheckedChange={(val) =>
-                                setEventFilter((prev) =>
-                                    val === true
-                                        ? eventOptions.map((op) => op.value)
-                                        : [],
+                                dispatch(
+                                    setEventFilter(
+                                        val === true
+                                            ? eventOptions.map((op) => op.value)
+                                            : [],
+                                    ),
                                 )
                             }
                         />
@@ -482,12 +503,18 @@ export function CalendarSidebar({
                                         item.value,
                                     )}
                                     onCheckedChange={(val) =>
-                                        setEventFilter((prev) =>
-                                            val === true
-                                                ? [...prev, item.value]
-                                                : prev.filter(
-                                                    (f) => f !== item.value,
-                                                ),
+                                        dispatch(
+                                            setEventFilter(
+                                                val === true
+                                                    ? [
+                                                          ...eventFilter,
+                                                          item.value,
+                                                      ]
+                                                    : eventFilter.filter(
+                                                          (f) =>
+                                                              f !== item.value,
+                                                      ),
+                                            ),
                                         )
                                     }
                                 />
@@ -517,10 +544,12 @@ export function CalendarSidebar({
                             className='ms-auto'
                             checked={todoFilter.length === 3}
                             onCheckedChange={(val) =>
-                                setTodoFilter((prev) =>
-                                    val === true
-                                        ? todoOptions.map((op) => op.value)
-                                        : [],
+                                dispatch(
+                                    setTodoFilter(
+                                        val === true
+                                            ? todoOptions.map((op) => op.value)
+                                            : [],
+                                    ),
                                 )
                             }
                         />
@@ -541,12 +570,18 @@ export function CalendarSidebar({
                                 <Checkbox
                                     checked={isFilterActive('todo', item.value)}
                                     onCheckedChange={(val) =>
-                                        setTodoFilter((prev) =>
-                                            val === true
-                                                ? [...prev, item.value]
-                                                : prev.filter(
-                                                    (f) => f !== item.value,
-                                                ),
+                                        dispatch(
+                                            setTodoFilter(
+                                                val === true
+                                                    ? [
+                                                          ...todoFilter,
+                                                          item.value,
+                                                      ]
+                                                    : todoFilter.filter(
+                                                          (f) =>
+                                                              f !== item.value,
+                                                      ),
+                                            ),
                                         )
                                     }
                                 />
@@ -575,10 +610,14 @@ export function CalendarSidebar({
                             className='ms-auto'
                             checked={holidayFilter.length === 2}
                             onCheckedChange={(val) =>
-                                setHolidayFilter((prev) =>
-                                    val === true
-                                        ? holidayOptions.map((op) => op.value)
-                                        : [],
+                                dispatch(
+                                    setHolidayFilter(
+                                        val === true
+                                            ? holidayOptions.map(
+                                                  (op) => op.value,
+                                              )
+                                            : [],
+                                    ),
                                 )
                             }
                         />
@@ -601,12 +640,18 @@ export function CalendarSidebar({
                                         item.value,
                                     )}
                                     onCheckedChange={(val) =>
-                                        setHolidayFilter((prev) =>
-                                            val === true
-                                                ? [...prev, item.value]
-                                                : prev.filter(
-                                                    (f) => f !== item.value,
-                                                ),
+                                        dispatch(
+                                            setHolidayFilter(
+                                                val === true
+                                                    ? [
+                                                          ...holidayFilter,
+                                                          item.value,
+                                                      ]
+                                                    : holidayFilter.filter(
+                                                          (f) =>
+                                                              f !== item.value,
+                                                      ),
+                                            ),
                                         )
                                     }
                                 />

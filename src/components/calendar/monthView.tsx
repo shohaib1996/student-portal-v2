@@ -28,6 +28,7 @@ import {
     useEventPopover,
 } from './CreateEvent/EventPopover';
 import { useRouter } from 'next/navigation';
+import { useAppSelector } from '@/redux/hooks';
 
 const staticEvents = '/calendarData.json';
 
@@ -60,9 +61,16 @@ export function MonthView({ currentDate }: MonthViewProps) {
     let day = startDate;
     const router = useRouter();
 
+    const { eventFilter, todoFilter, priorityFilter, rolesFilter } =
+        useAppSelector((s) => s.calendar);
+
     const { data } = useGetMyEventsQuery({
         from: monthStart.toISOString(),
         to: monthEnd.toISOString(),
+        statuses: eventFilter,
+        states: todoFilter,
+        priorities: priorityFilter,
+        roles: rolesFilter,
     });
 
     console.log(data);
