@@ -78,7 +78,7 @@ const ChatPopup = () => {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                    className='p-2 rounded-lf shadow-lg w-[360px] sm:w-[500px]'
+                    className='p-2 rounded-lf shadow-[0px_0px_15px_0px_rgba(0,0,0,0.50)] border w-[360px] sm:w-[500px]'
                     style={{
                         position: 'fixed',
                         right: '20px',
