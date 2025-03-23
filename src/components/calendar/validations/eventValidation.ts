@@ -6,7 +6,7 @@ export const EventFormSchema = z
         title: z.string().min(2, {
             message: 'Event name is required.',
         }),
-        priority: z.enum(['low', 'medium', 'high']).optional(),
+        priority: z.enum(['low', 'medium', 'high', 'notdefined']).optional(),
         purpose: z
             .object({
                 category: z.string(),

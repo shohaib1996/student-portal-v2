@@ -34,6 +34,24 @@ import { Checkbox } from '@/components/ui/checkbox';
 import GlobalModal from '@/components/global/GlobalModal';
 import { useAppSelector } from '@/redux/hooks';
 
+export const updateOptionsOptions: {
+    label: string;
+    value: 'thisEvent' | 'thisAndFollowing' | 'allEvents';
+}[] = [
+    {
+        label: 'This event',
+        value: 'thisEvent',
+    },
+    {
+        label: 'This Event and Following Events',
+        value: 'thisAndFollowing',
+    },
+    {
+        label: 'All events',
+        value: 'allEvents',
+    },
+];
+
 const CreateEventModal = () => {
     const { closePopover, isFullScreen, updateId } = useEventPopover();
     const { currentDate: clickedDate } = useAppSelector((s) => s.calendar);
@@ -309,11 +327,16 @@ const CreateEventModal = () => {
 
     const [updateOpen, setUpdateOpen] = useState(false);
 
+    const event = eventDetails?.event as TEvent;
+
     const submitButton = () => {
         return (
             <Button
                 onClick={() => {
-                    if (updateId) {
+                    if (
+                        updateId &&
+                        (event?.seriesId || event.recurrence?.isRecurring)
+                    ) {
                         setUpdateOpen(true);
                     } else {
                         if (tab === 'event') {
@@ -330,24 +353,6 @@ const CreateEventModal = () => {
             </Button>
         );
     };
-
-    const updateOptionsOptions: {
-        label: string;
-        value: typeof updateOption;
-    }[] = [
-        {
-            label: 'This event',
-            value: 'thisEvent',
-        },
-        {
-            label: 'This Event and Following Events',
-            value: 'thisAndFollowing',
-        },
-        {
-            label: 'All events',
-            value: 'allEvents',
-        },
-    ];
 
     return (
         <div>

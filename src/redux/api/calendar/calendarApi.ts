@@ -67,6 +67,18 @@ const calendarApi = baseApi.injectEndpoints({
                 { type: tagTypes.singleEvent, id },
             ],
         }),
+        deleteEvent: build.mutation({
+            query: ({
+                id,
+                deleteOption,
+            }: {
+                id: string;
+                deleteOption: string;
+            }) => ({
+                url: `v2/calendar/event/delete/${id}?deleteOption=${deleteOption}`,
+                method: 'DELETE',
+            }),
+        }),
     }),
 });
 
@@ -77,4 +89,5 @@ export const {
     useCreateEventMutation,
     useGetSingleEventQuery,
     useUpdateEventMutation,
+    useDeleteEventMutation,
 } = calendarApi;
