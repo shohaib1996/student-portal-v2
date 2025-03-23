@@ -19,6 +19,7 @@ import {
     SearchIcon,
     PinOff,
     Maximize2,
+    MoreVertical,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { markRead, updateMyData } from '@/redux/features/chatReducer';
@@ -27,6 +28,13 @@ import NotificationOptionModal from '../ChatForm/NotificationModal';
 import { Input } from '@/components/ui/input';
 import PopUpChatBody from './PopupchatBody';
 import { useRouter } from 'nextjs-toploader/app';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 // Dynamic imports
 const ChatBody = lazy(() => import('../ChatBody'));
@@ -144,16 +152,8 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
             {/* Adjusted container height for dropdown context */}
             <div className='relative rounded-md h-full'>
                 <div className='flex flex-col h-full'>
-                    <div className=' flex items-center justify-between pb-2 border-b'>
+                    <div className='flex items-center justify-between pb-2 border-b'>
                         <div className='flex items-center space-x-3'>
-                            {/* Back button instead of Link for popup context */}
-                            <div
-                                className='text-dark-gray hover:text-primary cursor-pointer'
-                                onClick={onBack}
-                            >
-                                <ArrowLeft className='h-5 w-5 text-dark-gray' />
-                            </div>
-
                             <div className='relative'>
                                 <Image
                                     width={40}
@@ -217,6 +217,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                         </div>
 
                         <div className='flex items-center space-x-2'>
+                            {/* Search button - keep in header */}
                             <Button
                                 variant='primary_light'
                                 size='icon'
@@ -230,58 +231,99 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                             >
                                 <Search className='h-4 w-4' />
                             </Button>
-                            <Button
-                                variant='primary_light'
-                                size='icon'
-                                className='border cursor-pointer h-8 w-8'
-                                asChild
-                            >
-                                <Calendar className='h-4 w-4' />
-                            </Button>
 
-                            <Button
-                                variant='primary_light'
-                                size='icon'
-                                className='border h-8 w-8'
-                                onClick={() => handleNoti()}
-                            >
-                                {chat?.myData?.notification?.isOn ? (
-                                    <Bell className='h-4 w-4' />
-                                ) : (
-                                    <BellOff className='h-4 w-4' />
-                                )}
-                            </Button>
-
-                            <Button
-                                variant='primary_light'
-                                size='icon'
-                                className='border h-8 w-8'
-                                onClick={() =>
-                                    handleFavourite(!chat?.myData?.isFavourite)
-                                }
-                            >
-                                {!chat?.myData?.isFavourite ? (
-                                    <Pin className='h-4 w-4 rotate-45' />
-                                ) : (
-                                    <PinOff className='h-4 w-4 rotate-45' />
-                                )}
-                            </Button>
+                            {/* Maximize button - keep in header */}
                             <Button
                                 variant='primary_light'
                                 size='icon'
                                 className='border h-8 w-8'
                                 onClick={() => router.push(`/chat/${chatId}`)}
-                                icon={<Maximize2 className='h-4 w-4' />}
-                            ></Button>
-
-                            {/* <Button
-                                variant='primary_light'
-                                size='icon'
-                                className='h-8 w-8'
-                                onClick={onClose}
                             >
-                                <X className='h-5 w-5' />
-                            </Button> */}
+                                <Maximize2 className='h-4 w-4' />
+                            </Button>
+
+                            {/* Three-dot menu for other actions */}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant='primary_light'
+                                        size='icon'
+                                        className='border h-8 w-8'
+                                    >
+                                        <MoreVertical className='h-4 w-4' />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    align='end'
+                                    className='min-w-[180px]'
+                                >
+                                    {/* Calendar option */}
+                                    <DropdownMenuItem className='flex items-center gap-2 cursor-pointer'>
+                                        <Calendar className='h-4 w-4' />
+                                        <span>Calendar</span>
+                                    </DropdownMenuItem>
+
+                                    {/* Notification option */}
+                                    <DropdownMenuItem
+                                        className='flex items-center gap-2 cursor-pointer'
+                                        onClick={() => handleNoti()}
+                                    >
+                                        {chat?.myData?.notification?.isOn ? (
+                                            <>
+                                                <Bell className='h-4 w-4' />
+                                                <span>Notifications On</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <BellOff className='h-4 w-4' />
+                                                <span>Notifications Off</span>
+                                            </>
+                                        )}
+                                    </DropdownMenuItem>
+
+                                    {/* Pin/Favorite option */}
+                                    <DropdownMenuItem
+                                        className='flex items-center gap-2 cursor-pointer'
+                                        onClick={() =>
+                                            handleFavourite(
+                                                !chat?.myData?.isFavourite,
+                                            )
+                                        }
+                                    >
+                                        {!chat?.myData?.isFavourite ? (
+                                            <>
+                                                <Pin className='h-4 w-4 rotate-45' />
+                                                <span>Pin Conversation</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <PinOff className='h-4 w-4 rotate-45' />
+                                                <span>Unpin Conversation</span>
+                                            </>
+                                        )}
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuSeparator />
+
+                                    {/* Meeting toggle option */}
+                                    <DropdownMenuItem
+                                        className='flex items-center gap-2 cursor-pointer'
+                                        onClick={toggleMeeting}
+                                    >
+                                        {isMeeting ? (
+                                            <>
+                                                <VideoOff className='h-4 w-4' />
+                                                <span>End Meeting</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Video className='h-4 w-4' />
+                                                <span>Start Meeting</span>
+                                            </>
+                                        )}
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
 

@@ -375,7 +375,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                 directChatSelect={onSelectChat} // Pass the callback for direct chat selection
             />
 
-            <div className='flex flex-col h-full w-[calc(100%-50px)] px-2'>
+            <div className='flex flex-col h-[580px] w-[calc(100%-50px)] px-2'>
                 <div className='flex items-center justify-between'>
                     <h1 className='text-lg font-semibold'>
                         {active === 'crowds' ? (

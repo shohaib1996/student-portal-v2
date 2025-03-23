@@ -1,18 +1,16 @@
 'use client';
 
 import React, { useState, useCallback, Suspense, useEffect } from 'react';
-import { MessageCircle, MessageCircleMore, X } from 'lucide-react';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { MessageCircle, MessageCircleMore } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Import popup-specific components
-import PopupChatNav from './PopupChatNav';
-import PopupInbox from './PopupInbox';
+// Import our new context
+import { useChatModals } from './ChatModalsContext';
+import ChatListModal from './ChatListModal';
+import ChatConversationModal from './ChatConversationModal';
+import MinimizedChatTabs from './MinimizedChatTabs';
 
+// Import data
 import chats from '../chats.json';
 
 // Loading fallback
@@ -23,10 +21,9 @@ const LoadingFallback = () => (
 );
 
 const ChatPopup = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
-    const [profileInfoShow, setProfileInfoShow] = useState(false);
-    const [reloading, setReloading] = useState(false);
+    const { isListOpen, openModals, openListModal, closeListModal } =
+        useChatModals();
+
     const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
 
     // Check for unread messages
@@ -39,92 +36,61 @@ const ChatPopup = () => {
         setHasUnreadMessages(unreadCount > 0);
     }, []);
 
-    // Handle chat selection
-    const handleSelectChat = useCallback((chatId: string) => {
-        setSelectedChatId(chatId);
-    }, []);
-
-    // Go back to chat list
-    const handleBackToList = useCallback(() => {
-        setSelectedChatId(null);
-    }, []);
-
-    // Handle toggle profile info
-    const handleToggleProfileInfo = useCallback(() => {
-        setProfileInfoShow((prev) => !prev);
-    }, []);
-
-    const [overflow, setOverflow] = useState(false);
+    // Toggle chat list
+    const toggleChatList = useCallback(() => {
+        if (isListOpen) {
+            closeListModal();
+        } else {
+            openListModal();
+        }
+    }, [isListOpen, openListModal, closeListModal]);
 
     return (
-        <div className='fixed bottom-16 right-4 z-50'>
-            {/* Ping animation effect */}
-            {hasUnreadMessages && (
-                <span className='absolute inset-0 rounded-full animate-ping bg-primary opacity-75'></span>
-            )}
-
-            <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-                <DropdownMenuTrigger asChild>
-                    <Button
-                        tooltip='Chat Head'
-                        className='rounded-full h-14 w-14 p-2 shadow-lg relative hover:bg-primary hover:text-pure-white'
-                    >
-                        <MessageCircleMore className='h-6 w-6' />
-
-                        {/* Unread messages indicator */}
-                        {hasUnreadMessages && (
-                            <span className='absolute top-0 right-0 h-4 w-4 bg-danger rounded-full border-2 border-white'></span>
-                        )}
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                    className='p-2 rounded-lf shadow-[0px_0px_15px_0px_rgba(0,0,0,0.50)] border w-[360px] sm:w-[500px]'
-                    style={{
-                        position: 'fixed',
-                        right: '20px',
-                        top: '50%',
-                        transform: 'translateY(-120%)',
-                        height: '550px',
-                        maxHeight: '70vh',
-                        overflow: 'hidden',
-                    }}
+        <>
+            {/* Chat button */}
+            <div className='fixed bottom-4 right-4 z-50 hidden lg:block'>
+                <Button
+                    tooltip='Chat Head'
+                    onClick={toggleChatList}
+                    className='rounded-full h-12 w-12 p-2 shadow-lg relative hover:bg-primary hover:text-pure-white'
                 >
-                    {selectedChatId ? (
-                        // Show message view with PopupInbox component
-                        <div className='h-full'>
-                            <Suspense fallback={<LoadingFallback />}>
-                                <PopupInbox
-                                    chatId={selectedChatId}
-                                    onBack={handleBackToList}
-                                    onClose={() => setIsOpen(false)}
-                                    handleToggleInfo={handleToggleProfileInfo}
-                                    setProfileInfoShow={setProfileInfoShow}
-                                    profileInfoShow={profileInfoShow}
-                                    setReloading={setReloading}
-                                    reloading={reloading}
-                                />
-                            </Suspense>
-                        </div>
-                    ) : (
-                        // Show chat list with PopupChatNav component
-                        <div className='flex flex-col h-full'>
-                            <div
-                                className={`flex-1 ${overflow ? 'overflow-y-auto overflow-x-hidden' : 'overflow-hidden'}`}
-                            >
-                                <Suspense fallback={<LoadingFallback />}>
-                                    <PopupChatNav
-                                        setCreateNew={(val) => setOverflow(val)}
-                                        onSelectChat={handleSelectChat}
-                                        selectedChatId={selectedChatId}
-                                        onClose={() => setIsOpen(false)}
-                                    />
-                                </Suspense>
-                            </div>
+                    <MessageCircleMore className='h-6 w-6' />
+
+                    {/* Unread messages indicator with ping effect */}
+                    {hasUnreadMessages && (
+                        <div className='absolute top-0 right-3.5'>
+                            {/* Ping animation */}
+                            <span className='absolute h-4 w-4 rounded-full animate-ping bg-danger opacity-75'></span>
+                            {/* Static dot */}
+                            <span className='absolute h-4 w-4 bg-danger rounded-full border-2 border-white'></span>
                         </div>
                     )}
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
+                </Button>
+            </div>
+
+            {/* Chat modals - rendered based on openModals from context */}
+            <Suspense fallback={<LoadingFallback />}>
+                {openModals
+                    .filter((modal) => !modal.minimized)
+                    .map((modal) =>
+                        modal.type === 'list' ? (
+                            <ChatListModal
+                                key={modal.id}
+                                position={modal.position}
+                            />
+                        ) : (
+                            <ChatConversationModal
+                                key={modal.id}
+                                position={modal.position}
+                                chatId={modal.chatId!}
+                            />
+                        ),
+                    )}
+
+                {/* Minimized chat tabs */}
+                <MinimizedChatTabs />
+            </Suspense>
+        </>
     );
 };
 
