@@ -28,22 +28,18 @@ import {
 } from '../validations/eventValidation';
 import TodoForm from '../CreateTodo/TodoForm';
 import { TodoFormSchema, TTodoFormType } from '../validations/todoValidation';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { TEvent } from '@/types/calendar/calendarTypes';
-import EventDetails from '../EventDetails';
-import { cn } from '@/lib/utils';
 import { TUser } from '@/types/auth';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import GlobalModal from '@/components/global/GlobalModal';
+import { useAppSelector } from '@/redux/hooks';
 
 const CreateEventModal = () => {
     const { closePopover, isFullScreen, updateId } = useEventPopover();
-    const [currentDate, setCurrentDate] = useState(dayjs());
+    const { currentDate: clickedDate } = useAppSelector((s) => s.calendar);
+    const [currentDate, setCurrentDate] = useState(
+        clickedDate ? dayjs(clickedDate) : dayjs(),
+    );
     const [tab, setTab] = useState('event');
     const [createEvent, { isLoading: isCreatingEvent }] =
         useCreateEventMutation();
@@ -105,8 +101,8 @@ const CreateEventModal = () => {
         title: '',
         priority: undefined,
         attendees: [],
-        startTime: new Date(),
-        endTime: new Date(),
+        startTime: clickedDate ? new Date(clickedDate) : new Date(),
+        endTime: clickedDate ? new Date(clickedDate) : new Date(),
         isAllDay: false,
         reminders: [
             {
@@ -143,8 +139,8 @@ const CreateEventModal = () => {
     const todoDefalultValues: TTodoFormType = {
         title: '',
         priority: undefined,
-        startTime: new Date(),
-        endTime: new Date(),
+        startTime: clickedDate ? new Date(clickedDate) : new Date(),
+        endTime: clickedDate ? new Date(clickedDate) : new Date(),
         isAllDay: false,
         reminders: [
             {
@@ -160,6 +156,22 @@ const CreateEventModal = () => {
         resolver: zodResolver(TodoFormSchema),
         defaultValues: todoDefalultValues,
     });
+
+    useEffect(() => {
+        if (clickedDate) {
+            eventForm.setValue('startTime', new Date(clickedDate));
+            todoForm.setValue(
+                'startTime',
+                dayjs(clickedDate).add(15, 'minutes').toDate(),
+            );
+            setCurrentDate(dayjs(clickedDate));
+            eventForm.setValue('endTime', new Date(clickedDate));
+            todoForm.setValue(
+                'endTime',
+                dayjs(clickedDate).add(15, 'minutes').toDate(),
+            );
+        }
+    }, [clickedDate]);
 
     useEffect(() => {
         const errors = Object.values(eventForm.formState?.errors);
@@ -377,7 +389,7 @@ const CreateEventModal = () => {
                     </div>
                 }
                 sidebar={
-                    <div className='w-[600px] h-screen border-r border-forground-border overflow-y-auto'>
+                    <div className='w-[600px] hidden lg:block h-screen border-r border-forground-border overflow-y-auto'>
                         <div className='sticky top-0 flex justify-between py-3 px-2 bg-background border-b border-forground-border z-30 items-center'>
                             <Button
                                 onClick={handlePrev}
@@ -464,6 +476,7 @@ const CreateEventModal = () => {
             <GlobalModal
                 open={updateOpen}
                 setOpen={setUpdateOpen}
+                className='w-[550px] md:w-[550px] lg:w-[550px]'
                 allowFullScreen={false}
                 buttons={
                     <div className='flex gap-2 items-center'>
@@ -495,10 +508,13 @@ const CreateEventModal = () => {
                         <Button
                             onClick={() => setUpdateOption(item.value)}
                             key={item.value}
-                            className='text-start'
+                            className='text-start bg-background flex justify-start gap-2'
                             variant={'secondary'}
                         >
-                            <Checkbox checked={item.value === updateOption} />{' '}
+                            <Checkbox
+                                className='rounded-full'
+                                checked={item.value === updateOption}
+                            />{' '}
                             {item.label}
                         </Button>
                     ))}

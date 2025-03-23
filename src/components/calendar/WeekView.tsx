@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { MouseEvent, useState } from 'react';
 import {
     addDays,
     format,
@@ -17,6 +17,12 @@ import { TEvent } from '@/types/calendar/calendarTypes';
 import dayjs from 'dayjs';
 import GlobalDropdown from '../global/GlobalDropdown';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
+import {
+    EventPopoverTrigger,
+    useEventPopover,
+} from './CreateEvent/EventPopover';
+import { useAppDispatch } from '@/redux/hooks';
+import { setCurrentDate } from '@/redux/features/calendarReducer';
 
 interface WeekViewProps {
     currentDate: Date;
@@ -28,9 +34,22 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
         from: startOfWeek(currentDate).toISOString(), // Start of the day (00:00:00)
         to: endOfWeek(currentDate).toISOString(), // End of the day (23:59:59.999)
     });
+    const dispatch = useAppDispatch();
+    const { openPopover } = useEventPopover();
     const events: TEvent[] = (data?.events as TEvent[]) || [];
-    const handleCellClick = (day: Date, hour: number) => {
+    const handleCellClick = (
+        e: MouseEvent<HTMLDivElement>,
+        day: Date,
+        hour: number,
+        i: number,
+    ) => {
         console.log('Cell clicked:', format(day, 'yyyy-MM-dd'), hour);
+        const dateTime = dayjs(day).hour(hour).minute(0).second(0).toDate();
+        dispatch(setCurrentDate(dateTime));
+        openPopover(
+            e.currentTarget.getBoundingClientRect(),
+            i <= 3 ? 'right' : 'left',
+        );
         // You can implement custom logic here, like opening a modal to add an event
     };
 
@@ -106,10 +125,12 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
                             <div
                                 key={dayIndex}
                                 className={cn(
-                                    'border-r last:border-r-0 p-1 relative',
+                                    'border-r last:border-r-0 p-1 relative cursor-pointer',
                                     isToday(day) && 'bg-primary-light',
                                 )}
-                                onClick={() => handleCellClick(day, hour)}
+                                onClick={(e) =>
+                                    handleCellClick(e, day, hour, dayIndex)
+                                }
                             >
                                 <div
                                     onClick={(e) => e.stopPropagation()}

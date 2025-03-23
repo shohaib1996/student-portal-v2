@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { MouseEvent, useState } from 'react';
 import { format, isToday } from 'date-fns';
 
 import { cn } from '@/lib/utils';
@@ -11,6 +11,9 @@ import { renderStatus } from './monthView';
 
 import { TEvent } from '@/types/calendar/calendarTypes';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
+import { useAppDispatch } from '@/redux/hooks';
+import { useEventPopover } from './CreateEvent/EventPopover';
+import { setCurrentDate } from '@/redux/features/calendarReducer';
 
 const staticEvents = '/calendarData.json';
 
@@ -26,8 +29,10 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
     });
 
     const events: TEvent[] = (data?.events as TEvent[]) || [];
+    const dispatch = useAppDispatch();
+    const { openPopover } = useEventPopover();
 
-    const handleHourClick = (hour: number) => {
+    const handleHourClick = (e: MouseEvent<HTMLDivElement>, hour: number) => {
         console.log('Hour clicked:', hour);
         // You can implement custom logic here, like opening a modal to add an event
         const date = dayjs(currentDate);
@@ -35,7 +40,18 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
         if (dayjs(updatedDate).isBefore(dayjs(), 'minute')) {
             return toast.warning('Please select future date and time');
         }
-        onChange?.(updatedDate);
+
+        const dateTime = dayjs(currentDate)
+            .hour(hour)
+            .minute(0)
+            .second(0)
+            .toDate();
+        if (onChange) {
+            onChange(updatedDate);
+        } else {
+            dispatch(setCurrentDate(dateTime));
+            openPopover(e.currentTarget.getBoundingClientRect(), 'bottom');
+        }
     };
 
     // Generate hours (0-23)
@@ -76,7 +92,7 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
                                 hour === currentHour &&
                                 'bg-muted/20',
                         )}
-                        onClick={() => handleHourClick(hour)}
+                        onClick={(e) => handleHourClick(e, hour)}
                     >
                         <div className='w-16 p-2 text-right text-sm text-muted-foreground border-r sticky left-0 bg-background'>
                             {hour === 0

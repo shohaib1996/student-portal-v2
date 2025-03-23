@@ -18,6 +18,7 @@ type TInitialState = {
     holidayFilter: string[];
     rolesFilter: ('organizer' | 'attendee')[];
     priorityFilter: ('low' | 'medium' | 'high')[];
+    currentDate: Date | null;
 };
 
 const initialState: TInitialState = {
@@ -26,6 +27,7 @@ const initialState: TInitialState = {
     holidayFilter: [],
     rolesFilter: [],
     priorityFilter: [],
+    currentDate: null,
 };
 
 const calendarSlice = createSlice({
@@ -59,6 +61,9 @@ const calendarSlice = createSlice({
         ) => {
             state.priorityFilter = action.payload;
         },
+        setCurrentDate: (state, action: PayloadAction<Date | null>) => {
+            state.currentDate = action.payload;
+        },
         resetFilters: (state) => {
             state.eventFilter = [];
             state.todoFilter = [];
@@ -75,6 +80,7 @@ export const {
     setHolidayFilter,
     setRolesFilter,
     setPriorityFilter,
+    setCurrentDate,
     resetFilters,
 } = calendarSlice.actions;
 

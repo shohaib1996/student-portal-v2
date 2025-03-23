@@ -247,7 +247,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
                 control={form.control}
                 name='eventColor'
                 render={({ field }) => (
-                    <FormItem>
+                    <FormItem className={className}>
                         {isFullScreen && <FormLabel>Color</FormLabel>}
                         <FormControl>
                             <div>
@@ -614,7 +614,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
                                 <FormLabel reqired>Location</FormLabel>
                             )}
                             <div className='bg-foreground space-y-2 rounded-md border border-forground-border p-3 mt-2'>
-                                <div className='grid grid-cols-4 gap-2'>
+                                <div className='grid grid-cols-2 md:grid-cols-4 gap-2'>
                                     {options.map((op) => (
                                         <div
                                             onClick={() =>
@@ -901,16 +901,22 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
                     ) : (
                         <div className='space-y-2 h-full w-full pb-2'>
                             <div className='grid grid-cols-10 gap-2 items-start'>
-                                {titleField('col-span-5')}
-                                {courseLink('col-span-2')}
-                                {priorityField('col-span-2')}
-                                {colorField('col-span-1')}
+                                {titleField('col-span-10 lg:col-span-5')}
+                                {courseLink(
+                                    'md:col-span-5 col-span-10 2xl:col-span-2',
+                                )}
+                                {priorityField(
+                                    'col-span-5 md:col-span-5 2xl:col-span-2',
+                                )}
+                                {colorField(
+                                    'col-span-5 md:col-span-5 2xl:col-span-1',
+                                )}
                             </div>
-                            <div className='grid grid-cols-2 gap-2'>
+                            <div className='grid md:grid-cols-2 grid-cols-1 gap-2'>
                                 {dateField('')}
                                 {locationField()}
                             </div>
-                            <div className='grid grid-cols-[2fr_1fr] gap-2'>
+                            <div className='grid md:grid-cols-2 grid-cols-1 lg:grid-cols-[2fr_1fr] gap-2'>
                                 {agendaField()}
                                 <div className='h-full'>
                                     {isFullScreen && (

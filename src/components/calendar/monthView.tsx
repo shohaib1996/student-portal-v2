@@ -28,7 +28,8 @@ import {
     useEventPopover,
 } from './CreateEvent/EventPopover';
 import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { setCurrentDate } from '@/redux/features/calendarReducer';
 
 const staticEvents = '/calendarData.json';
 
@@ -60,6 +61,7 @@ export function MonthView({ currentDate }: MonthViewProps) {
     const days = [];
     let day = startDate;
     const router = useRouter();
+    const dispatch = useAppDispatch();
 
     const { eventFilter, todoFilter, priorityFilter, rolesFilter } =
         useAppSelector((s) => s.calendar);
@@ -73,10 +75,9 @@ export function MonthView({ currentDate }: MonthViewProps) {
         roles: rolesFilter,
     });
 
-    console.log(data);
-
     const handleDayClick = (day: Date) => {
         console.log('Day clicked:', format(day, 'yyyy-MM-dd'));
+        dispatch(setCurrentDate(day));
         // You can implement custom logic here, like opening a modal to add an event
     };
 
