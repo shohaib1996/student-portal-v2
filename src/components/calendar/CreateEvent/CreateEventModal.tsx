@@ -101,23 +101,20 @@ const CreateEventModal = () => {
         defaultValues: eventDefaultValues,
     });
 
-    const todoDefalultValues = {
+    const todoDefalultValues: TTodoFormType = {
         title: '',
-        priority: '',
-        courseLink: '',
-        start: new Date(),
-        end: new Date(),
+        priority: undefined,
+        startTime: new Date(),
+        endTime: new Date(),
         isAllDay: false,
-        repeat: false,
-        notifications: [
+        reminders: [
             {
                 chatGroups: [],
                 methods: ['push'],
-                timeBefore: 15,
+                offsetMinutes: 15,
             },
         ],
-        meetingLink: '',
-        agenda: '',
+        description: '',
     };
 
     const todoForm = useForm<TTodoFormType>({

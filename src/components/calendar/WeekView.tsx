@@ -1,34 +1,34 @@
 'use client';
 
 import { useState } from 'react';
-import { addDays, format, isToday, startOfWeek, isSameDay } from 'date-fns';
+import {
+    addDays,
+    format,
+    isToday,
+    startOfWeek,
+    isSameDay,
+    endOfWeek,
+} from 'date-fns';
 
 import { cn } from '@/lib/utils';
 import GlobalTooltip from '../global/GlobalTooltip';
 import { renderStatus } from './monthView';
-const staticEvents = '/calendarData.json';
 import { TEvent } from '@/types/calendar/calendarTypes';
 import dayjs from 'dayjs';
 import GlobalDropdown from '../global/GlobalDropdown';
+import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
 
 interface WeekViewProps {
     currentDate: Date;
     hoursView: string;
 }
 
-interface CalendarEvent {
-    id: string;
-    title: string;
-    date: Date;
-    startHour: number;
-    startMinute: number;
-    endHour: number;
-    endMinute: number;
-    color: string;
-}
-
 export function WeekView({ currentDate, hoursView }: WeekViewProps) {
-    const events: TEvent[] = (staticEvents as unknown as TEvent[]) || [];
+    const { data } = useGetMyEventsQuery({
+        from: startOfWeek(currentDate).toISOString(), // Start of the day (00:00:00)
+        to: endOfWeek(currentDate).toISOString(), // End of the day (23:59:59.999)
+    });
+    const events: TEvent[] = (data?.events as TEvent[]) || [];
     const handleCellClick = (day: Date, hour: number) => {
         console.log('Cell clicked:', format(day, 'yyyy-MM-dd'), hour);
         // You can implement custom logic here, like opening a modal to add an event
@@ -51,8 +51,8 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
     const getEventsForCell = (day: Date, hour: number) => {
         return events.filter(
             (event) =>
-                isSameDay(event.start, day) &&
-                hour === dayjs(event.start).hour(),
+                isSameDay(event.startTime, day) &&
+                hour === dayjs(event.endTime).hour(),
         );
     };
 
