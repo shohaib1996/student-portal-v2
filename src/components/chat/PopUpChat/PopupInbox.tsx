@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import axios from 'axios';
 import { toast } from 'sonner';
 import {
     Calendar,
@@ -35,6 +34,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { instance } from '@/lib/axios/axiosInstance';
 
 // Dynamic imports
 const ChatBody = lazy(() => import('../ChatBody'));
@@ -103,7 +103,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                 isFavourite: value,
             };
 
-            axios
+            instance
                 .put('/chat/favourite', data)
                 .then((res) => {
                     toast.success('Favorite saved successfully');
