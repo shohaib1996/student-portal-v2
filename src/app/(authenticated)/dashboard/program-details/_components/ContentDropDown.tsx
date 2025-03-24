@@ -112,8 +112,10 @@ const ContentDropDown = ({
                         {item?.lesson?.type === 'video' ? (
                             <AccordionTrigger
                                 isIcon={false}
-                                className={` text-start hover:no-underline py-0  ${
-                                    status === 'upcoming' ? 'bg-blue-50' : ''
+                                className={`text-start hover:no-underline py-0  ${
+                                    status === 'upcoming'
+                                        ? 'bg-primary-light'
+                                        : ''
                                 } ${
                                     parentId &&
                                     '[&[data-state=open]>div>div>svg]:stroke-primary [&[data-state=open]>div>p]:text-primary'
@@ -133,10 +135,10 @@ const ContentDropDown = ({
                                         </div>
 
                                         <div>
-                                            <p className='text-sm font-medium text-gray-900'>
+                                            <p className='text-sm font-medium text-black'>
                                                 {item.lesson.title}
                                             </p>
-                                            <span className='text-xs text-gray-500'>
+                                            <span className='text-xs text-gray'>
                                                 {formatSeconds(
                                                     item.lesson
                                                         .duration as number,
@@ -149,7 +151,7 @@ const ContentDropDown = ({
                                         <div className='flex gap-1'>
                                             {renderPriorityBadge(item.priority)}
                                         </div>
-                                        <MoreVertical className='h-5 w-5 text-gray-400' />
+                                        <MoreVertical className='h-5 w-5 text-dark-gray' />
                                     </div>
                                 </div>
                             </AccordionTrigger>
@@ -179,10 +181,10 @@ const ContentDropDown = ({
                                             </div>
 
                                             <div>
-                                                <p className='text-sm font-medium text-gray-900'>
+                                                <p className='text-sm font-medium text-black'>
                                                     {item.lesson.title}
                                                 </p>
-                                                <span className='text-xs text-gray-500'>
+                                                <span className='text-xs text-gray'>
                                                     {formatSeconds(
                                                         item.lesson
                                                             .duration as number,
@@ -197,7 +199,7 @@ const ContentDropDown = ({
                                                     item.priority,
                                                 )}
                                             </div>
-                                            <MoreVertical className='h-5 w-5 text-gray-400' />
+                                            <MoreVertical className='h-5 w-5 text-gray' />
                                         </div>
                                     </div>
                                 </Link>
@@ -225,7 +227,7 @@ const ContentDropDown = ({
                     <AccordionItem
                         key={uniqueKey}
                         value={uniqueKey}
-                        className='mb-4 mt-4  rounded-lg border border-border-primary-light overflow-hidden'
+                        className='mb-2 mt-1 mr-2 rounded-lg border border-border-primary-light overflow-hidden'
                     >
                         <AccordionTrigger
                             isIcon={false}
@@ -242,10 +244,10 @@ const ContentDropDown = ({
                                         {/* <ChevronDown className='h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200' /> */}
                                     </div>
                                     <div>
-                                        <h3 className='font-medium text-gray-900'>
+                                        <h3 className='font-medium text-black'>
                                             {item.chapter.name}
                                         </h3>
-                                        <div className='flex items-center gap-4 text-sm text-gray-500'>
+                                        <div className='flex items-center gap-4 text-sm text-gray'>
                                             <span className='flex items-center gap-1'>
                                                 <svg
                                                     xmlns='http://www.w3.org/2000/svg'
@@ -302,13 +304,10 @@ const ContentDropDown = ({
                                             </span>
                                         </div>
                                     </div>
-                                    <div className='flex gap-1'>
-                                        {renderPriorityBadge(item.priority)}
-                                    </div>
                                 </div>
                             </div>
                         </AccordionTrigger>
-                        <AccordionContent className='border-t border-gray-200 bg-gray-50 pb-0'>
+                        <AccordionContent className='border-t border-border bg-background pb-0'>
                             {item.chapter.children &&
                             item.chapter.children.length > 0 ? (
                                 <Accordion
