@@ -13,7 +13,7 @@ import { OverviewIcon, UpcomingIcon } from '@/components/svgs/dashboard';
 
 export function CalendarSection() {
     return (
-        <Card className='p-2 rounded-lg'>
+        <Card className='p-2 rounded-lg shadow-none bg-foreground'>
             <CardHeader className='p-2 flex flex-row items-center justify-between border-b'>
                 <div>
                     <h3 className='text-md font-medium'>Calendar</h3>
@@ -44,14 +44,14 @@ export function CalendarSection() {
                     <TabsList className='bg-transparent'>
                         <TabsTrigger
                             value='overview'
-                            className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1'
+                            className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
                         >
                             <OverviewIcon className='text-gray data-[state=active]:text-primary' />{' '}
                             Overview
                         </TabsTrigger>
                         <TabsTrigger
                             value='upcoming'
-                            className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1'
+                            className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
                         >
                             <UpcomingIcon className='data-[state=active]:text-primary' />{' '}
                             Upcoming

@@ -36,7 +36,7 @@ const data = [
 
 export function TodoSection() {
     return (
-        <Card className='p-2'>
+        <Card className='p-2 shadow-none bg-foreground rounded-lg'>
             <CardHeader className='flex flex-row items-center justify-between p-2 border-b'>
                 <CardTitle className='text-md font-medium'>To-Do</CardTitle>
                 <div className='flex items-center gap-2'>

@@ -5,6 +5,8 @@ import {
     MessageCircleQuestion,
     BookOpenText,
     Eye,
+    LayoutGrid,
+    List,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TaskCard, { Task } from './TaskCard';
@@ -13,11 +15,13 @@ import { Button } from '@/components/ui/button';
 import { useGetTechnicalTestsQuery } from '@/redux/api/technicalTest/technicalTest';
 import { useState } from 'react';
 import GlobalPagination from '@/components/global/GlobalPagination';
+import { cn } from '@/lib/utils';
+import TechnicalMetrics from './TechnicalMetrics';
 
 const tasks: Task[] = [
     {
         id: '543767',
-        title: 'How does using object-fit...',
+        title: 'How does using object-fit improve responsive design?',
         marks: 10,
         deadline: 'Mar 10, 2025',
         workshop: 'Mar 10, 2025',
@@ -144,6 +148,7 @@ const TechnicalTest = () => {
     const [selectedDate, setSelectedDate] = useState<Date | undefined>();
     const [limit, setLimit] = useState(10);
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const [isGridView, setIsGridView] = useState<boolean>(true);
 
     const { data, isLoading } = useGetTechnicalTestsQuery({
         page: currentPage,
@@ -155,40 +160,48 @@ const TechnicalTest = () => {
         status: '',
     });
 
-    console.log(data);
-
     return (
         <>
             <GlobalHeader
                 title='Technical Test'
                 subTitle='Assess Technical Skills with Accuracy and Speed'
                 buttons={
-                    <div>
-                        <Button variant={'secondary'} icon={<Eye size={18} />}>
-                            View Status
+                    <div className='flex items-center gap-2'>
+                        <Button
+                            variant={!isGridView ? 'outline' : 'default'}
+                            onClick={() => setIsGridView(true)}
+                        >
+                            <LayoutGrid />
+                        </Button>
+                        <Button
+                            variant={isGridView ? 'outline' : 'default'}
+                            onClick={() => setIsGridView(false)}
+                        >
+                            <List />
                         </Button>
                     </div>
                 }
             />
+            <TechnicalMetrics />
             <Tabs defaultValue='tasks' className='w-full'>
-                <TabsList className='h-auto p-0'>
+                <TabsList className='p-0 bg-transparent'>
                     <TabsTrigger
                         value='tasks'
-                        className='flex items-center gap-2 px-4 py-3 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none bg-transparent text-gray-600 h-auto'
+                        className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent shadow-none'
                     >
                         <FileText className='h-5 w-5' />
                         <span>Technical Task (15)</span>
                     </TabsTrigger>
                     <TabsTrigger
                         value='assignments'
-                        className='flex items-center gap-2 px-4 py-3 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none bg-transparent text-gray-600 h-auto'
+                        className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent shadow-none'
                     >
                         <ClipboardList className='h-5 w-5' />
                         <span>Assignments (5)</span>
                     </TabsTrigger>
                     <TabsTrigger
                         value='questions'
-                        className='flex items-center gap-2 px-4 py-3 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none bg-transparent text-gray-600 h-auto'
+                        className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent shadow-none'
                     >
                         <MessageCircleQuestion className='h-5 w-5' />
                         <span>Technical Question (6)</span>
@@ -196,11 +209,15 @@ const TechnicalTest = () => {
                 </TabsList>
 
                 <TabsContent value='tasks' className='mt-2.5'>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  gap-3'>
-                        {tasks.map((task, index) => (
-                            <TaskCard key={index} task={task} />
-                        ))}
-                    </div>
+                    {isGridView ? (
+                        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  gap-3'>
+                            {tasks.map((task, index) => (
+                                <TaskCard key={index} task={task} />
+                            ))}
+                        </div>
+                    ) : (
+                        'list view is under the development'
+                    )}
                 </TabsContent>
 
                 <TabsContent value='assignments' className='mt-6'>

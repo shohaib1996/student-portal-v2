@@ -8,7 +8,7 @@ import { OverviewIcon, UpcomingIcon } from '@/components/svgs/dashboard'; // Add
 
 export function MockInterviewSection() {
     return (
-        <Card className='p-2'>
+        <Card className='p-2 rounded-lg shadow-none bg-foreground'>
             <CardHeader className='flex flex-row items-center justify-between p-2 border-b'>
                 <div>
                     <h3 className='text-md font-medium'>Mock Interview</h3>
@@ -58,23 +58,23 @@ export function MockInterviewSection() {
                         <TabsList className='bg-transparent'>
                             <TabsTrigger
                                 value='all'
-                                className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1'
+                                className='border-b rounded-none data-[state=active]:text-primary-white data-[state=active]:font-semibold data-[state=active]:border-primary-white data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
                             >
-                                <OverviewIcon className='text-gray data-[state=active]:text-primary' />
+                                <OverviewIcon className='text-gray data-[state=active]:text-primary-white' />
                                 All (140)
                             </TabsTrigger>
                             <TabsTrigger
                                 value='completed'
-                                className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1'
+                                className='border-b rounded-none data-[state=active]:text-primary-white data-[state=active]:font-semibold data-[state=active]:border-primary-white data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
                             >
-                                <UpcomingIcon className='data-[state=active]:text-primary' />
+                                <UpcomingIcon className='data-[state=active]:text-primary-white' />
                                 Completed
                             </TabsTrigger>
                             <TabsTrigger
                                 value='pending'
-                                className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1'
+                                className='border-b rounded-none data-[state=active]:text-primary-white data-[state=active]:font-semibold data-[state=active]:border-primary-white data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
                             >
-                                <UpcomingIcon className='data-[state=active]:text-primary' />
+                                <UpcomingIcon className='data-[state=active]:text-primary-white' />
                                 Pending
                             </TabsTrigger>
                         </TabsList>

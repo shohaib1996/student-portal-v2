@@ -10,7 +10,7 @@ export function DashboardTitle() {
                     Monitor your progress and activities
                 </p>
             </div>
-            <div className='flex items-center gap-2'>
+            {/* <div className='flex items-center gap-2'>
                 <Button variant='outline' size='icon'>
                     <svg
                         xmlns='http://www.w3.org/2000/svg'
@@ -30,7 +30,7 @@ export function DashboardTitle() {
                     <span className='sr-only'>Add</span>
                 </Button>
                 <Filters />
-            </div>
+            </div> */}
         </div>
     );
 }

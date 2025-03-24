@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 
 export function ProfileSection() {
     return (
-        <Card className='p-2'>
+        <Card className='p-2 rounded-lg shadow-none bg-foreground'>
             <CardHeader className='p-2 border-b'>
                 <CardTitle className='text-md font-medium'>Profile</CardTitle>
                 <span className='text-xs text-muted-foreground'>
@@ -13,7 +13,7 @@ export function ProfileSection() {
             </CardHeader>
             <CardContent className='p-2'>
                 <div className='grid grid-cols-2 gap-4'>
-                    <div className='border rounded-lg p-3'>
+                    <div className='border rounded-lg p-3 bg-background'>
                         <div className='flex items-center gap-2 mb-2'>
                             <div className='w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center'>
                                 <svg
@@ -69,7 +69,7 @@ export function ProfileSection() {
                         </Button>
                     </div>
 
-                    <div className='border rounded-lg p-3'>
+                    <div className='border rounded-lg p-3 bg-background'>
                         <div className='flex items-center gap-2 mb-2'>
                             <div className='w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center'>
                                 <svg

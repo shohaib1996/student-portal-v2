@@ -7,11 +7,20 @@ import { Button } from '@/components/ui/button';
 import { openModal } from '@/redux/features/selectionModalSlice';
 import { RootState } from '@/redux/store';
 import { CombinedSelectionModal } from '../combined-selection-modal';
+import Cookies from 'js-cookie';
 
 export default function UniversitySectionOpenButton() {
     const dispatch = useDispatch();
-    const { isOpen, activeView } = useSelector(
-        (state: RootState) => state.selectionModal,
+    const { isOpen, activeView, selectedUniversityId, selectedCourseId } =
+        useSelector((state: RootState) => state.selectionModal);
+    const { companies, activeCompany } = useSelector(
+        (state: RootState) => state.company,
+    );
+
+    const selectedUniversity = companies.find(
+        (company) =>
+            company._id ===
+            (selectedUniversityId || Cookies.get('activeCompany')),
     );
 
     const handleOpenUniversity = () => {
@@ -25,7 +34,9 @@ export default function UniversitySectionOpenButton() {
                 onClick={handleOpenUniversity}
                 className='w-full'
             >
-                Select University
+                {selectedUniversity
+                    ? selectedUniversity.name
+                    : 'Select University'}
             </Button>
             <CombinedSelectionModal />
         </>

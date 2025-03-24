@@ -30,7 +30,7 @@ const data = [
 
 export function TechnicalTestSection() {
     return (
-        <Card className='p-2'>
+        <Card className='p-2 rounded-lg shadow-none bg-foreground'>
             <CardHeader className='flex flex-row items-center justify-between p-2 border-b'>
                 <div>
                     <CardTitle className='text-md font-medium'>

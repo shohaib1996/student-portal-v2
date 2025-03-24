@@ -37,7 +37,7 @@ interface ChatFooterProps {
     profileInfoShow?: boolean;
     className?: string;
     draft?: any;
-    sendTypingIndicator: (isTyping: boolean) => void;
+    sendTypingIndicator?: (isTyping: boolean) => void;
 }
 
 function MuteMessage({ muteData }: MuteMessageProps) {

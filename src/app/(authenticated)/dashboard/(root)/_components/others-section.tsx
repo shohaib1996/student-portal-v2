@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 export function OthersSection() {
     return (
-        <Card className='p-2 lg:col-span-2'>
+        <Card className='p-2 lg:col-span-2 rounded-lg shadow-none bg-foreground'>
             <CardHeader className='flex p-2 border-b'>
                 <CardTitle className='text-md font-medium'>Others</CardTitle>
                 <span className='text-xs text-muted-foreground'>
@@ -15,7 +15,7 @@ export function OthersSection() {
             <CardContent className='p-2'>
                 <div className='grid lg:grid-cols-3 gap-3'>
                     {/* Community Section */}
-                    <div className='border rounded-lg p-4'>
+                    <div className='border rounded-lg p-4 bg-background'>
                         <div className='flex items-center gap-2 mb-2'>
                             <div className='w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center'>
                                 <svg
@@ -36,7 +36,7 @@ export function OthersSection() {
                                     <path d='M16 3.13a4 4 0 0 1 0 7.75' />
                                 </svg>
                             </div>
-                            <div className='flex items-center justify-between w-full'>
+                            <div className='flex items-center justify-between w-full bg-background'>
                                 <h4 className='font-medium text-sm'>
                                     Community
                                 </h4>
@@ -118,7 +118,7 @@ export function OthersSection() {
                     </div>
 
                     {/* Family Members Section */}
-                    <div className='border rounded-lg p-4'>
+                    <div className='border rounded-lg p-4 bg-background'>
                         <div className='flex items-center gap-2 mb-2'>
                             <div className='w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center'>
                                 <svg
@@ -208,7 +208,7 @@ export function OthersSection() {
                     </div>
 
                     {/* Review Section */}
-                    <div className='border rounded-lg p-4'>
+                    <div className='border rounded-lg p-4 bg-background'>
                         <div className='flex items-center gap-2 mb-2'>
                             <div className='w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center'>
                                 <svg

@@ -22,7 +22,7 @@ export function InterviewItem({
     imageSrc,
 }: InterviewItemProps) {
     return (
-        <div className='flex items-start gap-3 p-2 border rounded-lg'>
+        <div className='flex items-center gap-2 p-2 border rounded-lg bg-background'>
             <div className='w-[72px] h-full'>
                 <Image
                     src={imageSrc || '/images/interview-item-thumbnail.png'}
@@ -33,22 +33,15 @@ export function InterviewItem({
                 />
             </div>
             <div className='flex-1'>
-                <div className='flex items-start justify-between'>
+                <div className='flex items-center justify-between'>
                     <div>
                         <h4 className='font-medium text-sm'>{title}</h4>
                         <p className='text-xs text-muted-foreground'>
                             {subtitle}
                         </p>
                     </div>
-                    <Button
-                        variant='primary_light'
-                        size='sm'
-                        className='h-7 text-xs'
-                    >
-                        Review <ArrowRight className='h-3 w-3' />
-                    </Button>
                 </div>
-                <div className='flex items-center gap-1.5 mt-2 text-xs text-muted-foreground'>
+                <div className='flex items-center gap-1 flex-wrap mt-2 text-xs text-muted-foreground'>
                     <div className='flex items-center'>
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
@@ -161,6 +154,9 @@ export function InterviewItem({
                     </Button>
                 </div>
             </div>
+            <Button variant='primary_light' size='sm' className='h-7 text-xs'>
+                Review <ArrowRight className='h-3 w-3' />
+            </Button>
         </div>
     );
 }

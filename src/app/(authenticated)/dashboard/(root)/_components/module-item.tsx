@@ -109,7 +109,7 @@ export function ModuleItem({
     };
 
     return (
-        <div className='flex items-center gap-3 border rounded-md p-3'>
+        <div className='flex items-center gap-3 border rounded-md p-2 bg-background'>
             <div className='flex-1'>
                 <div className='flex items-center justify-between mb-1'>
                     <span className='font-medium text-sm flex items-center gap-1'>

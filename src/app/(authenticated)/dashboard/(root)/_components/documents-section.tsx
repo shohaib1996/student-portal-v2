@@ -6,7 +6,7 @@ import { OverviewIcon, UpcomingIcon } from '@/components/svgs/dashboard'; // Add
 
 export function DocumentsSection() {
     return (
-        <Card className='p-2'>
+        <Card className='p-2 rounded-lg shadow-none bg-foreground'>
             <CardHeader className='flex flex-row items-center justify-between p-2 border-b'>
                 <div>
                     <h4 className='text-md font-medium'>Documents</h4>
@@ -21,23 +21,23 @@ export function DocumentsSection() {
                     <TabsList className='bg-transparent'>
                         <TabsTrigger
                             value='my-documents'
-                            className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 text-xs'
+                            className='border-b rounded-none data-[state=active]:text-primary-white data-[state=active]:font-semibold data-[state=active]:border-primary-white data-[state=active]:shadow-none flex items-center gap-1 text-xs data-[state=active]:bg-transparent'
                         >
-                            <OverviewIcon className='text-gray data-[state=active]:text-primary' />
+                            <OverviewIcon className='text-gray data-[state=active]:text-primary-white' />
                             My Documents
                         </TabsTrigger>
                         <TabsTrigger
                             value='documents-labs'
-                            className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 text-xs'
+                            className='border-b rounded-none data-[state=active]:text-primary-white data-[state=active]:font-semibold data-[state=active]:border-primary-white data-[state=active]:shadow-none flex items-center gap-1 text-xs data-[state=active]:bg-transparent'
                         >
-                            <UpcomingIcon className='data-[state=active]:text-primary' />
+                            <UpcomingIcon className='data-[state=active]:text-primary-white' />
                             Documents & Labs
                         </TabsTrigger>
                         <TabsTrigger
                             value='presentations'
-                            className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 text-xs'
+                            className='border-b rounded-none data-[state=active]:text-primary-white data-[state=active]:font-semibold data-[state=active]:border-primary-white data-[state=active]:shadow-none flex items-center gap-1 text-xs data-[state=active]:bg-transparent'
                         >
-                            <UpcomingIcon className='data-[state=active]:text-primary' />
+                            <UpcomingIcon className='data-[state=active]:text-primary-white' />
                             Presentations
                         </TabsTrigger>
                     </TabsList>

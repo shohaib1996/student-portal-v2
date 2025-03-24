@@ -12,6 +12,7 @@ import {
     ImageIcon,
 } from 'lucide-react';
 import GlobalModal from '@/components/global/GlobalModal';
+import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
 
 interface TaskModalProps {
     isOpen: boolean;
@@ -76,7 +77,7 @@ export default function TaskModal({
             }
             buttons={
                 <div className='flex items-center gap-2'>
-                    <Button variant='outline' size='sm' className='gap-1'>
+                    <Button size='sm' className='gap-1'>
                         <ChevronLeft className='h-4 w-4' />
                         Previous
                     </Button>
@@ -91,10 +92,7 @@ export default function TaskModal({
                             <Button variant='outline' size='sm'>
                                 Cancel
                             </Button>
-                            <Button
-                                size='sm'
-                                className='bg-blue-600 hover:bg-blue-700'
-                            >
+                            <Button size='sm'>
                                 Submit
                                 <ChevronRight className='h-4 w-4 ml-1' />
                             </Button>
@@ -135,32 +133,32 @@ export default function TaskModal({
         >
             <div className='flex flex-col'>
                 {/* Question */}
-                <div className='border-l-4 border-blue-600 bg-blue-50 p-4 flex justify-between items-center'>
-                    <h3 className='text-lg font-medium'>
+                <div className='flex justify-between items-center gap-2 mt-2.5 bg-primary-light py-1 px-4 border-l-4 border-l-primary-white border-primary-white border rounded-r-md'>
+                    <h3 className='text-lg font-medium line-clamp-1'>
                         How does using object-fit enhance the responsiveness of
                         images in a design?
                     </h3>
-                    <div className='text-sm text-gray-500 flex'>
-                        <span>ID: #{taskData.id}</span>
-                        <span className='ml-4'>
+                    <div className='flex items-center gap-1.5'>
+                        <p className='text-nowrap'>ID: #{taskData.id}</p>
+                        <p className='text-nowrap bg-foreground rounded-full text-base px-2.5 py-1'>
                             {currentQuestion} of {totalQuestions}
-                        </span>
+                        </p>
                     </div>
                 </div>
 
                 {/* Task Info */}
-                <div className='p-4 border-b'>
-                    <div className='flex items-center gap-2 mb-2'>
-                        <span className='bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium'>
+                <div className=''>
+                    <div className='flex items-center gap-2 my-2'>
+                        <span className='bg-primary-light text-primary-white border border-primary-white rounded-full px-2 py-1 text-sm font-medium'>
                             Technical Test
                         </span>
-                        <span className='text-amber-600 font-medium'>
+                        <span className='bg-amber-200 rounded-full border border-amber-400 px-2 py-1 text-amber-600 font-medium text-sm'>
                             {taskData.marks} marks
                         </span>
                     </div>
 
                     <div className='grid grid-cols-2 gap-4'>
-                        <div className='flex items-center gap-2'>
+                        <div className='flex items-center gap-2 border-dashed border border-gray-200 p-2 rounded-md'>
                             <div className='bg-pink-100 p-2 rounded-full'>
                                 <svg
                                     className='w-5 h-5 text-pink-500'
@@ -186,7 +184,7 @@ export default function TaskModal({
                             </div>
                         </div>
 
-                        <div className='flex items-center gap-2'>
+                        <div className='flex items-center gap-2 border-dashed border border-gray-200 p-2 rounded-md'>
                             <div className='bg-green-100 p-2 rounded-full'>
                                 <svg
                                     className='w-5 h-5 text-green-500'
@@ -215,22 +213,27 @@ export default function TaskModal({
                 </div>
 
                 {/* Description */}
-                <div className='p-4 border-b'>
-                    <div className='flex items-center gap-2 mb-2'>
-                        <div className='w-4 h-4 rounded-full bg-blue-600'></div>
-                        <h4 className='font-medium'>Description</h4>
+                <div className='my-2 bg-foreground px-2.5 py-2'>
+                    <div className='flex gap-2'>
+                        <div className='mt-1'>
+                            <div className='w-4 h-4 rounded-full bg-blue-600'></div>
+                        </div>
+                        <div>
+                            <h4 className='font-medium'>Description</h4>
+                            <p className='text-gray'>
+                                Bootcamps Hub is an all-in-one SaaS platform
+                                designed for high-ticket coaches and educators.
+                                It empowers you to launch, manage, and scale
+                                premium boot camps without relying on fragmented
+                                tools like Udemy or Skillshare.
+                            </p>
+                        </div>
                     </div>
-                    <p className='text-gray-700'>
-                        Bootcamps Hub is an all-in-one SaaS platform designed
-                        for high-ticket coaches and educators. It empowers you
-                        to launch, manage, and scale premium boot camps without
-                        relying on fragmented tools like Udemy or Skillshare.
-                    </p>
                 </div>
 
                 {/* Answer Section */}
-                <div className='p-4 border-b flex-1 overflow-auto'>
-                    <div className='flex items-center gap-2 mb-2'>
+                <div className='flex-1 overflow-auto'>
+                    <div className='flex items-center gap-2 mb-1'>
                         <h4 className='font-medium'>Answer</h4>
                         <span className='text-red-500'>*</span>
                     </div>
@@ -250,13 +253,13 @@ export default function TaskModal({
                 </div>
 
                 {/* Attached Files */}
-                <div className='p-4 border-b'>
-                    <h4 className='font-medium mb-2'>
+                <div className='mt-2 border border-foreground rounded-md'>
+                    <h4 className='font-medium border-b border-foreground p-1'>
                         Attached Files {mode === 'result' && '(1)'}
                     </h4>
 
-                    <div className='flex items-center gap-2 mb-2'>
-                        <Button variant='outline' size='sm' className='gap-1'>
+                    <div className='flex items-center gap-2 p-1'>
+                        <Button variant='outline' size='sm' className='p-2'>
                             <Paperclip className='h-4 w-4' />
                             Attach or drag & drop
                             <span className='text-xs text-gray-500'>
@@ -284,10 +287,9 @@ export default function TaskModal({
                 </div>
 
                 {/* Comments or Report Issue */}
-                <div className='p-4 border-b'>
-                    <div className='text-sm text-gray-500 text-center py-2'>
-                        Comments section will be implemented globally
-                    </div>
+                <div className='mt-2'>
+                    <div className='mb-0'>Report an issue</div>
+                    <GlobalCommentsSection />
                 </div>
             </div>
         </GlobalModal>

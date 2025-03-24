@@ -4,7 +4,7 @@ import { Progress } from '@/components/ui/progress';
 
 export function ChatsSection() {
     return (
-        <Card className='p-2'>
+        <Card className='p-2 rounded-lg shadow-none bg-foreground'>
             <CardHeader className='flex flex-row items-center justify-between p-2 border-b'>
                 <div>
                     <h4 className='text-md font-medium'>Chats</h4>
@@ -18,8 +18,8 @@ export function ChatsSection() {
             <CardContent className='p-2'>
                 {/* Grid Data Table for Chat Statistics */}
                 <div className=''>
-                    <div className='grid lg:grid-cols-3 gap-3 border rounded-lg'>
-                        <div className='p-4 flex items-center gap-2'>
+                    <div className='grid lg:grid-cols-3 gap-2 border rounded-lg'>
+                        <div className='p-2 flex items-center gap-2'>
                             <svg
                                 xmlns='http://www.w3.org/2000/svg'
                                 width='24'
@@ -35,13 +35,13 @@ export function ChatsSection() {
                                 <path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' />
                             </svg>
                             <div>
-                                <div className='font-medium text-nowrap'>
+                                <div className='text-sm font-medium text-nowrap'>
                                     Total Chats
                                 </div>
-                                <div className='text-xl font-bold'>72</div>
+                                <div className='text-2xl font-bold'>72</div>
                             </div>
                         </div>
-                        <div className='p-4 flex items-center gap-2'>
+                        <div className='p-2 flex items-center gap-2'>
                             <svg
                                 xmlns='http://www.w3.org/2000/svg'
                                 width='24'
@@ -58,13 +58,13 @@ export function ChatsSection() {
                                 <circle cx='12' cy='7' r='4' />
                             </svg>
                             <div>
-                                <div className='font-medium text-nowrap'>
+                                <div className='text-sm font-medium text-nowrap'>
                                     One-on-One
                                 </div>
-                                <div className='text-xl font-bold'>45</div>
+                                <div className='text-2xl font-bold'>45</div>
                             </div>
                         </div>
-                        <div className='p-4 flex items-center gap-2'>
+                        <div className='p-2 flex items-center gap-2'>
                             <svg
                                 xmlns='http://www.w3.org/2000/svg'
                                 width='24'
@@ -83,25 +83,25 @@ export function ChatsSection() {
                                 <path d='M16 3.13a4 4 0 0 1 0 7.75' />
                             </svg>
                             <div>
-                                <div className='font-medium text-nowrap'>
+                                <div className='text-sm font-medium text-nowrap'>
                                     Crowd Chats
                                 </div>
-                                <div className='text-xl font-bold'>27</div>
+                                <div className='text-2xl font-bold'>27</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Progress Bars */}
-                <div className='mt-4 space-y-4'>
-                    <div className='space-y-3'>
+                <div className='mt-2 space-y-2'>
+                    <div className='space-y-2'>
                         <div className='flex items-center justify-between'>
                             <span className='text-sm'>Read</span>
                             <span className='text-xs text-muted-foreground'>
                                 53 out of 72
                             </span>
                         </div>
-                        <Progress value={73} className='h-2' />
+                        <Progress value={73} className='h-2 bg-background' />
 
                         <div className='flex items-center justify-between'>
                             <span className='text-sm'>Unread</span>
@@ -111,7 +111,7 @@ export function ChatsSection() {
                         </div>
                         <Progress
                             value={21}
-                            className='h-2'
+                            className='h-2 bg-background'
                             // indicatorClassName='bg-warning'
                         />
 
@@ -123,7 +123,7 @@ export function ChatsSection() {
                         </div>
                         <Progress
                             value={17}
-                            className='h-2'
+                            className='h-2 bg-background'
                             // indicatorClassName='bg-success'
                         />
 
@@ -137,7 +137,7 @@ export function ChatsSection() {
                         </div>
                         <Progress
                             value={7}
-                            className='h-2'
+                            className='h-2 bg-background'
                             // indicatorClassName='bg-danger'
                         />
 
@@ -149,7 +149,7 @@ export function ChatsSection() {
                         </div>
                         <Progress
                             value={49}
-                            className='h-2'
+                            className='h-2 bg-background'
                             // indicatorClassName='bg-warning'
                         />
                     </div>

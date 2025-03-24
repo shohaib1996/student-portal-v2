@@ -13,7 +13,7 @@ import { TodoSection } from './todo-section';
 
 export default function DashboardBody() {
     return (
-        <div className='bg-background'>
+        <div className=''>
             <DashboardTitle />
 
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 my-2'>
