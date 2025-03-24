@@ -1,9 +1,9 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, useRef, type ReactNode } from 'react';
 import { motion, useMotionValue, useDragControls } from 'framer-motion';
-import { X, Minimize2, GripVertical } from 'lucide-react';
+import { X, GripVertical, Maximize2, Minimize2 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -30,6 +30,8 @@ const ChatModal: React.FC<ChatModalProps> = ({
     maxWidth = 500,
 }) => {
     const [isMounted, setIsMounted] = useState(false);
+    const modalRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     // Calculate position based on the number of modals
     const rightOffset = 20; // Distance from right edge in pixels
@@ -41,18 +43,76 @@ const ChatModal: React.FC<ChatModalProps> = ({
     const y = useMotionValue(0);
     const dragControls = useDragControls();
 
+    // Handle drag to keep modal within viewport bounds
+    const handleDragConstraints = () => {
+        if (!modalRef.current || !containerRef.current) {
+            return;
+        }
+
+        const modalRect = modalRef.current.getBoundingClientRect();
+        const containerRect = containerRef.current.getBoundingClientRect();
+
+        const minDistance = 130; // Minimum distance from edges
+
+        // Current position
+        let currentX = x.get();
+        let currentY = y.get();
+
+        // Calculate boundaries
+        const maxLeft = -containerRect.width + modalRect.width + minDistance;
+        const maxRight = containerRect.width - modalRect.width - 30;
+        const maxTop = -containerRect.height + modalRect.height + minDistance;
+        const maxBottom = containerRect.height - modalRect.height + 200;
+
+        // Constrain X position
+        if (currentX < maxLeft) {
+            currentX = maxLeft;
+        }
+        if (currentX > maxRight) {
+            currentX = maxRight;
+        }
+
+        // Constrain Y position
+        if (currentY < maxTop) {
+            currentY = maxTop;
+        }
+        if (currentY > maxBottom) {
+            currentY = maxBottom;
+        }
+
+        // Apply constrained position
+        x.set(currentX);
+        y.set(currentY);
+    };
+
     // Use client-side rendering
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    // Add drag event listeners to handle constraints during drag
+    useEffect(() => {
+        if (isMounted && modalRef.current) {
+            // Check position periodically during drag
+            const dragInterval = setInterval(handleDragConstraints, 50);
+
+            return () => {
+                clearInterval(dragInterval);
+            };
+        }
+    }, [isMounted, x, y]);
 
     if (!isMounted) {
         return null;
     }
 
     return createPortal(
-        <div className='fixed inset-0 z-40 pointer-events-none hidden lg:block'>
+        <div
+            ref={containerRef}
+            className='fixed inset-0 z-40 pointer-events-none hidden lg:block'
+        >
             <motion.div
+                ref={modalRef}
                 className={cn(
                     'bg-background border border-forground-border rounded-lg rounded-tr-none shadow-[0px_2px_20px_0px_rgba(0,0,0,0.50)] flex flex-col pointer-events-auto',
                     'fixed',
@@ -76,11 +136,15 @@ const ChatModal: React.FC<ChatModalProps> = ({
                     height: '600px',
                     maxHeight: '80vh',
                     bottom: '80px',
+                    x,
+                    y,
                 }}
                 drag
                 dragControls={dragControls}
                 dragListener={false}
                 dragMomentum={false}
+                onDrag={handleDragConstraints}
+                onDragEnd={handleDragConstraints}
             >
                 {/* Using two divs for the polygon - one for border and shadow, one for content */}
                 <div className='relative'>

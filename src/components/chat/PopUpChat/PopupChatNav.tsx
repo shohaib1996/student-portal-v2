@@ -126,104 +126,139 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
     const [createCrowdOpen, setCreateCrowdOpen] = useState<boolean>(false);
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
-    // Initialize chat list based on active tab
+    // Helper function to get filtered data based on active tab and search query
+    const getFilteredData = useCallback(() => {
+        let filteredData: ChatData[] = [];
+
+        switch (active) {
+            case 'chats':
+                // All chats
+                filteredData = chats;
+                break;
+            case 'crowds':
+                // Only show channels/groups
+                filteredData = chats.filter((chat) => chat.isChannel);
+                break;
+            case 'favourites':
+                // Only pinned chats
+                filteredData = chats.filter((chat) => chat.myData?.isFavourite);
+                break;
+            case 'onlines':
+                // Only online users' chats
+                const onlineUserIds = onlineUsers.map((user) => user._id);
+                filteredData = chats.filter(
+                    (chat) =>
+                        !chat.isChannel &&
+                        typeof chat.otherUser === 'object' &&
+                        onlineUserIds.includes(chat.otherUser?._id || ''),
+                );
+                break;
+            case 'readOnly':
+                // Only read-only chats
+                filteredData = chats.filter((chat) => chat.isReadOnly);
+                break;
+            case 'unread':
+                // Only unread chats
+                filteredData = chats.filter(
+                    (chat) => (chat.unreadCount || 0) > 0,
+                );
+                break;
+            case 'blocked':
+                // Only blocked users
+                filteredData = chats.filter((chat) => chat.myData?.isBlocked);
+                break;
+            case 'archived':
+                // Only archived chats
+                filteredData = chats.filter((chat) => chat.isArchived);
+                break;
+            case 'ai':
+                // Only AI bot chats
+                filteredData = chats.filter(
+                    (chat) =>
+                        !chat.isChannel &&
+                        typeof chat.otherUser === 'object' &&
+                        chat.otherUser?.type === 'bot',
+                );
+                break;
+            case 'search':
+                // In search mode, just show all chats and let the search query filter them
+                filteredData = chats;
+                break;
+            default:
+                filteredData = chats;
+        }
+
+        // Apply search filter if there's a search query
+        if (searchQuery) {
+            filteredData = filteredData.filter(
+                (c) =>
+                    c?.name
+                        ?.toLowerCase()
+                        .includes(searchQuery.toLowerCase()) ||
+                    `${typeof c?.otherUser === 'object' ? c?.otherUser?.firstName || '' : ''} ${typeof c?.otherUser === 'object' ? c?.otherUser?.lastName || '' : ''}`
+                        .toLowerCase()
+                        .includes(searchQuery.toLowerCase()),
+            );
+        }
+
+        return filteredData;
+    }, [active, chats, onlineUsers, searchQuery]);
+
+    // Load initial data and update when filters change
     useEffect(() => {
         // Reset search query when changing tabs
-        setSearchQuery('');
-        // Reset display count
+        if (active !== 'search' && searchQuery) {
+            setSearchQuery('');
+        }
+
+        // Reset display count to initial value
         setDisplayCount(10);
+
         // Reset hasMore flag
         setHasMore(true);
-        // Show loading state
+
+        // Show loading state while filtering
         setLoading(true);
 
+        // Use setTimeout to simulate loading (creates better UX)
         const timer = setTimeout(() => {
-            let filteredData: ChatData[] = [];
+            // Get filtered data based on active tab
+            const filteredData = getFilteredData();
 
-            switch (active) {
-                case 'chats':
-                    // All chats
-                    filteredData = chats;
-                    break;
-                case 'crowds':
-                    // Only show channels/groups
-                    filteredData = chats.filter((chat) => chat.isChannel);
-                    break;
-                case 'favourites':
-                    // Only pinned chats
-                    filteredData = chats.filter(
-                        (chat) => chat.myData?.isFavourite,
-                    );
-                    break;
-                case 'onlines':
-                    // Only online users' chats
-                    const onlineUserIds = onlineUsers.map((user) => user._id);
-                    filteredData = chats.filter(
-                        (chat) =>
-                            !chat.isChannel &&
-                            typeof chat.otherUser === 'object' &&
-                            onlineUserIds.includes(chat.otherUser?._id || ''),
-                    );
-                    break;
-                case 'readOnly':
-                    // Only read-only chats
-                    filteredData = chats.filter((chat) => chat.isReadOnly);
-                    break;
-                case 'unread':
-                    // Only unread chats
-                    filteredData = chats.filter(
-                        (chat) => (chat.unreadCount || 0) > 0,
-                    );
-                    break;
-                case 'blocked':
-                    // Only blocked users
-                    filteredData = chats.filter(
-                        (chat) => chat.myData?.isBlocked,
-                    );
-                    break;
-                case 'archived':
-                    // Only archived chats
-                    filteredData = chats.filter((chat) => chat.isArchived);
-                    break;
-                case 'ai':
-                    // Only AI bot chats
-                    filteredData = chats.filter(
-                        (chat) =>
-                            !chat.isChannel &&
-                            typeof chat.otherUser === 'object' &&
-                            chat.otherUser?.type === 'bot',
-                    );
-                    break;
-                case 'search':
-                    // In search mode, just show all chats and let the search query filter them
-                    filteredData = chats;
-                    break;
-                default:
-                    filteredData = chats;
-            }
-
-            // Apply search filter if there's a search query
-            if (searchQuery) {
-                filteredData = filteredData.filter(
-                    (c) =>
-                        c?.name
-                            ?.toLowerCase()
-                            .includes(searchQuery.toLowerCase()) ||
-                        `${typeof c?.otherUser === 'object' ? c?.otherUser?.firstName || '' : ''} ${typeof c?.otherUser === 'object' ? c?.otherUser?.lastName || '' : ''}`
-                            .toLowerCase()
-                            .includes(searchQuery.toLowerCase()),
-                );
-            }
-
-            // Sort and limit the data
-            setRecords(
-                sortByLatestMessage(filteredData).slice(0, displayCount),
+            // Get initial set of records
+            const initialRecords = sortByLatestMessage(filteredData).slice(
+                0,
+                displayCount,
             );
+            setRecords(initialRecords);
+
+            // Set hasMore flag based on record count
+            setHasMore(initialRecords.length < filteredData.length);
+
+            // Hide loading state
             setLoading(false);
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [active, displayCount, searchQuery]);
+    }, [active, chats, getFilteredData]);
+
+    // Update records when search query changes
+    useEffect(() => {
+        setLoading(true);
+
+        const timer = setTimeout(() => {
+            const filteredData = getFilteredData();
+            const initialRecords = sortByLatestMessage(filteredData).slice(
+                0,
+                displayCount,
+            );
+            setRecords(initialRecords);
+            setHasMore(initialRecords.length < filteredData.length);
+            setLoading(false);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery, getFilteredData, displayCount]);
 
     // Handle search input change
     const handleChangeSearch = useCallback(
@@ -234,29 +269,25 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
         [],
     );
 
-    // Handle load more when scrolling
-    const handleScroll = useCallback(() => {
-        if (!scrollContainerRef.current) {
-            return;
-        }
-
-        const { scrollTop, clientHeight, scrollHeight } =
-            scrollContainerRef.current;
-
-        if (scrollTop + clientHeight >= scrollHeight - 20) {
-            // Near bottom, load more
-            loadMoreChats();
-        }
-    }, []);
-
-    // Load more chats
+    // Load more chats when View More button is clicked
     const loadMoreChats = useCallback(() => {
-        if (records.length < chats.length) {
-            setDisplayCount((prev) => prev + 10);
-        } else {
-            setHasMore(false);
-        }
-    }, [records.length]);
+        // Get filtered data
+        const filteredData = getFilteredData();
+
+        // Increase display count
+        const newDisplayCount = displayCount + 10;
+        setDisplayCount(newDisplayCount);
+
+        // Update records with more data
+        const newRecords = sortByLatestMessage(filteredData).slice(
+            0,
+            newDisplayCount,
+        );
+        setRecords(newRecords);
+
+        // Update hasMore flag
+        setHasMore(newRecords.length < filteredData.length);
+    }, [displayCount, getFilteredData]);
 
     // Handle AI bot chat creation without URL change
     const handleCreateChat = useCallback(
@@ -312,7 +343,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                 directChatSelect={onSelectChat} // Pass the callback for direct chat selection
             />
 
-            <div className='flex flex-col h-[580px] w-[calc(100%-50px)] px-2'>
+            <div className='flex flex-col h-[580px] w-[calc(100%-42px)] px-2'>
                 <div className='flex items-center justify-between'>
                     <h1 className='text-lg font-semibold'>
                         {active === 'crowds' ? (
@@ -398,11 +429,10 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                     </div>
                 </div>
 
-                {/* Chat list */}
+                {/* Chat list - No onScroll handler to prevent auto-loading */}
                 <div
                     className='flex-1 overflow-y-auto divide-y divide-gray-200 overflow-x-hidden'
                     ref={scrollContainerRef}
-                    onScroll={handleScroll}
                 >
                     {loading ? (
                         <ChatListSkeleton />
@@ -505,7 +535,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                                             )}
                                                         </span>
                                                     )}
-                                                    <span className='truncate'>
+                                                    <span className='truncate flex flex-row items-center gap-1'>
                                                         {chat?.isChannel
                                                             ? chat?.name
                                                             : (typeof chat.otherUser ===
@@ -636,7 +666,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                         </div>
                     )}
 
-                    {/* View more button */}
+                    {/* View more button - Only shown when there are more chats to load */}
                     {records.length > 0 && hasMore && (
                         <div className='p-2 text-center flex flex-row items-center gap-1'>
                             <div className='w-full h-[2px] bg-border'></div>

@@ -29,6 +29,7 @@ import {
     useChats,
     useDraftMessages,
 } from '@/redux/hooks/chat/chatHooks';
+import EditMessageModal from './Message/EditMessageModal';
 interface ChatMessage {
     _id: string;
     sender: {
@@ -573,13 +574,13 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                 />
             )}
 
-            {/* {editMessage && chat && (
+            {editMessage && chat && (
                 <EditMessageModal
                     chat={chat}
                     selectedMessage={editMessage}
                     handleCloseEdit={() => setEditMessage(null)}
                 />
-            )} */}
+            )}
         </>
     );
 };

@@ -36,6 +36,7 @@ interface ChatFooterProps {
     profileInfoShow?: boolean;
     className?: string;
     draft?: any;
+    sendTypingIndicator?: () => void;
 }
 
 function MuteMessage({ muteData }: MuteMessageProps) {
@@ -72,6 +73,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
     setProfileInfoShow,
     profileInfoShow,
     className,
+    sendTypingIndicator,
 }) => {
     const dispatch = useDispatch();
 

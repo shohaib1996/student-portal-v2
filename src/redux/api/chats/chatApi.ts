@@ -136,11 +136,181 @@ export interface MessagesResponse {
     chat: ChatData;
     messages: ChatMessage[];
     count: number;
+    typingUsers?: boolean;
 }
 
 // RTK Query API definition
 export const chatApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
+        // Send message endpoint following the existing pattern
+        sendMessageCustom: build.mutation<ChatMessage, SendMessageParams>({
+            query: (messageData) => ({
+                url: `/chat/sendmessage/${messageData.chat}`,
+                method: 'PUT',
+                data: {
+                    text: messageData.message || '',
+                    files: messageData.files || [],
+                    ...(messageData.parentMessage
+                        ? { parentMessage: messageData.parentMessage }
+                        : {}),
+                },
+            }),
+            // Optimistically update the UI
+            async onQueryStarted(
+                { chat, message, parentMessage, files },
+                { dispatch, queryFulfilled },
+            ) {
+                // Temporary ID for optimistic update
+                const tempId = `temp-${Date.now()}`;
+
+                const patchResult = dispatch(
+                    chatApi.util.updateQueryData(
+                        'getChatMessages',
+                        { page: 1, limit: 20, chat },
+                        (draft) => {
+                            const tempMessage: ChatMessage = {
+                                _id: tempId,
+                                text: message,
+                                chat,
+                                sender: {
+                                    _id: 'currentUser', // Will be replaced with actual user
+                                },
+                                createdAt: Date.now(),
+                                status: 'sending',
+                                type: 'message',
+                                ...(files ? { files } : {}),
+                            };
+
+                            if (parentMessage) {
+                                // Handle reply messages
+                                const parentMsg = draft.messages.find(
+                                    (m) => m._id === parentMessage,
+                                );
+                                if (parentMsg) {
+                                    parentMsg.replies = parentMsg.replies || [];
+                                    parentMsg.replies.push(tempMessage);
+                                    parentMsg.replyCount =
+                                        (parentMsg.replyCount || 0) + 1;
+                                }
+                            } else {
+                                // Regular messages
+                                draft.messages.push(tempMessage);
+                            }
+                        },
+                    ),
+                );
+
+                try {
+                    // Wait for the actual response
+                    const { data } = await queryFulfilled;
+
+                    // Update chats list with the latest message
+                    dispatch(
+                        chatApi.util.updateQueryData(
+                            'getChats',
+                            undefined,
+                            (draft) => {
+                                const chatToUpdate = draft.find(
+                                    (c) => c._id === chat,
+                                );
+                                if (chatToUpdate && !parentMessage) {
+                                    chatToUpdate.latestMessage = data;
+                                }
+                            },
+                        ),
+                    );
+                } catch {
+                    // Revert optimistic update on error
+                    patchResult.undo();
+                }
+            },
+            // Invalidate relevant cache tags
+            invalidatesTags: (result, error, { chat, parentMessage }) => [
+                { type: 'Messages' as const, id: chat },
+                // Only invalidate chat list if it's a top-level message
+                ...(parentMessage
+                    ? []
+                    : [{ type: 'Chats' as const, id: 'LIST' }]),
+            ],
+        }),
+
+        // File upload endpoint
+        uploadFile: build.mutation<
+            {
+                file: {
+                    name: string;
+                    type: string;
+                    size: number;
+                    location: string;
+                };
+            },
+            FormData
+        >({
+            query: (formData) => ({
+                url: '/chat/file',
+                method: 'POST',
+                data: formData,
+            }),
+        }),
+
+        // Update message endpoint
+        updateMessage: build.mutation<
+            ChatMessage,
+            {
+                messageId: string;
+                data: {
+                    text?: string;
+                    files?: Array<{
+                        name: string;
+                        type: string;
+                        size: number;
+                        url: string;
+                    }>;
+                };
+            }
+        >({
+            query: ({ messageId, data }) => ({
+                url: `/chat/update/message/${messageId}`,
+                method: 'PATCH',
+                data,
+            }),
+            // Optimistically update the UI
+            async onQueryStarted(
+                { messageId, data },
+                { dispatch, queryFulfilled },
+            ) {
+                const patchResult = dispatch(
+                    chatApi.util.updateQueryData(
+                        'getChatMessages',
+                        { page: 1, limit: 20, chat: 'relevantChatId' }, // You'll need to pass the chat ID
+                        (draft) => {
+                            const messageIndex = draft.messages.findIndex(
+                                (m) => m._id === messageId,
+                            );
+
+                            if (messageIndex >= 0) {
+                                // Merge the updated data
+                                draft.messages[messageIndex] = {
+                                    ...draft.messages[messageIndex],
+                                    ...data,
+                                };
+                            }
+                        },
+                    ),
+                );
+
+                try {
+                    await queryFulfilled;
+                } catch {
+                    patchResult.undo();
+                }
+            },
+            // Invalidate relevant cache tags
+            invalidatesTags: (result, error, { messageId }) => [
+                { type: 'Messages' as const, id: messageId },
+            ],
+        }),
+
         // Fetch all chats
         getChats: build.query<ChatData[], void>({
             async queryFn(_arg, _queryApi, _extraOptions, fetchWithBQ) {
@@ -647,6 +817,9 @@ export const chatApi = baseApi.injectEndpoints({
 
 // Export hooks for usage in components
 export const {
+    useSendMessageCustomMutation,
+    useUploadFileMutation,
+    useUpdateMessageMutation,
     useGetChatsQuery,
     useGetOnlineUsersQuery,
     useGetChatMessagesQuery,

@@ -1,5 +1,5 @@
 'use client';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { AppSidebar } from '../shared/AppSidebar';
 import SelectActiveCompany from '../shared/SelectActiveCompany';
 import Cookies from 'js-cookie';
@@ -8,14 +8,23 @@ import Navbar from '../shared/Navbar';
 import ChatPopup from '../chat/PopUpChat/ChatPopup';
 import { usePathname } from 'next/navigation';
 import ChatModalsWrapper from '../chat/PopUpChat/ChatModalsWrapper';
+import { useAppSelector } from '@/redux/hooks';
+import setupSocketListeners from '@/helper/socketHandler';
+import { socket } from '@/helper/socketManager';
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
     const activeCompany = Cookies.get('activeCompany');
+    const { user } = useAppSelector((state) => state.auth);
     const { state } = useSidebar();
     const pathName = usePathname();
     console.log({ pathName });
     const isChat = pathName.includes('/chat') ? true : false;
-
+    useEffect(() => {
+        if (user?._id) {
+            const cleanUpListeners = setupSocketListeners();
+            return cleanUpListeners;
+        }
+    }, [socket]);
     return (
         <>
             {activeCompany ? (

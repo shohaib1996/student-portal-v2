@@ -260,7 +260,7 @@ function OnlineSidebar() {
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleCreateChat(
-                                                                u._id,
+                                                                u?._id,
                                                             );
                                                         }}
                                                     >

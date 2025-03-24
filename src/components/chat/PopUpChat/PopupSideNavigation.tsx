@@ -90,7 +90,7 @@ const PopupSideNavigation: React.FC<PopupSideNavigationProps> = ({
     // For popup mode, we'll create a horizontal layout instead of vertical
     if (isPopup) {
         return (
-            <div className='flex flex-col items-center p-2 border bg-primary-light border-blue-600/20 rounded-lg'>
+            <div className='flex flex-col items-center py-2 px-1 border bg-primary-light border-blue-600/20 rounded-lg'>
                 <GlobalTooltip tooltip='All Chats' side='bottom'>
                     <div
                         onClick={() => setActive('chats')}
