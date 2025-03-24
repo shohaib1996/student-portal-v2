@@ -21,6 +21,7 @@ import {
 import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
 import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
+import { useAppSelector } from '@/redux/hooks';
 
 interface PopupSideNavigationProps {
     setActive: (section: string) => void;
@@ -35,7 +36,7 @@ const PopupSideNavigation: React.FC<PopupSideNavigationProps> = ({
     isPopup = true,
     directChatSelect,
 }) => {
-    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { chats = [] } = useAppSelector((state) => state.chat);
     const router = useRouter();
 
     // State for unread messages
@@ -90,7 +91,7 @@ const PopupSideNavigation: React.FC<PopupSideNavigationProps> = ({
     // For popup mode, we'll create a horizontal layout instead of vertical
     if (isPopup) {
         return (
-            <div className='flex flex-col items-center p-2 border bg-primary-light border-blue-600/20 rounded-lg'>
+            <div className='flex flex-col items-center py-2 px-1 border bg-primary-light border-blue-600/20 rounded-lg'>
                 <GlobalTooltip tooltip='All Chats' side='bottom'>
                     <div
                         onClick={() => setActive('chats')}

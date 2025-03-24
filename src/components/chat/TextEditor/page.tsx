@@ -12,7 +12,6 @@ import dynamic from 'next/dynamic';
 import { toast } from 'sonner';
 import { useParams } from 'next/navigation';
 import { debounce } from 'lodash';
-import axios from 'axios';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -34,6 +33,7 @@ import { useAppSelector } from '@/redux/hooks';
 import drafts from '../drafts.json';
 import FileItem from './FileItem';
 import CaptureAudio from './CaptureAudio';
+import { instance } from '@/lib/axios/axiosInstance';
 // Dynamically import EmojiPicker to prevent blocking the main bundle
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
     ssr: false,
@@ -233,7 +233,10 @@ const TextEditor: React.FC<TextEditorProps> = ({
         limit: number;
         chat: string;
     }) => {
-        const res = await axios.post(`/chat/members/${options?.chat}`, options);
+        const res = await instance.post(
+            `/chat/members/${options?.chat}`,
+            options,
+        );
         return res.data?.results || [];
     };
 
@@ -287,7 +290,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         const formData = new FormData();
         formData.append('file', file);
         try {
-            const response = await axios.post('/chat/file', formData);
+            const response = await instance.post('/chat/file', formData);
             const fileData = response?.data?.file;
             updateFileStatus(file, {
                 name: fileData?.name,
@@ -399,7 +402,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                 url: x?.url,
             }));
 
-        const messageText = text.trim();
+        const messageText = localText.trim();
 
         if (!messageText && successFiles.length === 0) {
             store.dispatch(
@@ -418,7 +421,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         }
 
         if (selectedMessage) {
-            axios
+            instance
                 .patch(`/chat/update/message/${selectedMessage?._id}`, data)
                 .then((res) => {
                     store.dispatch(removeFromDraft(params?.chatid as string));
@@ -460,7 +463,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
             store.dispatch(removeFromDraft(params?.chatid as string));
             setLocalText('');
 
-            axios
+            instance
                 .put(`/chat/sendmessage/${chatId}`, data)
                 .then((res) => {
                     store.dispatch(
@@ -595,7 +598,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                         />
                     ) : (
                         // <p>Capture Audio coming soon!</p>
-                        <div className='flex items-center p-2 border rounded-md'>
+                        <div className='flex items-center p-1 border rounded-lg bg-foreground'>
                             <div className='flex items-center w-full'>
                                 <div className='mt-auto'>
                                     <DropdownMenu>

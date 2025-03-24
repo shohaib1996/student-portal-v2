@@ -12,8 +12,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 // Using RTK but keeping the same naming convention as requested
 import { updateMembersCount } from '@/redux/features/chatReducer';
 import { useAppDispatch } from '@/redux/hooks';
-import GlobalModal from '../global/GlobalModal';
-import axios from 'axios';
+import GlobalDialog from '../global/GlobalDialogModal/GlobalDialog';
+import { instance } from '@/lib/axios/axiosInstance';
 
 interface User {
     _id: string;
@@ -67,7 +67,7 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
         }
         setIsUserLoading(true);
 
-        axios
+        instance
             .post(`/chat/members/${channel?._id}`)
             .then((res) => {
                 setAddedUsers(res.data?.results || []);
@@ -88,7 +88,7 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
                 user: userId,
             };
             setAddingList((prev) => [...prev, userId]);
-            axios
+            instance
                 .patch(`/chat/channel/adduser/${channel._id}`, data)
                 .then((res) => {
                     toast.success('Added successfully');
@@ -118,7 +118,7 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
 
             // Clear previous timeout if exists
             const timeoutId = setTimeout(() => {
-                axios
+                instance
                     .get(`/chat/searchuser?query=${value?.trim() || ''}`)
                     .then((res) => {
                         // Filter out users who are already added
@@ -159,7 +159,7 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
     );
 
     return (
-        <GlobalModal
+        <GlobalDialog
             title='Add Member'
             open={opened}
             setOpen={() => handleCancel()}
@@ -274,7 +274,7 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
                     Close
                 </Button>
             </div> */}
-        </GlobalModal>
+        </GlobalDialog>
     );
 }
 

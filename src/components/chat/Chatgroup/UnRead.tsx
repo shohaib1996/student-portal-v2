@@ -276,7 +276,7 @@ function UnRead() {
                                                         )}
                                                     </span>
                                                 )}
-                                                <span className='truncate'>
+                                                <span className='truncate flex flex-row items-center gap-1'>
                                                     {chat?.isChannel
                                                         ? chat?.name
                                                         : chat?.otherUser

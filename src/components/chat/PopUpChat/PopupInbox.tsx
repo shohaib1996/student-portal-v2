@@ -35,6 +35,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { instance } from '@/lib/axios/axiosInstance';
+import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 // Dynamic imports
 const ChatBody = lazy(() => import('../ChatBody'));
@@ -79,7 +80,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
         isOpen: false,
         query: '',
     });
-
+    console.log({ chat });
     const [finalQuery, setFinalQuery] = useState('');
 
     const handleSearchSubmit = useCallback(() => {
@@ -153,19 +154,19 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
             <div className='relative rounded-md h-full'>
                 <div className='flex flex-col h-full'>
                     <div className='flex items-center justify-between pb-2 border-b'>
-                        <div className='flex items-center space-x-3'>
+                        <div className='flex items-center space-x-3 w-[calc(60%-50px)]'>
                             <div className='relative'>
                                 <Image
                                     width={40}
                                     height={40}
                                     src={
                                         chat?.isChannel
-                                            ? chat?.avatar || '/chat/group.svg'
+                                            ? chat?.avatar || '/group.jpg'
                                             : chat?.otherUser?.profilePicture ||
-                                              '/chat/user.svg'
+                                              '/avatar.png'
                                     }
                                     onClick={handleToggleInfo}
-                                    className='cursor-pointer rounded-full bg-primary w-[40px] h-[40px]'
+                                    className='cursor-pointer object-cover border shadow-md rounded-full bg-primary h-10 w-10 min-w-10'
                                     alt={
                                         chat?.isChannel
                                             ? chat?.name
@@ -186,15 +187,24 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                             </div>
 
                             <div
-                                className='cursor-pointer flex flex-col gap-0'
+                                className='cursor-pointer flex flex-col gap-0 w-full'
                                 onClick={handleToggleInfo}
                             >
-                                <h4 className='text-dark-gray capitalize text-sm font-semibold'>
-                                    {chat?.isChannel
-                                        ? chat?.name
-                                        : chat?.otherUser?.fullName ||
-                                          'unknown'}
-                                </h4>
+                                <GlobalTooltip
+                                    tooltip={
+                                        chat?.isChannel
+                                            ? chat?.name
+                                            : chat?.otherUser?.fullName ||
+                                              'User avatar'
+                                    }
+                                >
+                                    <h4 className='text-dark-gray capitalize text-sm font-semibold truncate w-full'>
+                                        {chat?.isChannel
+                                            ? chat?.name
+                                            : chat?.otherUser?.fullName ||
+                                              'unknown'}
+                                    </h4>
+                                </GlobalTooltip>
                                 <span className='text-sm text-muted-foreground whitespace-nowrap'>
                                     {chat?.isChannel ? (
                                         `${chat?.membersCount || 0} members`

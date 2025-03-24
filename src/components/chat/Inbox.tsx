@@ -191,12 +191,12 @@ const Inbox: React.FC<InboxProps> = ({
                                     height={40}
                                     src={
                                         chat?.isChannel
-                                            ? chat?.avatar || '/chat/group.svg'
+                                            ? chat?.avatar || '/group.jpg'
                                             : chat?.otherUser?.profilePicture ||
-                                              '/chat/user.svg'
+                                              '/avatar.png'
                                     }
                                     onClick={handleToggleInfo}
-                                    className='cursor-pointer rounded-full bg-primary w-[40px] h-[40px]'
+                                    className='cursor-pointer object-cover border shadow-md rounded-full bg-primary w-[40px] h-[40px]'
                                     alt={
                                         chat?.isChannel
                                             ? chat?.name
@@ -220,7 +220,7 @@ const Inbox: React.FC<InboxProps> = ({
                                 className='cursor-pointer flex flex-col gap-0'
                                 onClick={handleToggleInfo}
                             >
-                                <h4 className='text-dark-gray capitalize text-sm font-semibold'>
+                                <h4 className='text-dark-gray capitalize text-sm font-semibold truncate'>
                                     {chat?.isChannel
                                         ? chat?.name
                                         : chat?.otherUser?.fullName ||

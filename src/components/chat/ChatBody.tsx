@@ -29,6 +29,7 @@ import {
     useChats,
     useDraftMessages,
 } from '@/redux/hooks/chat/chatHooks';
+import EditMessageModal from './Message/EditMessageModal';
 interface ChatMessage {
     _id: string;
     sender: {
@@ -128,37 +129,93 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     const params = useParams();
     const dispatch = useDispatch();
     // Get chats data from RTK Query
-    const { chats, isLoading: isChatsLoading } = useChats();
+    // const { chats, isLoading: isChatsLoading } = useChats();
+    const {
+        chatMessages,
+        chats,
+        onlineUsers,
+        currentPage,
+        fetchedMore,
+        drafts,
+    } = useAppSelector((state) => state.chat);
 
     // Get drafts data from the hook
-    const { drafts, getDraft } = useDraftMessages();
+    // const { drafts, getDraft } = useDraftMessages();
 
     // Get messages for current chat
-    const {
-        messages,
-        totalCount: count,
-        chatInfo,
-        isLoading: isMessagesLoading,
-        isFetchingMore: isFetching,
-        loadMoreMessages,
-        hasMore,
-    } = useChatMessages(params?.chatid as string, 15);
-
+    // const {
+    //     messages,
+    //     totalCount: count,
+    //     chatInfo,
+    //     isLoading: isMessagesLoading,
+    //     isFetchingMore: isFetching,
+    //     loadMoreMessages,
+    //     hasMore,
+    // } = useChatMessages(params?.chatid as string, 15);
+    const [count, setCount] = useState(0);
+    const messages = chatMessages[params?.chatid as string];
     // Rest of your component logic
     // ...
 
     // Get draft for this chat
-    const draft = getDraft(params?.chatid as string);
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const [fetchedMore, setFetchedMore] = useState(false);
+    // const draft = getDraft(params?.chatid as string);
+    const draft = drafts?.find((f) => f.chat === params?.chatid);
+    // const [currentPage, setCurrentPage] = useState(1);
+    // const [fetchedMore, setFetchedMore] = useState(false);
 
     // Update fetchMore to also update currentPage
+    // const fetchMore = (page: number) => {
+    //     loadMoreMessages();
+    //     setCurrentPage((prev) => prev + 1);
+    //     setFetchedMore(true);
+    // };
+    const [hasMore, setHasMore] = useState(true);
+    const [isFetching, setIsFetching] = useState(false);
     const fetchMore = (page: number) => {
-        loadMoreMessages();
-        setCurrentPage((prev) => prev + 1);
-        setFetchedMore(true);
+        const options = {
+            page: page + 1,
+            chat: params?.chatid,
+            limit,
+            query: searchQuery || '',
+        };
+        setIsFetching(true);
+        instance
+            .post(`/chat/messages`, options)
+            .then((res) => {
+                dispatch(setFetchedMore(true));
+                dispatch(
+                    pushHistoryMessages({
+                        chat: res.data.chat?._id,
+                        messages: res.data.messages || [],
+                    }),
+                );
+                dispatch(setCurrentPage(page + 1));
+                if (res.data?.messages?.length < limit) {
+                    setHasMore(false);
+                } else {
+                    setHasMore(true);
+                }
+                setRefIndex(messages?.length > 15 ? 15 : messages?.length - 1);
+                setIsFetching(false);
+                setRefIndex(15);
+
+                if (lastMessageRef.current) {
+                    lastMessageRef.current.scrollIntoView({
+                        behavior: 'instant',
+                        block: 'center',
+                        inline: 'nearest',
+                    });
+                }
+            })
+            .catch((err) => {
+                setIsFetching(false);
+                if (err?.response) {
+                    setError(err.response?.data);
+                }
+                // console.log(err);
+            });
     };
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [chat, setChat] = useState<any | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -186,12 +243,13 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     useEffect(() => {
         setInitalLoaded(false);
     }, [params?.chatid]);
-
+    console.log({ chats: chats });
     useEffect(() => {
         if (chats && params?.chatid) {
             const findChat = chats?.find(
                 (chat: any) => chat?._id === params?.chatid,
             );
+            console.log({ findChat: findChat });
             if (findChat) {
                 setChat(findChat);
                 setChatInfo(findChat);
@@ -223,10 +281,55 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     // Remove or simplify this useEffect since RTK Query handles the data fetching
     useEffect(() => {
         if (params?.chatid) {
-            // Just mark as read
-            dispatch(markRead({ chatId: params?.chatid as string }));
+            setIsFetching(true);
+            dispatch(
+                updateChatMessages({
+                    chat: params?.chatid as string,
+                    messages: [],
+                }),
+            );
+            setIsLoading(true);
+            setError(null);
+            dispatch(setCurrentPage(1));
+            setCount(0);
+            const options = {
+                page: currentPage,
+                chat: params?.chatid,
+                limit,
+                query: searchQuery || '',
+            };
+            instance
+                .post(`/chat/messages`, options)
+                .then((res) => {
+                    setIsLoading(false);
+                    // setChat(res.data.chat)
+                    setCount(res.data.count);
+                    // fetchPinned(res.data.chat._id)
+                    dispatch(
+                        updateChatMessages({
+                            chat: res.data.chat._id,
+                            messages: res.data.messages,
+                        }),
+                    );
+                    setInitalLoaded(true);
+                    if (res.data?.messages?.length < limit) {
+                        setHasMore(false);
+                    } else {
+                        setHasMore(true);
+                    }
+                    dispatch(markRead({ chatId: params?.chatid as string }));
+                    setIsFetching(false);
+                })
+                .catch((err) => {
+                    setIsLoading(false);
+                    if (err && err.response) {
+                        setError(err?.response?.data?.error);
+                    }
+                    setInitalLoaded(true);
+                    setIsFetching(false);
+                });
         }
-    }, [params?.chatid, searchQuery, dispatch]);
+    }, [params?.chatid, reload, searchQuery]);
     interface SentCallbackObject {
         action: string;
         message?: {
@@ -340,6 +443,12 @@ const ChatBody: React.FC<ChatBodyProps> = ({
             setReloading(!reloading);
         }
     }, [messages, reload, setReloading, reloading]);
+    const [isTyping, setIsTyping] = useState<boolean>(false);
+    // Function to send typing indicator
+    const sendTypingIndicator = (isTyping: boolean) => {
+        // You can implement the typing indicator logic here
+        setIsTyping(isTyping);
+    };
 
     return (
         <>
@@ -561,6 +670,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     onSentCallback={onSentCallback}
                     setProfileInfoShow={setProfileInfoShow}
                     profileInfoShow={profileInfoShow}
+                    sendTypingIndicator={sendTypingIndicator}
                 />
             )}
 
@@ -573,13 +683,13 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                 />
             )}
 
-            {/* {editMessage && chat && (
+            {editMessage && chat && (
                 <EditMessageModal
                     chat={chat}
                     selectedMessage={editMessage}
                     handleCloseEdit={() => setEditMessage(null)}
                 />
-            )} */}
+            )}
         </>
     );
 };

@@ -20,7 +20,7 @@ interface TypingData {
     isTyping: boolean;
 }
 
-interface Message {
+export interface Message {
     _id: string;
     chat: string;
     text?: string;
@@ -39,7 +39,7 @@ interface User {
     [key: string]: any;
 }
 
-interface Chat {
+export interface Chat {
     _id: string;
     name?: string;
     isChannel?: boolean;
@@ -62,6 +62,9 @@ interface ChatMessages {
     [chatId: string]: Message[];
 }
 
+interface MessageCounts {
+    [chatId: string]: number;
+}
 interface ChatState {
     chats: Chat[];
     onlineUsers: User[];
@@ -71,6 +74,7 @@ interface ChatState {
     currentPage: number;
     drafts: Draft[];
     fetchedMore: boolean;
+    messageCounts: MessageCounts;
 }
 
 const initialState: ChatState = {
@@ -82,6 +86,7 @@ const initialState: ChatState = {
     currentPage: 1,
     drafts: [],
     fetchedMore: false,
+    messageCounts: {},
 };
 
 const chatSlice = createSlice({
@@ -211,7 +216,30 @@ const chatSlice = createSlice({
                 };
             }
         },
+        updateRepliesCount: (
+            state,
+            action: PayloadAction<{ message: Message }>,
+        ) => {
+            const { message } = action.payload;
+            const chatMessage = state.chatMessages[message.chat]?.find(
+                (item) => item._id === message._id,
+            );
 
+            if (chatMessage) {
+                const parentMessageIndex = state.chatMessages[
+                    message.chat
+                ]?.findIndex((item) => item._id === message.parentMessage);
+                if (parentMessageIndex !== -1) {
+                    state.chatMessages[message.chat][parentMessageIndex] = {
+                        ...state.chatMessages[message.chat][parentMessageIndex],
+                        replyCount:
+                            (state.chatMessages[message.chat][
+                                parentMessageIndex
+                            ].replyCount || 0) + 1,
+                    };
+                }
+            }
+        },
         updateEmoji: (state, action: PayloadAction<{ message: Message }>) => {
             const { message } = action.payload;
             console.log(message);
@@ -488,6 +516,17 @@ const chatSlice = createSlice({
 
             state.chatMessages[chatId] = messagesArray;
         },
+        // Add new action for message count
+        setMessageCount: (
+            state,
+            action: PayloadAction<{
+                chatId: string;
+                count: number;
+            }>,
+        ) => {
+            const { chatId, count } = action.payload;
+            state.messageCounts[chatId] = count;
+        },
     },
 });
 
@@ -518,6 +557,8 @@ export const {
     setFetchedMore,
     updateDraftFiles,
     removeDraftFiles,
+    setMessageCount,
+    updateRepliesCount,
 } = chatSlice.actions;
 
 // Export the reducer

@@ -1,19 +1,12 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Message from '../Message/page';
 import { useParams } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
-// import { markRead, updateChatMessages } from '@/redux/features/chatReducer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import ChatFooter, { type ChatData } from '../ChatFooter';
 import Cookies from 'js-cookie';
 import { Loader2 } from 'lucide-react';
@@ -23,18 +16,19 @@ import {
     setCurrentPage,
     setFetchedMore,
     updateChatMessages,
+    setMessageCount,
 } from '@/redux/features/chatReducer';
-import { toast } from 'sonner';
 import { useAppSelector } from '@/redux/hooks';
 import { instance } from '@/lib/axios/axiosInstance';
 import Thread from '../thread';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
-    useChatMessages,
-    useChats,
-    useDraftMessages,
-} from '@/redux/hooks/chat/chatHooks';
-import { useGetOnlineUsersQuery } from '@/redux/api/chats/chatApi';
+    joinChatRoom,
+    leaveChatRoom,
+    connectSocket,
+} from '@/helper/socketManager';
+import EditMessageModal from '../Message/EditMessageModal';
+
 interface ChatMessage {
     _id: string;
     sender: {
@@ -87,6 +81,13 @@ interface PopUpChatBodyProps {
     chatId?: string;
 }
 
+interface SentCallbackObject {
+    action: string;
+    message?: {
+        text: string;
+    };
+}
+
 function formatDateForDisplay(date: string | number): string {
     const today = new Date();
     const yesterday = new Date(today);
@@ -107,7 +108,7 @@ function formatDateForDisplay(date: string | number): string {
     ) {
         return 'Yesterday';
     } else {
-        return inputDate.toLocaleDateString(); // Adjust this format as needed
+        return inputDate.toLocaleDateString();
     }
 }
 
@@ -135,38 +136,55 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
     searchQuery,
     chatId,
 }) => {
+    // Initialize socket connection on component mount
+    useEffect(() => {
+        const initSocket = async () => {
+            try {
+                const socket = await connectSocket();
+                return () => {
+                    if (socket) {
+                        socket.disconnect();
+                    }
+                };
+            } catch (error) {
+                console.error('Error connecting to socket:', error);
+                return () => {};
+            }
+        };
+
+        const cleanup = initSocket();
+        return () => {
+            cleanup.then((cleanupFn) => cleanupFn());
+        };
+    }, []);
+
     const params = useParams();
-    console.log({ params });
     const selectedChatId = isPopup ? chatId : params?.chatid || '';
     const dispatch = useDispatch();
-    // Fix: Add fallbacks for when state.chat is undefined
-    const { chats: chatData, isLoading: isChatsLoading } = useChats();
 
-    // Get drafts data from the hook
-    const { drafts, getDraft } = useDraftMessages();
-    const { chats } = useAppSelector((state) => state.chat || {});
-    const { data: onlineUsers = [], isLoading: isOnlineUsersLoading } =
-        useGetOnlineUsersQuery();
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const [fetchedMore, setFetchedMore] = useState(false);
+    // Get Redux state using useAppSelector
     const {
-        messages,
-        totalCount: count,
-        chatInfo,
-        isLoading: isMessagesLoading,
-        isFetchingMore: isFetching,
-        loadMoreMessages,
-        hasMore,
-    } = useChatMessages(params?.chatid as string, 15);
+        chatMessages,
+        chats,
+        onlineUsers,
+        currentPage: reduxCurrentPage,
+        fetchedMore: reduxFetchedMore,
+        drafts,
+        messageCounts,
+    } = useAppSelector((state) => state.chat);
+    const { user } = useAppSelector((state) => state.auth || {});
+    const userId = user?._id;
 
-    // Update fetchMore to also update currentPage
-    const fetchMore = (page: number) => {
-        loadMoreMessages();
-        setCurrentPage((prev) => prev + 1);
-        setFetchedMore(true);
-    };
-    console.log({ chats });
+    // Get messages and count from Redux
+    const messages = chatMessages[selectedChatId as string] || [];
+    const count = messageCounts[selectedChatId as string] || 0;
+
+    // Get draft for this chat
+    const draft = drafts?.find((f) => f.chat === selectedChatId);
+
+    // Local state for UI and functionality
+    const [currentPage, setCurrentPageLocal] = useState(reduxCurrentPage);
+    const [fetchedMore, setFetchedMoreLocal] = useState(reduxFetchedMore);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [chat, setChat] = useState<any | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -174,17 +192,54 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
     const [threadMessage, setThreadMessage] = useState<ChatMessage | null>(
         null,
     );
-    const [limit, setLimit] = useState<number>(15);
-    //for ai
     const [aiIncomingMessage, setAiIncomingMessage] = useState<string>('');
     const [isThinking, setIsThinking] = useState<boolean>(false);
-
     const [initialLoaded, setInitalLoaded] = useState<boolean>(false);
-
     const [refIndex, setRefIndex] = useState<number>(15);
-    const bottomTextRef = useRef<any | null>(null);
     const [reload, setReload] = useState<number>(0);
+    const [isTyping, setIsTyping] = useState<boolean>(false);
+    const [isFetching, setIsFetching] = useState<boolean>(false);
+    const [hasMore, setHasMore] = useState<boolean>(true);
 
+    // Refs for DOM elements
+    const bottomTextRef = useRef<any | null>(null);
+    const chatContainerRef = useRef<HTMLDivElement>(null);
+    const lastMessageRef = useRef<HTMLDivElement>(null);
+    const prevTriggerRef = useRef('');
+    const prevChatIdRef = useRef<string>('');
+
+    // Handle chat changes - join/leave rooms and mark as read
+    useEffect(() => {
+        if (selectedChatId && selectedChatId !== prevChatIdRef.current) {
+            // Leave previous chat room if any
+            if (
+                prevChatIdRef.current &&
+                prevChatIdRef.current !== selectedChatId
+            ) {
+                leaveChatRoom(prevChatIdRef.current);
+            }
+
+            // Join new chat room
+            joinChatRoom(selectedChatId as string);
+
+            // Reset page and scroll state
+            setCurrentPageLocal(1);
+            dispatch(setCurrentPage(1));
+            setFetchedMoreLocal(false);
+            dispatch(setFetchedMore(false));
+            setInitalLoaded(false);
+
+            // Mark chat as read
+            if (selectedChatId) {
+                dispatch(markRead({ chatId: selectedChatId as string }));
+            }
+
+            // Update ref
+            prevChatIdRef.current = selectedChatId as string;
+        }
+    }, [selectedChatId, dispatch]);
+
+    // Update reference index for message rendering
     useEffect(() => {
         setInitalLoaded(false);
         setRefIndex(
@@ -193,25 +248,25 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
         setInitalLoaded(true);
     }, [messages, fetchedMore]);
 
+    // Reset initial loaded state when changing chats
     useEffect(() => {
         setInitalLoaded(false);
     }, [selectedChatId]);
-    console.log({ Chats: chats, ID: selectedChatId });
+
+    // Update chat info when chats change
     useEffect(() => {
         if (chats && selectedChatId) {
             const findChat = chats?.find(
                 (chat: any) => chat?._id === selectedChatId,
             );
-            console.log({ findChat });
             if (findChat) {
                 setChat(findChat);
                 setChatInfo(findChat);
             }
         }
-        dispatch(markRead({ chatId: selectedChatId as string }));
-    }, [chats, selectedChatId, dispatch, setChatInfo]);
+    }, [chats, selectedChatId, setChatInfo]);
 
-    // Update this line
+    // Handle AI bot message clearing
     useEffect(() => {
         if (chat?.otherUser?._id === process.env.NEXT_PUBLIC_AI_BOT_ID) {
             if (messages?.length === 0) {
@@ -225,25 +280,125 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                 setAiIncomingMessage('');
             }
         }
-    }, [messages, chat, selectedChatId]);
+    }, [messages, chat]);
 
-    const chatContainerRef = useRef<HTMLDivElement>(null);
-    const lastMessageRef = useRef<HTMLDivElement>(null);
-
+    // Fetch messages effect
     useEffect(() => {
         if (selectedChatId) {
-            // Just mark as read and handle any local state resets
-            dispatch(markRead({ chatId: selectedChatId as string }));
+            setIsFetching(true);
+            dispatch(
+                updateChatMessages({
+                    chat: selectedChatId as string,
+                    messages: [],
+                }),
+            );
+            setIsLoading(true);
+            setError(null);
+            dispatch(setCurrentPage(1));
+
+            const options = {
+                page: currentPage,
+                chat: selectedChatId,
+                limit: 15,
+                query: searchQuery || '',
+            };
+
+            instance
+                .post(`/chat/messages`, options)
+                .then((res) => {
+                    setIsLoading(false);
+
+                    // Update message count in Redux
+                    dispatch(
+                        setMessageCount({
+                            chatId: selectedChatId as string,
+                            count: res.data.count,
+                        }),
+                    );
+
+                    dispatch(
+                        updateChatMessages({
+                            chat: res.data.chat._id,
+                            messages: res.data.messages,
+                        }),
+                    );
+
+                    setInitalLoaded(true);
+
+                    if (res.data?.messages?.length < 15) {
+                        setHasMore(false);
+                    } else {
+                        setHasMore(true);
+                    }
+
+                    dispatch(markRead({ chatId: selectedChatId as string }));
+                    setIsFetching(false);
+                })
+                .catch((err) => {
+                    setIsLoading(false);
+                    if (err && err.response) {
+                        setError(err?.response?.data?.error);
+                    }
+                    setInitalLoaded(true);
+                    setIsFetching(false);
+                });
         }
-    }, [selectedChatId, searchQuery, dispatch]);
+    }, [selectedChatId, reload, searchQuery, dispatch, currentPage]);
 
-    interface SentCallbackObject {
-        action: string;
-        message?: {
-            text: string;
+    // Function to load more messages
+    const fetchMore = (page: number) => {
+        const options = {
+            page: page + 1,
+            chat: selectedChatId,
+            limit: 15,
+            query: searchQuery || '',
         };
-    }
 
+        setIsFetching(true);
+
+        instance
+            .post(`/chat/messages`, options)
+            .then((res) => {
+                dispatch(setFetchedMore(true));
+                setFetchedMoreLocal(true);
+
+                dispatch(
+                    pushHistoryMessages({
+                        chat: res.data.chat?._id,
+                        messages: res.data.messages || [],
+                    }),
+                );
+
+                dispatch(setCurrentPage(page + 1));
+                setCurrentPageLocal(page + 1);
+
+                if (res.data?.messages?.length < 15) {
+                    setHasMore(false);
+                } else {
+                    setHasMore(true);
+                }
+
+                setRefIndex(messages?.length > 15 ? 15 : messages?.length - 1);
+                setIsFetching(false);
+                setRefIndex(15);
+
+                if (lastMessageRef.current) {
+                    lastMessageRef.current.scrollIntoView({
+                        behavior: 'instant',
+                        block: 'center',
+                        inline: 'nearest',
+                    });
+                }
+            })
+            .catch((err) => {
+                setIsFetching(false);
+                if (err?.response) {
+                    setError(err.response?.data?.error);
+                }
+            });
+    };
+
+    // Handle message sending callback
     const onSentCallback = async (object: SentCallbackObject) => {
         if (object?.action === 'create') {
             if (chat?.otherUser?._id === process.env.NEXT_PUBLIC_AI_BOT_ID) {
@@ -315,46 +470,104 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     setIsThinking(false);
                     console.error('Error:', error);
                 }
+            } else {
+                // For regular messages, scroll to bottom after sending
+                setTimeout(() => {
+                    if (lastMessageRef.current) {
+                        lastMessageRef.current.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'end',
+                        });
+                    }
+                }, 100);
+
+                // Trigger a refetch by updating reload state
+                setReload((prev) => prev + 1);
             }
         }
     };
 
-    const handleScroll = () => {
+    // Optimized scroll handling
+    const handleScroll = useCallback(() => {
         const div = chatContainerRef.current;
         if (div) {
+            // If we're near the top and have more messages to load
             if (
-                div.scrollHeight - div.clientHeight + div.scrollTop < 200 &&
+                div.scrollTop < 100 &&
                 !isFetching &&
-                currentPage * 20 < count &&
+                currentPage * 15 < count &&
                 initialLoaded
             ) {
                 fetchMore(currentPage);
             }
-        }
-    };
-    const prevTriggerRef = React.useRef('');
 
+            // If typing indicator is active and we're scrolled away, scroll into view
+            if (
+                isTyping &&
+                div.scrollHeight - div.scrollTop - div.clientHeight > 100
+            ) {
+                div.scrollTop = div.scrollHeight;
+            }
+        }
+    }, [currentPage, count, initialLoaded, isFetching, isTyping]);
+
+    // Auto-scroll handling for new messages
     useEffect(() => {
-        if (lastMessageRef.current) {
-            lastMessageRef.current.scrollIntoView({
-                behavior: 'instant',
-                block: 'end',
-                inline: 'nearest',
-            });
-        }
-        const messageKey =
-            messages?.length > 0 ? messages[messages.length - 1]?._id : 'empty';
-        const triggerKey = `${messageKey}-${reload}`;
-        if (prevTriggerRef.current !== triggerKey) {
-            prevTriggerRef.current = triggerKey;
-            setReloading(!reloading);
-        }
-    }, [messages, reload, setReloading, reloading]);
+        if (messages?.length > 0 && lastMessageRef.current) {
+            const lastMessage = messages[messages.length - 1];
+            const shouldScroll =
+                lastMessage?.sender?._id === userId ||
+                !initialLoaded ||
+                lastMessage?.sender?._id ===
+                    process.env.NEXT_PUBLIC_AI_BOT_ID ||
+                (chatContainerRef.current &&
+                    chatContainerRef.current.scrollHeight -
+                        chatContainerRef.current.scrollTop -
+                        chatContainerRef.current.clientHeight <
+                        100);
 
-    const draft =
-        Array.isArray(drafts) &&
-        drafts.length > 0 &&
-        drafts?.find((f: any) => f?.chat === selectedChatId);
+            if (shouldScroll) {
+                lastMessageRef.current.scrollIntoView({
+                    behavior: initialLoaded ? 'smooth' : 'instant',
+                    block: 'end',
+                    inline: 'nearest',
+                });
+
+                // Trigger reload for parent component
+                const messageKey = lastMessage?._id || 'empty';
+                const triggerKey = `${messageKey}-${reload}`;
+                if (prevTriggerRef.current !== triggerKey) {
+                    prevTriggerRef.current = triggerKey;
+                    setReloading(!reloading);
+                }
+            }
+        }
+    }, [messages, initialLoaded, userId, reload, setReloading, reloading]);
+
+    // Function to send typing indicator
+    const sendTypingIndicator = (isTyping: boolean) => {
+        // You can implement the typing indicator logic here
+        setIsTyping(isTyping);
+    };
+
+    // Render typing indicator component
+    const renderTypingIndicator = () => {
+        if (isTyping) {
+            return (
+                <div className='flex items-center gap-2 p-2 ml-3 mb-1'>
+                    <div className='typing-indicator'>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span className='text-sm text-muted-foreground'>
+                        Typing...
+                    </span>
+                </div>
+            );
+        }
+        return null;
+    };
 
     return (
         <>
@@ -372,18 +585,24 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     ) : (
                         <div>
                             {!isLoading && currentPage * 20 < count ? (
-                                <div className='text-center'>
-                                    <Button
-                                        disabled={isFetching}
-                                        className='bg-primary hover:bg-primary/90 text-white'
-                                        onClick={() => fetchMore(currentPage)}
-                                    >
-                                        {isFetching ? (
-                                            <Loader2 className='h-5 w-5 animate-spin' />
-                                        ) : (
-                                            'Load More'
-                                        )}{' '}
-                                    </Button>
+                                <div className='flex flex-row items-center gap-1 my-2'>
+                                    <div className='w-full h-[2px] bg-border rounded-xl'></div>
+                                    <div className='text-center'>
+                                        <Button
+                                            disabled={isFetching}
+                                            className='bg-primary-light rounded-full font-normal text-xs h-6 text-primary'
+                                            onClick={() =>
+                                                fetchMore(currentPage)
+                                            }
+                                        >
+                                            {isFetching ? (
+                                                <Loader2 className='h-5 w-5 animate-spin' />
+                                            ) : (
+                                                'Load More'
+                                            )}{' '}
+                                        </Button>
+                                    </div>
+                                    <div className='w-full h-[2px] bg-border rounded-xl'></div>
                                 </div>
                             ) : (
                                 <div className='p-2.5 text-center flex flex-col items-center gap-2.5'>
@@ -517,10 +736,14 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                                             setThreadMessage
                                                         }
                                                         ref={
-                                                            isLastMessage &&
-                                                            refIndex !== 0
+                                                            index ===
+                                                            messages.length - 1
                                                                 ? lastMessageRef
-                                                                : null
+                                                                : isLastMessage &&
+                                                                    refIndex !==
+                                                                        0
+                                                                  ? lastMessageRef
+                                                                  : null
                                                         }
                                                         bottomRef={
                                                             bottomTextRef
@@ -538,6 +761,10 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                 </>
                             )}
 
+                            {/* Display typing indicator */}
+                            {renderTypingIndicator()}
+
+                            {/* AI message streaming */}
                             {aiIncomingMessage && (
                                 <Message
                                     key={'randomid'}
@@ -570,6 +797,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     onSentCallback={onSentCallback}
                     setProfileInfoShow={setProfileInfoShow}
                     profileInfoShow={profileInfoShow}
+                    sendTypingIndicator={sendTypingIndicator}
                 />
             )}
 
@@ -582,15 +810,54 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                 />
             )}
 
-            {/* {editMessage && chat && (
+            {editMessage && chat && (
                 <EditMessageModal
                     chat={chat}
                     selectedMessage={editMessage}
                     handleCloseEdit={() => setEditMessage(null)}
                 />
-            )} */}
+            )}
         </>
     );
 };
+
+// Add CSS for the typing indicator
+const typingIndicatorCss = `
+.typing-indicator {
+  display: flex;
+  align-items: center;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  background: #3B82F6;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 1px;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-5px);
+  }
+}
+`;
 
 export default PopUpChatBody;
