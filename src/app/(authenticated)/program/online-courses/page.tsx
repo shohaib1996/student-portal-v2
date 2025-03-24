@@ -45,10 +45,30 @@ const page = () => {
 
             <Tabs defaultValue='all'>
                 <TabsList>
-                    <TabsTrigger value='all'>All</TabsTrigger>
-                    <TabsTrigger value='active'>Active</TabsTrigger>
-                    <TabsTrigger value='pending'>Pending</TabsTrigger>
-                    <TabsTrigger value='inactive'>Inactive</TabsTrigger>
+                    <TabsTrigger
+                        value='all'
+                        className='data-[state=active]:bg-primary'
+                    >
+                        All
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value='active'
+                        className='data-[state=active]:bg-primary'
+                    >
+                        Active
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value='pending'
+                        className='data-[state=active]:bg-primary'
+                    >
+                        Pending
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value='inactive'
+                        className='data-[state=active]:bg-primary'
+                    >
+                        Inactive
+                    </TabsTrigger>
                 </TabsList>
                 <TabsContent value='all'>{renderCourses(courses)}</TabsContent>
                 <TabsContent value='active'>

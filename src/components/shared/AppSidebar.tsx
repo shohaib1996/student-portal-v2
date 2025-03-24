@@ -40,6 +40,8 @@ import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'nextjs-toploader/app';
+import { Button } from '../ui/button';
+import UniversitySectionOpenButton from '../global/SelectModal/buttons/university-section-open-button';
 
 export type TLoookup = {
     data: any;
@@ -177,6 +179,14 @@ export function AppSidebar() {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
+                            <SidebarMenuItem className='border rounded-sm'>
+                                <SidebarMenuButton
+                                    className='p-0 m-0 rounded-sm'
+                                    tooltip='select your company'
+                                >
+                                    <UniversitySectionOpenButton />
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton tooltip={'Dashboard'}>
                                     <FolderOpen size={22} />

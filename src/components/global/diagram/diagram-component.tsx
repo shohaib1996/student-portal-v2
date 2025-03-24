@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import '@excalidraw/excalidraw/index.css';
+import { useTheme } from 'next-themes';
 
 // Dynamic import for client-side only rendering
 const Excalidraw = dynamic(
@@ -25,6 +26,8 @@ export default function DiagramComponent({
     zoom = 1,
     viewMode = true,
 }: DiagramComponentProps) {
+    const { theme } = useTheme();
+
     let parsedDiagram = null;
 
     if (diagram) {
@@ -73,6 +76,7 @@ export default function DiagramComponent({
                 }}
             >
                 <Excalidraw
+                    theme={theme === 'dark' ? 'dark' : 'light'}
                     initialData={{
                         elements: parsedDiagram?.diagram || [],
                         appState: {

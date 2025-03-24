@@ -1,4 +1,5 @@
 'use client';
+
 import GlobalHeader from '@/components/global/GlobalHeader';
 import React from 'react';
 import RightButton from './RightButton';
@@ -21,6 +22,7 @@ import { TProgram, TProgramMain, TProgressChart } from '@/types';
 
 const Program = () => {
     const { data, isLoading, isError } = useMyProgramQuery({});
+
     const {
         data: myProgress,
         isLoading: isProgressLoading,

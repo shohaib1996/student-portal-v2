@@ -17,6 +17,7 @@ import notificationReducer from './features/notificationReducer';
 import navigationReducer from './features/navigationReducer';
 import programReducer from './features/programReducer';
 import calendarReducer from './features/calendarReducer';
+import selectionModalReducer from './features/selectionModalSlice';
 
 // Create a noop storage for SSR
 const createNoopStorage = () => {
@@ -53,6 +54,7 @@ export const reducer = {
     navigations: navigationReducer,
     program: programReducer,
     calendar: calendarReducer,
+    selectionModal: selectionModalReducer,
 };
 
 // Middleware configuration

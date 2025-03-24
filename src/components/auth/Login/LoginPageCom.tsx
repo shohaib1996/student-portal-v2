@@ -133,7 +133,7 @@ const LoginPageCom = () => {
                     </div>
                     <div className='mt-common flex items-center justify-center gap-common'></div>
                     <div className='text-center text-gray'>
-                        Don’t have an account? &nbsp;
+                        Don&apos;t have an account? &nbsp;
                         <Link
                             className='font- text-lg text-primary'
                             href='/auth/register'

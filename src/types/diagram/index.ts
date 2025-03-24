@@ -1,5 +1,6 @@
 export interface DiagramType {
-    attachments: string[];
+    attachments?: string[];
+    description: string[];
     programs: string[];
     sessions: string[];
     users: string[];
