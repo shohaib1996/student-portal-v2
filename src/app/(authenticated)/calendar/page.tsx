@@ -10,12 +10,21 @@ import MyInvitationsIcon from '@/components/svgs/calendar/MyInvitationsIcon';
 import { Button } from '@/components/ui/button';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetOverlay, SheetPortal, SheetTrigger } from '@/components/ui/sheet';
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetHeader,
+    SheetOverlay,
+    SheetPortal,
+    SheetTrigger,
+} from '@/components/ui/sheet';
 import { CalendarIcon, Plus, X } from 'lucide-react';
 import React, { useState } from 'react';
 
 import * as SheetPrimitive from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 interface CustomSheetContentProps
     extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content> {
@@ -45,6 +54,8 @@ CustomSheetContent.displayName = 'CustomSheetContent';
 
 const CalendarPage = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
+
+    const router = useRouter();
     return (
         <div className='pt-2'>
             <GlobalHeader
@@ -60,6 +71,9 @@ const CalendarPage = () => {
                             My Invitaions
                         </Button>
                         <Button
+                            onClick={() =>
+                                router.push('/calendar/availability')
+                            }
                             size={'icon'}
                             tooltip='My Availability'
                             className='text-dark-gray fill-none stroke-none'
@@ -87,17 +101,28 @@ const CalendarPage = () => {
                         </div>
                         <CustomSheetContent className='p-0'>
                             <ScrollArea className='h-full'>
-                                <div className="mx-auto w-full max-w-sm p-4 max-[1000px]:p-0">
+                                <div className='mx-auto w-full max-w-sm p-4 max-[1000px]:p-0'>
                                     <SheetHeader className='flex-row items-center justify-between w-full p-2 border-b border-forground-border'>
-                                        <h2 className='text-dark-gray font-semibold'>Calendar Filters</h2>
+                                        <h2 className='text-dark-gray font-semibold'>
+                                            Calendar Filters
+                                        </h2>
                                         <SheetClose asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                <X className="h-4 w-4" />
-                                                <span className="sr-only">Close</span>
+                                            <Button
+                                                variant='ghost'
+                                                size='icon'
+                                                className='h-8 w-8'
+                                            >
+                                                <X className='h-4 w-4' />
+                                                <span className='sr-only'>
+                                                    Close
+                                                </span>
                                             </Button>
                                         </SheetClose>
                                     </SheetHeader>
-                                    <CalendarSidebar currentDate={currentDate} onDateSelect={setCurrentDate} />
+                                    <CalendarSidebar
+                                        currentDate={currentDate}
+                                        onDateSelect={setCurrentDate}
+                                    />
                                 </div>
                             </ScrollArea>
                         </CustomSheetContent>

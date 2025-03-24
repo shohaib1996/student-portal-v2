@@ -20,14 +20,16 @@ const DiagramCard = ({ diagram, onClick, index }: DiagramCardProps) => {
         <div className='border rounded-lg overflow-hidden bg-background'>
             <div className='relative'>
                 <div className='h-40 overflow-hidden'>
-                    {typeof diagram?.attachments[0] === 'string' &&
+                    {Array.isArray(diagram?.attachments) &&
+                    diagram?.attachments[0] &&
+                    typeof diagram?.attachments[0] === 'string' &&
                     diagram?.attachments[0].includes('appState') ? (
                         <div className=''>
                             <DiagramComponent
                                 height='160px'
                                 zoom={0.1}
-                                diagram={diagram?.attachments}
-                                viewMode={false}
+                                diagram={diagram?.description}
+                                viewMode={true}
                             />
                         </div>
                     ) : (
@@ -37,7 +39,7 @@ const DiagramCard = ({ diagram, onClick, index }: DiagramCardProps) => {
                                 height={1080}
                                 className='w-full h-[150px] object-cover'
                                 src={
-                                    diagram?.attachments[0] ||
+                                    diagram?.attachments?.[0] ||
                                     '/images/diagram-thumbnail.png'
                                 }
                                 alt={diagram?.title}

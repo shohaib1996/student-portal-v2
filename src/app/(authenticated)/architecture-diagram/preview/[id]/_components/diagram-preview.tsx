@@ -87,7 +87,7 @@ const DiagramPreviewComponent = () => {
                 <DiagramComponent
                     height={isFullScreen ? '100vh' : '720px'}
                     diagram={diagram?.attachments as string[]}
-                    viewMode={false}
+                    viewMode={true}
                 />
             </div>
 

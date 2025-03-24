@@ -24,6 +24,7 @@ import { useTheme } from 'next-themes';
 import GlobalDropdown, { DropdownItems } from '../global/GlobalDropdown';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { getInitialsFromName } from '@/utils/common';
+import CourseSectionOpenButton from '../global/SelectModal/buttons/course-section-open-button';
 
 const Navbar = () => {
     const dispatch = useAppDispatch();
@@ -121,7 +122,7 @@ const Navbar = () => {
                     prefix={<Search size={18} />}
                 />
                 <div className='flex gap-4 items-center'>
-                    <Button
+                    {/* <Button
                         variant={'secondary'}
                         className='rounded-full  text-dark-gray max-w-[200px]'
                         onClick={() => dispatch(setCompanySwitcher(true))}
@@ -133,7 +134,10 @@ const Navbar = () => {
                         <p>
                             <ChevronDown size={16} />
                         </p>
-                    </Button>
+                    </Button> */}
+
+                    <CourseSectionOpenButton />
+
                     <Button variant={'primary_light'}>
                         <Link href='/docs' target='_blank'>
                             Manual

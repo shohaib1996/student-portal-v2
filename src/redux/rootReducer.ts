@@ -17,21 +17,28 @@ import notificationReducer from './features/notificationReducer';
 import navigationReducer from './features/navigationReducer';
 import programReducer from './features/programReducer';
 import calendarReducer from './features/calendarReducer';
+import selectionModalReducer from './features/selectionModalSlice';
+import localforage from 'localforage';
 
-// Create a noop storage for SSR
-const createNoopStorage = () => {
-    return {
-        getItem: async () => null,
-        setItem: async () => {},
-        removeItem: async () => {},
-    };
+const getStorage = () => {
+    if (typeof window !== 'undefined') {
+        try {
+            localforage.config({
+                driver: localforage.INDEXEDDB,
+                name: 'orbittask-project',
+            });
+            return localforage;
+        } catch (error) {
+            console.warn(
+                'IndexedDB is not available. Falling back to local storage.',
+            );
+            return createWebStorage('local'); // Returns an object matching redux-persist's storage API
+        }
+    }
+    return createWebStorage('local'); // SSR fallback
 };
 
-// Create storage based on the environment
-const storage =
-    typeof window !== 'undefined'
-        ? createWebStorage('local')
-        : createNoopStorage();
+const storage = getStorage();
 
 // Persist configuration for auth reducer
 const authPersistConfig = {
@@ -39,20 +46,27 @@ const authPersistConfig = {
     storage, // Use the appropriate storage
 };
 
+const chatPersistConfig = {
+    key: 'chat',
+    storage,
+};
+
 // Persisted auth reducer
 const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
+const persistedChatReducer = persistReducer(chatPersistConfig, ChatReducer);
 
 // Combine reducers
 export const reducer = {
     [baseApi.reducerPath]: baseApi.reducer,
     auth: persistedAuthReducer,
     community: communityReducer,
-    chat: ChatReducer,
+    chat: persistedChatReducer,
     company: comapnyReducer,
     notification: notificationReducer,
     navigations: navigationReducer,
     program: programReducer,
     calendar: calendarReducer,
+    selectionModal: selectionModalReducer,
 };
 
 // Middleware configuration
