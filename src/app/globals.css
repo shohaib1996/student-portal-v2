@@ -10,8 +10,8 @@ body {
 
 @layer base {
     :root {
-        --background: 0 0% 100%;
-        --foreground: 0, 0%, 96%;
+        --background: 0, 0%, 96%;
+        --foreground: 0 0% 100%;
         --card: 0 0% 100%;
         --card-foreground: 0 0% 3.9%;
         --popover: 0 0% 100%;
@@ -39,7 +39,7 @@ body {
         /* custom color */
 
         /* shadcn sidebar colors */
-        --sidebar-background: 0 0% 98%;
+        --sidebar-background: 0 0% 100%;
         --sidebar-foreground: 240 5.3% 26.1%;
         --sidebar-primary: 240 5.9% 10%;
         --sidebar-primary-foreground: 0 0% 98%;
@@ -64,8 +64,8 @@ body {
         --primary-white: 226, 94%, 42%;
     }
     .dark {
-        --background: 192, 6%, 17%;
-        --foreground: 0 0% 7.1%;
+        --background: 0 0% 7.1%;
+        --foreground: 192, 6%, 17%;
         --card: 192, 6%, 17%;
         --card-foreground: 0 0% 98%;
         --popover: 192, 6%, 17%;
@@ -92,7 +92,7 @@ body {
         /* custom color */
 
         /* shadcn sidebar colros */
-        --sidebar-background: 240 5.9% 10%;
+        --sidebar-background: 192, 6%, 17%;
         --sidebar-foreground: 240 4.8% 95.9%;
         --sidebar-primary: 224.3 76.3% 48%;
         --sidebar-primary-foreground: 0 0% 100%;

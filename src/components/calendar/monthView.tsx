@@ -44,17 +44,23 @@ export function MonthView({ currentDate }: MonthViewProps) {
     const monthEnd = endOfMonth(currentDate);
     const startDate = subDays(monthStart, getDay(monthStart));
     const { isOpen, openPopover } = useEventPopover();
-    const days = [];
+    const days: Date[] = [];
     let day = startDate;
     const router = useRouter();
     const dispatch = useAppDispatch();
+
+    // Create 6 weeks (42 days) to ensure we have enough rows for any month
+    for (let i = 0; i < 42; i++) {
+        days.push(day);
+        day = addDays(day, 1);
+    }
 
     const { eventFilter, todoFilter, priorityFilter, rolesFilter } =
         useAppSelector((s) => s.calendar);
 
     const { data } = useGetMyEventsQuery({
-        from: monthStart.toISOString(),
-        to: monthEnd.toISOString(),
+        from: days[0]?.toISOString(),
+        to: days[41]?.toISOString(),
         statuses: eventFilter,
         states: todoFilter,
         priorities: priorityFilter,
@@ -68,12 +74,6 @@ export function MonthView({ currentDate }: MonthViewProps) {
     };
 
     const events: TEvent[] = (data?.events as TEvent[]) || [];
-
-    // Create 6 weeks (42 days) to ensure we have enough rows for any month
-    for (let i = 0; i < 42; i++) {
-        days.push(day);
-        day = addDays(day, 1);
-    }
 
     // Get events for a specific day
     const getEventsForDay = (day: Date) => {
