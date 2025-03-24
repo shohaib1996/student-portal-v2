@@ -417,6 +417,7 @@ const CreateEventModal = () => {
                             </Button>
                         </div>
                         <DayView
+                            onModal
                             onChange={(date) => {
                                 if (tab === 'event') {
                                     eventForm.setValue(
