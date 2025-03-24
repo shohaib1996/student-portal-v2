@@ -1,0 +1,253 @@
+'use client';
+import FilterModal from '@/components/global/FilterModal/FilterModal';
+import GlobalHeader from '@/components/global/GlobalHeader';
+import GlobalPagination from '@/components/global/GlobalPagination';
+import AvailabilityIcon from '@/components/svgs/calendar/Availability';
+import MyInvitationsIcon from '@/components/svgs/calendar/MyInvitationsIcon';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Bell, ChevronDown, Clock, Ellipsis, Plus } from 'lucide-react';
+import Image from 'next/image';
+import React, { useState } from 'react';
+
+// Define the priority types
+type PriorityType = 'High' | 'Medium' | 'Low';
+// Define the event interface
+interface Event {
+    id: string;
+    title: string;
+    date: string;
+    time: string;
+    purpose: string;
+    priority: PriorityType;
+    timeRemaining: string;
+    meetingLink: string;
+    attendees: string[];
+}
+
+const AllEvents = () => {
+    const [limit, setLimit] = useState(10);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+
+    const events: Event[] = Array.from({ length: 20 }, (_, i) => ({
+        id: `event-${i + 1}`,
+        title: 'UI Designer Update',
+        date: 'Tuesday - Mar 04, 2025',
+        time: '10:30 AM',
+        purpose:
+            i % 3 === 0
+                ? "What you're going to get from this course"
+                : 'This is my testing assignment.',
+        priority: i % 4 === 0 ? 'High' : i % 3 === 0 ? 'Low' : 'Medium',
+        timeRemaining: '30 min before',
+        meetingLink: 'meet.google.com/vtg-qjwd-lmn',
+        attendees: [
+            '/images/author.png',
+            '/images/author.png',
+            '/images/author.png',
+        ],
+    }));
+
+    return (
+        <>
+            <GlobalHeader
+                title={
+                    <h1>
+                        All Events{' '}
+                        <span className='text-primary-white'>
+                            (as an attendee)
+                        </span>
+                    </h1>
+                }
+                subTitle='Plan, Organize, and Stay On Track with all events.'
+                buttons={
+                    <div className='flex gap-2'>
+                        <Button
+                            className='text-dark-gray fill-none stroke-none'
+                            variant={'secondary'}
+                            icon={<MyInvitationsIcon />}
+                        >
+                            My Invitaions
+                        </Button>
+                        <Button
+                            size={'icon'}
+                            tooltip='My Availability'
+                            className='text-dark-gray fill-none stroke-none'
+                            icon={<AvailabilityIcon />}
+                            variant={'secondary'}
+                        ></Button>
+                        <FilterModal
+                            value={[]}
+                            columns={[]}
+                            onChange={() => null}
+                        />
+                        <Button icon={<Plus size={18} />}>Create New</Button>
+                    </div>
+                }
+            />
+
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-2'>
+                {events.map((event, i) => (
+                    <div
+                        key={event.id}
+                        className='bg-foreground rounded-lg border border-border-primary-light overflow-hidden py-2 px-2.5'
+                    >
+                        {/* Card Header */}
+                        <div className='flex justify-between items-center'>
+                            <h3 className='text-sm font-medium text-black'>
+                                UI Designer Update
+                            </h3>
+                            <div className='flex items-center gap-1'>
+                                <Ellipsis
+                                    size={18}
+                                    className='text-gray cursor-pointer'
+                                />
+                                <ChevronDown
+                                    size={18}
+                                    className='text-gray cursor-pointer'
+                                />
+                            </div>
+                        </div>
+
+                        {/* Divider */}
+                        <Separator className='mt-1 mb-2' />
+
+                        {/* Card Content */}
+                        <div className='space-y-2'>
+                            <div className='flex justify-between items-start'>
+                                <div className='flex items-center gap-1'>
+                                    <Clock
+                                        size={12}
+                                        className='text-dark-gray'
+                                    />
+                                    <span className='text-dark-gray text-xs text-nowrap'>
+                                        Due: {event.date} at {event.time}
+                                    </span>
+                                </div>
+                                <div className='flex flex-col items-end'>
+                                    <div className='flex items-center gap-2'>
+                                        <span className='text-dark-gray text-xs font-semibold'>
+                                            Priority:
+                                        </span>
+                                        {event.priority === 'High' && (
+                                            <span className='text-red-500 flex items-center gap-1 text-xs font-medium'>
+                                                <Image
+                                                    src='/calendar/events/high.png'
+                                                    alt='High Priority'
+                                                    width={12}
+                                                    height={12}
+                                                />
+                                                High
+                                            </span>
+                                        )}
+                                        {event.priority === 'Medium' && (
+                                            <span className='text-amber-500 flex items-center gap-1 text-xs font-medium'>
+                                                <Image
+                                                    src='/calendar/events/medium.png'
+                                                    alt='Medium Priority'
+                                                    width={12}
+                                                    height={12}
+                                                />
+                                                Medium
+                                            </span>
+                                        )}
+                                        {event.priority === 'Low' && (
+                                            <span className='text-green-500 flex items-center gap-1 text-xs font-medium'>
+                                                <Image
+                                                    src='/calendar/events/low.png'
+                                                    alt='Low Priority'
+                                                    width={12}
+                                                    height={12}
+                                                />
+                                                Low
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className='flex justify-between items-start'>
+                                <div className='flex items-start gap-1'>
+                                    <span className='text-dark-gray text-xs font-semibold'>
+                                        Purpose:
+                                    </span>
+                                    {i % 3 === 0 ? (
+                                        <a
+                                            href='#'
+                                            className='text-primary-white text-xs font-semibold underline'
+                                        >
+                                            {event.purpose}
+                                        </a>
+                                    ) : (
+                                        <p className='text-dark-gray text-xs'>
+                                            {event.purpose}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className='flex items-start gap-1'>
+                                    <Bell
+                                        size={12}
+                                        className='text-dark-gray'
+                                    />
+                                    <span className='text-dark-gray text-xs text-nowrap'>
+                                        30 min before
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className='flex justify-between items-center'>
+                                <div className='flex items-center gap-1'>
+                                    <Image
+                                        src='/calendar/events/meet.png'
+                                        alt='High Priority'
+                                        width={12}
+                                        height={12}
+                                    />
+                                    <a
+                                        href='https://meet.google.com/vtq-qjwd-lmn'
+                                        target='_blank'
+                                        rel='noopener noreferrer'
+                                        className='text-dark-gray font-semibold underline text-xs'
+                                    >
+                                        meet.google.com/vtq-qjwd-lmn
+                                    </a>
+                                </div>
+                                <div className='flex -space-x-2'>
+                                    {[1, 2, 3, 4].map((num) => (
+                                        <div
+                                            key={num}
+                                            className='w-8 h-8 rounded-full border-2 border-border overflow-hidden'
+                                        >
+                                            <Image
+                                                src='/images/author.png'
+                                                alt={`Attendee ${num}`}
+                                                width={32}
+                                                height={32}
+                                                className='object-cover'
+                                            />
+                                        </div>
+                                    ))}
+                                    <div className='w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-medium border-2 border-border-primary-light'>
+                                        +5
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <GlobalPagination
+                totalItems={events.length || 0}
+                currentPage={currentPage}
+                itemsPerPage={limit}
+                onPageChange={(page, newLimit) => {
+                    setCurrentPage(page);
+                    setLimit(newLimit);
+                }}
+            />
+        </>
+    );
+};
+
+export default AllEvents;

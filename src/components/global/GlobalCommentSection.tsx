@@ -58,7 +58,7 @@ export function GlobalCommentsSection({
     }
 
     return (
-        <div className='mt-6 border-t pt-4'>
+        <div className='mt-2 border-t pt-2'>
             <h3 className='mb-3 text-sm font-medium'>
                 Comments ({commentsToDisplay.length})
             </h3>
