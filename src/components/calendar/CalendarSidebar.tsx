@@ -39,11 +39,14 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import {
     setEventFilter,
     setHolidayFilter,
+    setPriorityFilter,
+    setRolesFilter,
     setTodoFilter,
 } from '@/redux/features/calendarReducer';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
 import { TEvent } from '@/types/calendar/calendarTypes';
 import dayjs from 'dayjs';
+import { Skeleton } from '../ui/skeleton';
 
 interface CalendarAccordionsProps {
     currentDate: Date;
@@ -102,14 +105,21 @@ const todoOptions: {
         icon: <DeniedIcon />,
     },
 ];
-const holidayOptions = [
+const priorityOptions: {
+    value: 'low' | 'medium' | 'high';
+    label: string;
+}[] = [
     {
-        value: 'holidays',
-        label: 'Holidays',
+        value: 'low',
+        label: 'Low',
     },
     {
-        value: 'weekends',
-        label: 'Weekends',
+        value: 'medium',
+        label: 'Medium',
+    },
+    {
+        value: 'high',
+        label: 'High',
     },
 ];
 
@@ -136,7 +146,7 @@ export function CalendarSidebar({
 
     const [sentFilter, setSentFilter] = useState('');
     const [selectedWeek, setSelectedWeek] = useState(startOfWeek(currentDate));
-    const { data } = useGetMyEventsQuery({
+    const { data, isLoading } = useGetMyEventsQuery({
         from: selectedWeek.toISOString(), // Start of the day (00:00:00)
         to: endOfWeek(selectedWeek).toISOString(), // End of the day (23:59:59.999)
     });
@@ -197,7 +207,7 @@ export function CalendarSidebar({
                     return false;
                 }
             } else if (type === 'holiday') {
-                const exist = (holidayFilter as string[]).find(
+                const exist = (priorityFilter as string[]).find(
                     (f) => f === value,
                 );
                 if (exist) {
@@ -207,7 +217,7 @@ export function CalendarSidebar({
                 }
             }
         },
-        [eventFilter, todoFilter, holidayFilter],
+        [eventFilter, todoFilter, priorityFilter],
     );
 
     return (
@@ -311,56 +321,73 @@ export function CalendarSidebar({
                                                     'EEEE, MMM d',
                                                 )}
                                             </div>
-                                            {dayEvents.map((event) => (
-                                                <div
-                                                    key={event._id}
-                                                    style={{
-                                                        borderColor:
-                                                            event.eventColor,
-                                                    }}
-                                                    className={cn(
-                                                        'p-2 mb-1 rounded flex gap-2 relative border-l-4 bg-foreground text-xs',
-                                                        event.eventColor,
+                                            {isLoading ? (
+                                                <div className='space-y-1'>
+                                                    {Array.from(
+                                                        { length: 3 },
+                                                        (_, i) => (
+                                                            <div
+                                                                key={i}
+                                                                className='w-full h-12 bg-foreground rounded-md'
+                                                            />
+                                                        ),
                                                     )}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            backgroundColor:
-                                                                event.eventColor,
-                                                            opacity: 0.1,
-                                                        }}
-                                                        className='absolute size-full top-0 left-0 z-10'
-                                                    ></div>
-                                                    <div className='text-dark-gray text-[10px] whitespace-nowrap'>
-                                                        <p>
-                                                            {dayjs(
-                                                                event?.startTime,
-                                                            ).format('hh:mm A')}
-                                                        </p>
-                                                        <p>
-                                                            {dayjs(
-                                                                event.endTime,
-                                                            ).diff(
-                                                                dayjs(
-                                                                    event.startTime,
-                                                                ),
-                                                                'minutes',
-                                                            )}{' '}
-                                                            min
-                                                        </p>
-                                                    </div>
-                                                    <div className='font-medium truncate'>
-                                                        <p>{event.title}</p>
-                                                        <p>
-                                                            {
-                                                                event.organizer
-                                                                    ?.email
-                                                            }
-                                                        </p>
-                                                    </div>
-                                                    <div className='text-gray'></div>
                                                 </div>
-                                            ))}
+                                            ) : (
+                                                dayEvents.map((event) => (
+                                                    <div
+                                                        key={event._id}
+                                                        style={{
+                                                            borderColor:
+                                                                event.eventColor,
+                                                        }}
+                                                        className={cn(
+                                                            'p-2 mb-1 rounded flex gap-2 relative border-l-4 bg-foreground text-xs',
+                                                            event.eventColor,
+                                                        )}
+                                                    >
+                                                        <div
+                                                            style={{
+                                                                backgroundColor:
+                                                                    event.eventColor,
+                                                                opacity: 0.1,
+                                                            }}
+                                                            className='absolute size-full top-0 left-0 z-10'
+                                                        ></div>
+                                                        <div className='text-dark-gray text-[10px] whitespace-nowrap'>
+                                                            <p>
+                                                                {dayjs(
+                                                                    event?.startTime,
+                                                                ).format(
+                                                                    'hh:mm A',
+                                                                )}
+                                                            </p>
+                                                            <p>
+                                                                {dayjs(
+                                                                    event.endTime,
+                                                                ).diff(
+                                                                    dayjs(
+                                                                        event.startTime,
+                                                                    ),
+                                                                    'minutes',
+                                                                )}{' '}
+                                                                min
+                                                            </p>
+                                                        </div>
+                                                        <div className='font-medium truncate'>
+                                                            <p>{event.title}</p>
+                                                            <p>
+                                                                {
+                                                                    event
+                                                                        .organizer
+                                                                        ?.email
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                        <div className='text-gray'></div>
+                                                    </div>
+                                                ))
+                                            )}
                                         </div>
                                     ))
                             ) : (
@@ -375,38 +402,28 @@ export function CalendarSidebar({
 
             {/* Events Accordion */}
             <div className='border-b'>
-                <button
-                    className='flex items-center justify-between w-full p-3 text-sm font-medium text-left'
-                    onClick={() => toggleSection('events2')}
-                >
+                <button className='flex items-center justify-between w-full p-3 text-sm font-medium text-left'>
                     <div className='flex gap-1 items-center w-full text-dark-gray'>
-                        <ChevronDown
-                            className={cn(
-                                'h-4 w-4 transition-transform',
-                                expanded.events2 ? 'rotate-180' : '',
-                            )}
-                        />
                         <EventsIcon />
                         <span>Events (as an organizer)</span>
+                        <Checkbox
+                            onClick={(e) => e.stopPropagation()}
+                            className='ms-auto'
+                            checked={rolesFilter.includes('organizer')}
+                            onCheckedChange={(val) =>
+                                dispatch(
+                                    setRolesFilter(
+                                        val === true
+                                            ? [...rolesFilter, 'organizer']
+                                            : rolesFilter.filter(
+                                                  (r) => r !== 'organizer',
+                                              ),
+                                    ),
+                                )
+                            }
+                        />
                     </div>
                 </button>
-
-                {expanded.events2 && (
-                    <div className='p-3 pt-0 space-y-2'>
-                        <div className='flex justify-between items-center'>
-                            <div className='flex gap-2 items-center text-sm text-gray'>
-                                <Send size={16} className='text-primary' />
-                                Sent
-                            </div>
-                            <Checkbox
-                                checked={sentFilter === 'sent'}
-                                onCheckedChange={(val) =>
-                                    setSentFilter(val === true ? 'sent' : '')
-                                }
-                            />
-                        </div>
-                    </div>
-                )}
             </div>
             {/* Events Accordion */}
             <div className='border-b'>
@@ -427,15 +444,15 @@ export function CalendarSidebar({
                             onClick={(e) => e.stopPropagation()}
                             className='ms-auto'
                             checked={eventFilter.length === 5}
-                            onCheckedChange={(val) =>
+                            onCheckedChange={(val) => {
                                 dispatch(
                                     setEventFilter(
                                         val === true
                                             ? eventOptions.map((op) => op.value)
                                             : [],
                                     ),
-                                )
-                            }
+                                );
+                            }}
                         />
                     </div>
                 </button>
@@ -544,7 +561,7 @@ export function CalendarSidebar({
                     </div>
                 )}
             </div>
-            {/* Holiday Accordion */}
+            {/* priority Accordion */}
             <div className='border-b'>
                 <button
                     className='flex items-center justify-between w-full p-3 text-sm font-medium text-left'
@@ -558,16 +575,16 @@ export function CalendarSidebar({
                             )}
                         />
                         <HolidayIcon />
-                        <span className='ps-2'>Holidays</span>
+                        <span className='ps-2'>Priority</span>
                         <Checkbox
                             onClick={(e) => e.stopPropagation()}
                             className='ms-auto'
-                            checked={holidayFilter.length === 2}
+                            checked={priorityFilter.length === 3}
                             onCheckedChange={(val) =>
                                 dispatch(
-                                    setHolidayFilter(
+                                    setPriorityFilter(
                                         val === true
-                                            ? holidayOptions.map(
+                                            ? priorityOptions.map(
                                                   (op) => op.value,
                                               )
                                             : [],
@@ -580,7 +597,7 @@ export function CalendarSidebar({
 
                 {expanded.holiday && (
                     <div className='p-3 pt-0 space-y-2'>
-                        {holidayOptions.map((item) => (
+                        {priorityOptions.map((item) => (
                             <div
                                 className='flex justify-between items-center'
                                 key={item.value}
@@ -595,13 +612,13 @@ export function CalendarSidebar({
                                     )}
                                     onCheckedChange={(val) =>
                                         dispatch(
-                                            setHolidayFilter(
+                                            setPriorityFilter(
                                                 val === true
                                                     ? [
-                                                          ...holidayFilter,
+                                                          ...priorityFilter,
                                                           item.value,
                                                       ]
-                                                    : holidayFilter.filter(
+                                                    : priorityFilter.filter(
                                                           (f) =>
                                                               f !== item.value,
                                                       ),

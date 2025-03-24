@@ -86,13 +86,13 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
         <div className='flex-1 overflow-auto'>
             <div className='min-w-full'>
                 {/* Day headers */}
-                <div className='grid grid-cols-[60px_1fr_1fr_1fr_1fr_1fr_1fr_1fr] border-b sticky top-0 bg-background z-10'>
+                <div className='grid grid-cols-[60px_repeat(7,minmax(0,1fr))] border-b sticky top-0 bg-background z-10'>
                     <div className='p-2 text-center border-r'></div>
                     {days.map((day, index) => (
                         <div
                             key={index}
                             className={cn(
-                                'p-2 text-center border-r last:border-r-0',
+                                'p-2 text-center overflow-hidden border-r last:border-r-0',
                                 isToday(day) && 'bg-primary-light',
                             )}
                         >
@@ -107,7 +107,7 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
                 {displayHours.map((hour) => (
                     <div
                         key={hour}
-                        className='grid grid-cols-[60px_1fr_1fr_1fr_1fr_1fr_1fr_1fr] border-b min-h-[60px]'
+                        className='grid grid-cols-[60px_repeat(7,minmax(0,1fr))] border-b min-h-[60px]'
                     >
                         {/* Time column */}
                         <div className='p-2 text-right text-sm text-muted-foreground border-r'>
@@ -125,7 +125,7 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
                             <div
                                 key={dayIndex}
                                 className={cn(
-                                    'border-r last:border-r-0 p-1 relative cursor-pointer',
+                                    'border-r w-full last:border-r-0 p-1 relative cursor-pointer',
                                     isToday(day) && 'bg-primary-light',
                                 )}
                                 onClick={(e) =>

@@ -10,6 +10,8 @@ import DeniedIcon from '../svgs/calendar/DeniedIcon';
 import FinishedIcon from '../svgs/calendar/FinishedIcon';
 import TodoIcon from '../svgs/calendar/TodoIcon';
 import { useAppSelector } from '@/redux/hooks';
+import { Repeat } from 'lucide-react';
+import InProgressIcon from '../svgs/calendar/InProgressIcon';
 
 const EventButton = memo(({ event }: { event: TEvent }) => {
     const { user } = useAppSelector((s) => s.auth);
@@ -46,13 +48,15 @@ const EventButton = memo(({ event }: { event: TEvent }) => {
             }}
             key={event._id}
             className={cn(
-                'w-full flex items-center gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-foreground justify-start font-normal',
+                'flex w-full max-w-48 items-center h-fit gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-foreground justify-start font-normal',
             )}
         >
             {}
             <p>
                 {event.type === 'task' ? (
-                    <TodoIcon />
+                    <GlobalTooltip tooltip='Task'>
+                        <TodoIcon />
+                    </GlobalTooltip>
                 ) : (
                     renderStatus(myParticipantData?.responseStatus)
                 )}
@@ -60,6 +64,13 @@ const EventButton = memo(({ event }: { event: TEvent }) => {
             <GlobalTooltip tooltip={event?.title}>
                 <h2 className='truncate'>{event?.title}</h2>
             </GlobalTooltip>
+            {event.type === 'event' &&
+                (event.recurrence?.isRecurring || event.seriesId) && (
+                    <GlobalTooltip tooltip='This is a recurring event'>
+                        <Repeat className='ml-auto' size={14} />
+                    </GlobalTooltip>
+                )}
+            {event.type === 'task' && <InProgressIcon />}
         </button>
     );
 });

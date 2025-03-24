@@ -39,6 +39,15 @@ const calendarSlice = createSlice({
             action: PayloadAction<TInitialState['eventFilter']>,
         ) => {
             state.eventFilter = action.payload;
+            if (action.payload.length > 0) {
+                if (!state.rolesFilter.includes('attendee')) {
+                    state.rolesFilter.push('attendee');
+                }
+            } else {
+                state.rolesFilter = state.rolesFilter.filter(
+                    (r) => r !== 'attendee',
+                );
+            }
         },
         setTodoFilter: (
             state,
