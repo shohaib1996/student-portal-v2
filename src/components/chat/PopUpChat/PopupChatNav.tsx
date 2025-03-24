@@ -29,11 +29,6 @@ import { getText } from '@/helper/utilities';
 import { instance } from '@/lib/axios/axiosInstance';
 import { toast } from 'sonner';
 
-// Import data
-import chats from '../chats.json';
-import onlineUsers from '../onlineUsers.json';
-import drafts from '../drafts.json';
-
 // Import side navigation
 import PopupSideNavigation from './PopupSideNavigation';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
@@ -47,6 +42,12 @@ import {
 
 // Import CreateCrowd component
 import CreateCrowd from '../Chatgroup/CreateCrowd';
+import {
+    ChatData,
+    useGetChatsQuery,
+    useGetOnlineUsersQuery,
+} from '@/redux/api/chats/chatApi';
+import { useDraftMessages } from '@/redux/hooks/chat/chatHooks';
 
 // Initialize dayjs
 dayjs.extend(relativeTime);
@@ -69,14 +70,6 @@ const ChatListSkeleton = () => (
     </div>
 );
 
-/**
- * Format date for chat messages
- */
-interface DateFormats {
-    'h:mm A': string;
-    'MMM DD, YY': string;
-}
-
 const formatDate = (date: string | Date | undefined): string => {
     if (!date) {
         return 'N/A';
@@ -95,67 +88,8 @@ const formatDate = (date: string | Date | undefined): string => {
     }
 };
 
-/**
- * Sort chats by latest message timestamp
- */
-interface ChatMessage {
-    createdAt?: string;
-    type?: string;
-    status?: string;
-    _id?: string;
-    sender?: {
-        profilePicture: string;
-        lastName: string;
-        type?: string;
-        _id: string;
-        firstName: string;
-        fullName: string;
-    };
-    text?: string;
-    files?: any[];
-    emoji?: any[];
-}
-
-interface Chat {
-    _id: string;
-    isChannel: boolean;
-    isPublic: boolean | string;
-    isReadOnly: boolean;
-    isArchived: boolean;
-    organization: string;
-    memberScope: string;
-    latestMessage?: ChatMessage;
-    name?: string;
-    membersCount?: number;
-    unreadCount?: number;
-    avatar?: string | null;
-    myData?: {
-        user: string;
-        isFavourite: boolean;
-        isBlocked: boolean;
-        role: string;
-        _id: string;
-        notification: {
-            isOn: boolean;
-        };
-        mute: {
-            isMuted: boolean;
-        };
-    };
-    otherUser?:
-        | {
-              firstName?: string;
-              lastName?: string;
-              fullName?: string;
-              profilePicture?: string;
-              type?: string;
-              _id?: string;
-          }
-        | string;
-}
-
-const sortByLatestMessage = (data: Chat[]): Chat[] => {
-    return data.slice().sort((a: Chat, b: Chat) => {
+const sortByLatestMessage = (data: ChatData[]): ChatData[] => {
+    return data.slice().sort((a: ChatData, b: ChatData) => {
         const dateA = a.latestMessage?.createdAt
             ? new Date(a.latestMessage.createdAt)
             : new Date(0);
@@ -180,8 +114,11 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
     onClose,
 }) => {
     const { user } = useAppSelector((state) => state.auth);
+    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
+    const { drafts, getDraft } = useDraftMessages();
     const [searchQuery, setSearchQuery] = useState('');
-    const [records, setRecords] = useState<Chat[]>([]);
+    const [records, setRecords] = useState<ChatData[]>([]);
     const [loading, setLoading] = useState(true);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [displayCount, setDisplayCount] = useState<number>(10);
@@ -201,7 +138,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
         setLoading(true);
 
         const timer = setTimeout(() => {
-            let filteredData: Chat[] = [];
+            let filteredData: ChatData[] = [];
 
             switch (active) {
                 case 'chats':
@@ -375,7 +312,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                 directChatSelect={onSelectChat} // Pass the callback for direct chat selection
             />
 
-            <div className='flex flex-col h-full w-[calc(100%-50px)] px-2'>
+            <div className='flex flex-col h-[580px] w-[calc(100%-50px)] px-2'>
                 <div className='flex items-center justify-between'>
                     <h1 className='text-lg font-semibold'>
                         {active === 'crowds' ? (
@@ -471,9 +408,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                         <ChatListSkeleton />
                     ) : records.length > 0 ? (
                         records.map((chat, i) => {
-                            const draft = drafts?.find(
-                                (f) => f?.chat === chat?._id,
-                            );
+                            const draft = getDraft(chat?._id as string);
                             const hasUnread =
                                 chat?.unreadCount && chat.unreadCount > 0;
                             const hasMention = i % 3 === 0; // Just for demo
@@ -559,7 +494,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
                                         {/* Chat content */}
                                         <div className='flex-1 min-w-0'>
-                                            <div className='flex justify-between items-start'>
+                                            <div className='flex justify-between items-start gap-1'>
                                                 <div className='font-medium flex flex-row items-center gap-1 text-sm truncate'>
                                                     {chat?.isChannel && (
                                                         <span className='mr-1'>
@@ -570,26 +505,29 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                                             )}
                                                         </span>
                                                     )}
-                                                    {chat?.isChannel
-                                                        ? chat?.name
-                                                        : (typeof chat.otherUser ===
-                                                              'object' &&
-                                                              chat.otherUser
-                                                                  ?.fullName) ||
-                                                          'User'}
+                                                    <span className='truncate'>
+                                                        {chat?.isChannel
+                                                            ? chat?.name
+                                                            : (typeof chat.otherUser ===
+                                                                  'object' &&
+                                                                  chat.otherUser
+                                                                      ?.fullName) ||
+                                                              'User'}
 
-                                                    {/* Verified indicator */}
-                                                    {typeof chat.otherUser ===
-                                                        'object' &&
-                                                        chat.otherUser?.type ===
-                                                            'verified' && (
-                                                            <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
+                                                        {/* Verified indicator */}
+                                                        {typeof chat.otherUser ===
+                                                            'object' &&
+                                                            chat.otherUser
+                                                                ?.type ===
+                                                                'verified' && (
+                                                                <CheckCircle2 className='inline h-3 w-3 ml-1 text-blue-500' />
+                                                            )}
+
+                                                        {/* Pin icon */}
+                                                        {isPinned && (
+                                                            <Pin className='h-4 w-4 text-dark-gray rotate-45' />
                                                         )}
-
-                                                    {/* Pin icon */}
-                                                    {isPinned && (
-                                                        <Pin className='h-4 w-4 text-dark-gray rotate-45' />
-                                                    )}
+                                                    </span>
                                                 </div>
                                                 <span className='text-xs text-gray whitespace-nowrap'>
                                                     {formatDate(
@@ -601,7 +539,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
                                             {/* Message preview */}
                                             <div className='flex justify-between items-center mt-1'>
-                                                <div className='flex items-center gap-1 flex-1 w-full'>
+                                                <div className='flex items-center gap-1 flex-1 w-[calc(100%-50px)]'>
                                                     {/* Message status for sent messages */}
                                                     {chat?.latestMessage?.sender
                                                         ?._id === user?._id && (

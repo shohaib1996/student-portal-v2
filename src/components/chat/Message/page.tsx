@@ -6,7 +6,6 @@ import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import dayjs from 'dayjs';
-import axios from 'axios';
 import { toast } from 'sonner';
 import {
     Check,
@@ -37,8 +36,6 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-
 import MessagePreview from './MessagePreview';
 import { generateActivityText } from './helper';
 import FileCard from '../FileCard';
@@ -46,7 +43,8 @@ import DeleteMessage from '../ChatForm/DeleteMessage';
 import { copyTextToClipboard } from '../../../utils/clipboard';
 import { updateChats } from '@/redux/features/chatReducer';
 import { useAppSelector } from '@/redux/hooks';
-import chats from '../chats.json';
+import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
+import { instance } from '@/lib/axios/axiosInstance';
 
 const emojies = ['👍', '😍', '❤', '😂', '🥰', '😯'];
 
@@ -90,7 +88,7 @@ type MessageComponent = React.ForwardRefExoticComponent<
 >;
 
 const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
-    // const { chats } = useAppSelector((state) => state.chat);
+    const { data: chats = [] } = useGetChatsQuery();
     const { user } = useAppSelector((state) => state.auth);
     const [deleteMessage, setDeleteMessage] = useState<any>(null);
     const [chatDelOpened, setChatDelOpened] = useState(false);
@@ -149,7 +147,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
     // handle open new chat
     const handleOpenNewChat = (id: string) => {
         setCreating(true);
-        axios
+        instance
             .post(`/chat/findorcreate/${id}`)
             .then((res) => {
                 const filtered = chats.filter(
@@ -174,7 +172,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
 
     // handle reaction
     const handleReaction = (emoji: string, messageId: string) => {
-        axios
+        instance
             .put(`/chat/react/${messageId}`, {
                 symbol: emoji,
             })
@@ -227,7 +225,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
             ) : (
                 <div
                     ref={lastmessage ? ref : null}
-                    className={`flex mb-4 ${!hideAlign && message?.sender?._id === user?._id ? 'justify-end' : 'justify-start'}`}
+                    className={`flex mb-4 `}
                     style={{ scrollBehavior: 'smooth' }}
                 >
                     <div className='flex max-w-[80%]'>
@@ -299,7 +297,9 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                         )}
 
                                     {message?.type === 'delete' ? (
-                                        <p className='text-xs italic text-muted-foreground'>
+                                        <p
+                                            className={`text-xs italic ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}
+                                        >
                                             This message has been deleted
                                         </p>
                                     ) : (

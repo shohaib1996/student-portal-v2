@@ -3,11 +3,10 @@
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Clock, MessagesSquare } from 'lucide-react';
-import axios from 'axios';
+import { instance } from '@/lib/axios/axiosInstance';
 
 interface User {
     _id: string;
@@ -36,7 +35,7 @@ function UserCard({
 
     // Handle creating a new chat with a user
     const handleCreateChat = useCallback(() => {
-        axios
+        instance
             .post(`/chat/findorcreate/${user._id}`)
             .then((res) => {
                 router.push(`/chat/${res.data.chat._id}`);

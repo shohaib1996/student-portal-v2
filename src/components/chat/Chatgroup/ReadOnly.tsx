@@ -31,8 +31,10 @@ import {
 // Lucide Icons
 import { Search, Lock, Loader2 } from 'lucide-react';
 import { useAppSelector } from '@/redux/hooks';
-import chats from '../chats.json';
-import onlineUsers from '../onlineUsers.json';
+import {
+    useGetChatsQuery,
+    useGetOnlineUsersQuery,
+} from '@/redux/api/chats/chatApi';
 // Dynamic imports
 const CreateCrowd = dynamic(() => import('./CreateCrowd'), {
     loading: () => (
@@ -174,9 +176,8 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function ReadOnly() {
-    // const { chats, onlineUsers } = useAppSelector(
-    //     (state) => state.chat,
-    // );
+    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
     const [records, setRecords] = useState<any[]>([]);
     const [channels, setChannels] = useState<any[]>([]);
     const [limit, setLimit] = useState<number>(20);

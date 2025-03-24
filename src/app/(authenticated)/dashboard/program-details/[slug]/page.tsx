@@ -1,4 +1,3 @@
-import React from 'react';
 import ProgramDetailsComp from '../_components/ProgramDetailsComp';
 
 const page = async ({ params }: { params: Promise<{ slug: string }> }) => {

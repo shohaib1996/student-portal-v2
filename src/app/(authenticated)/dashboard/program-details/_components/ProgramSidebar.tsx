@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import {
-    Users,
-    CheckCircle,
     Play,
     Clock,
     Calendar,
@@ -63,8 +61,8 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         <span>Approved</span>
                     </div>
                     <Image
-                        src={courseData.image || '/placeholder.svg'}
-                        alt={courseData.title}
+                        src={courseData?.image || '/placeholder.svg'}
+                        alt={courseData?.title}
                         width={400}
                         height={200}
                         className='w-full h-[120px] object-cover'
@@ -112,7 +110,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                             </Avatar>
                         </div>
                         <span>
-                            {courseData.enrolledStudents} + enrolled students
+                            {courseData?.enrolledStudents} + enrolled students
                         </span>
                     </div>
                 </div>
@@ -153,7 +151,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         <span className=''>High Priority</span>
                     </div>
                     <span className='text-sm text-black'>
-                        {courseData.priorities.high}
+                        {courseData?.priorities?.high}
                     </span>
                 </div>
                 <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
@@ -169,7 +167,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         <span className=''>Medium Priority</span>
                     </div>
                     <span className='text-sm text-black'>
-                        {courseData.priorities.medium}
+                        {courseData?.priorities?.medium}
                     </span>
                 </div>
                 <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
@@ -185,7 +183,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         <span className=''>Low Priority</span>
                     </div>
                     <span className='text-sm text-black'>
-                        {courseData.priorities.low}
+                        {courseData?.priorities?.low}
                     </span>
                 </div>
             </div>
@@ -204,11 +202,11 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                             Program Completion
                         </span>
                         <span className='text-xs font-medium text-primary'>
-                            {courseData.completion}%
+                            {courseData?.completion}%
                         </span>
                     </div>
                     <Progress
-                        value={courseData.completion}
+                        value={courseData?.completion}
                         className='h-2'
                         indicatorClass='bg-primary rounded-full'
                     />
@@ -221,7 +219,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                             <span className='text-xs text-gray'>Completed</span>
                         </div>
                         <span className='text-xs font-medium text-black'>
-                            {courseData.completed}
+                            {courseData?.completed}
                         </span>
                     </div>
                     <div className='flex items-center justify-between'>
@@ -267,7 +265,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                             </span>
                         </div>
                         <span className='text-xs font-medium text-black'>
-                            {courseData.inProgress}
+                            {courseData?.inProgress}
                         </span>
                     </div>
                     <div className='flex items-center justify-between'>
@@ -278,7 +276,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                             </span>
                         </div>
                         <span className='text-xs font-medium text-black'>
-                            {courseData.notStarted}
+                            {courseData?.notStarted}
                         </span>
                     </div>
                 </div>
@@ -325,24 +323,28 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         </div>
                         <div className='space-y-1'>
                             <h4 className='text-sm font-medium text-black'>
-                                {courseData.focusedLesson.title}
+                                {courseData?.focusedLesson?.title}
                             </h4>
                             <div className='flex items-center gap-2 text-xs text-gray'>
                                 <div className='flex items-center gap-1'>
                                     <Calendar className='h-3 w-3 text-dark-gray' />
-                                    <span>{courseData.focusedLesson.date}</span>
+                                    <span>
+                                        {courseData?.focusedLesson?.date}
+                                    </span>
                                 </div>
                                 <div className='flex items-center gap-1'>
                                     <Clock className='h-3 w-3 text-dark-gray' />
-                                    <span>{courseData.focusedLesson.time}</span>
+                                    <span>
+                                        {courseData?.focusedLesson?.time}
+                                    </span>
                                 </div>
                                 <span className=''>
-                                    {courseData.focusedLesson.duration}
+                                    {courseData?.focusedLesson?.duration}
                                 </span>
                             </div>
                         </div>
                         <Badge className='text-red-600 border-red-600 text-[10px] font-medium px-1 border bg-transparent'>
-                            {courseData.focusedLesson.tags[0]}
+                            {courseData?.focusedLesson?.tags[0]}
                         </Badge>
                     </div>
                     <Separator className='my-2.5' />
@@ -352,11 +354,11 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                                 Completion
                             </span>
                             <span className='text-xs font-medium text-primary'>
-                                {courseData.focusedLesson.completion}%
+                                {courseData?.focusedLesson?.completion}%
                             </span>
                         </div>
                         <Progress
-                            value={courseData.focusedLesson.completion}
+                            value={courseData?.focusedLesson?.completion}
                             className='h-2 bg-background'
                             indicatorClass='bg-primary rounded-full'
                         />

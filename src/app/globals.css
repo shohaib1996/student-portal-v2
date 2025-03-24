@@ -244,3 +244,6 @@ body {
         @apply max-w-[1400px] mx-auto;
     }
 }
+.message-preview a {
+    word-break: break-all !important;
+}

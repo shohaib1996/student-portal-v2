@@ -35,7 +35,7 @@ import {
     SlidersHorizontal,
     CircleOff,
 } from 'lucide-react';
-import chats from '../chats.json';
+import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
 
 interface Message {
     _id?: string;
@@ -165,6 +165,7 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function BlockedUser() {
+    const { data: chats = [] } = useGetChatsQuery();
     const [records, setRecords] = useState<any[]>([]);
     const [channels, setChannels] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
