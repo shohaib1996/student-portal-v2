@@ -5,12 +5,18 @@ import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
-import { Search, PanelLeft, PanelLeftClose } from 'lucide-react';
+import {
+    Search,
+    PanelLeft,
+    PanelLeftClose,
+    SlidersHorizontal,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { ModuleList } from './ModuleList';
 import ContentDropDown from './ContentDropDown';
 import VideoContent from './VideoContent';
+import FilterProgram from './FilterProgram';
 
 const ProgramContent = ({
     selectedTab,
@@ -150,14 +156,11 @@ const ProgramContent = ({
                                 className='pl-9 w-[300px] border-border rounded-lg text-dark-gray placeholder:text-dark-gray'
                             />
                         </div>
-                        <Button variant='primary_light' className=''>
-                            <Image
-                                src='/images/filter.svg'
-                                alt='Filter'
-                                width={18}
-                                height={18}
-                            />
-                        </Button>
+                        <FilterProgram
+                            option={option}
+                            searchInput={searchInput}
+                            setParentId={setParentId}
+                        />
                     </div>
                 </div>
 
