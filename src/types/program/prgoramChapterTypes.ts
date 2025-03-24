@@ -37,6 +37,7 @@ export type TLesson = {
     isFocused: boolean;
     isLocked: boolean;
     isSpecial: boolean;
+    duration: number;
 };
 
 export type TChapterInfo = {
