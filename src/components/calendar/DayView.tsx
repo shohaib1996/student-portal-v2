@@ -49,8 +49,8 @@ export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
             .minute(0)
             .second(0)
             .toDate();
-        if (onChange) {
-            onChange(updatedDate);
+        if (onModal) {
+            onChange?.(updatedDate);
         } else {
             dispatch(setCurrentDate(dateTime));
             openPopover(e.currentTarget.getBoundingClientRect(), 'bottom');
