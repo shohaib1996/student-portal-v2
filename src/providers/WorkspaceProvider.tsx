@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useEffect, useState, ReactNode } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import {
@@ -46,11 +47,22 @@ function WorkspaceProvider({ children }: WorkspaceProviderProps) {
         (state: RootState) => state.company,
     );
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    // Set initial state to true to open modal automatically
     const [isSwitcherVisible, setIsSwitcherVisible] = useState<boolean>(false);
     const [activeCompanyId, setActiveCompanyId] = useState<string | null>(null);
     const store = useStore();
 
     useEffect(() => {
+        // Check if there's an active company on mount
+        const activeCompanyFromCookie = Cookies.get('activeCompany');
+        setActiveCompanyId(activeCompanyFromCookie || null);
+
+        // Only show switcher if no active company
+        if (!activeCompanyFromCookie) {
+            setIsSwitcherVisible(true);
+            dispatch(setCompanySwitcher(true));
+        }
+
         const unsubscribe = store.subscribe(async () => {
             const state = store.getState() as RootState;
             const { companySwitcher, activeCompany } = state.company;
@@ -59,7 +71,7 @@ function WorkspaceProvider({ children }: WorkspaceProviderProps) {
         });
 
         return () => unsubscribe();
-    }, [store]);
+    }, [store, dispatch]);
 
     useEffect(() => {
         if (!activeCompanyId) {
@@ -119,13 +131,15 @@ function WorkspaceProvider({ children }: WorkspaceProviderProps) {
             <p className='mb-4 text-sm text-gray-500'>
                 Please select a company/university to continue.
             </p>
-            {/* <Button
+            <Button
                 variant='default'
-                onClick={() => dispatch(setCompanySwitcher(true))}
+                onClick={() => {
+                    setIsSwitcherVisible(true);
+                    dispatch(setCompanySwitcher(true));
+                }}
             >
                 Select Company/University
-            </Button> */}
-            <UniversitySectionOpenButton />
+            </Button>
         </div>
     );
 
@@ -147,14 +161,14 @@ function WorkspaceProvider({ children }: WorkspaceProviderProps) {
                 <EmptyState />
             )}
 
-            {/* <UniversitySelectModal
+            <UniversitySelectModal
                 open={isSwitcherVisible}
                 onOpenChange={(open) => {
                     setIsSwitcherVisible(open);
                     dispatch(setCompanySwitcher(open));
                 }}
                 onSelect={(company) => handleCompanySelect(company._id)}
-            /> */}
+            />
         </>
     );
 }

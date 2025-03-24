@@ -16,6 +16,7 @@ import { useGetTechnicalTestsQuery } from '@/redux/api/technicalTest/technicalTe
 import { useState } from 'react';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import { cn } from '@/lib/utils';
+import TechnicalMetrics from './TechnicalMetrics';
 
 const tasks: Task[] = [
     {
@@ -181,6 +182,7 @@ const TechnicalTest = () => {
                     </div>
                 }
             />
+            <TechnicalMetrics />
             <Tabs defaultValue='tasks' className='w-full'>
                 <TabsList className='p-0 bg-transparent'>
                     <TabsTrigger
