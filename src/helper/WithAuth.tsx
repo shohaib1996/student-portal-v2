@@ -9,6 +9,8 @@ import {
     getCourses,
     getServices,
     getCommunityPosts,
+    loadChats,
+    getOnlines,
 } from '../actions/initialActions';
 import { connectSocket, disconnectSocket } from './socketManager';
 import {
@@ -120,6 +122,8 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                                 setCompanyFeatures(res.data.features || []),
                             );
                             await connectSocket();
+                            dispatchSafely(loadChats());
+                            dispatchSafely(getOnlines());
                             dispatchSafely(
                                 getCommunityPosts({
                                     limit: 10,

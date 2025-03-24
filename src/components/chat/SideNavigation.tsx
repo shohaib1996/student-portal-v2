@@ -22,6 +22,7 @@ import {
 import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '../global/GlobalTooltip';
 import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 
 interface SideNavigationProps {
     setActive: (section: string) => void;
@@ -48,10 +49,10 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
     setActive,
     active,
 }) => {
-    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    // const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const router = useRouter();
-    const dispatch = useDispatch();
-
+    const dispatch = useAppDispatch();
+    const { chats = [] } = useAppSelector((state) => state.chat);
     // const { chats } = useSelector((state: RootState) => state.chat);
     const [unread, setUnread] = useState<any[]>([]);
 
@@ -84,7 +85,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                     );
                 });
         },
-        [chats, dispatch, router],
+        [chats, router],
     );
 
     const getButtonClass = useCallback(

@@ -15,7 +15,7 @@ const EditMessageModal: React.FC<EditMessageModalProps> = ({
     handleCloseEdit,
 }) => {
     const [text, setText] = useState('');
-
+    const [isTyping, setIsTyping] = useState<boolean>(false);
     useEffect(() => {
         if (selectedMessage) {
             const newString = parseMentionToEdit(selectedMessage?.text || '');
@@ -27,6 +27,12 @@ const EditMessageModal: React.FC<EditMessageModalProps> = ({
         selectedMessage: selectedMessage,
         chat: !!chat,
     });
+    // Function to send typing indicator
+    const sendTypingIndicator = (isTyping: boolean) => {
+        // You can implement the typing indicator logic here
+        setIsTyping(isTyping);
+    };
+
     return (
         <GlobalDialog
             open={Boolean(selectedMessage)}
@@ -47,6 +53,7 @@ const EditMessageModal: React.FC<EditMessageModalProps> = ({
                     onSentCallback={handleCloseEdit}
                     className={`chat_${chat?._id}`}
                     // initialText={text}
+                    sendTypingIndicator={sendTypingIndicator}
                 />
             </div>
         </GlobalDialog>

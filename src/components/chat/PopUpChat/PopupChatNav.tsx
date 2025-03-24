@@ -42,12 +42,8 @@ import {
 
 // Import CreateCrowd component
 import CreateCrowd from '../Chatgroup/CreateCrowd';
-import {
-    ChatData,
-    useGetChatsQuery,
-    useGetOnlineUsersQuery,
-} from '@/redux/api/chats/chatApi';
 import { useDraftMessages } from '@/redux/hooks/chat/chatHooks';
+import { Chat } from '@/redux/features/chatReducer';
 
 // Initialize dayjs
 dayjs.extend(relativeTime);
@@ -88,8 +84,8 @@ const formatDate = (date: string | Date | undefined): string => {
     }
 };
 
-const sortByLatestMessage = (data: ChatData[]): ChatData[] => {
-    return data.slice().sort((a: ChatData, b: ChatData) => {
+const sortByLatestMessage = (data: Chat[]): Chat[] => {
+    return data.slice().sort((a: Chat, b: Chat) => {
         const dateA = a.latestMessage?.createdAt
             ? new Date(a.latestMessage.createdAt)
             : new Date(0);
@@ -114,11 +110,10 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
     onClose,
 }) => {
     const { user } = useAppSelector((state) => state.auth);
-    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
-    const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
-    const { drafts, getDraft } = useDraftMessages();
+    const chats = useAppSelector((state) => state.chat.chats);
+    const onlineUsers = useAppSelector((state) => state.chat.onlineUsers);
     const [searchQuery, setSearchQuery] = useState('');
-    const [records, setRecords] = useState<ChatData[]>([]);
+    const [records, setRecords] = useState<Chat[]>([]);
     const [loading, setLoading] = useState(true);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [displayCount, setDisplayCount] = useState<number>(10);
@@ -128,7 +123,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
     // Helper function to get filtered data based on active tab and search query
     const getFilteredData = useCallback(() => {
-        let filteredData: ChatData[] = [];
+        let filteredData: Chat[] = [];
 
         switch (active) {
             case 'chats':
@@ -438,7 +433,6 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                         <ChatListSkeleton />
                     ) : records.length > 0 ? (
                         records.map((chat, i) => {
-                            const draft = getDraft(chat?._id as string);
                             const hasUnread =
                                 chat?.unreadCount && chat.unreadCount > 0;
                             const hasMention = i % 3 === 0; // Just for demo

@@ -19,6 +19,7 @@ import {
     setTotalPosts,
 } from '@/redux/features/communityReducer';
 import { instance } from '@/lib/axios/axiosInstance';
+import { setChats, setOnlineUsers } from '@/redux/features/chatReducer';
 
 // Define ThunkAction type for all action creators
 type AppThunk<ReturnType = void> = ThunkAction<
@@ -54,21 +55,19 @@ interface GetCommunityPostsParams {
 //   }
 // }
 
-// export const loadChats = (): AppThunk => {
-//   return (dispatch) => {
-//     axios
-//       .get("/chat/mychats")
-//       .then((res) => {
-//         dispatch(setChats(res.data.chats));
-//       })
-//       .catch((err) => {
-//         console.log(err);
-//         toast.error(
-//           err?.response?.data?.error,
-//         );
-//       });
-//   };
-// };
+export const loadChats = (): AppThunk => {
+    return (dispatch) => {
+        instance
+            .get('/chat/mychats')
+            .then((res) => {
+                dispatch(setChats(res.data.chats));
+            })
+            .catch((err) => {
+                console.log(err);
+                toast.error(err?.response?.data?.error);
+            });
+    };
+};
 
 export const loadNotifications = (): AppThunk => {
     return (dispatch) => {
@@ -86,21 +85,19 @@ export const loadNotifications = (): AppThunk => {
     };
 };
 
-// export const getOnlines = (): AppThunk => {
-//   return (dispatch) => {
-//     axios
-//       .get("/user/online")
-//       .then((res) => {
-//         dispatch(setOnlineUsers(res.data.users));
-//       })
-//       .catch((err) => {
-//         console.log(err);
-//         toast.error(
-//           err?.response?.data?.error,
-//         );
-//       });
-//   };
-// };
+export const getOnlines = (): AppThunk => {
+    return (dispatch) => {
+        axios
+            .get('/user/online')
+            .then((res) => {
+                dispatch(setOnlineUsers(res.data.users));
+            })
+            .catch((err) => {
+                console.log(err);
+                toast.error(err?.response?.data?.error);
+            });
+    };
+};
 
 export const getMyNavigations = (): AppThunk => {
     return (dispatch) => {

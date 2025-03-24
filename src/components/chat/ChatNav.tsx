@@ -248,19 +248,10 @@ interface ChatNavProps {
 
 const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const fetchingMore = false;
+    const params = useParams();
     const { user } = useAppSelector((state) => state.auth);
     const router = useRouter();
-    const { drafts, saveDraft, getDraft, clearDraft } = useDraftMessages();
-    const {
-        data: chats = [],
-        isLoading: isChatsLoading,
-        isError: isChatsError,
-        refetch: refetchChats,
-    } = useGetChatsQuery();
-
-    const { data: onlineUsers = [], isLoading: isOnlineUsersLoading } =
-        useGetOnlineUsersQuery();
-
+    const { chats, onlineUsers } = useAppSelector((state) => state.chat);
     // Replace direct API call with RTK mutation
     const [findOrCreateChat, { isLoading: isCreatingChat }] =
         useFindOrCreateChatMutation();
@@ -273,7 +264,6 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const [createCrowdOpen, setCreateCrowdOpen] = useState<boolean>(false);
 
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-    const params = useParams();
 
     // Update records when chats change - now using RTK Query data
     useEffect(() => {
@@ -361,13 +351,13 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     }, [chats, records]);
 
     // Add loading state handling
-    if (isChatsLoading && chats.length === 0) {
-        return (
-            <div className='w-full h-full flex items-center justify-center'>
-                <div className='h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent'></div>
-            </div>
-        );
-    }
+    // if (isChatsLoading && chats.length === 0) {
+    //     return (
+    //         <div className='w-full h-full flex items-center justify-center'>
+    //             <div className='h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent'></div>
+    //         </div>
+    //     );
+    // }
     return (
         <div className='chat-nav h-full'>
             <div className='flex flex-row h-full border-r'>
@@ -490,10 +480,6 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                     <div className='divide-y divide-gray-200 h-[calc(100vh-162px)] overflow-y-auto'>
                                         {sortByLatestMessage(records)?.map(
                                             (chat, i) => {
-                                                const draft = getDraft(
-                                                    chat?._id,
-                                                );
-
                                                 const isActive =
                                                     params?.chatid ===
                                                     chat?._id;

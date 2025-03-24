@@ -21,6 +21,7 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
     const isChat = pathName.includes('/chat') ? true : false;
     useEffect(() => {
         if (user?._id) {
+            // Clean up listeners or any other resources here if needed
             const cleanUpListeners = setupSocketListeners();
             return cleanUpListeners;
         }

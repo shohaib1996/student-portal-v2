@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { useDispatch } from 'react-redux';
 import TextEditor from './TextEditor/page';
 import TextEditorReply from './TextEditor/TextEditorReply';
+import { useAppDispatch } from '@/redux/hooks';
 
 interface MuteData {
     isMuted: boolean;
@@ -36,7 +37,7 @@ interface ChatFooterProps {
     profileInfoShow?: boolean;
     className?: string;
     draft?: any;
-    sendTypingIndicator?: () => void;
+    sendTypingIndicator: (isTyping: boolean) => void;
 }
 
 function MuteMessage({ muteData }: MuteMessageProps) {
@@ -75,8 +76,8 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
     className,
     sendTypingIndicator,
 }) => {
-    const dispatch = useDispatch();
-
+    const dispatch = useAppDispatch();
+    console.log({ chat: chat });
     if (chat?.isReadOnly && chat?.myData?.role === 'member') {
         return (
             <div className='mb-8 p-4 border-t border-border'>
