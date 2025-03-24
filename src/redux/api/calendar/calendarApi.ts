@@ -1,4 +1,4 @@
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { TEvent, TUpdateSchedule } from '@/types/calendar/calendarTypes';
 import { baseApi } from '../baseApi';
 import { tagTypes } from '../tagType/tagTypes';
 import dayjs from 'dayjs';
@@ -285,6 +285,38 @@ const calendarApi = baseApi.injectEndpoints({
                 }
             },
         }),
+
+        addNewSchedule: build.mutation({
+            query: (name: string) => ({
+                url: '/calendar/schedule/create',
+                method: 'POST',
+                data: { name },
+            }),
+            invalidatesTags: [tagTypes.schedules],
+        }),
+
+        getAllSchedules: build.query({
+            query: () => ({
+                url: '/calendar/schedule/all',
+                method: 'GET',
+            }),
+            providesTags: [tagTypes.schedules],
+        }),
+
+        updateSchedule: build.mutation({
+            query: ({
+                scheduleId,
+                payload,
+            }: {
+                scheduleId: string;
+                payload: TUpdateSchedule;
+            }) => ({
+                url: `/calendar/schedule/update/${scheduleId}`,
+                method: 'PATCH',
+                data: payload,
+            }),
+            invalidatesTags: [tagTypes.schedules],
+        }),
     }),
 });
 
@@ -296,4 +328,7 @@ export const {
     useGetSingleEventQuery,
     useUpdateEventMutation,
     useDeleteEventMutation,
+    useUpdateScheduleMutation,
+    useAddNewScheduleMutation,
+    useGetAllSchedulesQuery,
 } = calendarApi;
