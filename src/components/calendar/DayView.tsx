@@ -8,19 +8,27 @@ import dayjs, { Dayjs } from 'dayjs';
 import { toast } from 'sonner';
 import { TEvent } from '@/types/calendar/calendarTypes';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
-import { useAppDispatch } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { useEventPopover } from './CreateEvent/EventPopover';
 import { setCurrentDate } from '@/redux/features/calendarReducer';
 import EventButton from './EventButton';
+import EventButtonWithBG from './EventButtonWithBG';
 interface DayViewProps {
     currentDate: Date;
+    onModal?: boolean;
     onChange?: (_: Dayjs) => void;
 }
 
-export function DayView({ currentDate, onChange }: DayViewProps) {
+export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
+    const { eventFilter, todoFilter, priorityFilter, rolesFilter } =
+        useAppSelector((s) => s.calendar);
     const { data } = useGetMyEventsQuery({
         from: dayjs(currentDate).startOf('day').toISOString(), // Start of the day (00:00:00)
         to: dayjs(currentDate).endOf('day').toISOString(), // End of the day (23:59:59.999)
+        statuses: eventFilter,
+        states: todoFilter,
+        priorities: priorityFilter,
+        roles: rolesFilter,
     });
 
     const events: TEvent[] = (data?.events as TEvent[]) || [];
@@ -41,8 +49,8 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
             .minute(0)
             .second(0)
             .toDate();
-        if (onChange) {
-            onChange(updatedDate);
+        if (onModal) {
+            onChange?.(updatedDate);
         } else {
             dispatch(setCurrentDate(dateTime));
             openPopover(e.currentTarget.getBoundingClientRect(), 'bottom');
@@ -82,7 +90,7 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
                     <div
                         key={hour}
                         className={cn(
-                            'flex border-b cursor-pointer min-h-[60px]',
+                            'flex border-b cursor-pointer min-h-[60px] w-full',
                             isToday(currentDate) &&
                                 hour === currentHour &&
                                 'bg-muted/20',
@@ -100,11 +108,23 @@ export function DayView({ currentDate, onChange }: DayViewProps) {
                         </div>
                         <div
                             onClick={(e) => e.stopPropagation()}
-                            className='mt-1 flex flex-wrap gap-2'
+                            className={cn('mt-1 flex w-full flex-wrap gap-2', {
+                                'flex-col': onModal,
+                            })}
                         >
-                            {getEventsForHour(hour).map((event) => (
-                                <EventButton key={event._id} event={event} />
-                            ))}
+                            {getEventsForHour(hour).map((event) =>
+                                onModal ? (
+                                    <EventButtonWithBG
+                                        key={event._id}
+                                        event={event}
+                                    />
+                                ) : (
+                                    <EventButton
+                                        key={event._id}
+                                        event={event}
+                                    />
+                                ),
+                            )}
                         </div>
                     </div>
                 ))}

@@ -79,10 +79,10 @@ const CreateEventModal = () => {
 
     useEffect(() => {
         const event: TEvent | undefined = eventDetails?.event;
-        if (!event) {
+        if (!event || !updateId) {
             return;
         }
-        if (updateId || event.type === 'event') {
+        if (event.type === 'event') {
             setTab('event');
             eventForm.reset({
                 title: event.title,
@@ -99,7 +99,7 @@ const CreateEventModal = () => {
                 eventColor: event.eventColor,
                 permissions: event.permissions,
             });
-        } else if (event && event.type === 'task') {
+        } else if (event.type === 'task') {
             setTab('todo');
             todoForm.reset({
                 title: event.title,
@@ -243,7 +243,6 @@ const CreateEventModal = () => {
 
                 const changes: any = {
                     ...data,
-                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 };
 
                 if (removed && removed.length > 0) {
@@ -287,8 +286,6 @@ const CreateEventModal = () => {
                     updateOption,
                     changes: {
                         ...data,
-                        timeZone:
-                            Intl.DateTimeFormat().resolvedOptions().timeZone,
                     },
                 }).unwrap();
                 if (res) {
@@ -417,6 +414,7 @@ const CreateEventModal = () => {
                             </Button>
                         </div>
                         <DayView
+                            onModal
                             onChange={(date) => {
                                 if (tab === 'event') {
                                     eventForm.setValue(
