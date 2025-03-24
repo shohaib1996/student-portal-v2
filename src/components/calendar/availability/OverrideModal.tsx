@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import timesArray from '../../../../public/times';
 import { TInterval } from '@/types/calendar/calendarTypes';
+import GlobalModal from '@/components/global/GlobalModal';
 
 type TProps = {
     isOpen: boolean;
@@ -79,30 +80,41 @@ export default function OverrideModal({
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className='max-w-xl'>
-                <DialogHeader>
-                    <DialogTitle>Date Specific Schedule</DialogTitle>
-                    <DialogDescription>
-                        Select the date(s) you want to assign specific hours
-                    </DialogDescription>
-                </DialogHeader>
-
+        <GlobalModal
+            open={isOpen}
+            setOpen={handleClose}
+            title='Date Specific Schedule'
+            subTitle='Select the date(s) you want to assign specific hours'
+            buttons={
+                <div className='flex gap-2 items-center'>
+                    <Button variant='secondary' onClick={handleClose}>
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={selected.length === 0}
+                    >
+                        Apply
+                    </Button>
+                </div>
+            }
+        >
+            <div className='flex gap-2 pt-2'>
                 <div className='flex justify-center mb-4'>
-                    {/* <Calendar
-                        mode="multiple"
+                    <Calendar
+                        mode='multiple'
                         selected={selected}
-                        onSelect={setSelected}
-                        className="rounded-md border"
-                    /> */}
+                        onSelect={(date) => setSelected(date as Date[])}
+                        className='rounded-md border w-full bg-background'
+                    />
                 </div>
 
                 {selected?.length > 0 && (
-                    <div className='space-y-2'>
+                    <div className='space-y-2 bg-background w-full rounded-md border border-forground-border p-2'>
                         {intervals.map((interval, i) => (
                             <div
                                 key={i}
-                                className='flex items-center justify-between gap-4 p-2 bg-purple-50 rounded-md'
+                                className='flex items-center justify-between gap-2 rounded-md'
                             >
                                 <div className='flex items-center gap-2 flex-grow'>
                                     <Select
@@ -115,7 +127,7 @@ export default function OverrideModal({
                                             })
                                         }
                                     >
-                                        <SelectTrigger className='w-full'>
+                                        <SelectTrigger className='w-full bg-foreground'>
                                             <SelectValue placeholder='From' />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -142,7 +154,7 @@ export default function OverrideModal({
                                             })
                                         }
                                     >
-                                        <SelectTrigger className='w-full'>
+                                        <SelectTrigger className='w-full bg-foreground'>
                                             <SelectValue placeholder='To' />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -160,14 +172,14 @@ export default function OverrideModal({
 
                                 <div className='flex items-center gap-2'>
                                     <Button
-                                        variant='destructive'
+                                        variant='danger_light'
                                         size='icon'
                                         onClick={() => handleClearInterval(i)}
                                     >
                                         <X className='h-4 w-4' />
                                     </Button>
                                     <Button
-                                        variant='default'
+                                        variant='primary_light'
                                         size='icon'
                                         onClick={handleAddInterval}
                                     >
@@ -178,19 +190,7 @@ export default function OverrideModal({
                         ))}
                     </div>
                 )}
-
-                <DialogFooter>
-                    <Button variant='secondary' onClick={handleClose}>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={selected.length === 0}
-                    >
-                        Apply
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+            </div>
+        </GlobalModal>
     );
 }

@@ -1,20 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
-import { toast } from 'sonner';
 import { X } from 'lucide-react';
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 
 import { useUpdateScheduleMutation } from '@/redux/api/calendar/calendarApi';
 import timesArray from '../../../../public/times';
@@ -29,19 +18,20 @@ import OverrideModal from './OverrideModal';
 
 type TProps = {
     schedule: TSchedule;
-    handleUpdateList: (schedule: TSchedule) => void;
+    setAvailability: Dispatch<SetStateAction<TAvailability[]>>;
+    availability: TAvailability[];
+    name: string;
+    setName: Dispatch<SetStateAction<string>>;
 };
 
-export default function Schedule({ schedule, handleUpdateList }: TProps) {
-    const [selectedTimezone, setSelectedTimezone] = useState(
-        Intl.DateTimeFormat().resolvedOptions().timeZone,
-    );
-
+export default function Schedule({
+    schedule,
+    setAvailability,
+    availability,
+    name,
+    setName,
+}: TProps) {
     const [overrideModal, setOverrideModal] = useState(false);
-    const [availability, setAvailability] = useState<TAvailability[]>([]);
-    const [name, setName] = useState('');
-    const [updateSchedule, { isLoading: savingSchedule }] =
-        useUpdateScheduleMutation();
 
     useEffect(() => {
         if (schedule) {
@@ -59,27 +49,6 @@ export default function Schedule({ schedule, handleUpdateList }: TProps) {
 
         array.splice(index, 1);
         setAvailability(array);
-    };
-
-    const handleSave = async () => {
-        const data: TUpdateSchedule = {
-            availability,
-            name,
-            timeZone: selectedTimezone,
-        };
-
-        try {
-            const res = await updateSchedule({
-                scheduleId: schedule?._id || '',
-                payload: data,
-            }).unwrap();
-
-            if (res) {
-                toast.success('Schedule updated successfully');
-            }
-        } catch (err) {
-            // globalErrorHandler(err)
-        }
     };
 
     const handleApply = ({
@@ -175,90 +144,77 @@ export default function Schedule({ schedule, handleUpdateList }: TProps) {
     }
 
     return (
-        <div className='container mx-auto p-4'>
-            <div className='grid md:grid-cols-2 gap-6'>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Weekly Hours</CardTitle>
-                    </CardHeader>
-                    <CardContent>
+        <div className=''>
+            <div className='grid md:grid-cols-2 gap-2'>
+                <div className='bg-foreground border border-forground-border p-2 rounded-md'>
+                    <div className='border-b w-full'>
+                        <h2 className='text-lg text-black font-semibold'>
+                            7-day schedule
+                        </h2>
+                    </div>
+                    <div className='space-y-2 pt-2'>
+                        {/* <Input
+                            placeholder='Schedule Name'
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        /> */}
+
                         <div className='space-y-4'>
-                            <Input
-                                placeholder='Schedule Name'
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                            />
-
-                            <Select
-                                value={selectedTimezone}
-                                onValueChange={(value) =>
-                                    setSelectedTimezone(value)
-                                }
-                                disabled
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder='Select Timezone' />
-                                </SelectTrigger>
-                                {/* <SelectContent>
-                                    {options.map((tz) => (
-                                        <SelectItem key={tz.value} value={tz.value}>
-                                            {tz.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent> */}
-                            </Select>
-
-                            <div className='space-y-4'>
-                                {[
-                                    'sunday',
-                                    'monday',
-                                    'tuesday',
-                                    'wednesday',
-                                    'thursday',
-                                    'friday',
-                                    'saturday',
-                                ].map((day) => (
-                                    <WeekDay
-                                        key={day}
-                                        intervals={
-                                            availability?.find(
-                                                (x) => x.wday === day,
-                                            )?.intervals || []
-                                        }
-                                        title={day.slice(0, 3).toUpperCase()}
-                                        updateIntervals={(value) =>
-                                            updateIntervals({
-                                                intervals: value,
-                                                wday: day,
-                                            })
-                                        }
-                                        handleAppyCopyTo={handleAppyCopyTo}
-                                    />
-                                ))}
-                            </div>
+                            {[
+                                'sunday',
+                                'monday',
+                                'tuesday',
+                                'wednesday',
+                                'thursday',
+                                'friday',
+                                'saturday',
+                            ].map((day) => (
+                                <WeekDay
+                                    key={day}
+                                    intervals={
+                                        availability?.find(
+                                            (x) => x.wday === day,
+                                        )?.intervals || []
+                                    }
+                                    title={day.slice(0, 3).toUpperCase()}
+                                    updateIntervals={(value) =>
+                                        updateIntervals({
+                                            intervals: value,
+                                            wday: day,
+                                        })
+                                    }
+                                    handleAppyCopyTo={handleAppyCopyTo}
+                                />
+                            ))}
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Date-Specific Hours</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className='text-muted-foreground mb-4'>
+                <div className='bg-foreground border border-forground-border p-2 rounded-md'>
+                    <div className='border-b w-full'>
+                        <h2 className='text-lg text-black font-semibold'>
+                            Date-Specific Hours
+                        </h2>
+                        <p className='text-sm text-dark-gray'>
+                            Adjust availability for specific dates with
+                            different hours
+                        </p>
+                    </div>
+                    <div className='pt-2 space-y-2'>
+                        <p className='text-sm text-dark-gray'>
                             Override your availability for specific dates when
                             your hours differ from your regular weekly hours.
                         </p>
 
                         <Button
-                            variant='secondary'
+                            variant='primary_light'
                             className='w-full mb-4'
                             onClick={() => setOverrideModal(true)}
                         >
                             Add Date Specific Hours
                         </Button>
 
-                        <div className='space-y-4'>
+                        <div className='space-y-2'>
                             {availability
                                 ?.filter(
                                     (x: TAvailability) => x.type === 'date',
@@ -266,10 +222,10 @@ export default function Schedule({ schedule, handleUpdateList }: TProps) {
                                 .map((availability: TAvailability, i) => (
                                     <div
                                         key={i}
-                                        className='flex items-center gap-4 p-3 border rounded-md'
+                                        className='flex items-center gap-4 p-2 bg-background border rounded-md'
                                     >
                                         <div className='flex-grow'>
-                                            <p className='font-semibold'>
+                                            <p className='font-medium text-dark-gray'>
                                                 {dayjs(
                                                     availability?.date,
                                                 ).format('MMM DD, YYYY')}
@@ -311,17 +267,9 @@ export default function Schedule({ schedule, handleUpdateList }: TProps) {
                                     </div>
                                 ))}
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
-
-            <Button
-                className='mt-6 w-full'
-                disabled={savingSchedule}
-                onClick={handleSave}
-            >
-                {savingSchedule ? 'Saving...' : 'Save Schedule'}
-            </Button>
 
             <OverrideModal
                 handleApply={handleApply}

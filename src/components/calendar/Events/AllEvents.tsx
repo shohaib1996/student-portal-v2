@@ -6,47 +6,25 @@ import AvailabilityIcon from '@/components/svgs/calendar/Availability';
 import MyInvitationsIcon from '@/components/svgs/calendar/MyInvitationsIcon';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
+import { TEvent } from '@/types/calendar/calendarTypes';
+import { endOfMonth, startOfMonth } from 'date-fns';
 import { Bell, ChevronDown, Clock, Ellipsis, Plus } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
-// Define the priority types
-type PriorityType = 'High' | 'Medium' | 'Low';
-// Define the event interface
-interface Event {
-    id: string;
-    title: string;
-    date: string;
-    time: string;
-    purpose: string;
-    priority: PriorityType;
-    timeRemaining: string;
-    meetingLink: string;
-    attendees: string[];
-}
-
 const AllEvents = () => {
     const [limit, setLimit] = useState(10);
-    const [currentPage, setCurrentPage] = useState<number>(1);
+    const monthStart = startOfMonth(new Date());
+    const monthEnd = endOfMonth(new Date());
 
-    const events: Event[] = Array.from({ length: 20 }, (_, i) => ({
-        id: `event-${i + 1}`,
-        title: 'UI Designer Update',
-        date: 'Tuesday - Mar 04, 2025',
-        time: '10:30 AM',
-        purpose:
-            i % 3 === 0
-                ? "What you're going to get from this course"
-                : 'This is my testing assignment.',
-        priority: i % 4 === 0 ? 'High' : i % 3 === 0 ? 'Low' : 'Medium',
-        timeRemaining: '30 min before',
-        meetingLink: 'meet.google.com/vtg-qjwd-lmn',
-        attendees: [
-            '/images/author.png',
-            '/images/author.png',
-            '/images/author.png',
-        ],
-    }));
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const { data } = useGetMyEventsQuery({
+        from: monthStart.toISOString(),
+        to: monthEnd.toISOString(),
+    });
+
+    const events: TEvent[] = data?.events || [];
 
     return (
         <>
@@ -89,7 +67,7 @@ const AllEvents = () => {
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-2'>
                 {events.map((event, i) => (
                     <div
-                        key={event.id}
+                        key={event._id}
                         className='bg-foreground rounded-lg border border-border-primary-light overflow-hidden py-2 px-2.5'
                     >
                         {/* Card Header */}
@@ -121,7 +99,7 @@ const AllEvents = () => {
                                         className='text-dark-gray'
                                     />
                                     <span className='text-dark-gray text-xs text-nowrap'>
-                                        Due: {event.date} at {event.time}
+                                        {/* Due: {event.date} at {event.time} */}
                                     </span>
                                 </div>
                                 <div className='flex flex-col items-end'>
@@ -129,7 +107,7 @@ const AllEvents = () => {
                                         <span className='text-dark-gray text-xs font-semibold'>
                                             Priority:
                                         </span>
-                                        {event.priority === 'High' && (
+                                        {event.priority === 'high' && (
                                             <span className='text-red-500 flex items-center gap-1 text-xs font-medium'>
                                                 <Image
                                                     src='/calendar/events/high.png'
@@ -140,7 +118,7 @@ const AllEvents = () => {
                                                 High
                                             </span>
                                         )}
-                                        {event.priority === 'Medium' && (
+                                        {event.priority === 'medium' && (
                                             <span className='text-amber-500 flex items-center gap-1 text-xs font-medium'>
                                                 <Image
                                                     src='/calendar/events/medium.png'
@@ -151,7 +129,7 @@ const AllEvents = () => {
                                                 Medium
                                             </span>
                                         )}
-                                        {event.priority === 'Low' && (
+                                        {event.priority === 'low' && (
                                             <span className='text-green-500 flex items-center gap-1 text-xs font-medium'>
                                                 <Image
                                                     src='/calendar/events/low.png'
@@ -176,11 +154,11 @@ const AllEvents = () => {
                                             href='#'
                                             className='text-primary-white text-xs font-semibold underline'
                                         >
-                                            {event.purpose}
+                                            {/* {event.purpose} */}
                                         </a>
                                     ) : (
                                         <p className='text-dark-gray text-xs'>
-                                            {event.purpose}
+                                            {/* {event.purpose} */}
                                         </p>
                                     )}
                                 </div>
@@ -209,7 +187,7 @@ const AllEvents = () => {
                                         rel='noopener noreferrer'
                                         className='text-dark-gray font-semibold underline text-xs'
                                     >
-                                        meet.google.com/vtq-qjwd-lmn
+                                        {event.location?.link}
                                     </a>
                                 </div>
                                 <div className='flex -space-x-2'>

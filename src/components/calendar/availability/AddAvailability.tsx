@@ -1,50 +1,54 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import Schedule from './Schedule';
 import { toast } from 'sonner';
-import { TSchedule } from '@/types/calendar/calendarTypes';
+import {
+    TAvailability,
+    TSchedule,
+    TUpdateSchedule,
+} from '@/types/calendar/calendarTypes';
 import {
     useAddNewScheduleMutation,
     useGetAllSchedulesQuery,
 } from '@/redux/api/calendar/calendarApi';
 import { Card } from '@/components/ui/card';
-import { Loader } from 'lucide-react';
+import { Loader, Plus, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlobalModal from '@/components/global/GlobalModal';
 import { Input } from '@/components/ui/input';
 
-const AddAvailability = () => {
+type TProps = {
+    handleSave: (_: TUpdateSchedule, id: string) => void;
+    isLoading: boolean;
+    schedules: TSchedule[];
+    setAvailability: Dispatch<SetStateAction<TAvailability[]>>;
+    availability: TAvailability[];
+    name: string;
+    setName: Dispatch<SetStateAction<string>>;
+};
+
+const AddAvailability = ({
+    handleSave,
+    isLoading,
+    schedules,
+    name,
+    setAvailability,
+    setName,
+    availability,
+}: TProps) => {
     const [active, setActive] = useState(0);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
     const [createSchedule, { isLoading: isCreating }] =
         useAddNewScheduleMutation();
 
-    const [name, setName] = useState('');
-
-    const { data: scheduleData, isLoading } =
-        useGetAllSchedulesQuery(undefined);
-
-    const schedules = scheduleData?.data;
-
-    const handleUpdateList = (schedule: TSchedule) => {
-        const arr = JSON.parse(JSON.stringify(schedules));
-        const index = arr.findIndex((x: TSchedule) => x?._id === schedule?._id);
-        if (index !== -1) {
-            arr[index] = {
-                ...arr[index],
-                ...schedule,
-            };
-
-            // setSchedules(arr);
-        }
-    };
+    const [sname, setsName] = useState('');
 
     const handleAddSchedule = async () => {
-        if (name) {
+        if (sname) {
             try {
-                const res = await createSchedule(name).unwrap();
+                const res = await createSchedule(sname).unwrap();
                 if (res) {
                     toast.success(res.message);
                     setIsCreateOpen(false);
@@ -56,24 +60,13 @@ const AddAvailability = () => {
     };
 
     return (
-        <div className='add-availability'>
-            <div
-                className='flex justify-between'
-                // align={{ base: 'flex-start', sm: 'center' }}
-                // direction={{ base: 'column', sm: 'row' }}
-                // mb={25}
-                // mt={10}
-            >
+        <div className='add-availability pt-2'>
+            <div className='flex justify-between'>
                 <div className='items-center gap-2'>
-                    {schedules?.map((schedule: TSchedule, i: number) => (
+                    {/* {schedules?.map((schedule: TSchedule, i: number) => (
                         <div
                             onClick={() => setActive(i)}
                             style={{ cursor: 'pointer' }}
-                            // py={7}
-                            // px={13}
-                            // bg={i === active ? '#239B1C' : 'white'}
-                            // radius={'md'}
-                            // withBorder
                             key={i}
                         >
                             <p
@@ -83,7 +76,7 @@ const AddAvailability = () => {
                                 {schedule?.name}
                             </p>
                         </div>
-                    ))}
+                    ))} */}
 
                     {/* <ActionIcon onClick={() => handleAddSchedule()} size={"lg"} variant='outline'>
                           <FaPlus />
@@ -97,7 +90,10 @@ const AddAvailability = () => {
                 </Card>
             ) : schedules && schedules?.length > 0 ? (
                 <Schedule
-                    handleUpdateList={handleUpdateList}
+                    setName={setName}
+                    setAvailability={setAvailability}
+                    name={name}
+                    availability={availability}
                     schedule={schedules[active]}
                 />
             ) : (
@@ -106,24 +102,43 @@ const AddAvailability = () => {
                         You did not set up any schedule yet
                     </div>
                     <Button
+                        icon={<Plus size={18} />}
                         onClick={() => setIsCreateOpen(true)}
-                        title='Create new'
-                    />
+                    >
+                        Create new
+                    </Button>
                 </div>
             )}
 
             <GlobalModal
+                className='w-[550px] md:w-[550px] lg:w-[550px]'
                 allowFullScreen={true}
                 open={isCreateOpen}
                 setOpen={() => setIsCreateOpen(false)}
-                // handleFormDataSave={handleAddSchedule}
                 title={'Create new schedule'}
-                // isLoading={isCreating}
+                buttons={
+                    <div className='flex items-center gap-2'>
+                        <Button
+                            onClick={() => setIsCreateOpen(false)}
+                            variant={'secondary'}
+                            icon={<XCircle size={18} />}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            isLoading={isCreating}
+                            onClick={handleAddSchedule}
+                        >
+                            Save & close
+                        </Button>
+                    </div>
+                }
             >
                 <Input
                     placeholder='Schedule name'
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    className='mt-3'
+                    value={sname}
+                    onChange={(e) => setsName(e.target.value)}
                 />
             </GlobalModal>
         </div>
