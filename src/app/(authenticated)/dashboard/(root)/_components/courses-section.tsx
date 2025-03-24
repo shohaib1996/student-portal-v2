@@ -5,7 +5,7 @@ import { ModuleItem } from './module-item';
 
 export function CoursesSection() {
     return (
-        <Card className='p-2'>
+        <Card className='p-2 rounded-lg shadow-none bg-foreground'>
             <CardHeader className='flex flex-row items-center justify-between p-2 border-b'>
                 <div className=''>
                     <div className='flex items-center gap-1'>
@@ -24,7 +24,7 @@ export function CoursesSection() {
                 <ViewMoreLink href='#' />
             </CardHeader>
             <CardContent className='p-2'>
-                <div className='mt-4 space-y-4'>
+                <div className='space-y-2'>
                     <ModuleItem
                         icon='module'
                         title='Module'

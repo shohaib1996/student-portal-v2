@@ -73,7 +73,7 @@ const renderCustomizedLabel = ({
 
 export function OverallProgress(): JSX.Element {
     return (
-        <Card className='rounded-lg p-2'>
+        <Card className='rounded-lg p-2 shadow-none bg-foreground'>
             <CardHeader className='p-2 flex flex-row items-center justify-between border-b'>
                 <div>
                     <h3 className='text-md font-medium'>Overall Progress</h3>
@@ -119,12 +119,11 @@ export function OverallProgress(): JSX.Element {
                                     <Label
                                         value='100%'
                                         position='center'
-                                        fill='#000000'
                                         style={{
                                             fontSize: '18px',
                                             fontWeight: 'bold',
-                                            color: '#000000',
                                         }}
+                                        className='text-black'
                                     />
                                 </Pie>
                             </PieChart>
@@ -143,7 +142,7 @@ export function OverallProgress(): JSX.Element {
                                         {item.value}%
                                     </span>
                                 </div>
-                                <div className='w-full h-2 rounded-full mt-1 overflow-hidden bg-gray-light bg-gray-100 '>
+                                <div className='w-full h-2 rounded-full mt-1 overflow-hidden bg-gray-light bg-background '>
                                     <div
                                         className='h-full rounded-full'
                                         style={{

@@ -17,7 +17,7 @@ export function StatusCard({
     icon,
 }: StatusCardProps) {
     return (
-        <div className='flex justify-between gap-1.5 border rounded-lg p-4'>
+        <div className='flex justify-between gap-1.5 border rounded-lg p-4 bg-background'>
             {icon}
             <div className='mr-auto'>
                 <h4 className='text-muted-foreground text-sm'>{title}</h4>

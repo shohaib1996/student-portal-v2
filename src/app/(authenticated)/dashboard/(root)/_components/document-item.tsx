@@ -19,7 +19,7 @@ export function DocumentItem({
     imageSrc,
 }: DocumentItemProps) {
     return (
-        <div className='flex items-start gap-3 p-2 border rounded-lg'>
+        <div className='flex items-start gap-3 p-2 border rounded-lg bg-background'>
             <Image
                 src={imageSrc || '/placeholder.svg'}
                 alt={title}
