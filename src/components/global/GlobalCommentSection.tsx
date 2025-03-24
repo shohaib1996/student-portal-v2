@@ -22,6 +22,7 @@ interface GlobalCommentsSectionProps {
     comments?: Comment[];
     currentUserAvatar?: string;
     onCommentSubmit?: (content: string) => void;
+    isTitleEnable?: boolean;
 }
 
 export function GlobalCommentsSection({
@@ -29,6 +30,7 @@ export function GlobalCommentsSection({
     comments: propComments = [],
     currentUserAvatar = '/images/author.png',
     onCommentSubmit,
+    isTitleEnable = true,
 }: GlobalCommentsSectionProps) {
     // Fetch comments from API if documentId is provided
     const { data, error, isLoading } = documentId
@@ -58,13 +60,15 @@ export function GlobalCommentsSection({
     }
 
     return (
-        <div className='mt-6 border-t pt-4'>
-            <h3 className='mb-3 text-sm font-medium'>
-                Comments ({commentsToDisplay.length})
-            </h3>
+        <div className='mt-2 border-t pt-2'>
+            {isTitleEnable && (
+                <h3 className='mb-2 text-sm font-medium'>
+                    Comments ({commentsToDisplay.length})
+                </h3>
+            )}
 
             {/* Comments list */}
-            <div className='space-y-4'>
+            <div className='space-y-2'>
                 {commentsToDisplay.map((comment) => (
                     <div
                         key={comment._id}

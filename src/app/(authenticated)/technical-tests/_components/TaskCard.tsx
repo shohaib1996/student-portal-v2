@@ -1,4 +1,4 @@
-import { Eye } from 'lucide-react';
+import { CalendarDays, Eye, Gauge, User } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -41,7 +41,7 @@ export default function TaskCard({ task }: TaskCardProps) {
                 return (
                     <Badge
                         variant='outline'
-                        className='bg-background text-primary border-border-primary-light rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
+                        className='text-primary border-border-primary-light py-1 px-2 flex items-center gap-1 font-medium text-xs top-2 left-2 z-10 rounded-full'
                     >
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
@@ -73,7 +73,7 @@ export default function TaskCard({ task }: TaskCardProps) {
                 return (
                     <Badge
                         variant='outline'
-                        className='bg-background text-amber-800 border-border-primary-light rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
+                        className='text-amber-800 border-border-primary-light py-1 px-2 flex items-center gap-1 font-medium text-xs top-2 left-2 z-10 rounded-full'
                     >
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
@@ -120,7 +120,7 @@ export default function TaskCard({ task }: TaskCardProps) {
                 return (
                     <Badge
                         variant='outline'
-                        className='bg-background text-red-800 border-border-primary-light rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
+                        className='text-red-800 border-border-primary-light py-1 px-2 flex items-center gap-1 font-medium text-xs top-2 left-2 z-10 rounded-full'
                     >
                         <svg
                             className='w-4 h-4'
@@ -155,7 +155,7 @@ export default function TaskCard({ task }: TaskCardProps) {
                 return (
                     <Badge
                         variant='outline'
-                        className='bg-background text-black border-border-primary-light rounded-md py-1 px-2 flex items-center gap-1 font-medium text-xs absolute top-2 left-2 z-10'
+                        className='text-black border-border-primary-light py-1 px-2 flex items-center gap-1 font-medium text-xs top-2 left-2 z-10 rounded-full'
                     >
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
@@ -206,86 +206,85 @@ export default function TaskCard({ task }: TaskCardProps) {
         }
     };
 
+    console.log(task);
+
     return (
         <>
-            <Card className='overflow-hidden rounded-lg border border-border-primary-light bg-primary-light'>
-                <div className='grid grid-cols-3 gap-3 p-[10px]'>
-                    <div className='relative rounded-lg h-full'>
-                        {getStatusBadge(task.status)}
-                        <Image
-                            src='/tech.png'
-                            alt='Task document'
-                            width={740}
-                            height={740}
-                            className='object-cover h-full rounded-lg'
-                        />
-                    </div>
-
-                    <div className='col-span-2'>
-                        <h3 className='text-xl font-semibold text-black mb-1.5 leading-normal'>
+            <Card className='rounded-lg border border-foreground shadow-none p-2.5 bg-foreground'>
+                <div>
+                    <div className='flex justify-between gap-4'>
+                        <h3 className='flex-1 text-lg font-semibold text-black leading-normal line-clamp-2'>
                             {task.title}
                         </h3>
+                        <div className=''>{getStatusBadge(task.status)}</div>
+                    </div>
 
-                        <div className='space-y-1 mb-2'>
-                            <div className='flex items-center gap-2'>
-                                <div>
-                                    <p className='font-medium text-dark-gray'>
-                                        ID:{' '}
-                                        <span className='text-gray font-normal'>
-                                            #{task.id}
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className='font-medium text-dark-gray'>
-                                        Total Marks:{' '}
-                                        <span className='text-gray font-normal'>
-                                            {task.marks}
-                                        </span>
-                                    </p>
-                                </div>
-                            </div>
-                            <div>
-                                <p className='font-medium text-dark-gray'>
-                                    Deadline:{' '}
-                                    <span className='text-gray font-normal'>
-                                        {task.deadline}
-                                    </span>
-                                </p>
-                            </div>
-                            <div>
-                                <p className='font-medium text-dark-gray'>
-                                    Workshop:{' '}
-                                    <span className='text-gray font-normal'>
-                                        {task.workshop}
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
+                    <p className='font-medium text-black my-2'>
+                        ID:{' '}
+                        <span className='text-gray font-normal'>
+                            #{task.id}
+                        </span>
+                    </p>
 
-                        <div className='border-t border-border-primary-light pt-1.5 mt-auto'>
-                            <div className='flex gap-4'>
-                                <Button
-                                    disabled={
-                                        task.status === 'completed' ||
-                                        task.status === 'pending' ||
-                                        task.status === 'rejected'
-                                    }
-                                    onClick={handleTestNowClick}
-                                    className='bg-primary hover:bg-primary-light text-white rounded-md px-3.5 py-2.5 h-auto'
-                                >
-                                    Test Now <span className='ml-1'>→</span>
-                                </Button>
-                                <Button
-                                    disabled={task.status === 'not_answered'}
-                                    onClick={handleSeeResultClick}
-                                    variant='outline'
-                                    className='bg-background text-black rounded-md px-3.5 py-2 h-auto flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
-                                >
-                                    <Eye className='h-5 w-5' />
-                                    See Result
-                                </Button>
-                            </div>
+                    <div className='space-y-1'>
+                        <p className='text-xs font-medium text-gray grid grid-cols-3 gap-4'>
+                            <span className='flex items-center gap-1'>
+                                <Gauge className='h-3.5 w-3.5' />
+                                Total Marks:
+                            </span>
+                            <span className='text-black font-semibold'>
+                                {task.marks}
+                            </span>
+                        </p>
+                        <p className='text-xs font-medium text-gray grid grid-cols-3 gap-4'>
+                            <span className='flex items-center gap-1'>
+                                <CalendarDays className='h-3.5 w-3.5' />
+                                Deadline:
+                            </span>
+                            <span className='text-black font-semibold'>
+                                {task.deadline}
+                            </span>
+                        </p>
+                        <p className='text-xs font-medium text-gray grid grid-cols-3 gap-4'>
+                            <span className='flex items-center gap-1'>
+                                <User className='h-3.5 w-3.5' />
+                                Workshop:
+                            </span>
+                            <span className='text-black font-semibold'>
+                                {task.workshop}
+                            </span>
+                        </p>
+                    </div>
+
+                    <div className='border-t border-foreground pt-2 mt-2'>
+                        <div className='flex gap-4 justify-between items-center'>
+                            <Button
+                                variant={
+                                    task.status === 'completed' ||
+                                    task.status === 'pending' ||
+                                    task.status === 'rejected'
+                                        ? 'outline'
+                                        : 'default'
+                                }
+                                disabled={
+                                    task.status === 'completed' ||
+                                    task.status === 'pending' ||
+                                    task.status === 'rejected'
+                                }
+                                onClick={handleTestNowClick}
+                                className='hover:bg-primary-light rounded-md px-3.5 py-2.5 h-auto'
+                            >
+                                Test Now <span className='ml-1'>→</span>
+                            </Button>
+                            <Button
+                                disabled={task.status === 'not_answered'}
+                                onClick={handleSeeResultClick}
+                                variant='ghost'
+                                className='rounded-md px-3.5 py-2 h-auto flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-gray '
+                            >
+                                <Eye className='h-5 w-5' />
+                                See Result
+                            </Button>
                         </div>
                     </div>
                 </div>
