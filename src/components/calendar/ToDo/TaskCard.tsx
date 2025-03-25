@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
-import { TaskType } from './TodoBoard';
 import { Button } from '@/components/ui/button';
 import {
     Collapsible,
@@ -25,9 +24,10 @@ import {
 } from '@/components/ui/collapsible';
 import { memo } from 'react';
 import GlobalDropdown from '@/components/global/GlobalDropdown';
+import { TEvent } from '@/types/calendar/calendarTypes';
 
 interface TaskCardProps {
-    task: TaskType;
+    task: TEvent;
 }
 
 const TaskCard = memo(({ task }: TaskCardProps) => {
@@ -39,7 +39,7 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
         transition,
         isDragging,
     } = useSortable({
-        id: task.id,
+        id: task._id,
     });
 
     const style = {
@@ -48,7 +48,7 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
     };
 
     // Get priority badge color
-    const getPriorityColor = (priority: string) => {
+    const getPriorityColor = (priority: TEvent['priority']) => {
         switch (priority) {
             case 'high':
                 return 'text-red-800 dark:text-red-400';
@@ -69,7 +69,7 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
             ref={setNodeRef}
             style={style}
             className={cn(
-                'group bg-background rounded-md relative cursor-grab border shadow-sm',
+                'group bg-foreground rounded-md relative cursor-grab border shadow-sm',
                 isDragging && 'opacity-50 shadow-md',
             )}
         >
@@ -138,7 +138,7 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
 
                 <CollapsibleContent className='p-2 space-y-2'>
                     {/* Due date and priority */}
-                    <div className='flex items-center justify-between'>
+                    <div className='flex items-center flex-wrap gap-2 justify-between'>
                         <div className='flex items-center gap-1 text-xs text-dark-gray'>
                             <span className='text-black font-semibold'>
                                 Due:

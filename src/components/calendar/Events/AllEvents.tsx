@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
 import { TEvent } from '@/types/calendar/calendarTypes';
 import { endOfMonth, startOfMonth } from 'date-fns';
-import { Bell, ChevronDown, Clock, Ellipsis, Plus } from 'lucide-react';
+import { Bell, ChevronDown, Clock, Ellipsis, Plus, Users } from 'lucide-react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useState } from 'react';
@@ -20,19 +20,26 @@ import {
 } from '../CreateEvent/EventPopover';
 import CreateEventModal from '../CreateEvent/CreateEventModal';
 import Link from 'next/link';
+import { DateRange } from 'react-day-picker';
+import { RangePickerCL } from '../dateRangePicker/RangePickerCL';
+import dayjs from 'dayjs';
+import GlobalMarkDownPreview from '@/components/global/Community/MarkDown/GlobalMarkDownPreview';
 
 const AllEvents = () => {
     const [limit, setLimit] = useState(10);
-    const monthStart = startOfMonth(new Date());
-    const monthEnd = endOfMonth(new Date());
+    const [date, setDate] = useState<DateRange>({
+        from: startOfMonth(new Date()),
+        to: endOfMonth(new Date()),
+    });
 
     const [currentPage, setCurrentPage] = useState<number>(1);
     const { data } = useGetMyEventsQuery({
-        from: monthStart.toISOString(),
-        to: monthEnd.toISOString(),
+        from: date.from,
+        to: date.to,
     });
 
-    const events: TEvent[] = data?.events || [];
+    const events: TEvent[] =
+        (data?.events as TEvent[]).filter((ev) => ev.type !== 'task') || [];
 
     const pathName = usePathname();
     const router = useRouter();
@@ -60,13 +67,7 @@ const AllEvents = () => {
                                 My Invitaions
                             </Link>
                         </Button>
-                        <Button
-                            size={'icon'}
-                            tooltip='My Availability'
-                            className='text-dark-gray fill-none stroke-none'
-                            icon={<AvailabilityIcon />}
-                            variant={'secondary'}
-                        ></Button>
+                        <RangePickerCL value={date} onChange={setDate} />
                         <FilterModal
                             value={[]}
                             columns={[]}
@@ -122,9 +123,21 @@ const AllEvents = () => {
                                             size={12}
                                             className='text-dark-gray'
                                         />
-                                        <span className='text-dark-gray text-xs text-nowrap'>
-                                            {/* Due: {event.date} at {event.time} */}
-                                        </span>
+
+                                        <div className='flex text-xs text-dark-gray items-center gap-1'>
+                                            {/* <h2>{dayjs(event?.startTime).format('dddd')}, </h2> */}
+                                            <h2>
+                                                {dayjs(event?.startTime).format(
+                                                    'MMM MM, YYYY',
+                                                )}
+                                            </h2>
+                                            <h2>
+                                                at{' '}
+                                                {dayjs(event?.startTime).format(
+                                                    'HH:mm A',
+                                                )}
+                                            </h2>
+                                        </div>
                                     </div>
                                     <div className='flex flex-col items-end'>
                                         <div className='flex items-center gap-2'>
@@ -171,28 +184,23 @@ const AllEvents = () => {
                                 <div className='flex justify-between items-start'>
                                     <div className='flex items-start gap-1'>
                                         <span className='text-dark-gray text-xs font-semibold'>
-                                            Purpose:
+                                            Agenda:
                                         </span>
-                                        {i % 3 === 0 ? (
-                                            <a
-                                                href='#'
-                                                className='text-primary-white text-xs font-semibold underline'
-                                            >
-                                                {/* {event.purpose} */}
-                                            </a>
-                                        ) : (
-                                            <p className='text-dark-gray text-xs'>
-                                                {/* {event.purpose} */}
-                                            </p>
-                                        )}
+                                        <div className='text-xs truncate'>
+                                            {event?.description}
+                                        </div>
                                     </div>
-                                    <div className='flex items-start gap-1'>
+                                    <div className='flex items-center font-medium gap-1'>
                                         <Bell
                                             size={12}
                                             className='text-dark-gray'
                                         />
                                         <span className='text-dark-gray text-xs text-nowrap'>
-                                            30 min before
+                                            {
+                                                event?.reminders?.[0]
+                                                    ?.offsetMinutes
+                                            }{' '}
+                                            min before
                                         </span>
                                     </div>
                                 </div>
@@ -214,28 +222,9 @@ const AllEvents = () => {
                                             {event.location?.link}
                                         </a>
                                     </div>
-                                    <div className='flex -space-x-2'>
-                                        {event?.attendees?.map((at, i) => (
-                                            <div
-                                                key={i}
-                                                className='w-8 h-8 rounded-full border-2 border-border overflow-hidden'
-                                            >
-                                                <Image
-                                                    src={
-                                                        at?.user
-                                                            ?.profilePicture ||
-                                                        '/images/author.png'
-                                                    }
-                                                    alt={`Attendee ${i}`}
-                                                    width={32}
-                                                    height={32}
-                                                    className='object-cover'
-                                                />
-                                            </div>
-                                        ))}
-                                        <div className='w-8 h-8 rounded-full bg-primary text-pure-white flex items-center justify-center text-xs font-medium border-2 border-border-primary-light'>
-                                            +5
-                                        </div>
+                                    <div className='flex -space-x-2 text-xs text-dark-gray font-medium gap-1'>
+                                        <Users size={14} />{' '}
+                                        {event.attendeeCount} invited users
                                     </div>
                                 </div>
                             </div>

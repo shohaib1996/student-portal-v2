@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss';
 import tailwindcssAnimate from 'tailwindcss-animate';
 import defaultTheme from 'tailwindcss/defaultTheme';
 export default {
-    darkMode: ['class', ''],
+    darkMode: 'class',
     content: [
         './src/**/*.{js,ts,jsx,tsx,mdx}',
         './src/pages/**/*.{js,ts,jsx,tsx,mdx}',

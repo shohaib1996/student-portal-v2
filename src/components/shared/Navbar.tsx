@@ -114,7 +114,7 @@ const Navbar = () => {
     ].filter(Boolean);
 
     return (
-        <div className='sticky top-0 z-20 flex flex-shrink-0 w-full h-[55px] box-border bg-background'>
+        <div className='sticky top-0 z-20 flex flex-shrink-0 w-full h-[55px] box-border bg-foreground border-b border-forground-border shadow-sm'>
             <div className='flex justify-between w-full h-full items-center px-2'>
                 <Input
                     className='h-9 rounded-full lg:w-[390px] text-dark-gray'

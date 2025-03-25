@@ -325,22 +325,28 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                         }}
                                                     />
                                                     {/* Time Picker */}
-                                                    <TimePicker
-                                                        className='bg-background '
-                                                        value={field.value}
-                                                        onChange={(val) => {
-                                                            field.onChange(val);
-                                                            form.setValue(
-                                                                'endTime',
-                                                                dayjs(val)
-                                                                    .add(
-                                                                        15,
-                                                                        'minute',
-                                                                    )
-                                                                    .toDate(),
-                                                            );
-                                                        }}
-                                                    />
+                                                    {form.getValues(
+                                                        'isAllDay',
+                                                    ) === false && (
+                                                        <TimePicker
+                                                            className='bg-background '
+                                                            value={field.value}
+                                                            onChange={(val) => {
+                                                                field.onChange(
+                                                                    val,
+                                                                );
+                                                                form.setValue(
+                                                                    'endTime',
+                                                                    dayjs(val)
+                                                                        .add(
+                                                                            15,
+                                                                            'minute',
+                                                                        )
+                                                                        .toDate(),
+                                                                );
+                                                            }}
+                                                        />
+                                                    )}
                                                 </div>
                                             </FormControl>
                                             <FormMessage />
@@ -366,13 +372,19 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                         }
                                                     />
                                                     {/* Time Picker */}
-                                                    <TimePicker
-                                                        className='bg-background'
-                                                        value={field.value}
-                                                        onChange={(val) =>
-                                                            field.onChange(val)
-                                                        }
-                                                    />
+                                                    {!form.getValues(
+                                                        'isAllDay',
+                                                    ) && (
+                                                        <TimePicker
+                                                            className='bg-background'
+                                                            value={field.value}
+                                                            onChange={(val) =>
+                                                                field.onChange(
+                                                                    val,
+                                                                )
+                                                            }
+                                                        />
+                                                    )}
                                                 </div>
                                             </FormControl>
                                             <FormMessage />
@@ -390,8 +402,8 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                             <div className='flex items-center space-x-2'>
                                                 <Switch
                                                     checked={field.value}
-                                                    onCheckedChange={
-                                                        field.onChange
+                                                    onCheckedChange={(val) =>
+                                                        field.onChange(val)
                                                     }
                                                     id='airplane-mode'
                                                 />

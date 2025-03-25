@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback, useState } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import {
     DndContext,
     type DragEndEvent,
@@ -15,6 +15,13 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { createPortal } from 'react-dom';
 import TodoColumn from './TodoColumn';
 import TaskCard from './TaskCard';
+import {
+    useGetMyEventsQuery,
+    useUpdateEventMutation,
+} from '@/redux/api/calendar/calendarApi';
+import { DateRange } from 'react-day-picker';
+import { endOfMonth, startOfMonth } from 'date-fns';
+import { TEvent } from '@/types/calendar/calendarTypes';
 
 export interface TaskType {
     id: string;
@@ -24,54 +31,14 @@ export interface TaskType {
     priority: string;
 }
 
-const initialTasks: TaskType[] = [
-    {
-        id: '1',
-        title: 'Research competitors',
-        description: 'Look into what our competitors are doing',
-        status: 'started',
-        priority: 'high',
-    },
-    {
-        id: '2',
-        title: 'Design new landing page',
-        description: 'Create wireframes for the new landing page',
-        status: 'in-progress',
-        priority: 'medium',
-    },
-    {
-        id: '3',
-        title: 'Fix navigation bug',
-        description: 'The dropdown menu is not working on mobile',
-        status: 'started',
-        priority: 'high',
-    },
-    {
-        id: '4',
-        title: 'Update documentation',
-        description: 'Update the API documentation with new endpoints',
-        status: 'completed',
-        priority: 'low',
-    },
-    {
-        id: '5',
-        title: 'Implement authentication',
-        description: 'Add OAuth login functionality',
-        status: 'in-progress',
-        priority: 'high',
-    },
-    {
-        id: '6',
-        title: 'Refactor CSS',
-        description: 'Convert old CSS to Tailwind classes',
-        status: 'cancel',
-        priority: 'medium',
-    },
-];
+type TProps = {
+    tasks: TEvent[];
+    setTasks: Dispatch<SetStateAction<TEvent[]>>;
+};
 
-const TodoBoard = () => {
-    const [tasks, setTasks] = useState<TaskType[]>(initialTasks as TaskType[]);
-    const [activeTask, setActiveTask] = useState<TaskType | null>(null);
+const TodoBoard = ({ tasks, setTasks }: TProps) => {
+    const [activeTask, setActiveTask] = useState<TEvent | null>(null);
+    const [updateEvent] = useUpdateEventMutation();
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -81,11 +48,18 @@ const TodoBoard = () => {
         }),
     );
 
-    const statuses = ['started', 'in-progress', 'completed', 'cancel'];
+    console.log(tasks);
+
+    const statuses: TEvent['status'][] = [
+        'todo',
+        'inprogress',
+        'completed',
+        'cancelled',
+    ];
 
     function handleDragStart(event: DragStartEvent) {
         const { active } = event;
-        const activeTask = tasks.find((task) => task.id === active.id);
+        const activeTask = tasks.find((task) => task._id === active.id);
         if (activeTask) {
             setActiveTask(activeTask);
         }
@@ -106,7 +80,7 @@ const TodoBoard = () => {
                 return;
             }
 
-            const activeTaskIndex = tasks.findIndex((t) => t.id === activeId);
+            const activeTaskIndex = tasks.findIndex((t) => t._id === activeId);
             if (activeTaskIndex === -1) {
                 return;
             }
@@ -114,7 +88,7 @@ const TodoBoard = () => {
             const activeTask = tasks[activeTaskIndex];
 
             // If over a column, update status
-            if (statuses.includes(overId)) {
+            if (statuses.includes(overId as TEvent['status'])) {
                 // Skip if already in this status
                 if (activeTask.status === overId) {
                     return;
@@ -125,15 +99,18 @@ const TodoBoard = () => {
                     const newTasks = [...prev];
                     newTasks[activeTaskIndex] = {
                         ...activeTask,
-                        status: overId,
+                        status: overId as TEvent['status'],
                     };
                     return newTasks;
                 });
+                setActiveTask(
+                    (prev) => ({ ...prev, status: overId }) as TEvent,
+                );
                 return;
             }
 
             // Over another task
-            const overTaskIndex = tasks.findIndex((t) => t.id === overId);
+            const overTaskIndex = tasks.findIndex((t) => t._id === overId);
             if (overTaskIndex === -1) {
                 return;
             }
@@ -153,7 +130,9 @@ const TodoBoard = () => {
                         status: overTask.status,
                     };
                     // Find insertion point
-                    const insertAt = newTasks.findIndex((t) => t.id === overId);
+                    const insertAt = newTasks.findIndex(
+                        (t) => t._id === overId,
+                    );
                     // Insert
                     if (insertAt >= 0) {
                         newTasks.splice(insertAt, 0, updatedTask);
@@ -163,6 +142,10 @@ const TodoBoard = () => {
                     }
                     return newTasks;
                 });
+
+                setActiveTask(
+                    (prev) => ({ ...prev, status: overTask.status }) as TEvent,
+                );
             } else {
                 // Same status - just reorder
                 if (activeTaskIndex !== overTaskIndex) {
@@ -176,8 +159,19 @@ const TodoBoard = () => {
     );
 
     const handleDragEnd = useCallback(
-        (event: DragEndEvent) => {
-            setActiveTask(null);
+        async (event: DragEndEvent) => {
+            try {
+                const res = await updateEvent({
+                    id: activeTask?._id as string,
+                    changes: {
+                        status: activeTask?.status,
+                    },
+                    updateOption: 'thisEvent',
+                }).unwrap();
+                setActiveTask(null);
+            } catch (err) {
+                console.log(err);
+            }
         },
         [tasks],
     );
@@ -194,14 +188,19 @@ const TodoBoard = () => {
                 },
             }}
         >
-            <div className='grid mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2'>
-                {statuses.map((status) => (
-                    <TodoColumn
-                        key={status}
-                        status={status}
-                        tasks={tasks.filter((task) => task.status === status)}
-                    />
-                ))}
+            <div className='overflow-x-auto'>
+                <div className='grid mt-2 w-full min-w-[1400px] lg:grid-cols-4 gap-2'>
+                    {statuses.map((status, i) => (
+                        <TodoColumn
+                            index={i}
+                            key={status}
+                            status={status}
+                            tasks={tasks.filter(
+                                (task) => task.status === status,
+                            )}
+                        />
+                    ))}
+                </div>
             </div>
 
             {typeof document !== 'undefined' &&

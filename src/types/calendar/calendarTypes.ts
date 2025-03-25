@@ -199,6 +199,7 @@ export type TEvent = {
     };
     attendeeCount?: number;
     myResponseStatus?: 'accepted' | 'needsAction' | 'denied' | 'finished';
+    status: 'todo' | 'inprogress' | 'completed' | 'cancelled';
 };
 
 export type TInterval = {
