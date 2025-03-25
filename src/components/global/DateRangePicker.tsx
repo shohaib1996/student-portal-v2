@@ -27,15 +27,16 @@ export function DateRangePicker({
     //     to: addDays(new Date(2022, 0, 20), 20),
     // });
     return (
-        <div className={cn('grid gap-2', className)}>
+        <div className={cn('grid gap-2')}>
             <Popover>
                 <PopoverTrigger asChild>
                     <Button
                         id='date'
                         variant={'plain'}
                         className={cn(
-                            'w-full justify-start border border-forground-border h-10 bg-background-foreground text-gray text-left font-normal',
+                            'w-full justify-start border border-forground-border h-10 bg-foreground text-gray text-left font-normal',
                             !date && 'text-muted-foreground',
+                            className,
                         )}
                     >
                         <CalendarIcon size={18} />

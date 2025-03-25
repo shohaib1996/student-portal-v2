@@ -19,6 +19,7 @@ import {
     EventPopoverTrigger,
 } from '../CreateEvent/EventPopover';
 import CreateEventModal from '../CreateEvent/CreateEventModal';
+import Link from 'next/link';
 
 const AllEvents = () => {
     const [limit, setLimit] = useState(10);
@@ -37,7 +38,7 @@ const AllEvents = () => {
     const router = useRouter();
 
     return (
-        <EventPopoverProvider>
+        <>
             <GlobalHeader
                 title={
                     <div>
@@ -55,7 +56,9 @@ const AllEvents = () => {
                             variant={'secondary'}
                             icon={<MyInvitationsIcon />}
                         >
-                            My Invitaions
+                            <Link href={'/calendar/my-invitations'}>
+                                My Invitaions
+                            </Link>
                         </Button>
                         <Button
                             size={'icon'}
@@ -250,9 +253,7 @@ const AllEvents = () => {
                     }}
                 />
             </div>
-            <CreateEventModal />
-            <EventDetails />
-        </EventPopoverProvider>
+        </>
     );
 };
 

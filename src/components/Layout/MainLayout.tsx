@@ -39,14 +39,14 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
             {activeCompany ? (
                 <>
                     <AppSidebar />
-                    <SidebarInset>
-                        <main className={`relative bg-background w-full`}>
-                            <Navbar />
-                            <div className='px-2 min-h-[calc(100vh-55px)]'>
-                                {children}
-                            </div>
-                        </main>
-                    </SidebarInset>
+                    <main
+                        className={`relative bg-background ${state === 'expanded' ? 'md:w-[calc(100%-256px)]' : 'md:w-[calc(100%-48px)]'} w-full`}
+                    >
+                        <Navbar />
+                        <div className='px-2 min-h-[calc(100vh-55px)]'>
+                            {children}
+                        </div>
+                    </main>
                     {!isChat && (
                         <ChatModalsWrapper>
                             <ChatPopup />

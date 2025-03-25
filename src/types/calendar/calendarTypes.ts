@@ -198,6 +198,7 @@ export type TEvent = {
         _id?: string;
     };
     attendeeCount?: number;
+    myResponseStatus?: 'accepted' | 'needsAction' | 'denied' | 'finished';
 };
 
 export type TInterval = {

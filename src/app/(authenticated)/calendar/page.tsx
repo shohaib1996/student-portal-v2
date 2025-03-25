@@ -25,6 +25,7 @@ import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import EventDetails from '@/components/calendar/EventDetails';
 import { EventPopoverProvider } from '@/components/calendar/CreateEvent/EventPopover';
+import Link from 'next/link';
 
 interface CustomSheetContentProps
     extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content> {
@@ -68,7 +69,9 @@ const CalendarPage = () => {
                             variant={'secondary'}
                             icon={<MyInvitationsIcon />}
                         >
-                            My Invitaions
+                            <Link href={'/calendar/my-invitations'}>
+                                My Invitaions
+                            </Link>
                         </Button>
                         <Button
                             onClick={() =>
@@ -89,7 +92,7 @@ const CalendarPage = () => {
                     </div>
                 }
             />
-            <EventPopoverProvider>
+            <>
                 <Sheet>
                     <div className='flex gap-2 h-[calc(100vh-120px)]'>
                         <Calendar />
@@ -128,9 +131,7 @@ const CalendarPage = () => {
                         </CustomSheetContent>
                     </div>
                 </Sheet>
-                <CreateEventModal />
-                <EventDetails />
-            </EventPopoverProvider>
+            </>
         </div>
     );
 };
