@@ -262,22 +262,27 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                         }}
                                                     />
                                                     {/* Time Picker */}
-                                                    <TimePicker
-                                                        className='bg-background '
-                                                        value={field.value}
-                                                        onChange={(val) => {
-                                                            field.onChange(val);
-                                                            form.setValue(
-                                                                'endTime',
-                                                                dayjs(val)
-                                                                    .add(
-                                                                        15,
-                                                                        'minute',
-                                                                    )
-                                                                    .toDate(),
-                                                            );
-                                                        }}
-                                                    />
+                                                    {form.watch('isAllDay') ===
+                                                        false && (
+                                                        <TimePicker
+                                                            className='bg-background '
+                                                            value={field.value}
+                                                            onChange={(val) => {
+                                                                field.onChange(
+                                                                    val,
+                                                                );
+                                                                form.setValue(
+                                                                    'endTime',
+                                                                    dayjs(val)
+                                                                        .add(
+                                                                            15,
+                                                                            'minute',
+                                                                        )
+                                                                        .toDate(),
+                                                                );
+                                                            }}
+                                                        />
+                                                    )}
                                                 </div>
                                             </FormControl>
                                             <FormMessage />
@@ -303,13 +308,18 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                         }
                                                     />
                                                     {/* Time Picker */}
-                                                    <TimePicker
-                                                        className='bg-background'
-                                                        value={field.value}
-                                                        onChange={(val) =>
-                                                            field.onChange(val)
-                                                        }
-                                                    />
+                                                    {form.watch('isAllDay') ===
+                                                        false && (
+                                                        <TimePicker
+                                                            className='bg-background'
+                                                            value={field.value}
+                                                            onChange={(val) =>
+                                                                field.onChange(
+                                                                    val,
+                                                                )
+                                                            }
+                                                        />
+                                                    )}
                                                 </div>
                                             </FormControl>
                                             <FormMessage />

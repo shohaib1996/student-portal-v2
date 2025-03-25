@@ -297,7 +297,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                 <FormField
                                     name='startTime'
                                     control={form.control}
-                                    render={({ field }) => (
+                                    render={({ field, formState }) => (
                                         <FormItem>
                                             <FormControl>
                                                 <div className='flex items-center gap-2'>
@@ -325,9 +325,8 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                         }}
                                                     />
                                                     {/* Time Picker */}
-                                                    {form.getValues(
-                                                        'isAllDay',
-                                                    ) === false && (
+                                                    {form.watch('isAllDay') ===
+                                                        false && (
                                                         <TimePicker
                                                             className='bg-background '
                                                             value={field.value}

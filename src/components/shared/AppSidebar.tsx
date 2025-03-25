@@ -480,18 +480,55 @@ export function AppSidebar() {
                             {/* Calendar */}
                             {navigations.myCalendar && isCalendarAvailable && (
                                 <SidebarMenuItem>
-                                    <SidebarMenuButton
-                                        tooltip={'Calendar'}
-                                        isActive={pathname === '/calendar'}
-                                    >
-                                        <Calendar size={20} />
-                                        <Link
-                                            className='whitespace-nowrap truncate w-full'
-                                            href='/calendar'
-                                        >
-                                            Calendar
-                                        </Link>
-                                    </SidebarMenuButton>
+                                    <Collapsible className='group/collapsible w-full'>
+                                        <CollapsibleTrigger asChild>
+                                            <SidebarMenuButton
+                                                tooltip={'Calendar'}
+                                                isActive={
+                                                    pathname === '/calendar'
+                                                }
+                                            >
+                                                <Calendar size={20} />
+                                                <Link
+                                                    className='whitespace-nowrap truncate w-full'
+                                                    href='/calendar'
+                                                >
+                                                    Calendar
+                                                </Link>
+                                                <ChevronRight className='ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90' />
+                                            </SidebarMenuButton>
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent>
+                                            <SidebarMenuSub>
+                                                <SidebarMenuSubItem>
+                                                    <SidebarMenuButton
+                                                        asChild
+                                                        isActive={
+                                                            pathname ===
+                                                            '/calendar/events'
+                                                        }
+                                                    >
+                                                        <Link href='/calendar/events'>
+                                                            Events
+                                                        </Link>
+                                                    </SidebarMenuButton>
+                                                </SidebarMenuSubItem>
+                                                <SidebarMenuSubItem>
+                                                    <SidebarMenuButton
+                                                        asChild
+                                                        isActive={
+                                                            pathname ===
+                                                            '/calendar/to-do'
+                                                        }
+                                                    >
+                                                        <Link href='/calendar/to-do'>
+                                                            To-Do
+                                                        </Link>
+                                                    </SidebarMenuButton>
+                                                </SidebarMenuSubItem>
+                                            </SidebarMenuSub>
+                                        </CollapsibleContent>
+                                    </Collapsible>
                                 </SidebarMenuItem>
                             )}
 
