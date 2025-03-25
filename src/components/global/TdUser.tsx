@@ -12,7 +12,7 @@ export function TdUser({
 }) {
     const { onlineUsers } = useAppSelector((s) => s.chat);
 
-    const isOnline = onlineUsers?.find((u) => u._id === user._id);
+    const isOnline = onlineUsers?.find((u) => u?._id === user?._id);
 
     return (
         <div className={cn('flex items-center gap-3', className)}>

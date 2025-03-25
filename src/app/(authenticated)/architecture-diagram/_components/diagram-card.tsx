@@ -17,7 +17,7 @@ interface DiagramCardProps {
 
 const DiagramCard = ({ diagram, onClick, index }: DiagramCardProps) => {
     return (
-        <div className='border rounded-lg overflow-hidden bg-background'>
+        <div className='border rounded-lg overflow-hidden bg-foreground'>
             <div className='relative'>
                 <div className='h-40 overflow-hidden'>
                     {Array.isArray(diagram?.attachments) &&

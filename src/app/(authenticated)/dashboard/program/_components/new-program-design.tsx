@@ -13,9 +13,10 @@ import {
     Shield,
     Star,
     Users,
+    Github,
+    Router,
 } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -33,9 +34,13 @@ import { TProgram, TProgramMain, TProgressChart } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
 import Image from 'next/image';
+import parse from 'html-react-parser';
+import { useRouter } from 'next/navigation';
+import { Separator } from '@/components/ui/separator';
 
 export default function BootcampPage() {
     const { data, isLoading, isError } = useMyProgramQuery({});
+    const router = useRouter();
 
     const {
         data: myProgress,
@@ -55,54 +60,54 @@ export default function BootcampPage() {
                         {/* Left Column - Program Details Skeleton */}
                         <div className='flex-1'>
                             <div className='flex items-center gap-2 mb-4'>
-                                <Skeleton className='h-6 w-28 rounded-full bg-green-100' />
+                                <Skeleton className='h-6 w-28 rounded-full bg-background' />
                                 <Skeleton className='h-6 w-32 rounded-full bg-primary-light' />
                             </div>
 
-                            <Skeleton className='h-8 w-3/4 mb-6 bg-background' />
+                            <Skeleton className='h-8 w-3/4 mb-6 bg-foreground' />
 
                             <div className='grid md:grid-cols-2 gap-6 mb-6'>
                                 <div className='space-y-4'>
                                     <div className='flex items-center gap-2'>
-                                        <Skeleton className='h-5 w-5 rounded-full bg-background' />
+                                        <Skeleton className='h-5 w-5 rounded-full bg-foreground' />
                                         <div className='space-y-1'>
-                                            <Skeleton className='h-3 w-16 bg-background' />
-                                            <Skeleton className='h-4 w-28 bg-background' />
+                                            <Skeleton className='h-3 w-16 bg-foreground' />
+                                            <Skeleton className='h-4 w-28 bg-foreground' />
                                         </div>
                                     </div>
 
                                     <div className='flex items-center gap-2'>
-                                        <Skeleton className='h-5 w-5 rounded-full bg-background' />
+                                        <Skeleton className='h-5 w-5 rounded-full bg-foreground' />
                                         <div className='space-y-1'>
-                                            <Skeleton className='h-3 w-16 bg-background' />
-                                            <Skeleton className='h-4 w-40 bg-background' />
+                                            <Skeleton className='h-3 w-16 bg-foreground' />
+                                            <Skeleton className='h-4 w-40 bg-foreground' />
                                         </div>
                                     </div>
 
                                     <div className='flex items-center gap-2'>
-                                        <Skeleton className='h-5 w-5 rounded-full bg-background' />
+                                        <Skeleton className='h-5 w-5 rounded-full bg-foreground' />
                                         <div className='space-y-1'>
-                                            <Skeleton className='h-3 w-16 bg-background' />
-                                            <Skeleton className='h-4 w-32 bg-background' />
+                                            <Skeleton className='h-3 w-16 bg-foreground' />
+                                            <Skeleton className='h-4 w-32 bg-foreground' />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div>
                                     <div className='flex items-center gap-3 mb-4'>
-                                        <Skeleton className='w-12 h-12 rounded-full bg-background' />
+                                        <Skeleton className='w-12 h-12 rounded-full bg-foreground' />
                                         <div className='space-y-2'>
-                                            <Skeleton className='h-4 w-32 bg-background' />
-                                            <Skeleton className='h-3 w-24 bg-background' />
+                                            <Skeleton className='h-4 w-32 bg-foreground' />
+                                            <Skeleton className='h-3 w-24 bg-foreground' />
                                         </div>
                                     </div>
 
                                     <div className='mb-4'>
                                         <div className='flex items-center justify-between mb-1'>
-                                            <Skeleton className='h-4 w-32 bg-background' />
-                                            <Skeleton className='h-4 w-10 bg-background' />
+                                            <Skeleton className='h-4 w-32 bg-foreground' />
+                                            <Skeleton className='h-4 w-10 bg-foreground' />
                                         </div>
-                                        <Skeleton className='h-3 w-full rounded-full bg-blue-100' />
+                                        <Skeleton className='h-3 w-full rounded-full bg-background' />
                                     </div>
 
                                     <div className='grid grid-cols-2 gap-2 mt-4'>
@@ -111,10 +116,10 @@ export default function BootcampPage() {
                                                 key={i}
                                                 className='flex items-center gap-2'
                                             >
-                                                <Skeleton className='w-8 h-8 rounded-full bg-blue-50' />
+                                                <Skeleton className='w-8 h-8 rounded-full bg-background' />
                                                 <div>
-                                                    <Skeleton className='h-3 w-16 bg-background' />
-                                                    <Skeleton className='h-4 w-8 bg-background mt-1' />
+                                                    <Skeleton className='h-3 w-16 bg-foreground' />
+                                                    <Skeleton className='h-4 w-8 bg-foreground mt-1' />
                                                 </div>
                                             </div>
                                         ))}
@@ -122,12 +127,12 @@ export default function BootcampPage() {
                                 </div>
                             </div>
 
-                            <Skeleton className='h-10 w-36 rounded-md bg-blue-600' />
+                            <Skeleton className='h-10 w-36 rounded-md bg-background' />
                         </div>
 
                         {/* Right Column - Program Image and Technologies Skeleton */}
                         <div className='lg:w-2/5'>
-                            <Skeleton className='h-48 md:h-64 w-full rounded-xl bg-background mb-4' />
+                            <Skeleton className='h-48 md:h-64 w-full rounded-xl bg-foreground mb-4' />
 
                             <div className='grid grid-cols-6 gap-2'>
                                 {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -135,8 +140,8 @@ export default function BootcampPage() {
                                         key={i}
                                         className='flex flex-col items-center'
                                     >
-                                        <Skeleton className='w-10 h-10 rounded-lg bg-background' />
-                                        <Skeleton className='h-2 w-8 bg-background mt-1' />
+                                        <Skeleton className='w-10 h-10 rounded-lg bg-foreground' />
+                                        <Skeleton className='h-2 w-8 bg-foreground mt-1' />
                                     </div>
                                 ))}
                             </div>
@@ -154,7 +159,8 @@ export default function BootcampPage() {
 
     return (
         <TooltipProvider>
-            <div className='bg-foreground p-0'>
+            <Separator className='my-1' />
+            <div className='p-0'>
                 {/* Header */}
                 <GlobalHeader
                     title='Bootcamps'
@@ -164,6 +170,9 @@ export default function BootcampPage() {
                             <Button
                                 variant='outline'
                                 className='flex items-center gap-2'
+                                onClick={() =>
+                                    router.push('/dashboard/leaderboard')
+                                }
                             >
                                 <Users className='h-4 w-4' />
                                 Leaderboard
@@ -171,6 +180,9 @@ export default function BootcampPage() {
                             <Button
                                 variant='outline'
                                 className='flex items-center gap-2'
+                                onClick={() =>
+                                    router.push('/dashboard/progress')
+                                }
                             >
                                 <LayoutDashboard className='h-4 w-4' />
                                 Progress
@@ -180,7 +192,7 @@ export default function BootcampPage() {
                 />
 
                 {/* Main Content */}
-                <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 my-2 px-3 py-2 bg-background rounded-md border'>
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 my-2 px-3 py-2 bg-foreground rounded-md border'>
                     {/* Left Column - Course Info */}
                     <div className=''>
                         {/* Course Title and Info */}
@@ -215,9 +227,9 @@ export default function BootcampPage() {
                                     <span>35 modules</span>
                                 </div>
                             </div>
-                            <p className='text-gray line-clamp-2'>
-                                {program.description}
-                            </p>
+                            <div className='text-gray line-clamp-2'>
+                                {parse(program.description)}
+                            </div>
                             {/* Bootcamp Details */}
                             <div className='grid grid-cols-1 md:grid-cols-2 space-y-3 my-2.5'>
                                 <div className='flex items-center gap-2'>
@@ -277,14 +289,17 @@ export default function BootcampPage() {
                                     56%
                                 </span>
                             </div>
-                            <Progress value={56} className='h-2 mb-2' />
+                            <Progress
+                                value={56}
+                                className='h-2 mb-2 bg-background'
+                            />
                             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                                <div className='bg-green-50 rounded-lg p-4 flex items-center gap-2.5'>
-                                    <div className='h-10 w-10 flex items-center justify-center rounded-sm bg-green-100'>
+                                <div className='bg-green-50 dark:bg-background rounded-lg p-4 flex items-center gap-2.5'>
+                                    <div className='h-10 w-10 flex items-center justify-center rounded-sm bg-green-100 dark:bg-foreground'>
                                         <CheckCircle2 className='h-5 w-5 text-green-500' />
                                     </div>
                                     <div>
-                                        <div className='text-sm text-gray-500'>
+                                        <div className='text-sm text-gray'>
                                             Completed
                                         </div>
                                         <div className='text-xl font-semibold'>
@@ -292,12 +307,12 @@ export default function BootcampPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className='bg-amber-50 rounded-lg p-4 flex items-center'>
-                                    <div className='h-[38px] w-[38px] flex items-center justify-center rounded-sm'>
-                                        <Clock className='h-5 w-5 text-amber-500 mr-3' />
+                                <div className='bg-amber-50 dark:bg-background rounded-lg p-4 flex items-center gap-2.5'>
+                                    <div className='h-10 w-10 flex items-center justify-center rounded-sm bg-amber-100 dark:bg-foreground'>
+                                        <Clock className='h-5 w-5 text-amber-500' />
                                     </div>
                                     <div>
-                                        <div className='text-sm text-gray-500'>
+                                        <div className='text-sm text-gray'>
                                             In Progress
                                         </div>
                                         <div className='text-xl font-semibold'>
@@ -305,12 +320,12 @@ export default function BootcampPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className='bg-purple-50 rounded-lg p-4 flex items-center'>
-                                    <div className='h-[38px] w-[38px] flex items-center justify-center rounded-sm'>
-                                        <Layers className='h-5 w-5 text-purple-500 mr-3' />
+                                <div className='bg-purple-50 dark:bg-background rounded-lg p-4 flex items-center gap-2.5'>
+                                    <div className='h-10 w-10 flex items-center justify-center rounded-sm bg-purple-100 dark:bg-foreground'>
+                                        <Layers className='h-5 w-5 text-purple-500' />
                                     </div>
                                     <div>
-                                        <div className='text-sm text-gray-500'>
+                                        <div className='text-sm text-gray'>
                                             Remaining
                                         </div>
                                         <div className='text-xl font-semibold'>
@@ -389,15 +404,7 @@ export default function BootcampPage() {
                                     </div>
                                     <div className='flex flex-col items-center'>
                                         <div className=' rounded-full p-2 mb-2'>
-                                            <svg
-                                                xmlns='http://www.w3.org/2000/svg'
-                                                width='40'
-                                                height='40'
-                                                viewBox='0 0 24 24'
-                                                fill='#181717'
-                                            >
-                                                <path d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12' />
-                                            </svg>
+                                            <Github className='h-7 w-7 text-white' />
                                         </div>
                                         <span className='text-xs'>GitHub</span>
                                     </div>
@@ -542,7 +549,7 @@ export default function BootcampPage() {
                                                 width='40'
                                                 height='40'
                                                 viewBox='0 0 24 24'
-                                                fill='#000000'
+                                                fill='white'
                                             >
                                                 <path
                                                     d='M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489.117.779.567 1.563 1.182 2.145.61.577 1.305.939 1.977 1.094.345.077.685.114 1.016.114.39 0 .762-.039 1.103-.116.673-.161 1.367-.537 1.969-1.097.597-.565 1.037-1.333 1.152-2.096.148-.847.03-1.688-.236-2.512-.565-1.722-1.693-3.401-2.414-4.47-.862-1.285-1.473-2.128-1.574-3.244-.063-.699.013-1.266.172-1.744.244-.721.77-1.229 1.378-1.229h.176c.67 0 1.264.53 1.5 1.272.176.547.194 1.11.13 1.822-.077.845-.292 1.643-.513 2.368-.221.722-.45 1.46-.556 2.276-.19 1.53 1.008 2.828 2.213 3.54.845.498 1.83.776 2.8.776.815 0 1.635-.18 2.398-.53 1.155-.526 2.047-1.496 2.248-2.448.273-1.28-.213-2.478-1.01-3.995-.476-.902-.908-1.859-1.288-2.758-.204-.482-.395-.934-.573-1.352-.344-.815-.673-1.59-.917-2.35-.132-.406-.264-.803-.377-1.196-.129-.449-.237-.9-.309-1.345-.053-.344-.08-.686-.08-1.022 0-.174.012-.344.035-.51.065-.48.263-.881.606-1.134.304-.226.662-.314 1.04-.314.164 0 .33.016.495.05.71.15 1.334.616 1.834 1.345.49.72.886 1.672 1.246 2.878.193.647.395 1.322.592 2.02.602 2.119 1.226 4.31 2.178 6.1.473.886 1.01 1.655 1.697 2.11.596.394 1.324.622 2.102.62.652-.002 1.336-.172 2.028-.51.69-.338 1.31-.911 1.692-1.554.404-.68.598-1.448.594-2.245-.006-1.033-.378-1.993-1.064-2.825-.682-.827-1.601-1.415-2.606-1.713-.151-.045-.301-.08-.452-.108-.103-.02-.207-.036-.312-.05-.143-.02-.287-.035-.433-.047-.135-.01-.27-.018-.406-.022-.13-.004-.262-.004-.394-.001-.066.001-.133.005-.199.01-.094.006-.187.016-.28.027-.118.014-.235.031-.35.052-.154.027-.305.057-.454.094-.102.024-.203.052-.303.08-.144.04-.285.082-.424.129-.086.028-.17.059-.253.09-.123.046-.244.094-.363.144-.073.03-.146.064-.217.097-.13.06-.257.122-.38.188-.57.03-.114.062-.169.094-.11.064-.217.13-.321.2-.053.035-.105.07-.156.107-.096.066-.19.134-.281.204-.05.038-.1.077-.147.117-.082.067-.162.136-.24.207-.046.042-.091.084-.135.127-.073.07-.145.141-.214.214-.042.043-.083.088-.123.133-.065.073-.127.147-.188.223-.037.045-.074.091-.109.138-.055.073-.109.146-.16.221-.032.047-.063.095-.093.143-.048.074-.094.15-.138.226-.026.047-.052.095-.077.143-.04.077-.078.155-.114.234-.022.049-.043.098-.063.148-.031.077-.06.155-.088.234-.018.05-.036.1-.052.15-.025.08-.048.16-.069.241-.014.05-.027.102-.039.153-.019.081-.036.162-.051.244-.01.052-.02.104-.028.156-.013.082-.024.165-.034.248-.006.052-.012.104-.017.157-.007.084-.012.168-.016.252-.002.053-.005.106-.006.159-.001.085-.001.17.001.255.001.052.003.104.005.156.004.087.01.173.018.26.004.051.008.102.013.152.008.088.019.176.03.264.007.05.014.1.022.15.013.09.028.18.044.268.01.049.02.098.031.146.018.092.038.184.06.275.013.048.027.096.041.144.023.093.049.186.076.277.016.046.033.092.05.137.03.096.061.19.094.283.019.044.038.088.058.131.035.097.073.194.112.289.022.042.044.084.067.126.042.099.086.197.132.294.024.04.049.08.074.119.048.1.1.199.152.297.027.037.054.075.082.112.055.102.113.203.173.302.029.034.059.068.089.101.062.103.127.205.194.305.031.031.063.062.095.092.069.104.141.206.215.307.033.027.066.055.1.082.077.105.156.209.239.311.035.024.07.048.106.072.084.105.171.208.262.309.037.021.073.042.111.063.093.105.189.208.289.309.038.018.076.036.114.054.102.104.207.206.315.305.039.015.078.029.117.043.111.103.226.204.345.302.04.011.08.022.12.032.121.102.245.201.373.297.04.007.081.014.121.021.132.1.268.197.407.291.04.003.08.005.12.008.143.097.29.191.44.283.042-.001.083-.001.125-.003.153.094.31.185.471.273.043-.005.086-.01.129-.016.164.09.332.177.503.261.044-.009.088-.018.133-.028.175.086.354.169.536.248.045-.013.09-.027.135-.041.186.081.376.159.569.234.046-.017.091-.035.137-.053.198.075.4.147.605.217.046-.021.092-.043.139-.065.21.069.425.135.644.198.047-.026.094-.052.141-.079.222.063.448.122.676.178.047-.03.095-.061.143-.092.235.056.474.108.716.156.047-.035.095-.07.143-.106.248.048.5.093.754.134.047-.04.095-.079.143-.12.262.04.527.077.795.111.047-.044.095-.089.143-.134.276.032.554.06.835.085.047-.049.095-.
@@ -591,7 +598,7 @@ export default function BootcampPage() {
                     </Card>
                     <Card className='rounded-md shadow-none'>
                         <CardContent className='px-2.5 py-3 flex items-center gap-4'>
-                            <div className='bg-purple-100 p-3 rounded-full'>
+                            <div className='bg-purple-100 dark:bg-primary-light p-3 rounded-full'>
                                 <Layers className='h-6 w-6 text-purple-600' />
                             </div>
                             <div>
@@ -607,7 +614,7 @@ export default function BootcampPage() {
                     </Card>
                     <Card className='rounded-md shadow-none'>
                         <CardContent className='px-2.5 py-3 flex items-center gap-4'>
-                            <div className='bg-green-100 p-3 rounded-full'>
+                            <div className='bg-green-100 dark:bg-primary-light p-3 rounded-full'>
                                 <Award className='h-6 w-6 text-green-600' />
                             </div>
                             <div>
@@ -626,26 +633,26 @@ export default function BootcampPage() {
                 {/* Tabs Section */}
                 <Tabs
                     defaultValue='overview'
-                    className='rounded-md border bg-background px-2 py-2.5'
+                    className='rounded-md border bg-foreground px-2 py-2.5'
                 >
                     <TabsList className='bg-transparent border-b w-full flex items-center justify-start flex-wrap rounded-none p-0 h-auto'>
                         <TabsTrigger
                             value='overview'
-                            className='rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary py-3 px-6'
+                            className='rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary-white py-3 px-6'
                         >
                             <LayoutDashboard className='h-4 w-4 mr-2' />
                             Overview
                         </TabsTrigger>
                         <TabsTrigger
                             value='curriculum'
-                            className='rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary py-3 px-6'
+                            className='rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary-white py-3 px-6'
                         >
                             <Book className='h-4 w-4 mr-2' />
                             Curriculum
                         </TabsTrigger>
                         <TabsTrigger
                             value='resources'
-                            className='rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary py-3 px-6'
+                            className='rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary-white py-3 px-6'
                         >
                             <FileText className='h-4 w-4 mr-2' />
                             Resources
@@ -801,7 +808,7 @@ export default function BootcampPage() {
                     </TabsContent>
                 </Tabs>
                 {/* Technologies You'll Master */}
-                <div className='my-2 border rounded-md bg-background px-2 py-2.5'>
+                <div className='my-2 border rounded-md bg-foreground px-2 py-2.5'>
                     <h3 className='text-lg font-semibold mb-2.5 flex items-center gap-1.5'>
                         <ThunderIcon /> Technologies You&apos;ll Master
                     </h3>

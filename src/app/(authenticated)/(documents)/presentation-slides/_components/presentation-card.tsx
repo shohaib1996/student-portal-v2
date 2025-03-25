@@ -21,7 +21,7 @@ const PresentationCard = ({
     console.log(presentation?.createdBy?.fullName);
 
     return (
-        <div className='border rounded-lg overflow-hidden bg-background'>
+        <div className='border rounded-lg overflow-hidden bg-foreground'>
             <div className='relative'>
                 {presentation?.image ? (
                     <Image
@@ -50,7 +50,7 @@ const PresentationCard = ({
                     </div>
                 )}
                 <div className='absolute top-2 left-2 z-50'>
-                    <span className='rounded-full px-4 py-1 bg-gray-200 text-xs'>
+                    <span className='rounded-full px-4 py-1 bg-foreground text-xs'>
                         {presentation?.type || 'Overview'}
                     </span>
                 </div>

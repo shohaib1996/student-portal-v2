@@ -7,6 +7,7 @@ import { CombinedSelectionModal } from '../combined-selection-modal';
 import { useMyProgramQuery } from '@/redux/api/myprogram/myprogramApi';
 import { TProgram, TProgramMain } from '@/types';
 import { useRouter } from 'next/navigation';
+import { ChevronDown } from 'lucide-react';
 
 interface Props {
     title?: string;
@@ -26,14 +27,22 @@ export default function CourseSectionOpenButton({ title, icon }: Props) {
 
     if (isLoading) {
         return (
-            <Button variant='outline' onClick={handleOpenCourse} className=''>
+            <Button
+                variant='outline'
+                onClick={handleOpenCourse}
+                className='rounded-full'
+            >
                 Program Loading
             </Button>
         );
     }
     if (isError) {
         return (
-            <Button variant='outline' onClick={handleOpenCourse} className=''>
+            <Button
+                variant='outline'
+                onClick={handleOpenCourse}
+                className='rounded-full'
+            >
                 Program Failed!
             </Button>
         );
@@ -43,18 +52,25 @@ export default function CourseSectionOpenButton({ title, icon }: Props) {
 
     if (isLoading || isError) {
         return (
-            <Button variant='outline' onClick={handleOpenCourse} className=''>
+            <Button
+                variant='outline'
+                onClick={handleOpenCourse}
+                className='rounded-full'
+            >
                 Loading...
             </Button>
         );
     }
 
-    console.log(program.title);
-
     return (
         <>
-            <Button variant='outline' onClick={handleOpenCourse} className=''>
-                {icon} {program?.title || 'Select Course'}
+            <Button
+                variant='outline'
+                onClick={handleOpenCourse}
+                className='rounded-full font-semibold text-muted-foreground'
+            >
+                {icon} {program?.title || 'Select Course'}{' '}
+                <ChevronDown size={16} />
             </Button>
 
             <CombinedSelectionModal />

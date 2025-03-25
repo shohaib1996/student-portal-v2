@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
     Select,
     SelectContent,
@@ -8,40 +8,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import {
-    PieChart,
-    Pie,
-    Cell,
-    ResponsiveContainer,
-    Label,
-    LabelProps,
-} from 'recharts';
-import { JSX } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Label } from 'recharts';
+import { useGetMyProgressQuery } from '@/redux/api/myprogram/myprogramApi';
 
-// Define the data type
 interface PieData {
     name: string;
     value: number;
     color: string;
-}
-
-const data: PieData[] = [
-    { name: 'Bootcamps', value: 35, color: '#0736d1' },
-    { name: 'Courses', value: 20, color: '#f4a00c' },
-    { name: 'Calendar', value: 25, color: '#09c61a' },
-    { name: 'Mock Interview', value: 5, color: '#07b4d3' },
-    { name: 'Others', value: 15, color: '#f34141' },
-];
-
-// Type for the custom label props
-interface CustomLabelProps {
-    cx: number;
-    cy: number;
-    midAngle: number;
-    innerRadius: number;
-    outerRadius: number;
-    percent: number;
-    index: number;
 }
 
 const renderCustomizedLabel = ({
@@ -52,7 +25,15 @@ const renderCustomizedLabel = ({
     outerRadius,
     percent,
     index,
-}: CustomLabelProps): JSX.Element => {
+}: {
+    cx: number;
+    cy: number;
+    midAngle: number;
+    innerRadius: number;
+    outerRadius: number;
+    percent: number;
+    index: number;
+}) => {
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
     const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
@@ -71,7 +52,60 @@ const renderCustomizedLabel = ({
     );
 };
 
-export function OverallProgress(): JSX.Element {
+export function OverallProgress() {
+    const { data: myProgress, isLoading, error } = useGetMyProgressQuery({});
+
+    interface MyProgressResult {
+        title: string;
+        count: number;
+        limit: number;
+    }
+
+    interface MyProgressMetrics {
+        overallPercentageAllItems: number;
+    }
+
+    interface MyProgress {
+        results: MyProgressResult[];
+        metrics: MyProgressMetrics;
+    }
+
+    const data: PieData[] =
+        myProgress?.results?.length > 0
+            ? myProgress.results.map(
+                  (item: MyProgressResult, index: number) => ({
+                      name: item.title,
+                      value: Math.min((item.count / item.limit) * 100, 100),
+                      color: [
+                          '#0736d1',
+                          '#f4a00c',
+                          '#09c61a',
+                          '#07b4d3',
+                          '#f34141',
+                      ][index % 5],
+                  }),
+              )
+            : [
+                  {
+                      name: 'Overall Progress',
+                      value:
+                          myProgress?.metrics?.overallPercentageAllItems || 0,
+                      color: '#2A9A13',
+                  },
+                  {
+                      name: 'Remaining',
+                      value: myProgress?.metrics
+                          ? 100 - myProgress.metrics.overallPercentageAllItems
+                          : 100,
+                      color: '#e5e7eb',
+                  },
+              ];
+
+    if (error) {
+        console.error('Error fetching progress:', error);
+        // You can replace this with a shadcn toast component if desired
+    }
+
     return (
         <Card className='rounded-lg p-2 shadow-none bg-foreground'>
             <CardHeader className='p-2 flex flex-row items-center justify-between border-b'>
@@ -93,68 +127,73 @@ export function OverallProgress(): JSX.Element {
                 </Select>
             </CardHeader>
             <CardContent>
-                <div className='flex items-center justify-between mt-4'>
-                    <div className='h-[200px] w-[200px] relative mx-auto'>
-                        <ResponsiveContainer width='100%' height='100%'>
-                            <PieChart>
-                                <Pie
-                                    data={data}
-                                    cx='50%'
-                                    cy='50%'
-                                    innerRadius={50}
-                                    outerRadius={80}
-                                    paddingAngle={2}
-                                    dataKey='value'
-                                    label={renderCustomizedLabel}
-                                    labelLine={false}
-                                >
-                                    {data.map(
-                                        (entry: PieData, index: number) => (
+                {isLoading ? (
+                    <div className='flex justify-center items-center h-[200px]'>
+                        <div>Loading...</div>
+                    </div>
+                ) : (
+                    <div className='flex items-center justify-between mt-4'>
+                        <div className='h-[200px] w-[200px] relative mx-auto'>
+                            <ResponsiveContainer width='100%' height='100%'>
+                                <PieChart>
+                                    <Pie
+                                        data={data}
+                                        cx='50%'
+                                        cy='50%'
+                                        stroke='none'
+                                        innerRadius={50}
+                                        outerRadius={80}
+                                        paddingAngle={2}
+                                        dataKey='value'
+                                        label={renderCustomizedLabel}
+                                        labelLine={false}
+                                    >
+                                        {data.map((entry, index) => (
                                             <Cell
                                                 key={`cell-${index}`}
                                                 fill={entry.color}
                                             />
-                                        ),
-                                    )}
-                                    <Label
-                                        value='100%'
-                                        position='center'
-                                        style={{
-                                            fontSize: '18px',
-                                            fontWeight: 'bold',
-                                        }}
-                                        className='text-black'
-                                    />
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </div>
-                    <div className='space-y-2 flex-1'>
-                        {data.map((item: PieData) => (
-                            <div key={item.name} className='flex flex-col'>
-                                <div className='flex items-center justify-between'>
-                                    <div className='flex items-center'>
-                                        <span className='text-sm'>
-                                            {item.name}
+                                        ))}
+                                        <Label
+                                            value='100%'
+                                            position='center'
+                                            style={{
+                                                fontSize: '18px',
+                                                fontWeight: 'bold',
+                                            }}
+                                            className='text-black'
+                                        />
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                        <div className='space-y-2 flex-1 max-h-48 overflow-y-auto'>
+                            {data.map((item) => (
+                                <div key={item.name} className='flex flex-col'>
+                                    <div className='flex items-center justify-between'>
+                                        <div className='flex items-center'>
+                                            <span className='text-sm'>
+                                                {item.name}
+                                            </span>
+                                        </div>
+                                        <span className='text-sm font-medium'>
+                                            {item.value.toFixed(0)}%
                                         </span>
                                     </div>
-                                    <span className='text-sm font-medium'>
-                                        {item.value}%
-                                    </span>
+                                    <div className='w-full h-2 rounded-full mt-1 overflow-hidden bg-gray-light bg-background'>
+                                        <div
+                                            className='h-full rounded-full'
+                                            style={{
+                                                width: `${item.value}%`,
+                                                backgroundColor: item.color,
+                                            }}
+                                        />
+                                    </div>
                                 </div>
-                                <div className='w-full h-2 rounded-full mt-1 overflow-hidden bg-gray-light bg-background '>
-                                    <div
-                                        className='h-full rounded-full'
-                                        style={{
-                                            width: `${item.value}%`,
-                                            backgroundColor: item.color,
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
             </CardContent>
         </Card>
     );

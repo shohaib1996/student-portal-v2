@@ -69,7 +69,7 @@ const courseApi = baseApi.injectEndpoints({
             query: ({ courseId, action, chapterId }) => ({
                 url: `course/chapterv2/track/${courseId}`,
                 method: 'POST',
-                body: { action, chapterId },
+                data: { action, chapterId },
             }),
         }),
     }),
