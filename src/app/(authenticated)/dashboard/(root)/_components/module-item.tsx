@@ -1,7 +1,7 @@
 import { Progress } from '@/components/ui/progress';
 
 interface ModuleItemProps {
-    icon: 'module' | 'workshop' | 'interviews' | 'labs';
+    icon: 'module' | 'workshop' | 'interviews' | 'labs' | string;
     title: string;
     uploadCount: number;
     pinnedCount: number;

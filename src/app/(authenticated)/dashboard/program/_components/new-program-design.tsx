@@ -59,48 +59,48 @@ export default function BootcampPage() {
                                 <Skeleton className='h-6 w-32 rounded-full bg-primary-light' />
                             </div>
 
-                            <Skeleton className='h-8 w-3/4 mb-6 bg-background' />
+                            <Skeleton className='h-8 w-3/4 mb-6 bg-foreground' />
 
                             <div className='grid md:grid-cols-2 gap-6 mb-6'>
                                 <div className='space-y-4'>
                                     <div className='flex items-center gap-2'>
-                                        <Skeleton className='h-5 w-5 rounded-full bg-background' />
+                                        <Skeleton className='h-5 w-5 rounded-full bg-foreground' />
                                         <div className='space-y-1'>
-                                            <Skeleton className='h-3 w-16 bg-background' />
-                                            <Skeleton className='h-4 w-28 bg-background' />
+                                            <Skeleton className='h-3 w-16 bg-foreground' />
+                                            <Skeleton className='h-4 w-28 bg-foreground' />
                                         </div>
                                     </div>
 
                                     <div className='flex items-center gap-2'>
-                                        <Skeleton className='h-5 w-5 rounded-full bg-background' />
+                                        <Skeleton className='h-5 w-5 rounded-full bg-foreground' />
                                         <div className='space-y-1'>
-                                            <Skeleton className='h-3 w-16 bg-background' />
-                                            <Skeleton className='h-4 w-40 bg-background' />
+                                            <Skeleton className='h-3 w-16 bg-foreground' />
+                                            <Skeleton className='h-4 w-40 bg-foreground' />
                                         </div>
                                     </div>
 
                                     <div className='flex items-center gap-2'>
-                                        <Skeleton className='h-5 w-5 rounded-full bg-background' />
+                                        <Skeleton className='h-5 w-5 rounded-full bg-foreground' />
                                         <div className='space-y-1'>
-                                            <Skeleton className='h-3 w-16 bg-background' />
-                                            <Skeleton className='h-4 w-32 bg-background' />
+                                            <Skeleton className='h-3 w-16 bg-foreground' />
+                                            <Skeleton className='h-4 w-32 bg-foreground' />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div>
                                     <div className='flex items-center gap-3 mb-4'>
-                                        <Skeleton className='w-12 h-12 rounded-full bg-background' />
+                                        <Skeleton className='w-12 h-12 rounded-full bg-foreground' />
                                         <div className='space-y-2'>
-                                            <Skeleton className='h-4 w-32 bg-background' />
-                                            <Skeleton className='h-3 w-24 bg-background' />
+                                            <Skeleton className='h-4 w-32 bg-foreground' />
+                                            <Skeleton className='h-3 w-24 bg-foreground' />
                                         </div>
                                     </div>
 
                                     <div className='mb-4'>
                                         <div className='flex items-center justify-between mb-1'>
-                                            <Skeleton className='h-4 w-32 bg-background' />
-                                            <Skeleton className='h-4 w-10 bg-background' />
+                                            <Skeleton className='h-4 w-32 bg-foreground' />
+                                            <Skeleton className='h-4 w-10 bg-foreground' />
                                         </div>
                                         <Skeleton className='h-3 w-full rounded-full bg-blue-100' />
                                     </div>
@@ -113,8 +113,8 @@ export default function BootcampPage() {
                                             >
                                                 <Skeleton className='w-8 h-8 rounded-full bg-blue-50' />
                                                 <div>
-                                                    <Skeleton className='h-3 w-16 bg-background' />
-                                                    <Skeleton className='h-4 w-8 bg-background mt-1' />
+                                                    <Skeleton className='h-3 w-16 bg-foreground' />
+                                                    <Skeleton className='h-4 w-8 bg-foreground mt-1' />
                                                 </div>
                                             </div>
                                         ))}
@@ -127,7 +127,7 @@ export default function BootcampPage() {
 
                         {/* Right Column - Program Image and Technologies Skeleton */}
                         <div className='lg:w-2/5'>
-                            <Skeleton className='h-48 md:h-64 w-full rounded-xl bg-background mb-4' />
+                            <Skeleton className='h-48 md:h-64 w-full rounded-xl bg-foreground mb-4' />
 
                             <div className='grid grid-cols-6 gap-2'>
                                 {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -135,8 +135,8 @@ export default function BootcampPage() {
                                         key={i}
                                         className='flex flex-col items-center'
                                     >
-                                        <Skeleton className='w-10 h-10 rounded-lg bg-background' />
-                                        <Skeleton className='h-2 w-8 bg-background mt-1' />
+                                        <Skeleton className='w-10 h-10 rounded-lg bg-foreground' />
+                                        <Skeleton className='h-2 w-8 bg-foreground mt-1' />
                                     </div>
                                 ))}
                             </div>
@@ -154,7 +154,7 @@ export default function BootcampPage() {
 
     return (
         <TooltipProvider>
-            <div className='bg-foreground p-0'>
+            <div className='p-0'>
                 {/* Header */}
                 <GlobalHeader
                     title='Bootcamps'
@@ -180,7 +180,7 @@ export default function BootcampPage() {
                 />
 
                 {/* Main Content */}
-                <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 my-2 px-3 py-2 bg-background rounded-md border'>
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 my-2 px-3 py-2 bg-foreground rounded-md border'>
                     {/* Left Column - Course Info */}
                     <div className=''>
                         {/* Course Title and Info */}
@@ -277,10 +277,13 @@ export default function BootcampPage() {
                                     56%
                                 </span>
                             </div>
-                            <Progress value={56} className='h-2 mb-2' />
+                            <Progress
+                                value={56}
+                                className='h-2 mb-2 bg-background'
+                            />
                             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                                <div className='bg-green-50 rounded-lg p-4 flex items-center gap-2.5'>
-                                    <div className='h-10 w-10 flex items-center justify-center rounded-sm bg-green-100'>
+                                <div className='bg-green-50 dark:bg-background rounded-lg p-4 flex items-center gap-2.5'>
+                                    <div className='h-10 w-10 flex items-center justify-center rounded-sm bg-green-100 dark:bg-foreground'>
                                         <CheckCircle2 className='h-5 w-5 text-green-500' />
                                     </div>
                                     <div>
@@ -626,7 +629,7 @@ export default function BootcampPage() {
                 {/* Tabs Section */}
                 <Tabs
                     defaultValue='overview'
-                    className='rounded-md border bg-background px-2 py-2.5'
+                    className='rounded-md border bg-foreground px-2 py-2.5'
                 >
                     <TabsList className='bg-transparent border-b w-full flex items-center justify-start flex-wrap rounded-none p-0 h-auto'>
                         <TabsTrigger
@@ -801,7 +804,7 @@ export default function BootcampPage() {
                     </TabsContent>
                 </Tabs>
                 {/* Technologies You'll Master */}
-                <div className='my-2 border rounded-md bg-background px-2 py-2.5'>
+                <div className='my-2 border rounded-md bg-foreground px-2 py-2.5'>
                     <h3 className='text-lg font-semibold mb-2.5 flex items-center gap-1.5'>
                         <ThunderIcon /> Technologies You&apos;ll Master
                     </h3>
