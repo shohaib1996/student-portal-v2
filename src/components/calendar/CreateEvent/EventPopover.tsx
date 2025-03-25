@@ -41,6 +41,7 @@ interface EventPopoverProviderProps {
 }
 
 export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
+    const [isMounted, setIsMounted] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [title, setTitle] = useState('');
@@ -49,6 +50,10 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
         null,
     );
     const [isFullScreen, setIsFullScreen] = useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const openPopover = useCallback((triggerRect: DOMRect, side: Side) => {
         // Calculate position based on the trigger's position and the specified side
@@ -115,7 +120,7 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
                 setIsFullScreen,
             }}
         >
-            {children}
+            {isMounted ? children : <></>}
         </EventPopoverContext.Provider>
     );
 }

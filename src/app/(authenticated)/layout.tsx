@@ -1,3 +1,4 @@
+import { EventPopoverProvider } from '@/components/calendar/CreateEvent/EventPopover';
 import MainLayout from '@/components/Layout/MainLayout';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AllProvider from '@/providers/AllProvider';

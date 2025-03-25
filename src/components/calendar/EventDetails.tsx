@@ -18,7 +18,6 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '../ui/collapsible';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
 import { Button } from '../ui/button';
 import { EventPopover, EventPopoverTrigger } from './CreateEvent/EventPopover';
@@ -32,6 +31,7 @@ import GlobalMarkDownPreview from '../global/Community/MarkDown/GlobalMarkDownPr
 import { Checkbox } from '../ui/checkbox';
 import {
     useDeleteEventMutation,
+    useGetSingleEventQuery,
     useUpdateInvitationMutation,
 } from '@/redux/api/calendar/calendarApi';
 import GlobalDeleteModal from '../global/GlobalDeleteModal';
@@ -42,19 +42,28 @@ import { cn } from '@/lib/utils';
 import { DatePicker } from '../global/DatePicket';
 import { TimePicker } from '../global/TimePicker';
 import { Textarea } from '../ui/textarea';
-import { stat } from 'fs';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-const EventDetails = ({
-    event,
-    open,
-    setOpen,
-}: {
-    event: TEvent | undefined;
-    open: boolean;
-    setOpen: (_: boolean) => void;
-}) => {
+const EventDetails = () => {
     const { user } = useAppSelector((s) => s.auth);
     // openPopover(e.currentTarget.getBoundingClientRect(), validIndexes.includes(index) ? 'right' : 'left')
+
+    const searchParams = useSearchParams();
+    const id = searchParams.get('detail');
+
+    const { data: eventDetails } = useGetSingleEventQuery(id as string, {
+        skip: !id,
+    });
+
+    const event: TEvent = eventDetails?.event;
+
+    const pathName = usePathname();
+    const router = useRouter();
+
+    const setOpen = () => {
+        router.push(pathName);
+    };
+
     const myParticipantData = event?.attendees?.find(
         (at) => at.user?._id === user?._id,
     );
@@ -93,7 +102,7 @@ const EventDetails = ({
                 toast.success('Event deleted successfully');
                 setDeleteOption('thisEvent');
                 setDeleteOpen(false);
-                setOpen(false);
+                setOpen();
             }
         } catch (err) {
             console.log(err);
@@ -127,7 +136,7 @@ const EventDetails = ({
             }).unwrap();
             if (res) {
                 toast.success('Invitation status updated successfully');
-                setOpen(false);
+                setOpen();
                 setUpdateOpen(false);
                 setProposeModalOpen(false);
             }
@@ -136,8 +145,12 @@ const EventDetails = ({
         }
     };
 
+    if (!event) {
+        return <div></div>;
+    }
+
     return (
-        <>
+        <div suppressHydrationWarning>
             <GlobalModal
                 className='w-[550px] md:w-[550px] lg:w-[550px]'
                 customTitle={
@@ -148,7 +161,7 @@ const EventDetails = ({
                                 premissions?.modifyEvent === true) && (
                                 <EventPopoverTrigger updateId={event?._id}>
                                     <Button
-                                        onClick={() => setOpen(false)}
+                                        onClick={() => setOpen()}
                                         variant='ghost'
                                         size='icon'
                                         className='h-8 w-8'
@@ -187,8 +200,8 @@ const EventDetails = ({
                         </div>
                     </div>
                 }
-                open={open}
-                setOpen={setOpen}
+                open={id !== null}
+                setOpen={() => setOpen()}
             >
                 <div className='w-full mx-auto'>
                     <div className='flex text-sm text-dark-gray items-center'>
@@ -638,7 +651,9 @@ const EventDetails = ({
                                             onChange={(val) => {
                                                 setProposeTime((prev) => ({
                                                     ...prev,
-                                                    start: val?.toISOString(),
+                                                    start:
+                                                        val?.toISOString() ||
+                                                        '',
                                                 }));
                                             }}
                                         />
@@ -655,7 +670,9 @@ const EventDetails = ({
                                             onChange={(val) => {
                                                 setProposeTime((prev) => ({
                                                     ...prev,
-                                                    start: val?.toISOString(),
+                                                    start:
+                                                        val?.toISOString() ||
+                                                        '',
                                                 }));
                                             }}
                                         />
@@ -667,7 +684,9 @@ const EventDetails = ({
                                             onChange={(val) =>
                                                 setProposeTime((prev) => ({
                                                     ...prev,
-                                                    end: val?.toISOString(),
+                                                    end:
+                                                        val?.toISOString() ||
+                                                        '',
                                                 }))
                                             }
                                         />
@@ -684,7 +703,9 @@ const EventDetails = ({
                                             onChange={(val) =>
                                                 setProposeTime((prev) => ({
                                                     ...prev,
-                                                    end: val?.toISOString(),
+                                                    end:
+                                                        val?.toISOString() ||
+                                                        '',
                                                 }))
                                             }
                                         />
@@ -711,7 +732,7 @@ const EventDetails = ({
                     </div>
                 </div>
             </GlobalModal>
-        </>
+        </div>
     );
 };
 

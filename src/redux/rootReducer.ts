@@ -18,6 +18,7 @@ import navigationReducer from './features/navigationReducer';
 import programReducer from './features/programReducer';
 import calendarReducer from './features/calendarReducer';
 import selectionModalReducer from './features/selectionModalSlice';
+import tableReducer from './features/tableReducer';
 import localforage from 'localforage';
 
 const getStorage = () => {
@@ -55,6 +56,11 @@ const chatPersistConfig = {
 const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
 const persistedChatReducer = persistReducer(chatPersistConfig, ChatReducer);
 
+const tablePersistConfig = {
+    key: 'table',
+    storage,
+};
+
 // Combine reducers
 export const reducer = {
     [baseApi.reducerPath]: baseApi.reducer,
@@ -67,6 +73,7 @@ export const reducer = {
     program: programReducer,
     calendar: calendarReducer,
     selectionModal: selectionModalReducer,
+    table: persistReducer(tablePersistConfig, tableReducer),
 };
 
 // Middleware configuration
