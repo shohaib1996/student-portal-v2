@@ -1442,8 +1442,9 @@ export function CombinedSelectionModal() {
                                         'border-primary-white',
                                 )}
                             >
-                                <div className='grid grid-cols-6 gap-1'>
-                                    <div className='relative'>
+                                <div className='grid grid-cols-6 gap-2'>
+                                    {/* left section */}
+                                    <div className='relative w-full h-full'>
                                         <Image
                                             src={
                                                 enroll.image ||
@@ -1454,109 +1455,166 @@ export function CombinedSelectionModal() {
                                             alt={enroll.program.title}
                                             width={80}
                                             height={80}
-                                            className='rounded-md object-cover'
+                                            className='rounded-md object-cover w-full h-full'
                                         />
-                                        <div className='bg-black/70 text-white text-xs text-center py-0.5'>
-                                            {(enroll.rating || 0).toFixed(1)}
+
+                                        <div className='absolute inset-0 flex items-end pb-3 justify-center'>
+                                            <div className='flex items-center gap-2'>
+                                                <div className='flex'>
+                                                    {renderStars(enroll.rating)}
+                                                </div>
+                                                <div className='text-xs text-muted-foreground'>
+                                                    (
+                                                    {(
+                                                        enroll.rating || 0
+                                                    ).toFixed(1)}
+                                                    )
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
+                                    {/* Right section */}
                                     <div className='col-span-5'>
-                                        <div className='min-w-0'>
-                                            <div className='flex items-center gap-2 flex-wrap'>
-                                                <h3 className='text-sm font-medium'>
-                                                    {enroll.program.title}
-                                                </h3>
-                                                {enroll.status ===
-                                                    'approved' && (
-                                                    <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
-                                                        <Check className='w-3 h-3 mr-1' />{' '}
-                                                        Approved
-                                                    </span>
-                                                )}
-                                                {enroll.status ===
-                                                    'pending' && (
-                                                    <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800'>
-                                                        <svg
-                                                            className='w-3 h-3 mr-1'
-                                                            viewBox='0 0 24 24'
-                                                            fill='none'
-                                                            xmlns='http://www.w3.org/2000/svg'
-                                                        >
-                                                            <path
-                                                                d='M12 8V12'
-                                                                stroke='currentColor'
-                                                                strokeWidth='2'
-                                                                strokeLinecap='round'
-                                                            />
-                                                            <path
-                                                                d='M12 16V16.01'
-                                                                stroke='currentColor'
-                                                                strokeWidth='2'
-                                                                strokeLinecap='round'
-                                                            />
-                                                            <path
-                                                                d='M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z'
-                                                                stroke='currentColor'
-                                                                strokeWidth='2'
-                                                            />
-                                                        </svg>
-                                                        Pending
-                                                    </span>
-                                                )}
-                                                {enroll.status === 'trial' && (
-                                                    <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
-                                                        <Check className='w-3 h-3 mr-1' />{' '}
-                                                        Trial
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <div className='flex items-center mt-1 gap-1'>
-                                                <div className='text-xs text-muted-foreground'>
-                                                    {enroll.organization.name}
+                                        {/* top part */}
+                                        <div className='flex items-center justify-between pb-2 border-b mb-2'>
+                                            <div>
+                                                <div className='flex items-center gap-2 flex-wrap'>
+                                                    <h3 className='text-sm font-medium'>
+                                                        {enroll.program.title}
+                                                    </h3>
+                                                    {enroll.status ===
+                                                        'approved' && (
+                                                        <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+                                                            <Check className='w-3 h-3 mr-1' />{' '}
+                                                            Approved
+                                                        </span>
+                                                    )}
+                                                    {enroll.status ===
+                                                        'pending' && (
+                                                        <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800'>
+                                                            <svg
+                                                                className='w-3 h-3 mr-1'
+                                                                viewBox='0 0 24 24'
+                                                                fill='none'
+                                                                xmlns='http://www.w3.org/2000/svg'
+                                                            >
+                                                                <path
+                                                                    d='M12 8V12'
+                                                                    stroke='currentColor'
+                                                                    strokeWidth='2'
+                                                                    strokeLinecap='round'
+                                                                />
+                                                                <path
+                                                                    d='M12 16V16.01'
+                                                                    stroke='currentColor'
+                                                                    strokeWidth='2'
+                                                                    strokeLinecap='round'
+                                                                />
+                                                                <path
+                                                                    d='M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z'
+                                                                    stroke='currentColor'
+                                                                    strokeWidth='2'
+                                                                />
+                                                            </svg>
+                                                            Pending
+                                                        </span>
+                                                    )}
+                                                    {enroll.status ===
+                                                        'trial' && (
+                                                        <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
+                                                            <Check className='w-3 h-3 mr-1' />{' '}
+                                                            Trial
+                                                        </span>
+                                                    )}
                                                 </div>
-                                            </div>
 
-                                            <div className='flex items-center mt-1 gap-2'>
-                                                <div className='flex items-center gap-1'>
-                                                    <Image
-                                                        src={
-                                                            enroll.program
-                                                                .instructor
-                                                                .image ||
-                                                            '/clients/Abidur Rahman.jpg'
-                                                        }
-                                                        alt={
-                                                            enroll.program
-                                                                .instructor.name
-                                                        }
-                                                        width={16}
-                                                        height={16}
-                                                        className='rounded-full'
-                                                    />
-                                                    <span className='text-xs text-muted-foreground'>
+                                                <div className='flex items-center mt-1 gap-1'>
+                                                    <div className='text-xs text-muted-foreground flex items-center gap-1'>
+                                                        <University size={18} />{' '}
                                                         {
-                                                            enroll.program
-                                                                .instructor.name
+                                                            enroll.organization
+                                                                .name
                                                         }
-                                                    </span>
+                                                    </div>
                                                 </div>
-                                                <div className='text-xs text-muted-foreground flex items-center gap-1'>
-                                                    <CalendarDays className='h-4 w-4' />
-                                                    <p>
-                                                        {enroll.date ??
-                                                            'Dec 16, 1971'}
-                                                    </p>
-                                                    <span>|</span>
-                                                    <p>
-                                                        {enroll.time ??
-                                                            '12:12AM'}
-                                                    </p>
+
+                                                <div className='flex items-center mt-1 gap-2'>
+                                                    <div className='text-xs text-muted-foreground flex items-center gap-1'>
+                                                        <CalendarDays className='h-4 w-4' />
+                                                        <p>
+                                                            {enroll.date ??
+                                                                'Dec 16, 1971'}
+                                                        </p>
+                                                        <span>|</span>
+                                                        <p>
+                                                            {enroll.time ??
+                                                                '12:12AM'}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className='flex items-center gap-1'>
+                                                        <Image
+                                                            src={
+                                                                enroll.program
+                                                                    .instructor
+                                                                    .image ||
+                                                                '/clients/Abidur Rahman.jpg'
+                                                            }
+                                                            alt={
+                                                                enroll.program
+                                                                    .instructor
+                                                                    .name
+                                                            }
+                                                            width={16}
+                                                            height={16}
+                                                            className='rounded-full'
+                                                        />
+                                                        <span className='text-xs text-muted-foreground'>
+                                                            {
+                                                                enroll.program
+                                                                    .instructor
+                                                                    .name
+                                                            }
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <div className='grid grid-cols-3 gap-2 mt-2'>
+                                            <div className='relative h-12 w-12'>
+                                                <svg
+                                                    viewBox='0 0 36 36'
+                                                    className='h-12 w-12 -rotate-90'
+                                                >
+                                                    <path
+                                                        d='M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831'
+                                                        fill='none'
+                                                        stroke='#eee'
+                                                        strokeWidth='3'
+                                                        strokeDasharray='100, 100'
+                                                    />
+                                                    <path
+                                                        d='M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831'
+                                                        fill='none'
+                                                        stroke={
+                                                            (enroll.progress ||
+                                                                0) > 0
+                                                                ? '#0736d1'
+                                                                : '#eee'
+                                                        }
+                                                        strokeWidth='3'
+                                                        strokeDasharray={`${enroll.progress || 0}, 100`}
+                                                    />
+                                                </svg>
+                                                <div className='absolute inset-0 flex items-center justify-center text-xs font-medium'>
+                                                    {enroll.progress || 0}%
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* bottom part */}
+                                        <div className='flex items-center justify-between w-full'>
+                                            <div className='flex gap-6'>
                                                 <div>
                                                     <div className='text-xs text-muted-foreground'>
                                                         Total Fee
@@ -1589,84 +1647,45 @@ export function CombinedSelectionModal() {
                                                 </div>
                                             </div>
 
-                                            <div className='flex items-center gap-2 mt-2'>
-                                                <div className='flex'>
-                                                    {renderStars(enroll.rating)}
-                                                </div>
-                                                <div className='text-xs text-muted-foreground'>
-                                                    (
-                                                    {(
-                                                        enroll.rating || 0
-                                                    ).toFixed(1)}
-                                                    )
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className='flex flex-col items-end justify-between'>
-                                            <div className='relative h-12 w-12'>
-                                                <svg
-                                                    viewBox='0 0 36 36'
-                                                    className='h-12 w-12 -rotate-90'
-                                                >
-                                                    <path
-                                                        d='M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831'
-                                                        fill='none'
-                                                        stroke='#eee'
-                                                        strokeWidth='3'
-                                                        strokeDasharray='100, 100'
-                                                    />
-                                                    <path
-                                                        d='M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831'
-                                                        fill='none'
-                                                        stroke={
-                                                            (enroll.progress ||
-                                                                0) > 0
-                                                                ? '#0736d1'
-                                                                : '#eee'
-                                                        }
-                                                        strokeWidth='3'
-                                                        strokeDasharray={`${enroll.progress || 0}, 100`}
-                                                    />
-                                                </svg>
-                                                <div className='absolute inset-0 flex items-center justify-center text-xs font-medium'>
-                                                    {enroll.progress || 0}%
-                                                </div>
-                                            </div>
-
-                                            {selectedCourseId === enroll._id ? (
-                                                <div className='px-4 py-1.5 rounded bg-[#e6ebfa] text-[#0736d1] text-xs font-medium flex items-center'>
-                                                    <Check className='w-3 h-3 mr-1' />{' '}
-                                                    Selected
-                                                </div>
-                                            ) : (
-                                                <Button
-                                                    variant='outline'
-                                                    className={cn(
-                                                        'px-4 py-1 h-auto text-xs',
-                                                        enroll.status ===
-                                                            'approved' ||
+                                            {/* right button */}
+                                            <div className='flex flex-col items-end justify-between'>
+                                                {selectedCourseId ===
+                                                enroll._id ? (
+                                                    <div className='px-4 py-1.5 rounded bg-[#e6ebfa] text-primary text-xs font-medium flex items-center'>
+                                                        <Check className='w-3 h-3 mr-1' />{' '}
+                                                        Selected
+                                                    </div>
+                                                ) : (
+                                                    <Button
+                                                        size='sm'
+                                                        variant={
+                                                            enroll.status ===
+                                                                'approved' ||
                                                             enroll.status ===
                                                                 'trial'
-                                                            ? ''
-                                                            : '',
-                                                    )}
-                                                    onClick={() =>
-                                                        handleCourseSelect(
-                                                            enroll._id,
-                                                        )
-                                                    }
-                                                    disabled={
-                                                        enroll.status !==
-                                                            'approved' &&
-                                                        enroll.status !==
-                                                            'trial'
-                                                    }
-                                                >
-                                                    Switch to Program{' '}
-                                                    <ArrowRight className='ml-1 h-3 w-3' />
-                                                </Button>
-                                            )}
+                                                                ? 'default'
+                                                                : 'outline'
+                                                        }
+                                                        className={cn(
+                                                            'text-xs',
+                                                        )}
+                                                        onClick={() =>
+                                                            handleCourseSelect(
+                                                                enroll._id,
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            enroll.status !==
+                                                                'approved' &&
+                                                            enroll.status !==
+                                                                'trial'
+                                                        }
+                                                    >
+                                                        Switch to Program{' '}
+                                                        <ArrowRight className='ml-1 h-3 w-3' />
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1690,7 +1709,7 @@ export function CombinedSelectionModal() {
                 </TabsContent>
             </Tabs>
 
-            <div className='flex items-center space-x-2'>
+            <div className='flex items-center space-x-2 my-2 border-b pb-2'>
                 <Checkbox
                     id='default-program'
                     checked={setAsDefault}
@@ -1706,18 +1725,14 @@ export function CombinedSelectionModal() {
                 </label>
             </div>
 
-            <div className='flex gap-2'>
-                <Button
+            <div className='flex items-center justify-center'>
+                {/* <Button
                     variant='outline'
                     onClick={() => dispatch(switchView('university'))}
                 >
                     Back
-                </Button>
-                <Button
-                    className='flex-1 bg-[#0736d1] hover:bg-[#0736d1]/90'
-                    onClick={handleConfirm}
-                    disabled={!selectedCourseId}
-                >
+                </Button> */}
+                <Button onClick={handleConfirm} disabled={!selectedCourseId}>
                     Go to Program <ArrowRight className='ml-2 h-4 w-4' />
                 </Button>
             </div>
