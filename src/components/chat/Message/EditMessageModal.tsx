@@ -22,11 +22,7 @@ const EditMessageModal: React.FC<EditMessageModalProps> = ({
             setText(newString);
         }
     }, [selectedMessage]);
-    console.log('Render conditions inside the modal:', {
-        MessageEdits: !!selectedMessage,
-        selectedMessage: selectedMessage,
-        chat: !!chat,
-    });
+
     // Function to send typing indicator
     const sendTypingIndicator = (isTyping: boolean) => {
         // You can implement the typing indicator logic here

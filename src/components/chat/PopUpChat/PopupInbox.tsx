@@ -57,7 +57,7 @@ interface PopupInboxProps {
     handleToggleInfo: () => void;
     setProfileInfoShow: (value: boolean) => void;
     profileInfoShow: boolean;
-    setReloading: (value: boolean) => void;
+    setReloading: (reloading: boolean | ((prev: boolean) => boolean)) => void;
     reloading: boolean;
 }
 
@@ -80,7 +80,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
         isOpen: false,
         query: '',
     });
-    console.log({ chat });
+
     const [finalQuery, setFinalQuery] = useState('');
 
     const handleSearchSubmit = useCallback(() => {
@@ -229,7 +229,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                         <div className='flex items-center space-x-2'>
                             {/* Search button - keep in header */}
                             <Button
-                                variant='primary_light'
+                                variant='secondary'
                                 size='icon'
                                 className='border h-8 w-8'
                                 onClick={() =>
@@ -244,7 +244,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
 
                             {/* Maximize button - keep in header */}
                             <Button
-                                variant='primary_light'
+                                variant='secondary'
                                 size='icon'
                                 className='border h-8 w-8'
                                 onClick={() => router.push(`/chat/${chatId}`)}
@@ -256,7 +256,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
-                                        variant='primary_light'
+                                        variant='secondary'
                                         size='icon'
                                         className='border h-8 w-8'
                                     >
@@ -364,6 +364,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                 />
                             </div>
                             <Button
+                                variant='plain'
                                 onClick={handleSearchSubmit}
                                 icon={<SearchIcon size={18} />}
                             ></Button>

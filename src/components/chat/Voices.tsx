@@ -138,7 +138,7 @@ const Voices: React.FC<VoicesProps> = ({ chat }) => {
                 })
                 .catch((err) => {
                     setIsLoading(false);
-                    console.log(err);
+                    console.error(err);
                     toast.error(
                         err?.response?.data?.error ||
                             'Failed to fetch audio files',
@@ -196,7 +196,7 @@ const Voices: React.FC<VoicesProps> = ({ chat }) => {
             })
             .catch((err) => {
                 setLoadingMore(false);
-                console.log(err);
+                console.error(err);
                 toast.error(
                     err?.response?.data?.error ||
                         'Failed to load more audio files',

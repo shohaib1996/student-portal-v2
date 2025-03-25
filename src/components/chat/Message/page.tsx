@@ -3,7 +3,7 @@
 import type React from 'react';
 import { useState, forwardRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
@@ -11,9 +11,7 @@ import {
     Check,
     CheckCheck,
     Circle,
-    ChevronRight,
     MoreVertical,
-    MessageSquare,
     Copy,
     Pencil,
     Trash,
@@ -23,7 +21,6 @@ import {
     Clock,
     Star,
     Forward,
-    Share,
     Info,
     Share2,
     Pin,
@@ -41,17 +38,22 @@ import { generateActivityText } from './helper';
 import FileCard from '../FileCard';
 import DeleteMessage from '../ChatForm/DeleteMessage';
 import { copyTextToClipboard } from '../../../utils/clipboard';
-import { updateChats } from '@/redux/features/chatReducer';
+import {
+    addPinnedMessage,
+    removePinnedMessage,
+    updateChats,
+} from '@/redux/features/chatReducer';
 import { useAppSelector } from '@/redux/hooks';
 import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
 import { instance } from '@/lib/axios/axiosInstance';
+import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 const emojies = ['👍', '😍', '❤', '😂', '🥰', '😯'];
 
 interface MessageProps {
     message: {
         _id: string;
-        type: string;
+        type?: string;
         sender?: {
             _id: string;
             firstName?: string;
@@ -60,7 +62,7 @@ interface MessageProps {
             profilePicture?: string;
             type?: string;
         };
-        createdAt: string | number;
+        createdAt: string | undefined;
         status?: string;
         text?: string;
         files?: any[];
@@ -68,10 +70,12 @@ interface MessageProps {
         replyCount?: number;
         reactions?: Record<string, number>;
         chat?: string;
+        pinnedBy?: any;
     };
     lastmessage?: boolean;
     setEditMessage?: (message: any) => void;
     setThreadMessage?: (message: any) => void;
+    setForwardMessage?: (message: any) => void;
     hideOptions?: boolean;
     hideReplyCount?: boolean;
     source?: string;
@@ -80,7 +84,7 @@ interface MessageProps {
     setReload?: (value: number) => void;
     isAi?: boolean;
     searchQuery?: string;
-    bottomRef?: React.RefObject<HTMLDivElement>;
+    bottomRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 type MessageComponent = React.ForwardRefExoticComponent<
@@ -89,6 +93,11 @@ type MessageComponent = React.ForwardRefExoticComponent<
 
 const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
     const { data: chats = [] } = useGetChatsQuery();
+    const params = useParams();
+    const pinnedMessages = useAppSelector(
+        (state) =>
+            state.chat.pinnedMessages?.[String(params?.chatid) || ''] || [],
+    ) as MessageProps['message'][];
     const { user } = useAppSelector((state) => state.auth);
     const [deleteMessage, setDeleteMessage] = useState<any>(null);
     const [chatDelOpened, setChatDelOpened] = useState(false);
@@ -98,6 +107,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
         lastmessage,
         setEditMessage,
         setThreadMessage,
+        setForwardMessage,
         hideOptions,
         hideReplyCount,
         source,
@@ -212,6 +222,48 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
         }
     };
 
+    const handlePin = (message: any) => {
+        const isPinned = Boolean(message.pinnedBy);
+        const endpoint = isPinned
+            ? `/chat/unpin/${message._id}`
+            : `/chat/pin/${message._id}`;
+
+        instance
+            .patch(endpoint)
+            .then((res) => {
+                if (res.data.message) {
+                    if (isPinned) {
+                        dispatch(
+                            removePinnedMessage({
+                                chatId: String(params?.chatid) || '',
+                                messageId: message._id,
+                            }),
+                        );
+                        toast.success('Message unpinned successfully!');
+                    } else {
+                        dispatch(
+                            addPinnedMessage({
+                                chatId: (params?.chatid as string) || '',
+                                message: res.data.message,
+                            }),
+                        );
+                        toast.success('Message pinned successfully!');
+                    }
+                }
+            })
+            .catch((err) => {
+                toast.error('Failed to pin/unpin message');
+            });
+    };
+
+    const handleForward = () => {
+        if (setForwardMessage) {
+            setForwardMessage(message);
+        } else {
+            toast.info('Coming soon!');
+        }
+    };
+
     return (
         <>
             {message?.type === 'activity' ? (
@@ -255,7 +307,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                 />
                             </div>
                         </div>
-                        <div className='flex flex-col'>
+                        <div className='flex flex-col w-full'>
                             <div
                                 className={`rounded-lg p-2 ${
                                     !hideAlign &&
@@ -273,12 +325,16 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                         }
                                         className='font-medium text-sm cursor-pointer mb-1 w-full flex flex-row gap-1 items-center'
                                     >
-                                        {message.sender?.fullName ||
-                                            'Bootcamps Hub user'}{' '}
+                                        <p className='truncate'>
+                                            {message.sender?.fullName ||
+                                                'Bootcamps Hub user'}{' '}
+                                        </p>
                                         <span
-                                            className={`text-xs ml-2 front-normal ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}
+                                            className={`text-xs ml-2 front-normal text-nowrap ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}
                                         >
-                                            {formatDate(message?.createdAt)}
+                                            {dayjs(message?.createdAt).format(
+                                                'hh:mm A',
+                                            )}
                                         </span>
                                     </span>
 
@@ -461,10 +517,10 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                         </div>
 
                         {!hideOptions && message?.type !== 'delete' && (
-                            <div className='ml-1 mt-2 self-start'>
+                            <div className='mt-2 self-start flex items-center'>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <div className='h-8 w-8 cursor-pointer'>
+                                        <div className='h-4 w-4 cursor-pointer'>
                                             <MoreVertical className='h-4 w-4 cursor-pointer' />
                                             <span className='sr-only'>
                                                 Open menu
@@ -542,12 +598,14 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
-                                            onClick={() =>
-                                                toast.info('Coming soon!')
-                                            }
+                                            onClick={() => {
+                                                handlePin(message);
+                                            }}
                                         >
                                             <Pin className='h-4 w-4 rotate-45' />
-                                            Pin Message
+                                            {message.pinnedBy
+                                                ? 'Unpin Message'
+                                                : 'Pin Message'}
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
@@ -560,9 +618,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
-                                            onClick={() =>
-                                                toast.info('Coming soon!')
-                                            }
+                                            onClick={handleForward}
                                         >
                                             <Forward className='h-4 w-4' />
                                             Forward
@@ -604,6 +660,16 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
+                                {message.pinnedBy && (
+                                    <GlobalTooltip tooltip='Click to Unpin this message'>
+                                        <Pin
+                                            className='h-4 w-4 text-dark-gray rotate-45 cursor-pointer'
+                                            onClick={() => {
+                                                handlePin(message);
+                                            }}
+                                        />
+                                    </GlobalTooltip>
+                                )}
                             </div>
                         )}
                     </div>

@@ -175,7 +175,6 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
     // Create crowd with direct markdown editor content retrieval
     const handleCreateCrowd = useCallback(() => {
         const currentDescription = descriptionRef.current?.getMarkdown() || '';
-        console.log('Description before sending:', currentDescription);
 
         if (selectedUsers.length < 2) {
             toast.error('Please select at least 2 users');
@@ -198,8 +197,6 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
             isReadOnly,
             isPublic,
         };
-
-        console.log('Data being sent:', data);
 
         instance
             .post('/chat/channel/create', data)

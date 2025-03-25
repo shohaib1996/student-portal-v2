@@ -75,7 +75,7 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
             })
             .catch((err) => {
                 setIsUserLoading(false);
-                console.log(err);
+                console.error(err);
                 toast.error(
                     err?.response?.data?.error || 'Failed to fetch members',
                 );
@@ -134,7 +134,7 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
                     })
                     .catch((err) => {
                         setIsUserLoading(false);
-                        console.log(err);
+                        console.error(err);
                         toast.error(
                             err?.response?.data?.error ||
                                 'Failed to search users',

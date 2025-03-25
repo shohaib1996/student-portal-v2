@@ -3,8 +3,8 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 import dayjs from 'dayjs';
-import { useSelector } from 'react-redux';
 import { useTheme } from 'next-themes';
+import Highlighter from 'react-highlight-words';
 
 // Dynamic import of markdown preview component
 const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {
@@ -14,12 +14,6 @@ const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {
 interface MessagePreviewProps {
     text: string;
     searchQuery?: string;
-}
-
-interface RootState {
-    theme: {
-        displayMode: string;
-    };
 }
 
 function transformMessage(text?: string): string {
@@ -53,19 +47,44 @@ const transformDate = (text?: string): string => {
     });
 };
 
-function MessagePreview({ text }: MessagePreviewProps) {
+function MessagePreview({ text, searchQuery }: MessagePreviewProps) {
     const { theme } = useTheme();
+
+    // Transform the text first
+    const processedText = transformDate(transformMessage(text));
+
+    // Highlight only the text content, leaving markdown parsing to MarkdownPreview
+    const highlightedContent = searchQuery ? (
+        <Highlighter
+            highlightClassName='bg-yellow-200 text-black rounded-sm px-0.5'
+            searchWords={[searchQuery]}
+            autoEscape={true}
+            textToHighlight={processedText}
+        />
+    ) : (
+        processedText
+    );
 
     return (
         <div className='message-preview'>
             <MarkdownPreview
-                source={transformDate(transformMessage(text))}
+                source={processedText}
                 components={components}
                 wrapperElement={{
                     'data-color-mode': theme === 'dark' ? 'dark' : 'light',
                 }}
                 className={`text-gray-700 dark:text-gray-300`}
             />
+            {searchQuery && (
+                <div className='hidden'>
+                    <Highlighter
+                        highlightClassName='bg-yellow-200 text-black rounded-sm px-0.5'
+                        searchWords={[searchQuery]}
+                        autoEscape={true}
+                        textToHighlight={processedText}
+                    />
+                </div>
+            )}
         </div>
     );
 }

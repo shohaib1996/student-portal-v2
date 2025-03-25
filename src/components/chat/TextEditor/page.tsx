@@ -132,12 +132,11 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const draftsData: any = drafts || [];
     const text =
         (draftsData &&
-            draftsData?.find((item: any) => item?.chat === params?.chatid)
-                ?.message) ||
+            draftsData?.find((item: any) => item?.chat === chatId)?.message) ||
         '';
     const uploadFiles: UploadFile[] =
         (draftsData &&
-            draftsData?.find((item: any) => item.chat === params?.chatid)
+            draftsData?.find((item: any) => item.chat === chatId)
                 ?.uploadFiles) ||
         [];
 
@@ -145,25 +144,25 @@ const TextEditor: React.FC<TextEditorProps> = ({
 
     useEffect(() => {
         store.dispatch(
-            setDraft({ chat: params.chatid as string, message: localText }),
+            setDraft({ chat: chatId as string, message: localText }),
         );
-    }, [localText, params.chatid]);
+    }, [localText, chatId]);
 
     useEffect(() => {
         setLocalText(text);
-    }, [params?.chatid, text]);
+    }, [chatId, text]);
 
     useEffect(() => {
         if (selectedMessage) {
             store.dispatch(
                 setDraft({
-                    chat: params?.chatid as string,
+                    chat: chatId as string,
                     message: selectedMessage?.text,
                 }),
             );
             setLocalText(selectedMessage?.text);
         }
-    }, [selectedMessage, params?.chatid]);
+    }, [selectedMessage, chatId]);
 
     useEffect(() => {
         const el = document.querySelector(
@@ -173,7 +172,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
             el.setAttribute('autoFocus', 'true');
             el.focus();
         }
-    }, [params?.chatid]);
+    }, [chatId]);
 
     const renderSuggestion = useCallback(
         (
@@ -244,7 +243,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         fetchMembers({
             query: query?.toLowerCase(),
             limit: 15,
-            chat: params?.chatid as string,
+            chat: chatId as string,
         })
             .then((userLists) => {
                 if (userLists?.length > 2) {
@@ -274,7 +273,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         }
         const newFiles = [{ file: audio, status: 'uploading' }];
         store.dispatch(
-            setDraft({ chat: params?.chatid as string, uploadFiles: newFiles }),
+            setDraft({ chat: chatId as string, uploadFiles: newFiles }),
         );
         setIsVoiceRecordVisible(false);
         setIsSendingAudio(true);
@@ -307,7 +306,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const updateFileStatus = (file: File, responseData: any) => {
         store.dispatch(
             updateDraftFiles({
-                chat: params?.chatid as string,
+                chat: chatId as string,
                 file: file,
                 responseData: responseData,
             }),
@@ -316,11 +315,11 @@ const TextEditor: React.FC<TextEditorProps> = ({
 
     const handleRemoveItem = (f: UploadFile) => {
         store.dispatch(
-            removeDraftFiles({ chat: params?.chatid as string, file: f.file }),
+            removeDraftFiles({ chat: chatId as string, file: f.file }),
         );
         store.dispatch(
             setDraft({
-                chat: params?.chatid as string,
+                chat: chatId as string,
                 uploadFiles: undefined,
             }),
         ); // setting null to the draft reducer
@@ -345,7 +344,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
             status: 'uploading',
         }));
         store.dispatch(
-            setDraft({ chat: params?.chatid as string, uploadFiles: newFiles }),
+            setDraft({ chat: chatId as string, uploadFiles: newFiles }),
         );
         for (let i = 0; i < files.length; i++) {
             await uploadFile(files[i]);
@@ -361,7 +360,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                 emojiObject.emoji +
                 currentText.substring(cursorPosition);
             store.dispatch(
-                setDraft({ chat: params?.chatid as string, message: newText }),
+                setDraft({ chat: chatId as string, message: newText }),
             );
             setLocalText(newText);
 
@@ -384,7 +383,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         newPlainTextValue,
         mentions,
     ) => {
-        if (params.chatid) {
+        if (chatId) {
             setLocalText(newValue);
         }
         onTyping({
@@ -405,9 +404,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         const messageText = localText.trim();
 
         if (!messageText && successFiles.length === 0) {
-            store.dispatch(
-                setDraft({ chat: params?.chatid as string, message: '' }),
-            );
+            store.dispatch(setDraft({ chat: chatId as string, message: '' }));
             return toast.error('Please write something');
         }
 
@@ -424,7 +421,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
             instance
                 .patch(`/chat/update/message/${selectedMessage?._id}`, data)
                 .then((res) => {
-                    store.dispatch(removeFromDraft(params?.chatid as string));
+                    store.dispatch(removeFromDraft(chatId as string));
                     setLocalText('');
                     toast.success('Message updated successfully');
                     if (onSentCallback) {
@@ -460,15 +457,19 @@ const TextEditor: React.FC<TextEditorProps> = ({
             };
 
             store.dispatch(pushMessage(messageData));
-            store.dispatch(removeFromDraft(params?.chatid as string));
+            store.dispatch(removeFromDraft(chatId as string));
             setLocalText('');
 
             instance
                 .put(`/chat/sendmessage/${chatId}`, data)
                 .then((res) => {
+                    // Update the message status to 'sent' in Redux
                     store.dispatch(
                         updateSendingInfo({
-                            message: res.data.message,
+                            message: {
+                                ...res.data.message,
+                                status: 'sent', // Ensure status is set to 'sent'
+                            },
                             trackingId: randomId.toString(),
                         }),
                     );
@@ -574,7 +575,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                     accept='image/*,video/*'
                 />
 
-                <div className='bg-background border-t border-border pt-2'>
+                <div className=' border-t border-border pt-2 px-2'>
                     {uploadFiles.map((uploadFile, index) => (
                         <div key={index} className='flex flex-wrap gap-2 p-2'>
                             <FileItem
@@ -598,7 +599,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                         />
                     ) : (
                         // <p>Capture Audio coming soon!</p>
-                        <div className='flex items-center p-1 border rounded-lg bg-foreground'>
+                        <div className='flex items-center p-1 border rounded-lg bg-background'>
                             <div className='flex items-center w-full'>
                                 <div className='mt-auto'>
                                     <DropdownMenu>

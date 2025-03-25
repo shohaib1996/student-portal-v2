@@ -101,7 +101,6 @@ export default function DocumentsPage() {
                 totalItems={totalItems}
                 itemsPerPage={itemsPerPage}
                 onLimitChange={(number) => {
-                    console.log(number);
                     router.push(
                         `/dashboard/documents-and-labs?limit=${number}`,
                     );

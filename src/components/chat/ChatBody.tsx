@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useEffect, useRef, useState } from 'react';
 import Message from './Message/page';
 import { useParams } from 'next/navigation';
@@ -9,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ChatFooter, { type ChatData } from './ChatFooter';
 import Cookies from 'js-cookie';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Pin } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import {
     markRead,
@@ -17,19 +16,14 @@ import {
     setCurrentPage,
     setFetchedMore,
     updateChatMessages,
+    updateMessageStatus,
 } from '@/redux/features/chatReducer';
-import { toast } from 'sonner';
 import { useAppSelector } from '@/redux/hooks';
 import { instance } from '@/lib/axios/axiosInstance';
-import chatStateData from './ChatStateData.json';
 import Thread from './thread';
-import { useGetChatMessagesQuery } from '@/redux/api/chats/chatApi';
-import {
-    useChatMessages,
-    useChats,
-    useDraftMessages,
-} from '@/redux/hooks/chat/chatHooks';
 import EditMessageModal from './Message/EditMessageModal';
+import ForwardMessageModal from './Message/ForwardMessageModal';
+import Highlighter from 'react-highlight-words';
 interface ChatMessage {
     _id: string;
     sender: {
@@ -44,8 +38,8 @@ interface ChatMessage {
     chat: string;
     type: string;
     text: string;
+    pinnedBy?: any;
 }
-
 interface ChatUser {
     _id: string;
     firstName?: string;
@@ -53,23 +47,6 @@ interface ChatUser {
     profilePicture?: string;
     isBlocked?: boolean;
 }
-
-interface ChatInfo {
-    _id: string;
-    name?: string;
-    avatar?: string;
-    isChannel?: boolean;
-    otherUser?: ChatUser;
-    myData?: {
-        isBlocked?: boolean;
-    };
-}
-
-interface Draft {
-    chat: string;
-    text: string;
-}
-
 interface ChatBodyProps {
     isAi?: boolean;
     setChatInfo: (chat: any | null) => void;
@@ -128,8 +105,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
 }) => {
     const params = useParams();
     const dispatch = useDispatch();
-    // Get chats data from RTK Query
-    // const { chats, isLoading: isChatsLoading } = useChats();
+    const [showPinnedMessages, setShowPinnedMessages] = useState(false);
     const {
         chatMessages,
         chats,
@@ -139,38 +115,20 @@ const ChatBody: React.FC<ChatBodyProps> = ({
         drafts,
     } = useAppSelector((state) => state.chat);
 
-    // Get drafts data from the hook
-    // const { drafts, getDraft } = useDraftMessages();
-
-    // Get messages for current chat
-    // const {
-    //     messages,
-    //     totalCount: count,
-    //     chatInfo,
-    //     isLoading: isMessagesLoading,
-    //     isFetchingMore: isFetching,
-    //     loadMoreMessages,
-    //     hasMore,
-    // } = useChatMessages(params?.chatid as string, 15);
     const [count, setCount] = useState(0);
-    const messages = chatMessages[params?.chatid as string];
-    // Rest of your component logic
-    // ...
+    const messages = chatMessages[params?.chatid as string] || [];
 
-    // Get draft for this chat
-    // const draft = getDraft(params?.chatid as string);
     const draft = drafts?.find((f) => f.chat === params?.chatid);
-    // const [currentPage, setCurrentPage] = useState(1);
-    // const [fetchedMore, setFetchedMore] = useState(false);
 
-    // Update fetchMore to also update currentPage
-    // const fetchMore = (page: number) => {
-    //     loadMoreMessages();
-    //     setCurrentPage((prev) => prev + 1);
-    //     setFetchedMore(true);
-    // };
     const [hasMore, setHasMore] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
+    const [isBackground, setIsBackground] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [limit, setLimit] = useState<number>(15);
+    const [forwardMessage, setForwardMessage] = useState<ChatMessage | null>(
+        null,
+    );
+
     const fetchMore = (page: number) => {
         const options = {
             page: page + 1,
@@ -212,18 +170,16 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                 if (err?.response) {
                     setError(err.response?.data);
                 }
-                // console.log(err);
             });
     };
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [chat, setChat] = useState<any | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [editMessage, setEditMessage] = useState<ChatMessage | null>(null);
     const [threadMessage, setThreadMessage] = useState<ChatMessage | null>(
         null,
     );
-    const [limit, setLimit] = useState<number>(15);
+
     //for ai
     const [aiIncomingMessage, setAiIncomingMessage] = useState<string>('');
     const [isThinking, setIsThinking] = useState<boolean>(false);
@@ -243,23 +199,21 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     useEffect(() => {
         setInitalLoaded(false);
     }, [params?.chatid]);
-    console.log({ chats: chats });
+
     useEffect(() => {
         if (chats && params?.chatid) {
             const findChat = chats?.find(
                 (chat: any) => chat?._id === params?.chatid,
             );
-            console.log({ findChat: findChat });
             if (findChat) {
                 setChat(findChat);
                 setChatInfo(findChat);
             }
         }
     }, [chats, params?.chatid, setChatInfo]);
-
+    console.log({ messages });
     useEffect(() => {
         if (chat?.otherUser?._id === process.env.NEXT_PUBLIC_AI_BOT_ID) {
-            // Change this line
             const currentMessages: any = messages || [];
 
             if (currentMessages?.length === 0) {
@@ -278,18 +232,10 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const lastMessageRef = useRef<HTMLDivElement>(null);
 
-    // Remove or simplify this useEffect since RTK Query handles the data fetching
+    // Fetch messages in the background without showing loading state
     useEffect(() => {
         if (params?.chatid) {
-            setIsFetching(true);
-            dispatch(
-                updateChatMessages({
-                    chat: params?.chatid as string,
-                    messages: [],
-                }),
-            );
-            setIsLoading(true);
-            setError(null);
+            setIsBackground(true);
             dispatch(setCurrentPage(1));
             setCount(0);
             const options = {
@@ -301,10 +247,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
             instance
                 .post(`/chat/messages`, options)
                 .then((res) => {
-                    setIsLoading(false);
-                    // setChat(res.data.chat)
                     setCount(res.data.count);
-                    // fetchPinned(res.data.chat._id)
                     dispatch(
                         updateChatMessages({
                             chat: res.data.chat._id,
@@ -318,27 +261,35 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                         setHasMore(true);
                     }
                     dispatch(markRead({ chatId: params?.chatid as string }));
-                    setIsFetching(false);
+                    setIsBackground(false);
                 })
                 .catch((err) => {
-                    setIsLoading(false);
                     if (err && err.response) {
                         setError(err?.response?.data?.error);
                     }
                     setInitalLoaded(true);
-                    setIsFetching(false);
+                    setIsBackground(false);
                 });
         }
-    }, [params?.chatid, reload, searchQuery]);
+    }, [params?.chatid, reload, searchQuery, dispatch, currentPage, limit]);
+
     interface SentCallbackObject {
         action: string;
-        message?: {
-            text: string;
-        };
+        message?: any;
     }
 
     const onSentCallback = async (object: SentCallbackObject) => {
         if (object?.action === 'create') {
+            if (object?.message?._id) {
+                dispatch(
+                    updateMessageStatus({
+                        chatId: params?.chatid as string,
+                        messageId: object.message._id,
+                        status: 'sent',
+                    }),
+                );
+            }
+
             if (chat?.otherUser?._id === process.env.NEXT_PUBLIC_AI_BOT_ID) {
                 const histories = messages?.slice(-3)?.map((x: any) => ({
                     role: 'assistant',
@@ -425,6 +376,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
             }
         }
     };
+
     const prevTriggerRef = React.useRef('');
 
     useEffect(() => {
@@ -443,29 +395,175 @@ const ChatBody: React.FC<ChatBodyProps> = ({
             setReloading(!reloading);
         }
     }, [messages, reload, setReloading, reloading]);
+
     const [isTyping, setIsTyping] = useState<boolean>(false);
+
     // Function to send typing indicator
     const sendTypingIndicator = (isTyping: boolean) => {
-        // You can implement the typing indicator logic here
         setIsTyping(isTyping);
     };
 
     return (
         <>
-            <div className='scrollbar-container h-[calc(100%-135px)] pl-2'>
+            {/* Pinned Messages Bar */}
+            {!showPinnedMessages &&
+                messages.filter((message) => message.pinnedBy).length > 0 && (
+                    <div
+                        className='w-full shadow-lg bg-foreground border shadow-ms cursor-pointer'
+                        onClick={() => setShowPinnedMessages(true)}
+                    >
+                        <div className='container mx-auto flex items-center p-2'>
+                            <div className='flex items-center gap-2 w-full'>
+                                <span className=' text-primary flex items-center justify-center text-xs font-medium'>
+                                    {
+                                        messages.filter(
+                                            (message) => message.pinnedBy,
+                                        ).length
+                                    }
+                                </span>
+
+                                {messages.filter((message) => message.pinnedBy)
+                                    .length > 0 && (
+                                    <>
+                                        <Avatar className='h-6 w-6'>
+                                            <AvatarImage
+                                                src={
+                                                    messages
+                                                        .filter(
+                                                            (message) =>
+                                                                message.pinnedBy,
+                                                        )
+                                                        .sort(
+                                                            (a, b) =>
+                                                                new Date(
+                                                                    b.createdAt as string,
+                                                                ).getTime() -
+                                                                new Date(
+                                                                    a.createdAt as string,
+                                                                ).getTime(),
+                                                        )[0]?.pinnedBy
+                                                        ?.profilePicture
+                                                }
+                                                alt='User'
+                                            />
+                                            <AvatarFallback>
+                                                {messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]
+                                                    ?.pinnedBy?.firstName?.charAt(
+                                                        0,
+                                                    )}
+                                            </AvatarFallback>
+                                        </Avatar>
+
+                                        <span className='font-medium text-sm max-w-[150px] truncate'>
+                                            {
+                                                messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]?.pinnedBy?.fullName
+                                            }
+                                        </span>
+
+                                        <span className='text-xs text-gray w-[50px]'>
+                                            {dayjs(
+                                                messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]?.createdAt,
+                                            ).format('h:mm A')}
+                                        </span>
+
+                                        <div className='flex-1 truncate text-sm text-gray ml-2 max-w-[calc(100%-200px)]'>
+                                            {
+                                                messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]?.text
+                                            }
+                                        </div>
+
+                                        <Pin className='h-4 w-4 text-dark-gray rotate-45 ml-2 flex-shrink-0' />
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+            <div
+                className={`scrollbar-container ${!showPinnedMessages ? 'h-[calc(100%-170px)]' : 'h-[calc(100%-125px)]'} pl-2`}
+            >
                 <div
                     className='h-full overflow-y-auto'
                     id='chat-body-id'
                     onScroll={handleScroll}
                     ref={chatContainerRef}
                 >
-                    {isLoading ? (
-                        <div className='h-full w-full flex justify-center items-center'>
-                            <Loader2 className='h-14 w-14 text-primary animate-spin' />
+                    {showPinnedMessages ? (
+                        <div className='p-4'>
+                            {messages
+                                .filter((message) => message.pinnedBy)
+                                .map((message) => (
+                                    <Message
+                                        isAi={isAi}
+                                        key={message._id}
+                                        hideOptions={false}
+                                        source='pinned'
+                                        message={message}
+                                        setEditMessage={setEditMessage}
+                                        setThreadMessage={setThreadMessage}
+                                        bottomRef={bottomTextRef}
+                                        reload={reload}
+                                        setReload={setReload}
+                                        searchQuery={searchQuery}
+                                    />
+                                ))}
                         </div>
                     ) : (
-                        <div>
-                            {!isLoading && currentPage * 20 < count ? (
+                        <>
+                            {!isBackground && currentPage * 20 < count ? (
                                 <div className='w-full flex flex-row items-center gap-2 my-2'>
                                     <div className='w-full h-[2px] bg-border'></div>
                                     <div className='text-center'>
@@ -486,67 +584,75 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                     <div className='w-full h-[2px] bg-border'></div>
                                 </div>
                             ) : (
-                                <div className='p-2.5 text-center flex flex-col items-center gap-2.5'>
-                                    {chat?.isChannel ? (
-                                        <>
-                                            <Avatar className='h-[50px] w-[50px]'>
-                                                <AvatarImage
-                                                    src={chat?.avatar}
-                                                    alt={chat?.name}
-                                                />
-                                                <AvatarFallback>
-                                                    {chat?.name?.charAt(0)}
-                                                </AvatarFallback>
-                                            </Avatar>
+                                messages?.length === 0 &&
+                                chat && (
+                                    <div className='p-2.5 text-center flex flex-col items-center gap-2.5'>
+                                        {chat?.isChannel ? (
+                                            <>
+                                                <Avatar className='h-[50px] w-[50px]'>
+                                                    <AvatarImage
+                                                        src={chat?.avatar}
+                                                        alt={chat?.name}
+                                                    />
+                                                    <AvatarFallback>
+                                                        {chat?.name?.charAt(0)}
+                                                    </AvatarFallback>
+                                                </Avatar>
 
-                                            <p className='font-bold text-sm'>
-                                                This is the very beginning of
-                                                the{' '}
-                                                <strong>{chat?.name}</strong>{' '}
-                                                channel
-                                            </p>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Avatar className='h-[50px] w-[50px]'>
-                                                <AvatarImage
-                                                    src={
-                                                        chat?.otherUser
-                                                            ?.profilePicture
-                                                    }
-                                                    alt={`${chat?.otherUser?.firstName} ${chat?.otherUser?.lastName}`}
-                                                />
-                                                <AvatarFallback>
-                                                    {chat?.otherUser?.firstName?.charAt(
-                                                        0,
-                                                    )}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <p className='font-bold text-sm'>
-                                                This is the very beginning of
-                                                the chat with{' '}
-                                                <strong>
-                                                    {chat?.otherUser?.firstName}{' '}
-                                                    {chat?.otherUser?.lastName}
-                                                </strong>
-                                            </p>
-                                        </>
-                                    )}
-                                </div>
+                                                <p className='font-bold text-sm'>
+                                                    This is the very beginning
+                                                    of the{' '}
+                                                    <strong>
+                                                        {chat?.name}
+                                                    </strong>{' '}
+                                                    channel
+                                                </p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Avatar className='h-[50px] w-[50px]'>
+                                                    <AvatarImage
+                                                        src={
+                                                            chat?.otherUser
+                                                                ?.profilePicture
+                                                        }
+                                                        alt={`${chat?.otherUser?.firstName} ${chat?.otherUser?.lastName}`}
+                                                    />
+                                                    <AvatarFallback>
+                                                        {chat?.otherUser?.firstName?.charAt(
+                                                            0,
+                                                        )}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <p className='font-bold text-sm'>
+                                                    This is the very beginning
+                                                    of the chat with{' '}
+                                                    <strong>
+                                                        {
+                                                            chat?.otherUser
+                                                                ?.firstName
+                                                        }{' '}
+                                                        {
+                                                            chat?.otherUser
+                                                                ?.lastName
+                                                        }
+                                                    </strong>
+                                                </p>
+                                            </>
+                                        )}
+                                    </div>
+                                )
                             )}
-                            {isLoading ? (
-                                <div className='flex justify-center items-center h-[70vh]'>
-                                    <Loader2 className='h-14 w-14 text-primary animate-spin' />
-                                </div>
-                            ) : (
-                                messages?.length === 0 && (
+
+                            {messages?.length === 0 &&
+                                !chat &&
+                                !isBackground && (
                                     <div className='text-center mt-15 pb-[25vh]'>
                                         <h3 className='font-bold text-dark-gray'>
                                             No messages found!
                                         </h3>
                                     </div>
-                                )
-                            )}
+                                )}
 
                             {error ? (
                                 <Alert variant='destructive'>
@@ -616,6 +722,9 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                                         setThreadMessage={
                                                             setThreadMessage
                                                         }
+                                                        setForwardMessage={
+                                                            setForwardMessage
+                                                        }
                                                         ref={
                                                             isLastMessage &&
                                                             refIndex !== 0
@@ -648,7 +757,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                             fullName: 'AI Bot',
                                             profilePicture: '',
                                         },
-                                        createdAt: Date.now(),
+                                        createdAt: dayjs(Date.now()).format(),
                                         status: 'sending',
                                         chat: chat?._id as string,
                                         type: 'message',
@@ -658,11 +767,11 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                     setReload={setReload}
                                 />
                             )}
-                        </div>
+                        </>
                     )}
                 </div>
             </div>
-            {!(chat?.myData?.isBlocked || error) && (
+            {!showPinnedMessages && !(chat?.myData?.isBlocked || error) && (
                 <ChatFooter
                     chat={chat as ChatData}
                     className={`chat_${chat?._id}`}
@@ -672,6 +781,17 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     profileInfoShow={profileInfoShow}
                     sendTypingIndicator={sendTypingIndicator}
                 />
+            )}
+            {showPinnedMessages && (
+                <div className='w-full items-center justify-center flex border-t pt-2 mt-2'>
+                    <Button
+                        onClick={() => setShowPinnedMessages(false)}
+                        className='w-fit px-10'
+                        variant={'destructive'}
+                    >
+                        Exit Pin Mode
+                    </Button>
+                </div>
             )}
 
             {threadMessage && (
@@ -688,6 +808,14 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     chat={chat}
                     selectedMessage={editMessage}
                     handleCloseEdit={() => setEditMessage(null)}
+                />
+            )}
+
+            {forwardMessage && (
+                <ForwardMessageModal
+                    isOpen={!!forwardMessage}
+                    onClose={() => setForwardMessage(null)}
+                    message={forwardMessage}
                 />
             )}
         </>

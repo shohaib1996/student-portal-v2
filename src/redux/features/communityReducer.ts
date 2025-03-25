@@ -105,8 +105,6 @@ const communitySlice = createSlice({
             action: PayloadAction<CommentCountPayload>,
         ) => {
             const post = state.posts.find((p) => p._id === action.payload.id);
-            console.log(action.payload);
-            console.log(post);
             if (post && action.payload) {
                 post.commentsCount = action.payload.count;
             }

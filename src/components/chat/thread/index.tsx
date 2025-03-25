@@ -103,6 +103,7 @@ const Thread: React.FC<ThreadProps> = ({
                                 _id: message?._id,
                                 chat: chat?._id,
                                 replies: res.data.messages,
+                                createdAt: message?.createdAt,
                             },
                         }),
                     );
@@ -134,7 +135,12 @@ const Thread: React.FC<ThreadProps> = ({
     };
 
     const groupedMessages = groupMessagesByDate([...(replies || [])]);
-
+    const [isTyping, setIsTyping] = useState<boolean>(false);
+    // Function to send typing indicator
+    const sendTypingIndicator = (isTyping: boolean) => {
+        // You can implement the typing indicator logic here
+        setIsTyping(isTyping);
+    };
     return (
         message && (
             <Sheet
@@ -242,6 +248,7 @@ const Thread: React.FC<ThreadProps> = ({
                             scrollIntoBottom={scrollIntoBottom}
                             className={`chat_${chat?._id}`}
                             parentMessage={message?._id || null}
+                            sendTypingIndicator={sendTypingIndicator}
                         />
                     </div>
                 </SheetContent>

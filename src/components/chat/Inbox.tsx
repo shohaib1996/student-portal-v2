@@ -25,18 +25,12 @@ import { markRead, updateMyData } from '@/redux/features/chatReducer';
 import { Input } from '../ui/input';
 import NotificationOptionModal from './ChatForm/NotificationModal';
 import { useGetOnlineUsersQuery } from '@/redux/api/chats/chatApi';
+import { useAppSelector } from '@/redux/hooks';
 
-// Dynamic imports
-const ChatBody = lazy(() => import('./ChatBody'));
+// Import directly instead of using lazy loading to avoid the initial loading state
+import ChatBody from './ChatBody';
 
 dayjs.extend(relativeTime);
-
-// Loading fallback
-const LoadingFallback = () => (
-    <div className='flex items-center justify-center p-4'>
-        <div className='h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent'></div>
-    </div>
-);
 
 interface ChatUser {
     _id: string;
@@ -93,6 +87,8 @@ const Inbox: React.FC<InboxProps> = ({
     const [isMeeting, setIsMeeting] = useState(false);
     const dispatch = useDispatch();
     const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
+    const { chats } = useAppSelector((state) => state.chat);
+
     // Search state: controls whether the search box is open and holds the search query
     const [search, setSearch] = useState({
         isOpen: false,
@@ -100,6 +96,7 @@ const Inbox: React.FC<InboxProps> = ({
     });
 
     const [finalQuery, setFinalQuery] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSearchSubmit = useCallback(() => {
         setFinalQuery(search.query);
@@ -109,11 +106,6 @@ const Inbox: React.FC<InboxProps> = ({
         if (chat?._id) {
             dispatch(markRead({ chatId: chat._id }));
         }
-        // handleSearchSubmit("");
-        // setSearch({
-        //   isOpen: false,
-        //   query: "",
-        // })
     }, [chat, dispatch]);
 
     const handleFavourite = useCallback(
@@ -170,20 +162,20 @@ const Inbox: React.FC<InboxProps> = ({
     const toggleMeeting = useCallback(() => {
         setIsMeeting((prev) => !prev);
     }, []);
-    console.log({ chat });
+
     return (
         <>
             {/* Set position relative so the absolute search box is positioned relative to this container */}
-            <div className='relative bg-background rounded-md shadow-sm h-[calc(100vh-60px)]'>
+            <div className='relative bg-foreground rounded-md shadow-sm h-[calc(100vh-60px)]'>
                 <div className='flex flex-col h-full'>
                     <div className='flex items-center justify-between p-2 border-b'>
                         <div className='flex items-center space-x-3'>
-                            <Link
+                            {/* <Link
                                 className='text-dark-gray hover:text-primary'
                                 href='/chat'
                             >
                                 <ArrowLeft className='h-5 w-5 text-dark-gray' />
-                            </Link>
+                            </Link> */}
 
                             <div className='relative'>
                                 <Image
@@ -275,7 +267,6 @@ const Inbox: React.FC<InboxProps> = ({
                                         onClick={() =>
                                             toast.info('Coming soon!')
                                         }
-                                        // onClick={(e)=> openPopover(e.currentTarget.getBoundingClientRect(),{side:'right'})}
                                     >
                                         <Calendar className='h-5 w-5' />
                                     </Button>
@@ -342,7 +333,7 @@ const Inbox: React.FC<InboxProps> = ({
                                             handleSearchSubmit();
                                         }
                                     }}
-                                    placeholder='Search...'
+                                    placeholder='Search messages...'
                                     className='flex-1 px-3 py-2 max-h-9 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-foreground'
                                 />
                                 <X
@@ -352,39 +343,51 @@ const Inbox: React.FC<InboxProps> = ({
                             </div>
                             <Button
                                 onClick={handleSearchSubmit}
+                                variant='outline'
+                                className='bg-foreground'
                                 icon={<SearchIcon size={18} />}
                             ></Button>
                         </div>
                     )}
 
                     {isMeeting ? (
-                        <Suspense fallback={<LoadingFallback />}>
-                            {/* <Meet chat={chat} setIsMeeting={setIsMeeting} /> */}
-                            <p>Meeting is coming soon!</p>
-                        </Suspense>
+                        <div className='flex items-center justify-center h-full'>
+                            <div className='text-center p-4'>
+                                <Video className='h-12 w-12 mx-auto mb-4 text-primary' />
+                                <h3 className='text-lg font-medium mb-2'>
+                                    Video Meeting
+                                </h3>
+                                <p className='text-muted-foreground mb-4'>
+                                    Coming soon! This feature is currently under
+                                    development.
+                                </p>
+                                <Button
+                                    onClick={toggleMeeting}
+                                    variant='outline'
+                                >
+                                    Return to Chat
+                                </Button>
+                            </div>
+                        </div>
                     ) : (
-                        <Suspense fallback={<LoadingFallback />}>
-                            <ChatBody
-                                setChatInfo={setChatInfo}
-                                setProfileInfoShow={setProfileInfoShow}
-                                profileInfoShow={profileInfoShow}
-                                setReloading={setReloading}
-                                reloading={reloading}
-                                isAi={isAi}
-                                searchQuery={finalQuery}
-                            />
-                        </Suspense>
+                        <ChatBody
+                            setChatInfo={setChatInfo}
+                            setProfileInfoShow={setProfileInfoShow}
+                            profileInfoShow={profileInfoShow}
+                            setReloading={setReloading}
+                            reloading={reloading}
+                            isAi={isAi}
+                            searchQuery={finalQuery}
+                        />
                     )}
                 </div>
 
-                <Suspense fallback={null}>
-                    <NotificationOptionModal
-                        chatId={chat?._id}
-                        opened={notificationOption.isVisible}
-                        close={closeNotificationModal}
-                        member={chat?.myData}
-                    />
-                </Suspense>
+                <NotificationOptionModal
+                    chatId={chat?._id}
+                    opened={notificationOption.isVisible}
+                    close={closeNotificationModal}
+                    member={chat?.myData}
+                />
             </div>
         </>
     );

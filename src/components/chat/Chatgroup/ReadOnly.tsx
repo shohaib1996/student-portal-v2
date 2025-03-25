@@ -238,7 +238,7 @@ function ReadOnly() {
             <div className='filter-group'>
                 <div className='relative'>
                     <Input
-                        className='search-input bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                        className='search-input bg-background text-gray'
                         onChange={handleChangeSearch}
                         type='search'
                         placeholder='Search Read only Chat'

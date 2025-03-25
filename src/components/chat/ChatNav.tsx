@@ -60,11 +60,7 @@ import {
     ChevronDown,
 } from 'lucide-react';
 import { useAppSelector } from '@/redux/hooks';
-import {
-    useFindOrCreateChatMutation,
-    useGetChatsQuery,
-    useGetOnlineUsersQuery,
-} from '@/redux/api/chats/chatApi';
+import { useFindOrCreateChatMutation } from '@/redux/api/chats/chatApi';
 
 // Dynamic imports for better performance
 const MessagePreview = dynamic(() => import('./Message/MessagePreview'), {
@@ -368,14 +364,14 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                 {/* Chat List Container or Create Crowd Interface */}
                 {createCrowdOpen ? (
-                    <div className='w-[calc(100%-60px)] bg-background'>
+                    <div className='w-[calc(100%-60px)] bg-foreground'>
                         <CreateCrowd
                             isOpen={createCrowdOpen}
                             onClose={() => setCreateCrowdOpen(false)}
                         />
                     </div>
                 ) : (
-                    <div className='w-[calc(100%-60px)] bg-background chat-list flex flex-col h-[calc(100vh-60px)]'>
+                    <div className='w-[calc(100%-60px)] bg-foreground chat-list flex flex-col h-[calc(100vh-60px)]'>
                         {/* Header with title and actions - Fixed */}
                         <div className='flex items-center justify-between p-2'>
                             <h1 className='text-lg font-semibold'>
@@ -461,7 +457,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                     <div className='pb-2 border-b'>
                                         <div className='relative flex flex-row items-center gap-2'>
                                             <Input
-                                                className='pl-10 bg-foreground'
+                                                className='pl-10 bg-background'
                                                 onChange={handleChangeSearch}
                                                 value={searchQuery}
                                                 type='search'

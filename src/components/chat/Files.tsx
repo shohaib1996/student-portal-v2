@@ -120,7 +120,6 @@ const Files: React.FC<FilesProps> = ({ chat }) => {
                 })
                 .catch((err) => {
                     setIsLoading(false);
-                    console.log(err);
                     toast.error(
                         err?.response?.data?.error || 'Failed to fetch files',
                     );
@@ -173,7 +172,7 @@ const Files: React.FC<FilesProps> = ({ chat }) => {
             })
             .catch((err) => {
                 setLoadingMore(false);
-                console.log(err);
+                console.error(err);
                 toast.error(
                     err?.response?.data?.error || 'Failed to load more files',
                 );

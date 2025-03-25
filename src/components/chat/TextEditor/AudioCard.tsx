@@ -119,7 +119,7 @@ const AudioCard = ({ audioUrl }: AudioCardProps) => {
                 <div
                     ref={waveFormRef}
                     className={cn(
-                        'flex-grow mr-4 w-[200px]',
+                        'flex-grow mr-4 max-w-[200px] w-full',
                         (!audioUrl || isLoading) && 'opacity-50',
                     )}
                 />

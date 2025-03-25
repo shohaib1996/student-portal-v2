@@ -133,7 +133,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                 })
                 .catch((err) => {
                     setIsLoading(false);
-                    console.log(err);
+                    console.error(err);
                     toast.error(
                         err?.response?.data?.error || 'Failed to fetch members',
                     );
@@ -176,7 +176,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                         }
                     })
                     .catch((err) => {
-                        console.log(err);
+                        console.error(err);
                         toast.error(
                             err?.response?.data?.error ||
                                 'Failed to load more members',
@@ -234,7 +234,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                     toast.success('Member removed successfully');
                 })
                 .catch((err) => {
-                    console.log(err);
+                    console.error(err);
                     toast.error(
                         err?.response?.data?.error || 'Failed to remove member',
                     );
@@ -331,7 +331,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                 })
                 .catch((err) => {
                     setCreating(false);
-                    console.log(err.message);
+                    console.error(err.message);
                     toast.error(
                         err?.response?.data?.error || 'Failed to create chat',
                     );

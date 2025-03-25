@@ -58,8 +58,9 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
 
     useEffect(() => {
         const channels =
-            chats?.filter((x) => x?.isChannel && (x?.unreadCount ?? 0) > 0) ||
-            [];
+            chats?.filter(
+                (x: any) => x?.isChannel && (x?.unreadCount ?? 0) > 0,
+            ) || [];
         setUnread(channels); // Add this line to store the result in state
     }, [chats]);
 
@@ -96,7 +97,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
         },
         [active],
     );
-    console.log({ active: active });
+
     return (
         <div className='flex flex-col h-full w-[50px]'>
             <div className='flex flex-col items-center gap-3'>

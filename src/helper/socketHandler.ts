@@ -52,7 +52,7 @@ interface MessageData {
     message: Message;
 }
 
-interface TypingData {
+export interface TypingData {
     chatId: string;
     typingData: {
         isTyping: boolean;
@@ -75,7 +75,7 @@ const updateStatus = (messageId: string, status: string): void => {
         .patch(`/chat/update-status/${messageId}`, { status })
         .then((res) => {})
         .catch((err) => {
-            console.log(err);
+            console.error(err);
         });
 };
 
@@ -92,7 +92,6 @@ const setupSocketListeners = (api?: any): (() => void) => {
     });
 
     socket.on('newmessage', (data: MessageData) => {
-        console.log('data.message', JSON.stringify(data.message, null, 2));
         const isSoundOnOrOff = store.getState()?.notification?.isSoundOnOrOff;
 
         if (data.message?.sender?._id !== user._id) {
@@ -121,16 +120,11 @@ const setupSocketListeners = (api?: any): (() => void) => {
                     counter: 1,
                 }),
             );
-            console.log(
-                'data.message.parentMessage',
-                JSON.stringify(data.message.parentMessage, null, 2),
-            );
             store.dispatch(updateRepliesCount({ message: data.message }));
         }
     });
 
     socket.on('updatemessage', (data: MessageData) => {
-        console.log('data.message', JSON.stringify(data.message, null, 2));
         store.dispatch(
             updateMessage({
                 // chat:

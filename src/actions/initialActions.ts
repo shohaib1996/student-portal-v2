@@ -48,7 +48,7 @@ interface GetCommunityPostsParams {
 //       }
 //       )
 //       .catch(err => {
-//         console.log(err);
+//         console.error(err);
 //         notification.error({ message: err?.response?.data?.error });
 //       }
 //       )
@@ -63,7 +63,7 @@ export const loadChats = (): AppThunk => {
                 dispatch(setChats(res.data.chats));
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 toast.error(err?.response?.data?.error);
             });
     };
@@ -79,7 +79,7 @@ export const loadNotifications = (): AppThunk => {
                 dispatch(setUnReadNotification(res.data.totalUnread));
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 toast.error(err?.response?.data?.error);
             });
     };
@@ -93,7 +93,7 @@ export const getOnlines = (): AppThunk => {
                 dispatch(setOnlineUsers(res.data.users));
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 toast.error(err?.response?.data?.error);
             });
     };
@@ -107,7 +107,7 @@ export const getMyNavigations = (): AppThunk => {
                 dispatch(setNavigation(res.data.navigation?.navigations));
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 toast.error(err?.response?.data?.error);
             });
     };
@@ -125,7 +125,7 @@ export const myMeetings = (): void => {
     //             })
     //         })
     //         .catch(err => {
-    //             console.log(err);
+    //             console.error(err);
     //             toast.error(err?.response?.data?.error)
     //         })
     // }
@@ -139,7 +139,7 @@ export const getPrograms = (): AppThunk => {
                 dispatch(setPrograms(res.data.courses));
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 toast.error(err?.response?.data?.error);
             });
     };
@@ -153,7 +153,7 @@ export const getCourses = (): AppThunk => {
                 dispatch(setCourses(res.data.courses));
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 toast.error(err?.response?.data?.error);
             });
     };
@@ -167,7 +167,7 @@ export const getServices = (): AppThunk => {
                 dispatch(setServices(res.data.courses));
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 toast.error(err?.response?.data?.error);
             });
     };
@@ -209,7 +209,7 @@ export const getCommunityPosts = ({
                 dispatch(setTotalPages(Math.ceil(res.data.count / limit)));
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 dispatch(setPostLoading(false));
                 toast.error(err?.response?.data?.error);
             });
@@ -229,7 +229,7 @@ export const getCommunityPosts = ({
 //         dispatch(setPostLoading(false));
 //       })
 //       .catch((err) => {
-//         console.log(err);
+//         console.error(err);
 //         dispatch(setPostLoading(false));
 //         toast.error(err?.response?.data?.error);
 //       });

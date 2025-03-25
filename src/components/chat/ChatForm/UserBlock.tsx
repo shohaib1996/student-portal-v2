@@ -66,7 +66,7 @@ const UserBlock: React.FC<UserBlockProps> = ({
                 modalClose();
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
                 toast.error(
                     err?.response?.data?.error ||
                         'Failed to update member status',
