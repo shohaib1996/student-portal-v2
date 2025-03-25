@@ -124,7 +124,7 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
                 mediaRecorder.start();
             })
             .catch((error) => {
-                console.log(error);
+                console.error(error);
             });
     }, [waveform]);
 

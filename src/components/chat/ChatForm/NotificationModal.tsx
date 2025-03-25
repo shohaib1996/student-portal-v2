@@ -45,8 +45,6 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
     props,
 ) => {
     const { opened, close, chatId, member, handleUpdateCallback } = props;
-    console.log('member', member);
-
     const modalClose = useCallback(() => {
         close();
     }, [close]);
@@ -64,8 +62,6 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
         setNote('');
         if (!member?.notification?.isOn) {
             if (member) {
-                console.log('member', member);
-
                 const muteDate = dayjs(member?.notification?.dateUntil);
                 const now = dayjs();
 

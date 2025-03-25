@@ -57,7 +57,7 @@ interface PopupInboxProps {
     handleToggleInfo: () => void;
     setProfileInfoShow: (value: boolean) => void;
     profileInfoShow: boolean;
-    setReloading: (value: boolean) => void;
+    setReloading: (reloading: boolean | ((prev: boolean) => boolean)) => void;
     reloading: boolean;
 }
 
@@ -80,7 +80,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
         isOpen: false,
         query: '',
     });
-    console.log({ chat });
+
     const [finalQuery, setFinalQuery] = useState('');
 
     const handleSearchSubmit = useCallback(() => {

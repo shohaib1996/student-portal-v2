@@ -68,7 +68,7 @@ const ChatRole: React.FC<ChatRoleProps> = ({
             })
             .catch((err) => {
                 setIsUpdating(false);
-                console.log(err);
+                console.error(err);
                 toast.error(
                     err?.response?.data?.error || 'Failed to update role',
                 );

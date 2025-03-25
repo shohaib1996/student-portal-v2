@@ -17,6 +17,7 @@ import {
     setCurrentPage,
     setFetchedMore,
     updateChatMessages,
+    updateMessageStatus,
 } from '@/redux/features/chatReducer';
 import { toast } from 'sonner';
 import { useAppSelector } from '@/redux/hooks';
@@ -128,8 +129,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
 }) => {
     const params = useParams();
     const dispatch = useDispatch();
-    // Get chats data from RTK Query
-    // const { chats, isLoading: isChatsLoading } = useChats();
+
     const {
         chatMessages,
         chats,
@@ -139,38 +139,17 @@ const ChatBody: React.FC<ChatBodyProps> = ({
         drafts,
     } = useAppSelector((state) => state.chat);
 
-    // Get drafts data from the hook
-    // const { drafts, getDraft } = useDraftMessages();
-
-    // Get messages for current chat
-    // const {
-    //     messages,
-    //     totalCount: count,
-    //     chatInfo,
-    //     isLoading: isMessagesLoading,
-    //     isFetchingMore: isFetching,
-    //     loadMoreMessages,
-    //     hasMore,
-    // } = useChatMessages(params?.chatid as string, 15);
     const [count, setCount] = useState(0);
-    const messages = chatMessages[params?.chatid as string];
-    // Rest of your component logic
-    // ...
+    const messages = chatMessages[params?.chatid as string] || [];
 
-    // Get draft for this chat
-    // const draft = getDraft(params?.chatid as string);
     const draft = drafts?.find((f) => f.chat === params?.chatid);
-    // const [currentPage, setCurrentPage] = useState(1);
-    // const [fetchedMore, setFetchedMore] = useState(false);
 
-    // Update fetchMore to also update currentPage
-    // const fetchMore = (page: number) => {
-    //     loadMoreMessages();
-    //     setCurrentPage((prev) => prev + 1);
-    //     setFetchedMore(true);
-    // };
     const [hasMore, setHasMore] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
+    const [isBackground, setIsBackground] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [limit, setLimit] = useState<number>(15);
+
     const fetchMore = (page: number) => {
         const options = {
             page: page + 1,
@@ -212,18 +191,16 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                 if (err?.response) {
                     setError(err.response?.data);
                 }
-                // console.log(err);
             });
     };
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [chat, setChat] = useState<any | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [editMessage, setEditMessage] = useState<ChatMessage | null>(null);
     const [threadMessage, setThreadMessage] = useState<ChatMessage | null>(
         null,
     );
-    const [limit, setLimit] = useState<number>(15);
+
     //for ai
     const [aiIncomingMessage, setAiIncomingMessage] = useState<string>('');
     const [isThinking, setIsThinking] = useState<boolean>(false);
@@ -243,13 +220,12 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     useEffect(() => {
         setInitalLoaded(false);
     }, [params?.chatid]);
-    console.log({ chats: chats });
+
     useEffect(() => {
         if (chats && params?.chatid) {
             const findChat = chats?.find(
                 (chat: any) => chat?._id === params?.chatid,
             );
-            console.log({ findChat: findChat });
             if (findChat) {
                 setChat(findChat);
                 setChatInfo(findChat);
@@ -259,7 +235,6 @@ const ChatBody: React.FC<ChatBodyProps> = ({
 
     useEffect(() => {
         if (chat?.otherUser?._id === process.env.NEXT_PUBLIC_AI_BOT_ID) {
-            // Change this line
             const currentMessages: any = messages || [];
 
             if (currentMessages?.length === 0) {
@@ -278,18 +253,10 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const lastMessageRef = useRef<HTMLDivElement>(null);
 
-    // Remove or simplify this useEffect since RTK Query handles the data fetching
+    // Fetch messages in the background without showing loading state
     useEffect(() => {
         if (params?.chatid) {
-            setIsFetching(true);
-            dispatch(
-                updateChatMessages({
-                    chat: params?.chatid as string,
-                    messages: [],
-                }),
-            );
-            setIsLoading(true);
-            setError(null);
+            setIsBackground(true);
             dispatch(setCurrentPage(1));
             setCount(0);
             const options = {
@@ -301,10 +268,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
             instance
                 .post(`/chat/messages`, options)
                 .then((res) => {
-                    setIsLoading(false);
-                    // setChat(res.data.chat)
                     setCount(res.data.count);
-                    // fetchPinned(res.data.chat._id)
                     dispatch(
                         updateChatMessages({
                             chat: res.data.chat._id,
@@ -318,27 +282,35 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                         setHasMore(true);
                     }
                     dispatch(markRead({ chatId: params?.chatid as string }));
-                    setIsFetching(false);
+                    setIsBackground(false);
                 })
                 .catch((err) => {
-                    setIsLoading(false);
                     if (err && err.response) {
                         setError(err?.response?.data?.error);
                     }
                     setInitalLoaded(true);
-                    setIsFetching(false);
+                    setIsBackground(false);
                 });
         }
-    }, [params?.chatid, reload, searchQuery]);
+    }, [params?.chatid, reload, searchQuery, dispatch, currentPage, limit]);
+
     interface SentCallbackObject {
         action: string;
-        message?: {
-            text: string;
-        };
+        message?: any;
     }
 
     const onSentCallback = async (object: SentCallbackObject) => {
         if (object?.action === 'create') {
+            if (object?.message?._id) {
+                dispatch(
+                    updateMessageStatus({
+                        chatId: params?.chatid as string,
+                        messageId: object.message._id,
+                        status: 'sent',
+                    }),
+                );
+            }
+
             if (chat?.otherUser?._id === process.env.NEXT_PUBLIC_AI_BOT_ID) {
                 const histories = messages?.slice(-3)?.map((x: any) => ({
                     role: 'assistant',
@@ -425,6 +397,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
             }
         }
     };
+
     const prevTriggerRef = React.useRef('');
 
     useEffect(() => {
@@ -443,10 +416,11 @@ const ChatBody: React.FC<ChatBodyProps> = ({
             setReloading(!reloading);
         }
     }, [messages, reload, setReloading, reloading]);
+
     const [isTyping, setIsTyping] = useState<boolean>(false);
+
     // Function to send typing indicator
     const sendTypingIndicator = (isTyping: boolean) => {
-        // You can implement the typing indicator logic here
         setIsTyping(isTyping);
     };
 
@@ -459,33 +433,28 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     onScroll={handleScroll}
                     ref={chatContainerRef}
                 >
-                    {isLoading ? (
-                        <div className='h-full w-full flex justify-center items-center'>
-                            <Loader2 className='h-14 w-14 text-primary animate-spin' />
-                        </div>
-                    ) : (
-                        <div>
-                            {!isLoading && currentPage * 20 < count ? (
-                                <div className='w-full flex flex-row items-center gap-2 my-2'>
-                                    <div className='w-full h-[2px] bg-border'></div>
-                                    <div className='text-center'>
-                                        <Button
-                                            disabled={isFetching}
-                                            className='bg-primary-light text-primary rounded-full h-8 border text-xs'
-                                            onClick={() =>
-                                                fetchMore(currentPage)
-                                            }
-                                        >
-                                            {isFetching ? (
-                                                <Loader2 className='h-5 w-5 animate-spin' />
-                                            ) : (
-                                                'Load More'
-                                            )}{' '}
-                                        </Button>
-                                    </div>
-                                    <div className='w-full h-[2px] bg-border'></div>
+                    <div>
+                        {!isBackground && currentPage * 20 < count ? (
+                            <div className='w-full flex flex-row items-center gap-2 my-2'>
+                                <div className='w-full h-[2px] bg-border'></div>
+                                <div className='text-center'>
+                                    <Button
+                                        disabled={isFetching}
+                                        className='bg-primary-light text-primary rounded-full h-8 border text-xs'
+                                        onClick={() => fetchMore(currentPage)}
+                                    >
+                                        {isFetching ? (
+                                            <Loader2 className='h-5 w-5 animate-spin' />
+                                        ) : (
+                                            'Load More'
+                                        )}{' '}
+                                    </Button>
                                 </div>
-                            ) : (
+                                <div className='w-full h-[2px] bg-border'></div>
+                            </div>
+                        ) : (
+                            messages?.length === 0 &&
+                            chat && (
                                 <div className='p-2.5 text-center flex flex-col items-center gap-2.5'>
                                     {chat?.isChannel ? (
                                         <>
@@ -533,133 +502,119 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                         </>
                                     )}
                                 </div>
-                            )}
-                            {isLoading ? (
-                                <div className='flex justify-center items-center h-[70vh]'>
-                                    <Loader2 className='h-14 w-14 text-primary animate-spin' />
-                                </div>
-                            ) : (
-                                messages?.length === 0 && (
-                                    <div className='text-center mt-15 pb-[25vh]'>
-                                        <h3 className='font-bold text-dark-gray'>
-                                            No messages found!
-                                        </h3>
-                                    </div>
-                                )
-                            )}
+                            )
+                        )}
 
-                            {error ? (
-                                <Alert variant='destructive'>
-                                    <AlertTitle>Error</AlertTitle>
-                                    <AlertDescription>{error}</AlertDescription>
-                                </Alert>
-                            ) : (
-                                <>
-                                    {messages?.map(
-                                        (message: any, index: number) => {
-                                            const isLastMessage =
-                                                index === refIndex;
-                                            const sameDate =
-                                                dayjs(message.createdAt).format(
-                                                    'DD-MM-YY',
-                                                ) ===
-                                                dayjs(
-                                                    messages[index - 1]
-                                                        ?.createdAt,
-                                                ).format('DD-MM-YY');
-                                            const messageDate = dayjs(
-                                                message?.createdAt,
-                                            );
-                                            const now = dayjs();
-                                            return (
-                                                <React.Fragment
-                                                    key={message._id || index}
-                                                >
-                                                    {!sameDate && (
-                                                        <div className='flex justify-center flex-row items-center gap-1 my-2'>
-                                                            <div className='h-[2px] w-full bg-border'></div>
-                                                            <span className='text-primary text-xs bg-primary-light text-nowrap px-2 py-1 rounded-full'>
-                                                                {messageDate.isSame(
-                                                                    now,
-                                                                    'day',
-                                                                )
-                                                                    ? 'Today'
-                                                                    : messageDate.isSame(
-                                                                            now.subtract(
-                                                                                1,
-                                                                                'day',
-                                                                            ),
+                        {messages?.length === 0 && !chat && !isBackground && (
+                            <div className='text-center mt-15 pb-[25vh]'>
+                                <h3 className='font-bold text-dark-gray'>
+                                    No messages found!
+                                </h3>
+                            </div>
+                        )}
+
+                        {error ? (
+                            <Alert variant='destructive'>
+                                <AlertTitle>Error</AlertTitle>
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        ) : (
+                            <>
+                                {messages?.map(
+                                    (message: any, index: number) => {
+                                        const isLastMessage =
+                                            index === refIndex;
+                                        const sameDate =
+                                            dayjs(message.createdAt).format(
+                                                'DD-MM-YY',
+                                            ) ===
+                                            dayjs(
+                                                messages[index - 1]?.createdAt,
+                                            ).format('DD-MM-YY');
+                                        const messageDate = dayjs(
+                                            message?.createdAt,
+                                        );
+                                        const now = dayjs();
+                                        return (
+                                            <React.Fragment
+                                                key={message._id || index}
+                                            >
+                                                {!sameDate && (
+                                                    <div className='flex justify-center flex-row items-center gap-1 my-2'>
+                                                        <div className='h-[2px] w-full bg-border'></div>
+                                                        <span className='text-primary text-xs bg-primary-light text-nowrap px-2 py-1 rounded-full'>
+                                                            {messageDate.isSame(
+                                                                now,
+                                                                'day',
+                                                            )
+                                                                ? 'Today'
+                                                                : messageDate.isSame(
+                                                                        now.subtract(
+                                                                            1,
                                                                             'day',
-                                                                        )
-                                                                      ? 'Yesterday'
-                                                                      : dayjs(
-                                                                            message.createdAt,
-                                                                        ).format(
-                                                                            'dddd, MMM DD, YYYY',
-                                                                        )}
-                                                            </span>
-                                                            <div className='h-[2px] w-full bg-border'></div>
-                                                        </div>
-                                                    )}
-                                                    <Message
-                                                        isAi={isAi}
-                                                        key={
-                                                            message._id || index
-                                                        }
-                                                        message={message}
-                                                        setEditMessage={
-                                                            setEditMessage
-                                                        }
-                                                        lastmessage={
-                                                            isLastMessage
-                                                        }
-                                                        setThreadMessage={
-                                                            setThreadMessage
-                                                        }
-                                                        ref={
-                                                            isLastMessage &&
-                                                            refIndex !== 0
-                                                                ? lastMessageRef
-                                                                : null
-                                                        }
-                                                        bottomRef={
-                                                            bottomTextRef
-                                                        }
-                                                        reload={reload}
-                                                        setReload={setReload}
-                                                        searchQuery={
-                                                            searchQuery
-                                                        }
-                                                    />
-                                                </React.Fragment>
-                                            );
-                                        },
-                                    )}
-                                </>
-                            )}
+                                                                        ),
+                                                                        'day',
+                                                                    )
+                                                                  ? 'Yesterday'
+                                                                  : dayjs(
+                                                                        message.createdAt,
+                                                                    ).format(
+                                                                        'dddd, MMM DD, YYYY',
+                                                                    )}
+                                                        </span>
+                                                        <div className='h-[2px] w-full bg-border'></div>
+                                                    </div>
+                                                )}
+                                                <Message
+                                                    isAi={isAi}
+                                                    key={message._id || index}
+                                                    message={message}
+                                                    setEditMessage={
+                                                        setEditMessage
+                                                    }
+                                                    lastmessage={isLastMessage}
+                                                    setThreadMessage={
+                                                        setThreadMessage
+                                                    }
+                                                    ref={
+                                                        isLastMessage &&
+                                                        refIndex !== 0
+                                                            ? lastMessageRef
+                                                            : null
+                                                    }
+                                                    bottomRef={bottomTextRef}
+                                                    reload={reload}
+                                                    setReload={setReload}
+                                                    searchQuery={searchQuery}
+                                                />
+                                            </React.Fragment>
+                                        );
+                                    },
+                                )}
+                            </>
+                        )}
 
-                            {aiIncomingMessage && (
-                                <Message
-                                    key={'randomid'}
-                                    message={{
+                        {aiIncomingMessage && (
+                            <Message
+                                key={'randomid'}
+                                message={{
+                                    _id: 'randomId',
+                                    sender: {
                                         _id: 'randomId',
-                                        sender: {
-                                            _id: 'randomId',
-                                            fullName: 'AI Bot',
-                                            profilePicture: '',
-                                        },
-                                        createdAt: Date.now(),
-                                        status: 'sending',
-                                        chat: chat?._id as string,
-                                        type: 'message',
-                                        text: aiIncomingMessage,
-                                    }}
-                                    reload={reload}
-                                    setReload={setReload}
-                                />
-                            )}
-                        </div>
-                    )}
+                                        fullName: 'AI Bot',
+                                        profilePicture: '',
+                                    },
+                                    createdAt: Date.now(),
+                                    status: 'sending',
+                                    chat: chat?._id as string,
+                                    type: 'message',
+                                    text: aiIncomingMessage,
+                                }}
+                                reload={reload}
+                                setReload={setReload}
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
             {!(chat?.myData?.isBlocked || error) && (

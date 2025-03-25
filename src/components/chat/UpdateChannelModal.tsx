@@ -78,7 +78,7 @@ function UpdateChannelModal({
             })
             .catch((err) => {
                 setIsUpdatingChannel(false);
-                console.log(err);
+                console.error(err);
                 toast.error(
                     err?.response?.data?.error || 'Failed to update channel',
                 );

@@ -92,7 +92,6 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
             dispatchSafely(getServices());
 
             const selectedOrganization = Cookies.get('activeCompany');
-            console.log(selectedOrganization);
 
             if (token) {
                 setIsLoading(true);
@@ -111,8 +110,6 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                         setUserData(res.data.user);
                         setIsLoading(false);
                         dispatchSafely(setUser(res.data.user));
-
-                        console.log(res);
 
                         if (selectedOrganization) {
                             axios.defaults.headers.common['organization'] =
@@ -144,8 +141,6 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                                         x?.status === 'approved' ||
                                         x?.status === 'trial',
                                 );
-
-                            console.log(findActive, approved);
 
                             // Extract the approved IDs for easier checks later
                             const approvedIds: string[] = approved?.map(
@@ -210,7 +205,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                         }
                     }
                 } catch (err: any) {
-                    console.log(err);
+                    console.error(err);
                     setIsLoading(false);
                     Cookies.remove(
                         process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,

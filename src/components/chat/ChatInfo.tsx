@@ -276,8 +276,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
         try {
             // Simulate API call
             await new Promise((resolve) => setTimeout(resolve, 1000));
-
-            console.log('Report submitted:', { reason, details });
             toast.success('Report feature is coming soon!');
             setIsReportModalOpen(false);
         } catch (error) {
@@ -315,7 +313,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                     setLoadingMembers(false);
                 })
                 .catch((err) => {
-                    console.log(err);
+                    console.error(err);
                     toast.error(
                         err?.response?.data?.error || 'Error fetching members',
                     );
@@ -336,7 +334,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                     }));
                 })
                 .catch((err: any) => {
-                    console.log(err);
+                    console.error(err);
                     // Set default values if the API fails
                     setChat((prev: any) => ({
                         ...prev,
@@ -373,9 +371,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                 setTimeout(() => {
                     setCopied(false);
                 }, 3000);
-                console.log(
-                    `${process.env.NEXT_PUBLIC_CLIENT_URL}${newPathname}`,
-                );
                 toast.success('Invitation link copied to clipboard');
             })
             .catch((err) => {
@@ -386,8 +381,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     const handleUploadImage = useCallback(
         async (image: File) => {
             if (image) {
-                console.log('Uploading image:', image);
-
                 try {
                     setImageLoading(true);
                     const newFile = await resizeFile(image);
@@ -419,7 +412,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                     toast.success('Channel image updated successfully');
                     setImageLoading(false);
                 } catch (error: any) {
-                    console.log(error);
+                    console.error(error);
                     toast.error(
                         error?.response?.data?.error || 'Error uploading image',
                     );
@@ -436,7 +429,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                 isArchived: !chat?.isArchived,
             })
             .then((res) => {
-                console.log(res);
                 if (res.data.success) {
                     dispatch(
                         updateChats({ ...chat, isArchived: !chat?.isArchived }),
@@ -445,7 +437,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                 }
             })
             .catch((error) => {
-                console.log(error);
+                console.error(error);
                 toast.error(
                     error?.response?.data?.error || 'Error archiving group',
                 );
@@ -734,7 +726,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     }, [leaveConfirmOpen]);
 
     const handleCancel = useCallback(() => {
-        console.log('Closing modal');
         setOpened(false);
     }, []);
 

@@ -135,7 +135,6 @@ const chatSlice = createSlice({
         ) => {
             const { chat, responseData, file } = action.payload;
             const draft = state.drafts.find((d) => d.chat === chat);
-            console.log(responseData, draft);
             if (draft) {
                 draft.uploadFiles = draft.uploadFiles.map((f) =>
                     f.file === file ? { ...f, ...responseData } : f,
@@ -150,7 +149,6 @@ const chatSlice = createSlice({
             }>,
         ) => {
             const { chat, file } = action.payload;
-            console.log(action.payload);
             const draft = state.drafts.find((d) => d.chat === chat);
             if (draft && file) {
                 draft.uploadFiles = draft.uploadFiles.filter(
@@ -242,12 +240,32 @@ const chatSlice = createSlice({
         },
         updateEmoji: (state, action: PayloadAction<{ message: Message }>) => {
             const { message } = action.payload;
-            console.log(message);
-            console.log(state.chatMessages[message.chat]);
             const chatMessage = state.chatMessages[message.chat]?.find(
                 (item) => item._id === message._id,
             );
-            console.log(chatMessage);
+        },
+        // 2. Add this reducer case in chatSlice.reducers:
+
+        updateMessageStatus: (
+            state,
+            action: PayloadAction<{
+                chatId: string;
+                messageId: string;
+                status: string;
+            }>,
+        ) => {
+            const { chatId, messageId, status } = action.payload;
+            if (!state.chatMessages[chatId]) {
+                return;
+            }
+
+            const messageIndex = state.chatMessages[chatId].findIndex(
+                (m) => m._id === messageId,
+            );
+
+            if (messageIndex !== -1) {
+                state.chatMessages[chatId][messageIndex].status = status;
+            }
         },
 
         updateLatestMessage: (
@@ -277,16 +295,11 @@ const chatSlice = createSlice({
                 membersCount: number;
             }>,
         ) => {
-            console.log(state, action.payload);
             const { chatId, membersCount } = action.payload;
             const chatIndex = state.chats.findIndex((x) => x?._id === chatId);
 
             if (chatIndex !== -1) {
-                console.log(chatIndex);
                 state.chats[chatIndex].membersCount = membersCount;
-            } else {
-                // console.log(JSON.stringify(_id, null, 1));
-                console.log('it is -1');
             }
         },
 
@@ -327,7 +340,6 @@ const chatSlice = createSlice({
                 messages: Message[];
             }>,
         ) => {
-            console.log(action);
             const { chat, messages } = action.payload;
             let messagesArray = state.chatMessages[chat] || [];
 
@@ -361,8 +373,6 @@ const chatSlice = createSlice({
                 : chatId;
 
             const chatIndex = state.chats.findIndex((x) => x._id === queryId);
-
-            console.log(message);
 
             if (chatIndex !== -1) {
                 if (!state.chats[chatIndex].unreadCount) {
@@ -559,6 +569,7 @@ export const {
     removeDraftFiles,
     setMessageCount,
     updateRepliesCount,
+    updateMessageStatus,
 } = chatSlice.actions;
 
 // Export the reducer

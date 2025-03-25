@@ -60,11 +60,7 @@ import {
     ChevronDown,
 } from 'lucide-react';
 import { useAppSelector } from '@/redux/hooks';
-import {
-    useFindOrCreateChatMutation,
-    useGetChatsQuery,
-    useGetOnlineUsersQuery,
-} from '@/redux/api/chats/chatApi';
+import { useFindOrCreateChatMutation } from '@/redux/api/chats/chatApi';
 
 // Dynamic imports for better performance
 const MessagePreview = dynamic(() => import('./Message/MessagePreview'), {

@@ -7,7 +7,7 @@ try {
         name: 'multischool_portal_data',
     });
 } catch (error) {
-    console.log(error);
+    console.error(error);
 }
 
 export default instance;

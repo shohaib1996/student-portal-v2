@@ -139,8 +139,6 @@ const FileCard = ({ file, index }: FileCardProps) => {
     const isVideo = fileType === 'video';
     const isUploading = file?.status === 'uploading';
 
-    console.log({ file });
-
     const handleDownload = (e: React.MouseEvent) => {
         e.preventDefault();
         downloadFileWithLink(file?.url, file?.name);
@@ -149,7 +147,7 @@ const FileCard = ({ file, index }: FileCardProps) => {
     // Render audio card for audio files
     if (isAudio) {
         return (
-            <div className='file_download_item rounded-md flex flex-col'>
+            <div className='file_download_item rounded-md flex flex-col w-full'>
                 <AudioCard audioUrl={file?.url as string} />
             </div>
         );

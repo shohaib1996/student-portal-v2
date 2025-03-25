@@ -80,7 +80,7 @@ interface MessageProps {
     setReload?: (value: number) => void;
     isAi?: boolean;
     searchQuery?: string;
-    bottomRef?: React.RefObject<HTMLDivElement>;
+    bottomRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 type MessageComponent = React.ForwardRefExoticComponent<
@@ -255,7 +255,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                 />
                             </div>
                         </div>
-                        <div className='flex flex-col'>
+                        <div className='flex flex-col w-full'>
                             <div
                                 className={`rounded-lg p-2 ${
                                     !hideAlign &&
@@ -273,12 +273,16 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                         }
                                         className='font-medium text-sm cursor-pointer mb-1 w-full flex flex-row gap-1 items-center'
                                     >
-                                        {message.sender?.fullName ||
-                                            'Bootcamps Hub user'}{' '}
+                                        <p className='truncate'>
+                                            {message.sender?.fullName ||
+                                                'Bootcamps Hub user'}{' '}
+                                        </p>
                                         <span
-                                            className={`text-xs ml-2 front-normal ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}
+                                            className={`text-xs ml-2 front-normal text-nowrap ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}
                                         >
-                                            {formatDate(message?.createdAt)}
+                                            {dayjs(message?.createdAt).format(
+                                                'hh:mm A',
+                                            )}
                                         </span>
                                     </span>
 
