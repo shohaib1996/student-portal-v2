@@ -25,7 +25,7 @@ export interface Message {
     chat: string;
     text?: string;
     sender?: User;
-    createdAt?: string;
+    createdAt: string;
     updatedAt?: string;
     parentMessage?: string;
     replies?: Message[];
@@ -75,6 +75,10 @@ interface ChatState {
     drafts: Draft[];
     fetchedMore: boolean;
     messageCounts: MessageCounts;
+    pinnedMessages?: {
+        // Add this line
+        [chatId: string]: Message[];
+    };
 }
 
 const initialState: ChatState = {
@@ -87,6 +91,7 @@ const initialState: ChatState = {
     drafts: [],
     fetchedMore: false,
     messageCounts: {},
+    pinnedMessages: {},
 };
 
 const chatSlice = createSlice({
@@ -537,6 +542,58 @@ const chatSlice = createSlice({
             const { chatId, count } = action.payload;
             state.messageCounts[chatId] = count;
         },
+        setPinnedMessages: (
+            state,
+            action: PayloadAction<{
+                chatId: string;
+                pinnedMessages: Message[];
+            }>,
+        ) => {
+            // Initialize pinnedMessages if not exists
+            if (!state.pinnedMessages) {
+                state.pinnedMessages = {};
+            }
+
+            state.pinnedMessages[action.payload.chatId] =
+                action.payload.pinnedMessages;
+        },
+        addPinnedMessage: (
+            state,
+            action: PayloadAction<{
+                chatId: string;
+                message: Message;
+            }>,
+        ) => {
+            // Initialize pinnedMessages if not exists
+            if (!state.pinnedMessages) {
+                state.pinnedMessages = {};
+            }
+
+            const currentPinnedMessages =
+                state.pinnedMessages[action.payload.chatId] || [];
+            state.pinnedMessages[action.payload.chatId] = [
+                action.payload.message,
+                ...currentPinnedMessages,
+            ];
+        },
+
+        removePinnedMessage: (
+            state,
+            action: PayloadAction<{
+                chatId: string;
+                messageId: string;
+            }>,
+        ) => {
+            if (
+                state.pinnedMessages &&
+                state.pinnedMessages[action.payload.chatId]
+            ) {
+                state.pinnedMessages[action.payload.chatId] =
+                    state.pinnedMessages[action.payload.chatId].filter(
+                        (msg) => msg._id !== action.payload.messageId,
+                    );
+            }
+        },
     },
 });
 
@@ -570,6 +627,9 @@ export const {
     setMessageCount,
     updateRepliesCount,
     updateMessageStatus,
+    setPinnedMessages,
+    addPinnedMessage,
+    removePinnedMessage,
 } = chatSlice.actions;
 
 // Export the reducer

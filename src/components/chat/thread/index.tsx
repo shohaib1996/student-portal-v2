@@ -103,6 +103,7 @@ const Thread: React.FC<ThreadProps> = ({
                                 _id: message?._id,
                                 chat: chat?._id,
                                 replies: res.data.messages,
+                                createdAt: message?.createdAt,
                             },
                         }),
                     );

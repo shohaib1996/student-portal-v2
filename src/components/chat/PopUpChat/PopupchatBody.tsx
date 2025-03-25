@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ChatFooter, { type ChatData } from '../ChatFooter';
 import Cookies from 'js-cookie';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Pin } from 'lucide-react';
 import {
     markRead,
     pushHistoryMessages,
@@ -18,6 +18,7 @@ import {
     updateChatMessages,
     setMessageCount,
     setTyping,
+    updateMessageStatus,
 } from '@/redux/features/chatReducer';
 import { useAppSelector } from '@/redux/hooks';
 import { instance } from '@/lib/axios/axiosInstance';
@@ -31,6 +32,7 @@ import {
 } from '@/helper/socketManager';
 import EditMessageModal from '../Message/EditMessageModal';
 import { TypingData } from '@/helper/socketHandler';
+import ForwardMessageModal from '../Message/ForwardMessageModal';
 
 interface ChatMessage {
     _id: string;
@@ -46,6 +48,7 @@ interface ChatMessage {
     chat: string;
     type: string;
     text: string;
+    pinnedBy?: any;
 }
 
 interface ChatUser {
@@ -144,7 +147,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
 
     // Use the chatId from props if in popup mode, otherwise from URL params
     const selectedChatId = isPopup ? chatId : (params?.chatid as string);
-
+    const [showPinnedMessages, setShowPinnedMessages] = useState(false);
     // Get Redux state using useAppSelector
     const {
         chatMessages,
@@ -194,7 +197,9 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
     const prevMessageLengthRef = useRef<number>(0);
     const socketRef = useRef<any>(null);
     const isScrolledToBottomRef = useRef<boolean>(true);
-    const isManualScrollRef = useRef<boolean>(false);
+    const [forwardMessage, setForwardMessage] = useState<ChatMessage | null>(
+        null,
+    );
 
     // Initialize socket connection and join chat room
     useEffect(() => {
@@ -651,10 +656,157 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
             }),
         );
     };
+    const bottomTextRef = useRef<any | null>(null);
 
     return (
         <>
-            <div className='scrollbar-container h-[calc(100%-77px)] pl-2'>
+            {!showPinnedMessages &&
+                messages.filter((message) => message.pinnedBy).length > 0 && (
+                    <div
+                        className='w-full shadow-lg bg-foreground border shadow-ms cursor-pointer'
+                        onClick={() => setShowPinnedMessages(true)}
+                    >
+                        <div className='container mx-auto flex items-center p-2'>
+                            <div className='flex items-center gap-2 w-full'>
+                                <span className=' text-primary flex items-center justify-center text-xs font-medium'>
+                                    {
+                                        messages.filter(
+                                            (message) => message.pinnedBy,
+                                        ).length
+                                    }
+                                </span>
+
+                                {messages.filter((message) => message.pinnedBy)
+                                    .length > 0 && (
+                                    <>
+                                        <Avatar className='h-6 w-6'>
+                                            <AvatarImage
+                                                src={
+                                                    messages
+                                                        .filter(
+                                                            (message) =>
+                                                                message.pinnedBy,
+                                                        )
+                                                        .sort(
+                                                            (a, b) =>
+                                                                new Date(
+                                                                    b.createdAt as string,
+                                                                ).getTime() -
+                                                                new Date(
+                                                                    a.createdAt as string,
+                                                                ).getTime(),
+                                                        )[0]?.pinnedBy
+                                                        ?.profilePicture
+                                                }
+                                                alt='User'
+                                            />
+                                            <AvatarFallback>
+                                                {messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]
+                                                    ?.pinnedBy?.firstName?.charAt(
+                                                        0,
+                                                    )}
+                                            </AvatarFallback>
+                                        </Avatar>
+
+                                        <span className='font-medium text-sm max-w-[150px] truncate'>
+                                            {
+                                                messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]?.pinnedBy?.fullName
+                                            }
+                                        </span>
+
+                                        <span className='text-xs text-gray w-[50px]'>
+                                            {dayjs(
+                                                messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]?.createdAt,
+                                            ).format('h:mm A')}
+                                        </span>
+
+                                        <div className='flex-1 truncate text-sm text-gray ml-2 max-w-[calc(100%-200px)]'>
+                                            {/* <MessagePreview
+                                                searchQuery={searchQuery}
+                                                text={
+                                                    messages
+                                                        .filter(
+                                                            (message) =>
+                                                                message.pinnedBy,
+                                                        )
+                                                        .sort(
+                                                            (a, b) =>
+                                                                new Date(
+                                                                    b.createdAt,
+                                                                ).getTime() -
+                                                                new Date(
+                                                                    a.createdAt,
+                                                                ).getTime(),
+                                                        )[0]?.text
+                                                }
+                                            /> */}
+                                            {
+                                                messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]?.text
+                                            }
+                                        </div>
+
+                                        <Pin className='h-4 w-4 text-dark-gray rotate-45 ml-2 flex-shrink-0' />
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            <div
+                className={`scrollbar-container ${!showPinnedMessages ? 'h-[calc(100%-112px)]' : 'h-[calc(100%-77px)]'} pl-2`}
+            >
                 <div
                     className='h-full overflow-y-auto'
                     id='chat-body-id'
@@ -664,6 +816,26 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     {initialLoading && messages.length === 0 ? (
                         <div className='h-full w-full flex justify-center items-center'>
                             <Loader2 className='h-14 w-14 text-primary animate-spin' />
+                        </div>
+                    ) : showPinnedMessages ? (
+                        <div className='p-4'>
+                            {messages
+                                .filter((message) => message.pinnedBy)
+                                .map((message) => (
+                                    <Message
+                                        isAi={isAi}
+                                        key={message._id}
+                                        hideOptions={false}
+                                        source='pinned'
+                                        message={message}
+                                        setEditMessage={setEditMessage}
+                                        setThreadMessage={setThreadMessage}
+                                        bottomRef={bottomTextRef}
+                                        reload={reload}
+                                        setReload={setReload}
+                                        searchQuery={searchQuery}
+                                    />
+                                ))}
                         </div>
                     ) : (
                         <div>
@@ -824,6 +996,9 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                                         setThreadMessage={
                                                             setThreadMessage
                                                         }
+                                                        setForwardMessage={
+                                                            setForwardMessage
+                                                        }
                                                         ref={
                                                             isLastMessage
                                                                 ? lastMessageRef
@@ -857,7 +1032,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                             fullName: 'AI Bot',
                                             profilePicture: '',
                                         },
-                                        createdAt: Date.now(),
+                                        createdAt: dayjs(Date.now()).format(),
                                         status: 'sending',
                                         chat: chat?._id as string,
                                         type: 'message',
@@ -879,7 +1054,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
             </div>
 
             {/* Chat footer */}
-            {!(chat?.myData?.isBlocked || error) && (
+            {!showPinnedMessages && !(chat?.myData?.isBlocked || error) && (
                 <ChatFooter
                     chat={chat as ChatData}
                     className={`chat_${chat?._id}`}
@@ -889,6 +1064,17 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     profileInfoShow={profileInfoShow}
                     sendTypingIndicator={sendTypingIndicator}
                 />
+            )}
+            {showPinnedMessages && (
+                <div className='w-full items-center justify-center flex border-t pt-2 mt-2'>
+                    <Button
+                        onClick={() => setShowPinnedMessages(false)}
+                        className='w-fit px-10'
+                        variant={'destructive'}
+                    >
+                        Exit Pin Mode
+                    </Button>
+                </div>
             )}
 
             {/* Thread modal */}
@@ -907,6 +1093,13 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     chat={chat}
                     selectedMessage={editMessage}
                     handleCloseEdit={() => setEditMessage(null)}
+                />
+            )}
+            {forwardMessage && (
+                <ForwardMessageModal
+                    isOpen={!!forwardMessage}
+                    onClose={() => setForwardMessage(null)}
+                    message={forwardMessage}
                 />
             )}
 

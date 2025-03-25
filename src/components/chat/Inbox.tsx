@@ -166,16 +166,16 @@ const Inbox: React.FC<InboxProps> = ({
     return (
         <>
             {/* Set position relative so the absolute search box is positioned relative to this container */}
-            <div className='relative bg-background rounded-md shadow-sm h-[calc(100vh-60px)]'>
+            <div className='relative bg-foreground rounded-md shadow-sm h-[calc(100vh-60px)]'>
                 <div className='flex flex-col h-full'>
                     <div className='flex items-center justify-between p-2 border-b'>
                         <div className='flex items-center space-x-3'>
-                            <Link
+                            {/* <Link
                                 className='text-dark-gray hover:text-primary'
                                 href='/chat'
                             >
                                 <ArrowLeft className='h-5 w-5 text-dark-gray' />
-                            </Link>
+                            </Link> */}
 
                             <div className='relative'>
                                 <Image
@@ -333,7 +333,7 @@ const Inbox: React.FC<InboxProps> = ({
                                             handleSearchSubmit();
                                         }
                                     }}
-                                    placeholder='Search...'
+                                    placeholder='Search messages...'
                                     className='flex-1 px-3 py-2 max-h-9 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-foreground'
                                 />
                                 <X
@@ -343,6 +343,8 @@ const Inbox: React.FC<InboxProps> = ({
                             </div>
                             <Button
                                 onClick={handleSearchSubmit}
+                                variant='outline'
+                                className='bg-foreground'
                                 icon={<SearchIcon size={18} />}
                             ></Button>
                         </div>

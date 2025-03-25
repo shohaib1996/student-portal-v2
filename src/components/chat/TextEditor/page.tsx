@@ -575,7 +575,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                     accept='image/*,video/*'
                 />
 
-                <div className='bg-background border-t border-border pt-2'>
+                <div className=' border-t border-border pt-2 px-2'>
                     {uploadFiles.map((uploadFile, index) => (
                         <div key={index} className='flex flex-wrap gap-2 p-2'>
                             <FileItem
@@ -599,7 +599,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                         />
                     ) : (
                         // <p>Capture Audio coming soon!</p>
-                        <div className='flex items-center p-1 border rounded-lg bg-foreground'>
+                        <div className='flex items-center p-1 border rounded-lg bg-background'>
                             <div className='flex items-center w-full'>
                                 <div className='mt-auto'>
                                     <DropdownMenu>

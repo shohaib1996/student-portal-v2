@@ -114,7 +114,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
             <motion.div
                 ref={modalRef}
                 className={cn(
-                    'bg-background border border-forground-border rounded-lg rounded-tr-none shadow-[0px_2px_20px_0px_rgba(0,0,0,0.50)] flex flex-col pointer-events-auto',
+                    'bg-foreground border border-forground-border rounded-lg rounded-tr-none shadow-[0px_2px_20px_0px_rgba(0,0,0,0.50)] flex flex-col pointer-events-auto',
                     'fixed',
                 )}
                 initial={{ opacity: 0, y: 20 }}
@@ -168,7 +168,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
                     {/* Background & content element */}
                     <div
                         className='absolute -top-[25px] right-0 z-10 h-[25px] w-fit px-4 
-                                bg-secondary flex items-center justify-end'
+                                bg-foreground  flex items-center justify-end'
                         style={{
                             clipPath:
                                 'polygon(11% 0, 89% 0, 100% 100%, 0% 100%)',

@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useEffect, useRef, useState } from 'react';
 import Message from './Message/page';
 import { useParams } from 'next/navigation';
@@ -9,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ChatFooter, { type ChatData } from './ChatFooter';
 import Cookies from 'js-cookie';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Pin } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import {
     markRead,
@@ -19,18 +18,12 @@ import {
     updateChatMessages,
     updateMessageStatus,
 } from '@/redux/features/chatReducer';
-import { toast } from 'sonner';
 import { useAppSelector } from '@/redux/hooks';
 import { instance } from '@/lib/axios/axiosInstance';
-import chatStateData from './ChatStateData.json';
 import Thread from './thread';
-import { useGetChatMessagesQuery } from '@/redux/api/chats/chatApi';
-import {
-    useChatMessages,
-    useChats,
-    useDraftMessages,
-} from '@/redux/hooks/chat/chatHooks';
 import EditMessageModal from './Message/EditMessageModal';
+import ForwardMessageModal from './Message/ForwardMessageModal';
+import Highlighter from 'react-highlight-words';
 interface ChatMessage {
     _id: string;
     sender: {
@@ -45,8 +38,8 @@ interface ChatMessage {
     chat: string;
     type: string;
     text: string;
+    pinnedBy?: any;
 }
-
 interface ChatUser {
     _id: string;
     firstName?: string;
@@ -54,23 +47,6 @@ interface ChatUser {
     profilePicture?: string;
     isBlocked?: boolean;
 }
-
-interface ChatInfo {
-    _id: string;
-    name?: string;
-    avatar?: string;
-    isChannel?: boolean;
-    otherUser?: ChatUser;
-    myData?: {
-        isBlocked?: boolean;
-    };
-}
-
-interface Draft {
-    chat: string;
-    text: string;
-}
-
 interface ChatBodyProps {
     isAi?: boolean;
     setChatInfo: (chat: any | null) => void;
@@ -129,7 +105,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
 }) => {
     const params = useParams();
     const dispatch = useDispatch();
-
+    const [showPinnedMessages, setShowPinnedMessages] = useState(false);
     const {
         chatMessages,
         chats,
@@ -149,6 +125,9 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     const [isBackground, setIsBackground] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [limit, setLimit] = useState<number>(15);
+    const [forwardMessage, setForwardMessage] = useState<ChatMessage | null>(
+        null,
+    );
 
     const fetchMore = (page: number) => {
         const options = {
@@ -232,7 +211,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
             }
         }
     }, [chats, params?.chatid, setChatInfo]);
-
+    console.log({ messages });
     useEffect(() => {
         if (chat?.otherUser?._id === process.env.NEXT_PUBLIC_AI_BOT_ID) {
             const currentMessages: any = messages || [];
@@ -426,198 +405,373 @@ const ChatBody: React.FC<ChatBodyProps> = ({
 
     return (
         <>
-            <div className='scrollbar-container h-[calc(100%-135px)] pl-2'>
+            {/* Pinned Messages Bar */}
+            {!showPinnedMessages &&
+                messages.filter((message) => message.pinnedBy).length > 0 && (
+                    <div
+                        className='w-full shadow-lg bg-foreground border shadow-ms cursor-pointer'
+                        onClick={() => setShowPinnedMessages(true)}
+                    >
+                        <div className='container mx-auto flex items-center p-2'>
+                            <div className='flex items-center gap-2 w-full'>
+                                <span className=' text-primary flex items-center justify-center text-xs font-medium'>
+                                    {
+                                        messages.filter(
+                                            (message) => message.pinnedBy,
+                                        ).length
+                                    }
+                                </span>
+
+                                {messages.filter((message) => message.pinnedBy)
+                                    .length > 0 && (
+                                    <>
+                                        <Avatar className='h-6 w-6'>
+                                            <AvatarImage
+                                                src={
+                                                    messages
+                                                        .filter(
+                                                            (message) =>
+                                                                message.pinnedBy,
+                                                        )
+                                                        .sort(
+                                                            (a, b) =>
+                                                                new Date(
+                                                                    b.createdAt as string,
+                                                                ).getTime() -
+                                                                new Date(
+                                                                    a.createdAt as string,
+                                                                ).getTime(),
+                                                        )[0]?.pinnedBy
+                                                        ?.profilePicture
+                                                }
+                                                alt='User'
+                                            />
+                                            <AvatarFallback>
+                                                {messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]
+                                                    ?.pinnedBy?.firstName?.charAt(
+                                                        0,
+                                                    )}
+                                            </AvatarFallback>
+                                        </Avatar>
+
+                                        <span className='font-medium text-sm max-w-[150px] truncate'>
+                                            {
+                                                messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]?.pinnedBy?.fullName
+                                            }
+                                        </span>
+
+                                        <span className='text-xs text-gray w-[50px]'>
+                                            {dayjs(
+                                                messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]?.createdAt,
+                                            ).format('h:mm A')}
+                                        </span>
+
+                                        <div className='flex-1 truncate text-sm text-gray ml-2 max-w-[calc(100%-200px)]'>
+                                            {
+                                                messages
+                                                    .filter(
+                                                        (message) =>
+                                                            message.pinnedBy,
+                                                    )
+                                                    .sort(
+                                                        (a, b) =>
+                                                            new Date(
+                                                                b.createdAt as string,
+                                                            ).getTime() -
+                                                            new Date(
+                                                                a.createdAt as string,
+                                                            ).getTime(),
+                                                    )[0]?.text
+                                            }
+                                        </div>
+
+                                        <Pin className='h-4 w-4 text-dark-gray rotate-45 ml-2 flex-shrink-0' />
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+            <div
+                className={`scrollbar-container ${!showPinnedMessages ? 'h-[calc(100%-170px)]' : 'h-[calc(100%-125px)]'} pl-2`}
+            >
                 <div
                     className='h-full overflow-y-auto'
                     id='chat-body-id'
                     onScroll={handleScroll}
                     ref={chatContainerRef}
                 >
-                    <div>
-                        {!isBackground && currentPage * 20 < count ? (
-                            <div className='w-full flex flex-row items-center gap-2 my-2'>
-                                <div className='w-full h-[2px] bg-border'></div>
-                                <div className='text-center'>
-                                    <Button
-                                        disabled={isFetching}
-                                        className='bg-primary-light text-primary rounded-full h-8 border text-xs'
-                                        onClick={() => fetchMore(currentPage)}
-                                    >
-                                        {isFetching ? (
-                                            <Loader2 className='h-5 w-5 animate-spin' />
+                    {showPinnedMessages ? (
+                        <div className='p-4'>
+                            {messages
+                                .filter((message) => message.pinnedBy)
+                                .map((message) => (
+                                    <Message
+                                        isAi={isAi}
+                                        key={message._id}
+                                        hideOptions={false}
+                                        source='pinned'
+                                        message={message}
+                                        setEditMessage={setEditMessage}
+                                        setThreadMessage={setThreadMessage}
+                                        bottomRef={bottomTextRef}
+                                        reload={reload}
+                                        setReload={setReload}
+                                        searchQuery={searchQuery}
+                                    />
+                                ))}
+                        </div>
+                    ) : (
+                        <>
+                            {!isBackground && currentPage * 20 < count ? (
+                                <div className='w-full flex flex-row items-center gap-2 my-2'>
+                                    <div className='w-full h-[2px] bg-border'></div>
+                                    <div className='text-center'>
+                                        <Button
+                                            disabled={isFetching}
+                                            className='bg-primary-light text-primary rounded-full h-8 border text-xs'
+                                            onClick={() =>
+                                                fetchMore(currentPage)
+                                            }
+                                        >
+                                            {isFetching ? (
+                                                <Loader2 className='h-5 w-5 animate-spin' />
+                                            ) : (
+                                                'Load More'
+                                            )}{' '}
+                                        </Button>
+                                    </div>
+                                    <div className='w-full h-[2px] bg-border'></div>
+                                </div>
+                            ) : (
+                                messages?.length === 0 &&
+                                chat && (
+                                    <div className='p-2.5 text-center flex flex-col items-center gap-2.5'>
+                                        {chat?.isChannel ? (
+                                            <>
+                                                <Avatar className='h-[50px] w-[50px]'>
+                                                    <AvatarImage
+                                                        src={chat?.avatar}
+                                                        alt={chat?.name}
+                                                    />
+                                                    <AvatarFallback>
+                                                        {chat?.name?.charAt(0)}
+                                                    </AvatarFallback>
+                                                </Avatar>
+
+                                                <p className='font-bold text-sm'>
+                                                    This is the very beginning
+                                                    of the{' '}
+                                                    <strong>
+                                                        {chat?.name}
+                                                    </strong>{' '}
+                                                    channel
+                                                </p>
+                                            </>
                                         ) : (
-                                            'Load More'
-                                        )}{' '}
-                                    </Button>
-                                </div>
-                                <div className='w-full h-[2px] bg-border'></div>
-                            </div>
-                        ) : (
-                            messages?.length === 0 &&
-                            chat && (
-                                <div className='p-2.5 text-center flex flex-col items-center gap-2.5'>
-                                    {chat?.isChannel ? (
-                                        <>
-                                            <Avatar className='h-[50px] w-[50px]'>
-                                                <AvatarImage
-                                                    src={chat?.avatar}
-                                                    alt={chat?.name}
-                                                />
-                                                <AvatarFallback>
-                                                    {chat?.name?.charAt(0)}
-                                                </AvatarFallback>
-                                            </Avatar>
+                                            <>
+                                                <Avatar className='h-[50px] w-[50px]'>
+                                                    <AvatarImage
+                                                        src={
+                                                            chat?.otherUser
+                                                                ?.profilePicture
+                                                        }
+                                                        alt={`${chat?.otherUser?.firstName} ${chat?.otherUser?.lastName}`}
+                                                    />
+                                                    <AvatarFallback>
+                                                        {chat?.otherUser?.firstName?.charAt(
+                                                            0,
+                                                        )}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <p className='font-bold text-sm'>
+                                                    This is the very beginning
+                                                    of the chat with{' '}
+                                                    <strong>
+                                                        {
+                                                            chat?.otherUser
+                                                                ?.firstName
+                                                        }{' '}
+                                                        {
+                                                            chat?.otherUser
+                                                                ?.lastName
+                                                        }
+                                                    </strong>
+                                                </p>
+                                            </>
+                                        )}
+                                    </div>
+                                )
+                            )}
 
-                                            <p className='font-bold text-sm'>
-                                                This is the very beginning of
-                                                the{' '}
-                                                <strong>{chat?.name}</strong>{' '}
-                                                channel
-                                            </p>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Avatar className='h-[50px] w-[50px]'>
-                                                <AvatarImage
-                                                    src={
-                                                        chat?.otherUser
-                                                            ?.profilePicture
-                                                    }
-                                                    alt={`${chat?.otherUser?.firstName} ${chat?.otherUser?.lastName}`}
-                                                />
-                                                <AvatarFallback>
-                                                    {chat?.otherUser?.firstName?.charAt(
-                                                        0,
-                                                    )}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <p className='font-bold text-sm'>
-                                                This is the very beginning of
-                                                the chat with{' '}
-                                                <strong>
-                                                    {chat?.otherUser?.firstName}{' '}
-                                                    {chat?.otherUser?.lastName}
-                                                </strong>
-                                            </p>
-                                        </>
-                                    )}
-                                </div>
-                            )
-                        )}
-
-                        {messages?.length === 0 && !chat && !isBackground && (
-                            <div className='text-center mt-15 pb-[25vh]'>
-                                <h3 className='font-bold text-dark-gray'>
-                                    No messages found!
-                                </h3>
-                            </div>
-                        )}
-
-                        {error ? (
-                            <Alert variant='destructive'>
-                                <AlertTitle>Error</AlertTitle>
-                                <AlertDescription>{error}</AlertDescription>
-                            </Alert>
-                        ) : (
-                            <>
-                                {messages?.map(
-                                    (message: any, index: number) => {
-                                        const isLastMessage =
-                                            index === refIndex;
-                                        const sameDate =
-                                            dayjs(message.createdAt).format(
-                                                'DD-MM-YY',
-                                            ) ===
-                                            dayjs(
-                                                messages[index - 1]?.createdAt,
-                                            ).format('DD-MM-YY');
-                                        const messageDate = dayjs(
-                                            message?.createdAt,
-                                        );
-                                        const now = dayjs();
-                                        return (
-                                            <React.Fragment
-                                                key={message._id || index}
-                                            >
-                                                {!sameDate && (
-                                                    <div className='flex justify-center flex-row items-center gap-1 my-2'>
-                                                        <div className='h-[2px] w-full bg-border'></div>
-                                                        <span className='text-primary text-xs bg-primary-light text-nowrap px-2 py-1 rounded-full'>
-                                                            {messageDate.isSame(
-                                                                now,
-                                                                'day',
-                                                            )
-                                                                ? 'Today'
-                                                                : messageDate.isSame(
-                                                                        now.subtract(
-                                                                            1,
-                                                                            'day',
-                                                                        ),
-                                                                        'day',
-                                                                    )
-                                                                  ? 'Yesterday'
-                                                                  : dayjs(
-                                                                        message.createdAt,
-                                                                    ).format(
-                                                                        'dddd, MMM DD, YYYY',
-                                                                    )}
-                                                        </span>
-                                                        <div className='h-[2px] w-full bg-border'></div>
-                                                    </div>
-                                                )}
-                                                <Message
-                                                    isAi={isAi}
-                                                    key={message._id || index}
-                                                    message={message}
-                                                    setEditMessage={
-                                                        setEditMessage
-                                                    }
-                                                    lastmessage={isLastMessage}
-                                                    setThreadMessage={
-                                                        setThreadMessage
-                                                    }
-                                                    ref={
-                                                        isLastMessage &&
-                                                        refIndex !== 0
-                                                            ? lastMessageRef
-                                                            : null
-                                                    }
-                                                    bottomRef={bottomTextRef}
-                                                    reload={reload}
-                                                    setReload={setReload}
-                                                    searchQuery={searchQuery}
-                                                />
-                                            </React.Fragment>
-                                        );
-                                    },
+                            {messages?.length === 0 &&
+                                !chat &&
+                                !isBackground && (
+                                    <div className='text-center mt-15 pb-[25vh]'>
+                                        <h3 className='font-bold text-dark-gray'>
+                                            No messages found!
+                                        </h3>
+                                    </div>
                                 )}
-                            </>
-                        )}
 
-                        {aiIncomingMessage && (
-                            <Message
-                                key={'randomid'}
-                                message={{
-                                    _id: 'randomId',
-                                    sender: {
+                            {error ? (
+                                <Alert variant='destructive'>
+                                    <AlertTitle>Error</AlertTitle>
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                            ) : (
+                                <>
+                                    {messages?.map(
+                                        (message: any, index: number) => {
+                                            const isLastMessage =
+                                                index === refIndex;
+                                            const sameDate =
+                                                dayjs(message.createdAt).format(
+                                                    'DD-MM-YY',
+                                                ) ===
+                                                dayjs(
+                                                    messages[index - 1]
+                                                        ?.createdAt,
+                                                ).format('DD-MM-YY');
+                                            const messageDate = dayjs(
+                                                message?.createdAt,
+                                            );
+                                            const now = dayjs();
+                                            return (
+                                                <React.Fragment
+                                                    key={message._id || index}
+                                                >
+                                                    {!sameDate && (
+                                                        <div className='flex justify-center flex-row items-center gap-1 my-2'>
+                                                            <div className='h-[2px] w-full bg-border'></div>
+                                                            <span className='text-primary text-xs bg-primary-light text-nowrap px-2 py-1 rounded-full'>
+                                                                {messageDate.isSame(
+                                                                    now,
+                                                                    'day',
+                                                                )
+                                                                    ? 'Today'
+                                                                    : messageDate.isSame(
+                                                                            now.subtract(
+                                                                                1,
+                                                                                'day',
+                                                                            ),
+                                                                            'day',
+                                                                        )
+                                                                      ? 'Yesterday'
+                                                                      : dayjs(
+                                                                            message.createdAt,
+                                                                        ).format(
+                                                                            'dddd, MMM DD, YYYY',
+                                                                        )}
+                                                            </span>
+                                                            <div className='h-[2px] w-full bg-border'></div>
+                                                        </div>
+                                                    )}
+                                                    <Message
+                                                        isAi={isAi}
+                                                        key={
+                                                            message._id || index
+                                                        }
+                                                        message={message}
+                                                        setEditMessage={
+                                                            setEditMessage
+                                                        }
+                                                        lastmessage={
+                                                            isLastMessage
+                                                        }
+                                                        setThreadMessage={
+                                                            setThreadMessage
+                                                        }
+                                                        setForwardMessage={
+                                                            setForwardMessage
+                                                        }
+                                                        ref={
+                                                            isLastMessage &&
+                                                            refIndex !== 0
+                                                                ? lastMessageRef
+                                                                : null
+                                                        }
+                                                        bottomRef={
+                                                            bottomTextRef
+                                                        }
+                                                        reload={reload}
+                                                        setReload={setReload}
+                                                        searchQuery={
+                                                            searchQuery
+                                                        }
+                                                    />
+                                                </React.Fragment>
+                                            );
+                                        },
+                                    )}
+                                </>
+                            )}
+
+                            {aiIncomingMessage && (
+                                <Message
+                                    key={'randomid'}
+                                    message={{
                                         _id: 'randomId',
-                                        fullName: 'AI Bot',
-                                        profilePicture: '',
-                                    },
-                                    createdAt: Date.now(),
-                                    status: 'sending',
-                                    chat: chat?._id as string,
-                                    type: 'message',
-                                    text: aiIncomingMessage,
-                                }}
-                                reload={reload}
-                                setReload={setReload}
-                            />
-                        )}
-                    </div>
+                                        sender: {
+                                            _id: 'randomId',
+                                            fullName: 'AI Bot',
+                                            profilePicture: '',
+                                        },
+                                        createdAt: dayjs(Date.now()).format(),
+                                        status: 'sending',
+                                        chat: chat?._id as string,
+                                        type: 'message',
+                                        text: aiIncomingMessage,
+                                    }}
+                                    reload={reload}
+                                    setReload={setReload}
+                                />
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
-            {!(chat?.myData?.isBlocked || error) && (
+            {!showPinnedMessages && !(chat?.myData?.isBlocked || error) && (
                 <ChatFooter
                     chat={chat as ChatData}
                     className={`chat_${chat?._id}`}
@@ -627,6 +781,17 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     profileInfoShow={profileInfoShow}
                     sendTypingIndicator={sendTypingIndicator}
                 />
+            )}
+            {showPinnedMessages && (
+                <div className='w-full items-center justify-center flex border-t pt-2 mt-2'>
+                    <Button
+                        onClick={() => setShowPinnedMessages(false)}
+                        className='w-fit px-10'
+                        variant={'destructive'}
+                    >
+                        Exit Pin Mode
+                    </Button>
+                </div>
             )}
 
             {threadMessage && (
@@ -643,6 +808,14 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     chat={chat}
                     selectedMessage={editMessage}
                     handleCloseEdit={() => setEditMessage(null)}
+                />
+            )}
+
+            {forwardMessage && (
+                <ForwardMessageModal
+                    isOpen={!!forwardMessage}
+                    onClose={() => setForwardMessage(null)}
+                    message={forwardMessage}
                 />
             )}
         </>

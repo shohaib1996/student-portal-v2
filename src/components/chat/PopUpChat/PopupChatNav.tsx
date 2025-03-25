@@ -396,7 +396,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
     if (createCrowdOpen) {
         setCreateNew?.(true);
         return (
-            <div className='w-full h-full bg-background'>
+            <div className='w-full h-full bg-foreground'>
                 <CreateCrowd
                     isOpen={createCrowdOpen}
                     onClose={() => setCreateCrowdOpen(false)}
@@ -456,7 +456,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
             <div className='pb-2 border-b'>
                 <div className='relative flex flex-row items-center gap-1'>
                     <Input
-                        className='pl-10 bg-foreground h-9'
+                        className='pl-10 bg-background h-9'
                         onChange={handleChangeSearch}
                         value={searchQuery}
                         type='search'
@@ -470,7 +470,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                             <Button
                                 variant='secondary'
                                 size='icon'
-                                className='h-9 w-9 min-w-9 bg-white'
+                                className='h-9 w-9 min-w-9'
                             >
                                 <SlidersHorizontal className='h-4 w-4 text-gray' />
                             </Button>
