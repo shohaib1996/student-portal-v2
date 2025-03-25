@@ -30,10 +30,19 @@ import { TdUser } from '../global/TdUser';
 import { TUser } from '@/types/auth';
 import GlobalMarkDownPreview from '../global/Community/MarkDown/GlobalMarkDownPreview';
 import { Checkbox } from '../ui/checkbox';
-import { useDeleteEventMutation } from '@/redux/api/calendar/calendarApi';
+import {
+    useDeleteEventMutation,
+    useUpdateInvitationMutation,
+} from '@/redux/api/calendar/calendarApi';
 import GlobalDeleteModal from '../global/GlobalDeleteModal';
 import { toast } from 'sonner';
 import { updateOptionsOptions } from './CreateEvent/CreateEventModal';
+import { copyToClipboard } from '@/utils/common';
+import { cn } from '@/lib/utils';
+import { DatePicker } from '../global/DatePicket';
+import { TimePicker } from '../global/TimePicker';
+import { Textarea } from '../ui/textarea';
+import { stat } from 'fs';
 
 const EventDetails = ({
     event,
@@ -56,6 +65,23 @@ const EventDetails = ({
     const [deleteOption, setDeleteOption] = useState<
         'thisEvent' | 'thisAndFollowing' | 'allEvents'
     >('thisEvent');
+    const [updateOpen, setUpdateOpen] = useState(false);
+    const [updateOption, setUpdateOption] = useState<
+        'thisEvent' | 'thisAndFollowing' | 'allEvents'
+    >('thisEvent');
+
+    const [responseStatus, setResponseStatus] = useState<
+        'accepted' | 'declined' | 'proposedNewTime'
+    >();
+
+    const [updateInvitation, { isLoading: isUpdating }] =
+        useUpdateInvitationMutation();
+    const [proposeModalOpen, setProposeModalOpen] = useState(false);
+    const [proproseTime, setProposeTime] = useState({
+        start: event?.startTime,
+        end: event?.endTime,
+        reason: '',
+    });
 
     const handleDelete = async () => {
         try {
@@ -68,6 +94,42 @@ const EventDetails = ({
                 setDeleteOption('thisEvent');
                 setDeleteOpen(false);
                 setOpen(false);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    const handleUpdateInvitation = async ({
+        status,
+    }: {
+        status?: 'accepted' | 'declined' | 'proposedNewTime';
+    }) => {
+        if (!status) {
+            return;
+        }
+
+        const data: any = {
+            responseStatus: status,
+            responseOption: updateOption,
+        };
+
+        if (status === 'proposedNewTime') {
+            data.proposedTime = proproseTime;
+        } else {
+            data.proposedTime = null;
+        }
+
+        try {
+            const res = await updateInvitation({
+                id: event?._id as string,
+                data,
+            }).unwrap();
+            if (res) {
+                toast.success('Invitation status updated successfully');
+                setOpen(false);
+                setUpdateOpen(false);
+                setProposeModalOpen(false);
             }
         } catch (err) {
             console.log(err);
@@ -183,12 +245,19 @@ const EventDetails = ({
                                 </span>
                             </div>
                         </div>
-                        <Button variant='ghost' size='icon' className='h-8 w-8'>
+                        <Button
+                            onClick={() =>
+                                copyToClipboard(event?.location?.link || '')
+                            }
+                            variant='ghost'
+                            size='icon'
+                            className='h-8 w-8'
+                        >
                             <Copy className='h-4 w-4' />
                         </Button>
                     </div>
 
-                    {(isMyEvent || premissions?.seeGuestList) && (
+                    {isMyEvent || premissions?.seeGuestList ? (
                         <Collapsible className='group/collapsible w-full'>
                             <CollapsibleTrigger className='w-full'>
                                 <div className='mt-1 flex items-center gap-2 w-full'>
@@ -334,6 +403,15 @@ const EventDetails = ({
                                 </div>
                             </CollapsibleContent>
                         </Collapsible>
+                    ) : (
+                        <div className='mt-1 flex items-center gap-2 w-full'>
+                            <GuestIcon />
+                            <div className='w-full'>
+                                <h2 className='text-base font-medium text-start'>
+                                    {event?.attendeeCount} Invited Guests
+                                </h2>
+                            </div>
+                        </div>
                     )}
 
                     <div className='flex items-center my-2 gap-2 text-base font-medium'>
@@ -368,9 +446,49 @@ const EventDetails = ({
                                     Going?
                                 </div>
                                 <div className='flex gap-2'>
-                                    <Button>Yes</Button>
-                                    <Button variant='secondary'>No</Button>
-                                    <Button variant='secondary'>
+                                    <Button
+                                        onClick={() => {
+                                            if (
+                                                event?.recurrence
+                                                    ?.isRecurring ||
+                                                event?.seriesId
+                                            ) {
+                                                setUpdateOpen(true);
+                                                setResponseStatus('accepted');
+                                            } else {
+                                                handleUpdateInvitation({
+                                                    status: 'accepted',
+                                                });
+                                            }
+                                        }}
+                                    >
+                                        Yes
+                                    </Button>
+                                    <Button
+                                        variant='secondary'
+                                        onClick={() => {
+                                            if (
+                                                event?.recurrence
+                                                    ?.isRecurring ||
+                                                event?.seriesId
+                                            ) {
+                                                setUpdateOpen(true);
+                                                setResponseStatus('declined');
+                                            } else {
+                                                handleUpdateInvitation({
+                                                    status: 'declined',
+                                                });
+                                            }
+                                        }}
+                                    >
+                                        No
+                                    </Button>
+                                    <Button
+                                        onClick={() =>
+                                            setProposeModalOpen(true)
+                                        }
+                                        variant='secondary'
+                                    >
                                         Proposed New Time
                                     </Button>
                                 </div>
@@ -387,6 +505,7 @@ const EventDetails = ({
                 buttons={
                     <div className='flex gap-2 items-center'>
                         <Button
+                            isLoading={isUpdating}
                             onClick={() => setDeleteOpen(false)}
                             variant={'primary_light'}
                             icon={<XCircle size={18} />}
@@ -419,6 +538,177 @@ const EventDetails = ({
                             {item.label}
                         </Button>
                     ))}
+                </div>
+            </GlobalModal>
+
+            <GlobalModal
+                open={updateOpen}
+                setOpen={setUpdateOpen}
+                className='w-[550px] md:w-[550px] lg:w-[550px]'
+                allowFullScreen={false}
+                buttons={
+                    <div className='flex gap-2 items-center'>
+                        <Button
+                            onClick={() => setUpdateOpen(false)}
+                            variant={'primary_light'}
+                            icon={<XCircle size={18} />}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={() =>
+                                handleUpdateInvitation({
+                                    status: responseStatus,
+                                })
+                            }
+                            icon={<BookmarkCheck size={18} />}
+                            isLoading={isUpdating}
+                        >
+                            Save & Close
+                        </Button>
+                    </div>
+                }
+                subTitle='Select events to update from the series.'
+                title='Update recurring event'
+            >
+                <div className='flex flex-col gap-2 py-2'>
+                    {updateOptionsOptions.map((item) => (
+                        <Button
+                            onClick={() => setUpdateOption(item.value)}
+                            key={item.value}
+                            className='text-start bg-background flex justify-start gap-2'
+                            variant={'secondary'}
+                        >
+                            <Checkbox
+                                className='rounded-full'
+                                checked={item.value === updateOption}
+                            />{' '}
+                            {item.label}
+                        </Button>
+                    ))}
+                </div>
+            </GlobalModal>
+
+            <GlobalModal
+                buttons={
+                    <div className='flex items-center gap-2'>
+                        <Button
+                            variant={'secondary'}
+                            onClick={() => setProposeModalOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                if (
+                                    event?.recurrence?.isRecurring ||
+                                    event?.seriesId
+                                ) {
+                                    setUpdateOpen(true);
+                                    setResponseStatus('proposedNewTime');
+                                } else {
+                                    handleUpdateInvitation({
+                                        status: 'proposedNewTime',
+                                    });
+                                }
+                            }}
+                            icon={<BookmarkCheck size={18} />}
+                        >
+                            Save & Close
+                        </Button>
+                    </div>
+                }
+                title='Propose new time'
+                open={proposeModalOpen}
+                setOpen={setProposeModalOpen}
+            >
+                <div>
+                    <div className={cn('mt-2 min-h-[calc(100%-20px)]')}>
+                        <div className={cn('w-full')}>
+                            {/* Date Picker */}
+                            <p className='text-sm text-dark-gray pb-1'>
+                                Date & Time
+                            </p>
+                            <div className='flex gap-3'>
+                                <div className='flex-1 space-y-1'>
+                                    <div className='flex items-center gap-2'>
+                                        <DatePicker
+                                            className='bg-background min-h-8'
+                                            value={dayjs(proproseTime.start)}
+                                            onChange={(val) => {
+                                                setProposeTime((prev) => ({
+                                                    ...prev,
+                                                    start: val?.toISOString(),
+                                                }));
+                                            }}
+                                        />
+                                        {/* Time Picker */}
+                                        <TimePicker
+                                            className='bg-background '
+                                            value={
+                                                proproseTime.start
+                                                    ? new Date(
+                                                          proproseTime?.start,
+                                                      )
+                                                    : new Date()
+                                            }
+                                            onChange={(val) => {
+                                                setProposeTime((prev) => ({
+                                                    ...prev,
+                                                    start: val?.toISOString(),
+                                                }));
+                                            }}
+                                        />
+                                    </div>
+                                    <div className='flex items-center gap-2'>
+                                        <DatePicker
+                                            className='bg-background min-h-8'
+                                            value={dayjs(proproseTime.end)}
+                                            onChange={(val) =>
+                                                setProposeTime((prev) => ({
+                                                    ...prev,
+                                                    end: val?.toISOString(),
+                                                }))
+                                            }
+                                        />
+                                        {/* Time Picker */}
+                                        <TimePicker
+                                            className='bg-background'
+                                            value={
+                                                proproseTime.end
+                                                    ? new Date(
+                                                          proproseTime?.end,
+                                                      )
+                                                    : new Date()
+                                            }
+                                            onChange={(val) =>
+                                                setProposeTime((prev) => ({
+                                                    ...prev,
+                                                    end: val?.toISOString(),
+                                                }))
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <p className='text-sm text-dark-gray pb-1 mt-2'>
+                                Reason
+                            </p>
+                            <div>
+                                <Textarea
+                                    className='bg-background'
+                                    placeholder='Reason for proposingn new time'
+                                    value={proproseTime.reason}
+                                    onChange={(e) =>
+                                        setProposeTime((prev) => ({
+                                            ...prev,
+                                            reason: e.target.value,
+                                        }))
+                                    }
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </GlobalModal>
         </>

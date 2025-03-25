@@ -2,6 +2,7 @@ import { TEvent, TUpdateSchedule } from '@/types/calendar/calendarTypes';
 import { baseApi } from '../baseApi';
 import { tagTypes } from '../tagType/tagTypes';
 import dayjs from 'dayjs';
+import { string } from 'zod';
 
 type TParams = {
     queryDate: {
@@ -286,6 +287,14 @@ const calendarApi = baseApi.injectEndpoints({
             },
         }),
 
+        updateInvitation: build.mutation({
+            query: ({ id, data }: { id: string; data: any }) => ({
+                url: `v2/calendar/event/invitation/response/${id}`,
+                method: 'POST',
+                data,
+            }),
+        }),
+
         addNewSchedule: build.mutation({
             query: (name: string) => ({
                 url: '/calendar/schedule/create',
@@ -331,4 +340,5 @@ export const {
     useUpdateScheduleMutation,
     useAddNewScheduleMutation,
     useGetAllSchedulesQuery,
+    useUpdateInvitationMutation,
 } = calendarApi;
