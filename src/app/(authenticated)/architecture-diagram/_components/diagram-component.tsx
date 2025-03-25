@@ -5,11 +5,27 @@ import { useGetMyDiagramQuery } from '@/redux/api/diagram/diagramApi';
 import DiagramCard from './diagram-card';
 import { GlobalPagination } from '@/components/global/global-pagination';
 import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Eye, Grid3X3, Sheet } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import GlobalHeader from '@/components/global/GlobalHeader';
+import { useState } from 'react';
+import GlobalTable, {
+    TCustomColumnDef,
+} from '@/components/global/GlobalTable/GlobalTable';
+import TdDate from '@/components/global/TdDate';
+import { TdUser } from '@/components/global/TdUser';
+import { DiagramType } from '@/types/diagram';
+export interface CreatedBy {
+    profilePicture: string;
+    lastName: string;
+    _id: string;
+    email: string;
+    firstName: string;
+    fullName: string;
+}
 
 const DiagramComponent = () => {
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -33,6 +49,97 @@ const DiagramComponent = () => {
         return <div>Something went wrong!</div>;
     }
 
+    const defaultColumns: TCustomColumnDef<DiagramType>[] = [
+        {
+            accessorKey: 'index',
+            header: '#',
+            cell: ({ row }) => (
+                <span>
+                    {row.index < 9 && 0}
+                    {row.index + 1}
+                </span>
+            ),
+            footer: (data) => data.column.id,
+            id: 'index',
+            visible: true,
+            canHide: false,
+        },
+        {
+            accessorKey: 'title',
+            header: 'Title',
+            cell: ({ row }) => <p>{row.original.title}</p>,
+            visible: true,
+            id: 'title',
+            footer: (data) => data.column.id,
+            canHide: false,
+        },
+        {
+            accessorKey: 'isActive',
+            header: 'Status',
+            cell: ({ row }) => {
+                const isActive = row.original.isActive;
+                return (
+                    <div className='flex items-center gap-1'>
+                        {isActive ? (
+                            <span className='text-primary-white text-xs font-medium p-1 bg-primary-light bg-opacity-10 rounded-full py-1 px-2'>
+                                Active
+                            </span>
+                        ) : (
+                            <span className='text-red-500 text-xs font-medium p-1 bg-primary-light bg-opacity-10 rounded-full py-1 px-2'>
+                                Inactive
+                            </span>
+                        )}
+                    </div>
+                );
+            },
+            visible: true,
+            id: 'isActive',
+            footer: (data) => data.column.id,
+        },
+        {
+            accessorKey: 'uploadedBy',
+            header: 'Uploaded By',
+            cell: ({ row }) => {
+                const createdBy = row.original.createdBy;
+                return <p>Uploaded By</p>;
+            },
+            footer: (data) => data.column.id,
+            id: 'uploadedBy',
+            visible: true,
+        },
+        {
+            accessorKey: 'uploadedAt',
+            header: 'Uploaded Date',
+            cell: ({ row }) => <TdDate date={row.original.createdAt} />,
+            footer: (data) => data.column.id,
+            id: 'uploadedAt',
+            visible: true,
+        },
+        {
+            accessorKey: 'action',
+            header: 'Action',
+            cell: ({ row }) => (
+                <div className='flex gap-2 items-center'>
+                    <Button
+                        variant='default'
+                        tooltip='View'
+                        onClick={() =>
+                            router.push(
+                                `/architecture-diagram/preview/${row.original._id}`,
+                            )
+                        }
+                        icon={<Eye size={18} />}
+                    >
+                        View
+                    </Button>
+                </div>
+            ),
+            footer: (data) => data.column.id,
+            id: 'action',
+            visible: true,
+        },
+    ];
+
     return (
         <div className=''>
             <GlobalHeader
@@ -40,6 +147,26 @@ const DiagramComponent = () => {
                 subTitle='Visualizing System Structure for Clear Understanding'
                 buttons={
                     <div className='flex items-center gap-2'>
+                        <Button
+                            size={'icon'}
+                            onClick={() => setViewMode('grid')}
+                            variant={
+                                viewMode === 'grid'
+                                    ? 'default'
+                                    : 'primary_light'
+                            }
+                            icon={<Grid3X3 size={18} />}
+                        />
+                        <Button
+                            size={'icon'}
+                            onClick={() => setViewMode('list')}
+                            variant={
+                                viewMode === 'list'
+                                    ? 'default'
+                                    : 'primary_light'
+                            }
+                            icon={<Sheet size={18} />}
+                        />
                         <Button variant='outline' size='sm'>
                             Filters
                         </Button>
@@ -53,12 +180,23 @@ const DiagramComponent = () => {
                 }
             />
 
-            <div className='my-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3'>
-                {myDiagrams.map((diagram) => (
-                    <DiagramCard key={diagram._id} diagram={diagram} />
-                ))}
-            </div>
+            {viewMode === 'grid' && (
+                <div className='my-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3'>
+                    {myDiagrams.map((diagram) => (
+                        <DiagramCard key={diagram._id} diagram={diagram} />
+                    ))}
+                </div>
+            )}
 
+            {viewMode === 'list' && (
+                <GlobalTable
+                    limit={itemsPerPage}
+                    isLoading={isLoading || isFetching}
+                    tableName='diagrams-table'
+                    defaultColumns={defaultColumns}
+                    data={myDiagrams}
+                />
+            )}
             <GlobalPagination
                 currentPage={currentPage}
                 totalPages={totalPages}

@@ -18,3 +18,4 @@ export * from './comminity/community';
 export * from './user/user';
 export * from './audio-videos/audio-videos';
 export * from './audio-videos/comments';
+export * from './slide/slide';
