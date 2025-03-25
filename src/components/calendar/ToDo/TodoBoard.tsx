@@ -22,6 +22,7 @@ import {
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { TEvent } from '@/types/calendar/calendarTypes';
+import { toast } from 'sonner';
 
 export interface TaskType {
     id: string;
@@ -39,6 +40,9 @@ type TProps = {
 const TodoBoard = ({ tasks, setTasks }: TProps) => {
     const [activeTask, setActiveTask] = useState<TEvent | null>(null);
     const [updateEvent] = useUpdateEventMutation();
+    const [prevActiveStatus, setPrevActiveStatus] = useState<
+        TEvent['status'] | null
+    >(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -95,6 +99,7 @@ const TodoBoard = ({ tasks, setTasks }: TProps) => {
                 }
 
                 // Just update the status, keeping the same relative position
+                setPrevActiveStatus(activeTask.status);
                 setTasks((prev) => {
                     const newTasks = [...prev];
                     newTasks[activeTaskIndex] = {
@@ -120,6 +125,7 @@ const TodoBoard = ({ tasks, setTasks }: TProps) => {
             // Handle differently based on whether in same column
             if (activeTask.status !== overTask.status) {
                 // Different status (cross-column)
+                setPrevActiveStatus(activeTask.status);
                 setTasks((prev) => {
                     const newTasks = [...prev];
                     // Remove from current position
@@ -170,6 +176,22 @@ const TodoBoard = ({ tasks, setTasks }: TProps) => {
                 }).unwrap();
                 setActiveTask(null);
             } catch (err) {
+                if (prevActiveStatus) {
+                    setTasks((prev) =>
+                        prev.map((t) => {
+                            if (t._id === activeTask?._id) {
+                                return {
+                                    ...t,
+                                    status: prevActiveStatus,
+                                };
+                            } else {
+                                return t;
+                            }
+                        }),
+                    );
+                    setActiveTask(null);
+                }
+                toast.error('Failed to update task, Please try again later');
                 console.log(err);
             }
         },

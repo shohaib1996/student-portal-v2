@@ -85,7 +85,13 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
                             {...attributes}
                             {...listeners}
                         />
-                        <h3 className='font-medium text-lg'>{task.title}</h3>
+                        <h3
+                            className={cn('font-medium text-lg', {
+                                'line-through': task.status === 'cancelled',
+                            })}
+                        >
+                            {task.title}
+                        </h3>
                     </div>
                     <div className='flex items-center gap-2'>
                         <GlobalDropdown
