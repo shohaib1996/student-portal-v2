@@ -2,13 +2,11 @@
 import Calendar from '@/components/calendar/Calendar';
 import { CalendarSidebar } from '@/components/calendar/CalendarSidebar';
 import CreateEventModal from '@/components/calendar/CreateEvent/CreateEventModal';
-import { EventPopoverProvider } from '@/components/calendar/CreateEvent/EventPopover';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
 import GlobalHeader from '@/components/global/GlobalHeader';
 import AvailabilityIcon from '@/components/svgs/calendar/Availability';
 import MyInvitationsIcon from '@/components/svgs/calendar/MyInvitationsIcon';
 import { Button } from '@/components/ui/button';
-import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     Sheet,
@@ -25,6 +23,9 @@ import React, { useState } from 'react';
 import * as SheetPrimitive from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import EventDetails from '@/components/calendar/EventDetails';
+import { EventPopoverProvider } from '@/components/calendar/CreateEvent/EventPopover';
+import Link from 'next/link';
 
 interface CustomSheetContentProps
     extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content> {
@@ -68,7 +69,9 @@ const CalendarPage = () => {
                             variant={'secondary'}
                             icon={<MyInvitationsIcon />}
                         >
-                            My Invitaions
+                            <Link href={'/calendar/my-invitations'}>
+                                My Invitaions
+                            </Link>
                         </Button>
                         <Button
                             onClick={() =>
@@ -89,7 +92,7 @@ const CalendarPage = () => {
                     </div>
                 }
             />
-            <EventPopoverProvider>
+            <>
                 <Sheet>
                     <div className='flex gap-2 h-[calc(100vh-120px)]'>
                         <Calendar />
@@ -128,8 +131,7 @@ const CalendarPage = () => {
                         </CustomSheetContent>
                     </div>
                 </Sheet>
-                <CreateEventModal />
-            </EventPopoverProvider>
+            </>
         </div>
     );
 };

@@ -1,5 +1,5 @@
 'use client';
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { AppSidebar } from '../shared/AppSidebar';
 import SelectActiveCompany from '../shared/SelectActiveCompany';
 import Cookies from 'js-cookie';
@@ -11,6 +11,7 @@ import ChatModalsWrapper from '../chat/PopUpChat/ChatModalsWrapper';
 import { useAppSelector } from '@/redux/hooks';
 import setupSocketListeners from '@/helper/socketHandler';
 import { socket } from '@/helper/socketManager';
+import { EventPopoverProvider } from '../calendar/CreateEvent/EventPopover';
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
     const activeCompany = Cookies.get('activeCompany');
@@ -26,19 +27,26 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
             return cleanUpListeners;
         }
     }, [socket]);
+
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     return (
         <>
             {activeCompany ? (
                 <>
                     <AppSidebar />
-                    <SidebarInset>
-                        <main className={`relative bg-background w-full`}>
-                            <Navbar />
-                            <div className='px-2 min-h-[calc(100vh-55px)]'>
-                                {children}
-                            </div>
-                        </main>
-                    </SidebarInset>
+                    <main
+                        className={`relative bg-background ${state === 'expanded' ? 'md:w-[calc(100%-256px)]' : 'md:w-[calc(100%-48px)]'} w-full`}
+                    >
+                        <Navbar />
+                        <div className='px-2 min-h-[calc(100vh-55px)]'>
+                            {children}
+                        </div>
+                    </main>
                     {!isChat && (
                         <ChatModalsWrapper>
                             <ChatPopup />

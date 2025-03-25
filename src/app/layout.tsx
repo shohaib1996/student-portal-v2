@@ -6,6 +6,7 @@ import './globals.css';
 import ReduxProvider from '@/providers/ReduxProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { Toaster } from 'sonner';
+import 'simplebar-react/dist/simplebar.min.css';
 
 const interFont = Inter({
     variable: '--font-inter',
