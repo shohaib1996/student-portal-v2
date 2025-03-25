@@ -101,6 +101,7 @@ export function OverallProgress(): JSX.Element {
                                     data={data}
                                     cx='50%'
                                     cy='50%'
+                                    stroke='none'
                                     innerRadius={50}
                                     outerRadius={80}
                                     paddingAngle={2}

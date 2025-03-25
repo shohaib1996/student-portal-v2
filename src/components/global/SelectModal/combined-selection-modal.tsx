@@ -873,7 +873,15 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { X, ArrowRight, Check, Star, CalendarDays } from 'lucide-react';
+import {
+    X,
+    ArrowRight,
+    Check,
+    Star,
+    CalendarDays,
+    Calendar,
+    University,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -894,6 +902,7 @@ import {
 import storage from '@/utils/storage';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { UniversityIcon } from '@/components/svgs/icons';
 
 interface Company {
     _id: string;
@@ -979,6 +988,7 @@ export function CombinedSelectionModal() {
             if (selected) {
                 dispatch(setEnrollment(selected));
                 await storage.setItem('active_enrolment', selected);
+                Cookies.set('active_enrolment', selected);
                 if (setAsDefault) {
                     localStorage.setItem('defaultEnrollment', selected._id);
                 }
@@ -1044,7 +1054,7 @@ export function CombinedSelectionModal() {
     }, [isOpen, companies, myEnrollments]);
 
     const renderUniversitySelection = () => (
-        <div className='space-y-6 py-3'>
+        <div className='space-y-4 py-2'>
             <div className='relative'>
                 <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                     <svg
@@ -1071,7 +1081,7 @@ export function CombinedSelectionModal() {
                 />
             </div>
 
-            <div className='space-y-3 max-h-[400px] overflow-y-auto pr-1'>
+            <div className='space-y-4 max-h-[400px] overflow-y-auto pr-1'>
                 {filteredCompanies.map((company) => (
                     <div
                         key={company._id}
@@ -1099,13 +1109,13 @@ export function CombinedSelectionModal() {
                                     {company.name}
                                 </h3>
                                 {company.status === 'active' && (
-                                    <span className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800'>
+                                    <span className='rounded-full inline-flex items-center px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800'>
                                         <Check className='w-3 h-3 mr-1' />{' '}
                                         Active
                                     </span>
                                 )}
                                 {company.status === 'pending' && (
-                                    <span className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800'>
+                                    <span className='rounded-full inline-flex items-center px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-800'>
                                         <svg
                                             className='w-3 h-3 mr-1'
                                             viewBox='0 0 24 24'
@@ -1134,12 +1144,12 @@ export function CombinedSelectionModal() {
                                     </span>
                                 )}
                                 {company.status === 'inactive' && (
-                                    <span className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800'>
+                                    <span className='rounded-full inline-flex items-center px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800'>
                                         <X className='w-3 h-3 mr-1' /> Inactive
                                     </span>
                                 )}
                                 {company.status === undefined && (
-                                    <span className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800'>
+                                    <span className='rounded-full inline-flex items-center px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800'>
                                         <X className='w-3 h-3 mr-1' /> undefined
                                     </span>
                                 )}
@@ -1179,7 +1189,7 @@ export function CombinedSelectionModal() {
                 ))}
             </div>
 
-            <div className='flex items-center space-x-2'>
+            <div className='flex items-center space-x-2 border-b border-forground-border pb-2'>
                 <Checkbox
                     id='default'
                     checked={setAsDefault}
@@ -1195,128 +1205,97 @@ export function CombinedSelectionModal() {
                 </label>
             </div>
 
-            <Button
-                className='w-full bg-[#0736d1] hover:bg-[#0736d1]/90'
-                onClick={handleConfirm}
-                disabled={!selectedUniversityId}
-            >
-                Next <ArrowRight className='ml-2 h-4 w-4' />
-            </Button>
+            <div className='flex justify-center'>
+                <Button
+                    onClick={handleConfirm}
+                    disabled={!selectedUniversityId}
+                >
+                    Go to Program <ArrowRight className='ml-2 h-4 w-4' />
+                </Button>
+            </div>
         </div>
     );
 
     const renderCourseSelection = () => (
-        <div className='space-y-6 py-3'>
-            {selectedUniversity && (
-                <div className='border rounded-lg p-3 flex gap-3'>
-                    <div className='flex-shrink-0'>
-                        <Image
-                            src={
-                                selectedUniversity.image ||
-                                '/images/university-thumbnail.png'
-                            }
-                            alt={selectedUniversity.name}
-                            width={80}
-                            height={80}
-                            className='rounded-md object-cover'
-                        />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                        <div className='flex items-center gap-2'>
-                            <h3 className='text-sm font-medium'>
-                                {selectedUniversity.name}
-                            </h3>
-                            {selectedUniversity.status === 'active' && (
-                                <span className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800'>
-                                    <Check className='w-3 h-3 mr-1' /> Active
-                                </span>
-                            )}
+        <div className='py-3'>
+            <div className='space-y-3 bg-background p-3 rounded-lg'>
+                {selectedUniversity && (
+                    <div className='border rounded-lg bg-foreground p-2.5 flex gap-3'>
+                        <div className='flex-shrink-0'>
+                            <Image
+                                src={
+                                    selectedUniversity.image ||
+                                    '/images/university-thumbnail.png'
+                                }
+                                alt={selectedUniversity.name}
+                                width={80}
+                                height={80}
+                                className='rounded-md object-cover'
+                            />
                         </div>
-                        <p className='text-sm text-muted-foreground mt-1 line-clamp-2'>
-                            {selectedUniversity.description ||
-                                'No description available.'}
-                        </p>
-                        <div className='flex items-center mt-2 text-xs text-muted-foreground'>
-                            <svg
-                                className='w-3 h-3 mr-1'
-                                viewBox='0 0 24 24'
-                                fill='none'
-                                xmlns='http://www.w3.org/2000/svg'
+                        <div className='flex-1 min-w-0'>
+                            <div className='flex items-center gap-2'>
+                                <h3 className='text-sm font-medium'>
+                                    {selectedUniversity.name}
+                                </h3>
+                                {selectedUniversity.status === 'active' && (
+                                    <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+                                        <Check className='w-3 h-3 mr-1' />{' '}
+                                        Active
+                                    </span>
+                                )}
+                            </div>
+                            <p className='text-sm text-muted-foreground mt-1 line-clamp-2'>
+                                {selectedUniversity.description ||
+                                    'No description available.'}
+                            </p>
+                            <div className='flex items-center gap-1 text-xs text-muted-foreground'>
+                                <CalendarDays size={16} />
+                                {selectedUniversity.date ??
+                                    'Dec 16, 1971'} |{' '}
+                                {selectedUniversity.time ?? '12:12AM'}
+                            </div>
+                        </div>
+                        <div className='flex items-center'>
+                            <Button
+                                variant='primary_light'
+                                size='sm'
+                                className='text-xs h-8'
+                                onClick={() =>
+                                    dispatch(switchView('university'))
+                                }
                             >
-                                <path
-                                    d='M8 2V5'
-                                    stroke='currentColor'
-                                    strokeWidth='1.5'
-                                    strokeMiterlimit='10'
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
-                                />
-                                <path
-                                    d='M16 2V5'
-                                    stroke='currentColor'
-                                    strokeWidth='1.5'
-                                    strokeMiterlimit='10'
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
-                                />
-                                <path
-                                    d='M3.5 9.09H20.5'
-                                    stroke='currentColor'
-                                    strokeWidth='1.5'
-                                    strokeMiterlimit='10'
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
-                                />
-                                <path
-                                    d='M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z'
-                                    stroke='currentColor'
-                                    strokeWidth='1.5'
-                                    strokeMiterlimit='10'
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
-                                />
-                            </svg>
-                            {selectedUniversity.date ?? 'Dec 16, 1971'} |{' '}
-                            {selectedUniversity.time ?? '12:12AM'}
+                                <University size={16} /> Change Company
+                            </Button>
                         </div>
                     </div>
-                    <div className='flex items-center'>
-                        <Button
-                            variant='outline'
-                            size='sm'
-                            className='text-xs h-8'
-                            onClick={() => dispatch(switchView('university'))}
-                        >
-                            Change Company
-                        </Button>
-                    </div>
-                </div>
-            )}
+                )}
 
-            <div className='relative'>
-                <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
-                    <svg
-                        className='w-4 h-4 text-gray-500'
-                        aria-hidden='true'
-                        xmlns='http://www.w3.org/2000/svg'
-                        fill='none'
-                        viewBox='0 0 20 20'
-                    >
-                        <path
-                            stroke='currentColor'
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth='2'
-                            d='m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z'
-                        />
-                    </svg>
+                <div className='relative'>
+                    <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
+                        <svg
+                            className='w-4 h-4 text-gray-500'
+                            aria-hidden='true'
+                            xmlns='http://www.w3.org/2000/svg'
+                            fill='none'
+                            viewBox='0 0 20 20'
+                        >
+                            <path
+                                stroke='currentColor'
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                strokeWidth='2'
+                                d='m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z'
+                            />
+                        </svg>
+                    </div>
+                    <Input
+                        className='pl-10 bg-foreground'
+                        placeholder='Search programs...'
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
-                <Input
-                    className='pl-10'
-                    placeholder='Search programs...'
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
             </div>
 
             <Tabs
@@ -1324,8 +1303,11 @@ export function CombinedSelectionModal() {
                 value={activeTab}
                 onValueChange={setActiveTab}
             >
-                <TabsList className='grid w-full grid-cols-3'>
-                    <TabsTrigger value='program' className='text-xs'>
+                <TabsList className='flex items-center justify-start gap-3 bg-transparent mt-4'>
+                    <TabsTrigger
+                        value='program'
+                        className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
+                    >
                         <svg
                             className='w-4 h-4 mr-1'
                             viewBox='0 0 24 24'
@@ -1356,7 +1338,10 @@ export function CombinedSelectionModal() {
                         </svg>
                         Programs ({myEnrollments.length})
                     </TabsTrigger>
-                    <TabsTrigger value='courses' className='text-xs'>
+                    <TabsTrigger
+                        value='courses'
+                        className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
+                    >
                         <svg
                             className='w-4 h-4 mr-1'
                             viewBox='0 0 24 24'
@@ -1394,7 +1379,10 @@ export function CombinedSelectionModal() {
                         </svg>
                         Courses (0)
                     </TabsTrigger>
-                    <TabsTrigger value='interviews' className='text-xs'>
+                    <TabsTrigger
+                        value='interviews'
+                        className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
+                    >
                         <svg
                             className='w-4 h-4 mr-1'
                             viewBox='0 0 24 24'
@@ -1436,7 +1424,7 @@ export function CombinedSelectionModal() {
                 </TabsList>
                 <TabsContent
                     value='program'
-                    className='space-y-3 max-h-[400px] overflow-y-auto pr-1 mt-4'
+                    className='space-y-3 max-h-[400px] overflow-y-auto pr-1 mt-2'
                 >
                     {filteredEnrollments.length === 0 ? (
                         <div className='text-center py-8'>
@@ -1449,13 +1437,13 @@ export function CombinedSelectionModal() {
                             <div
                                 key={enroll._id}
                                 className={cn(
-                                    'border rounded-lg p-3',
+                                    'border rounded-lg p-2.5',
                                     selectedCourseId === enroll._id &&
-                                        'border-[#0736d1]',
+                                        'border-primary-white',
                                 )}
                             >
-                                <div className='flex gap-3'>
-                                    <div className='flex-shrink-0 relative'>
+                                <div className='grid grid-cols-6 gap-1'>
+                                    <div className='relative'>
                                         <Image
                                             src={
                                                 enroll.image ||
@@ -1468,208 +1456,218 @@ export function CombinedSelectionModal() {
                                             height={80}
                                             className='rounded-md object-cover'
                                         />
-                                        <div className='absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5'>
+                                        <div className='bg-black/70 text-white text-xs text-center py-0.5'>
                                             {(enroll.rating || 0).toFixed(1)}
                                         </div>
                                     </div>
-                                    <div className='flex-1 min-w-0'>
-                                        <div className='flex items-center gap-2 flex-wrap'>
-                                            <h3 className='text-sm font-medium'>
-                                                {enroll.program.title}
-                                            </h3>
-                                            {enroll.status === 'approved' && (
-                                                <span className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800'>
-                                                    <Check className='w-3 h-3 mr-1' />{' '}
-                                                    Approved
-                                                </span>
-                                            )}
-                                            {enroll.status === 'pending' && (
-                                                <span className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800'>
-                                                    <svg
-                                                        className='w-3 h-3 mr-1'
-                                                        viewBox='0 0 24 24'
-                                                        fill='none'
-                                                        xmlns='http://www.w3.org/2000/svg'
-                                                    >
-                                                        <path
-                                                            d='M12 8V12'
-                                                            stroke='currentColor'
-                                                            strokeWidth='2'
-                                                            strokeLinecap='round'
-                                                        />
-                                                        <path
-                                                            d='M12 16V16.01'
-                                                            stroke='currentColor'
-                                                            strokeWidth='2'
-                                                            strokeLinecap='round'
-                                                        />
-                                                        <path
-                                                            d='M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z'
-                                                            stroke='currentColor'
-                                                            strokeWidth='2'
-                                                        />
-                                                    </svg>
-                                                    Pending
-                                                </span>
-                                            )}
-                                            {enroll.status === 'trial' && (
-                                                <span className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800'>
-                                                    <Check className='w-3 h-3 mr-1' />{' '}
-                                                    Trial
-                                                </span>
-                                            )}
-                                        </div>
 
-                                        <div className='flex items-center mt-1 gap-1'>
-                                            <div className='text-xs text-muted-foreground'>
-                                                {enroll.organization.name}
-                                            </div>
-                                        </div>
-
-                                        <div className='flex items-center mt-1 gap-2'>
-                                            <div className='flex items-center gap-1'>
-                                                <Image
-                                                    src={
-                                                        enroll.program
-                                                            .instructor.image ||
-                                                        '/clients/Abidur Rahman.jpg'
-                                                    }
-                                                    alt={
-                                                        enroll.program
-                                                            .instructor.name
-                                                    }
-                                                    width={16}
-                                                    height={16}
-                                                    className='rounded-full'
-                                                />
-                                                <span className='text-xs text-muted-foreground'>
-                                                    {
-                                                        enroll.program
-                                                            .instructor.name
-                                                    }
-                                                </span>
-                                            </div>
-                                            <div className='text-xs text-muted-foreground flex items-center gap-1'>
-                                                <CalendarDays className='h-4 w-4' />
-                                                <p>
-                                                    {enroll.date ??
-                                                        'Dec 16, 1971'}
-                                                </p>
-                                                <span>|</span>
-                                                <p>
-                                                    {enroll.time ?? '12:12AM'}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className='grid grid-cols-3 gap-2 mt-2'>
-                                            <div>
-                                                <div className='text-xs text-muted-foreground'>
-                                                    Total Fee
-                                                </div>
-                                                <div className='text-xs font-medium'>
-                                                    {formatCurrency(
-                                                        enroll.totalFee,
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div className='text-xs text-muted-foreground'>
-                                                    Paid
-                                                </div>
-                                                <div className='text-xs font-medium text-green-600'>
-                                                    {formatCurrency(
-                                                        enroll.paid,
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div className='text-xs text-muted-foreground'>
-                                                    Due
-                                                </div>
-                                                <div className='text-xs font-medium text-amber-600'>
-                                                    {formatCurrency(enroll.due)}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className='flex items-center gap-2 mt-2'>
-                                            <div className='flex'>
-                                                {renderStars(enroll.rating)}
-                                            </div>
-                                            <div className='text-xs text-muted-foreground'>
-                                                (
-                                                {(enroll.rating || 0).toFixed(
-                                                    1,
+                                    <div className='col-span-5'>
+                                        <div className='min-w-0'>
+                                            <div className='flex items-center gap-2 flex-wrap'>
+                                                <h3 className='text-sm font-medium'>
+                                                    {enroll.program.title}
+                                                </h3>
+                                                {enroll.status ===
+                                                    'approved' && (
+                                                    <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+                                                        <Check className='w-3 h-3 mr-1' />{' '}
+                                                        Approved
+                                                    </span>
                                                 )}
-                                                )
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className='flex flex-col items-end justify-between'>
-                                        <div className='relative h-12 w-12'>
-                                            <svg
-                                                viewBox='0 0 36 36'
-                                                className='h-12 w-12 -rotate-90'
-                                            >
-                                                <path
-                                                    d='M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831'
-                                                    fill='none'
-                                                    stroke='#eee'
-                                                    strokeWidth='3'
-                                                    strokeDasharray='100, 100'
-                                                />
-                                                <path
-                                                    d='M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831'
-                                                    fill='none'
-                                                    stroke={
-                                                        (enroll.progress || 0) >
-                                                        0
-                                                            ? '#0736d1'
-                                                            : '#eee'
-                                                    }
-                                                    strokeWidth='3'
-                                                    strokeDasharray={`${enroll.progress || 0}, 100`}
-                                                />
-                                            </svg>
-                                            <div className='absolute inset-0 flex items-center justify-center text-xs font-medium'>
-                                                {enroll.progress || 0}%
-                                            </div>
-                                        </div>
-
-                                        {selectedCourseId === enroll._id ? (
-                                            <div className='px-4 py-1.5 rounded bg-[#e6ebfa] text-[#0736d1] text-xs font-medium flex items-center'>
-                                                <Check className='w-3 h-3 mr-1' />{' '}
-                                                Selected
-                                            </div>
-                                        ) : (
-                                            <Button
-                                                variant='outline'
-                                                className={cn(
-                                                    'px-4 py-1 h-auto text-xs',
-                                                    enroll.status ===
-                                                        'approved' ||
-                                                        enroll.status ===
-                                                            'trial'
-                                                        ? 'bg-[#0736d1] text-white hover:bg-[#0736d1]/90'
-                                                        : 'bg-gray-100 text-gray-500',
+                                                {enroll.status ===
+                                                    'pending' && (
+                                                    <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800'>
+                                                        <svg
+                                                            className='w-3 h-3 mr-1'
+                                                            viewBox='0 0 24 24'
+                                                            fill='none'
+                                                            xmlns='http://www.w3.org/2000/svg'
+                                                        >
+                                                            <path
+                                                                d='M12 8V12'
+                                                                stroke='currentColor'
+                                                                strokeWidth='2'
+                                                                strokeLinecap='round'
+                                                            />
+                                                            <path
+                                                                d='M12 16V16.01'
+                                                                stroke='currentColor'
+                                                                strokeWidth='2'
+                                                                strokeLinecap='round'
+                                                            />
+                                                            <path
+                                                                d='M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z'
+                                                                stroke='currentColor'
+                                                                strokeWidth='2'
+                                                            />
+                                                        </svg>
+                                                        Pending
+                                                    </span>
                                                 )}
-                                                onClick={() =>
-                                                    handleCourseSelect(
-                                                        enroll._id,
+                                                {enroll.status === 'trial' && (
+                                                    <span className='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
+                                                        <Check className='w-3 h-3 mr-1' />{' '}
+                                                        Trial
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div className='flex items-center mt-1 gap-1'>
+                                                <div className='text-xs text-muted-foreground'>
+                                                    {enroll.organization.name}
+                                                </div>
+                                            </div>
+
+                                            <div className='flex items-center mt-1 gap-2'>
+                                                <div className='flex items-center gap-1'>
+                                                    <Image
+                                                        src={
+                                                            enroll.program
+                                                                .instructor
+                                                                .image ||
+                                                            '/clients/Abidur Rahman.jpg'
+                                                        }
+                                                        alt={
+                                                            enroll.program
+                                                                .instructor.name
+                                                        }
+                                                        width={16}
+                                                        height={16}
+                                                        className='rounded-full'
+                                                    />
+                                                    <span className='text-xs text-muted-foreground'>
+                                                        {
+                                                            enroll.program
+                                                                .instructor.name
+                                                        }
+                                                    </span>
+                                                </div>
+                                                <div className='text-xs text-muted-foreground flex items-center gap-1'>
+                                                    <CalendarDays className='h-4 w-4' />
+                                                    <p>
+                                                        {enroll.date ??
+                                                            'Dec 16, 1971'}
+                                                    </p>
+                                                    <span>|</span>
+                                                    <p>
+                                                        {enroll.time ??
+                                                            '12:12AM'}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className='grid grid-cols-3 gap-2 mt-2'>
+                                                <div>
+                                                    <div className='text-xs text-muted-foreground'>
+                                                        Total Fee
+                                                    </div>
+                                                    <div className='text-xs font-medium'>
+                                                        {formatCurrency(
+                                                            enroll.totalFee,
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className='text-xs text-muted-foreground'>
+                                                        Paid
+                                                    </div>
+                                                    <div className='text-xs font-medium text-green-600'>
+                                                        {formatCurrency(
+                                                            enroll.paid,
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className='text-xs text-muted-foreground'>
+                                                        Due
+                                                    </div>
+                                                    <div className='text-xs font-medium text-amber-600'>
+                                                        {formatCurrency(
+                                                            enroll.due,
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className='flex items-center gap-2 mt-2'>
+                                                <div className='flex'>
+                                                    {renderStars(enroll.rating)}
+                                                </div>
+                                                <div className='text-xs text-muted-foreground'>
+                                                    (
+                                                    {(
+                                                        enroll.rating || 0
+                                                    ).toFixed(1)}
                                                     )
-                                                }
-                                                disabled={
-                                                    enroll.status !==
-                                                        'approved' &&
-                                                    enroll.status !== 'trial'
-                                                }
-                                            >
-                                                Switch to Program{' '}
-                                                <ArrowRight className='ml-1 h-3 w-3' />
-                                            </Button>
-                                        )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className='flex flex-col items-end justify-between'>
+                                            <div className='relative h-12 w-12'>
+                                                <svg
+                                                    viewBox='0 0 36 36'
+                                                    className='h-12 w-12 -rotate-90'
+                                                >
+                                                    <path
+                                                        d='M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831'
+                                                        fill='none'
+                                                        stroke='#eee'
+                                                        strokeWidth='3'
+                                                        strokeDasharray='100, 100'
+                                                    />
+                                                    <path
+                                                        d='M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831'
+                                                        fill='none'
+                                                        stroke={
+                                                            (enroll.progress ||
+                                                                0) > 0
+                                                                ? '#0736d1'
+                                                                : '#eee'
+                                                        }
+                                                        strokeWidth='3'
+                                                        strokeDasharray={`${enroll.progress || 0}, 100`}
+                                                    />
+                                                </svg>
+                                                <div className='absolute inset-0 flex items-center justify-center text-xs font-medium'>
+                                                    {enroll.progress || 0}%
+                                                </div>
+                                            </div>
+
+                                            {selectedCourseId === enroll._id ? (
+                                                <div className='px-4 py-1.5 rounded bg-[#e6ebfa] text-[#0736d1] text-xs font-medium flex items-center'>
+                                                    <Check className='w-3 h-3 mr-1' />{' '}
+                                                    Selected
+                                                </div>
+                                            ) : (
+                                                <Button
+                                                    variant='outline'
+                                                    className={cn(
+                                                        'px-4 py-1 h-auto text-xs',
+                                                        enroll.status ===
+                                                            'approved' ||
+                                                            enroll.status ===
+                                                                'trial'
+                                                            ? ''
+                                                            : '',
+                                                    )}
+                                                    onClick={() =>
+                                                        handleCourseSelect(
+                                                            enroll._id,
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        enroll.status !==
+                                                            'approved' &&
+                                                        enroll.status !==
+                                                            'trial'
+                                                    }
+                                                >
+                                                    Switch to Program{' '}
+                                                    <ArrowRight className='ml-1 h-3 w-3' />
+                                                </Button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1732,12 +1730,12 @@ export function CombinedSelectionModal() {
             setOpen={() => dispatch(closeModal())}
             title={
                 activeView === 'university'
-                    ? 'Select University'
+                    ? 'Select Company/University'
                     : 'Switch Bootcamp'
             }
             subTitle={
                 activeView === 'university'
-                    ? 'Select a university to continue'
+                    ? 'Select a university or organization to continue your journey'
                     : "If you wish to change to another program, please click on 'Switch' and proceed."
             }
             className='w-full max-w-4xl bg-white'
