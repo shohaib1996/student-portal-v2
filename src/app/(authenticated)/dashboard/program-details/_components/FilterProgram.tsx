@@ -1,15 +1,8 @@
 'use client';
+
 import { cn } from '@/lib/utils';
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuLabel,
-    DropdownMenuRadioGroup,
-    DropdownMenuRadioItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { SlidersHorizontal, X } from 'lucide-react';
 
 interface FilterOption {
@@ -28,7 +21,6 @@ const FilterProgram = ({
         isLoading: boolean;
         isError: boolean;
         courseProgramsLoading: boolean;
-
         setFilterOption: React.Dispatch<
             React.SetStateAction<{
                 filter: string;
@@ -42,7 +34,6 @@ const FilterProgram = ({
     const [isOpen, setIsOpen] = React.useState(false);
     const { setFilterOption } = option;
 
-    const [selectedFilter, setSelectedFilter] = React.useState<string>('all');
     const [filters, setFilters] = React.useState<FilterOption[]>([
         { id: 'all', label: 'All', value: '', checked: true },
         { id: 'focused', label: 'Focused', value: 'focused', checked: false },
@@ -88,46 +79,80 @@ const FilterProgram = ({
     ]);
 
     const toggleFilter = (id: string) => {
-        setFilters(
-            filters.map((filter) =>
+        setFilters((prevFilters) =>
+            prevFilters.map((filter) =>
                 filter.id === id
                     ? { ...filter, checked: !filter.checked }
-                    : filter,
+                    : filter.id === 'all' && id !== 'all'
+                      ? { ...filter, checked: false } // Uncheck 'All' if another filter is selected
+                      : filter,
             ),
         );
+
+        const selectedOption = filters.find((filter) => filter.id === id);
+        if (selectedOption) {
+            setFilterOption({
+                filter: selectedOption.value,
+                query: searchInput,
+            });
+            setParentId(null);
+        }
     };
 
     const clearFilters = () => {
-        setFilters(filters.map((filter) => ({ ...filter, checked: false })));
+        setFilters((prevFilters) =>
+            prevFilters.map((filter) =>
+                filter.id === 'all'
+                    ? { ...filter, checked: true }
+                    : { ...filter, checked: false },
+            ),
+        );
+
+        setFilterOption({
+            filter: '',
+            query: searchInput,
+        });
+        setParentId(null);
     };
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
+
+    // Close dropdown when clicking outside
+    const handleClickOutside = (e: React.MouseEvent) => {
+        if (e.target === e.currentTarget) {
+            setIsOpen(false);
+        }
+    };
+
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button
-                    variant='primary_light'
-                    className='cursor-pointer'
-                    onClick={toggleDropdown}
-                >
-                    <SlidersHorizontal
-                        size={20}
-                        className='text-primary-white font-bold'
-                    />
-                </Button>
-            </DropdownMenuTrigger>
+        <div className='relative'>
+            <Button
+                variant='primary_light'
+                className='cursor-pointer'
+                onClick={toggleDropdown}
+            >
+                <SlidersHorizontal
+                    size={20}
+                    className='text-primary-white font-bold'
+                />
+            </Button>
+
             {isOpen && (
-                <DropdownMenuContent
-                    className='min-w-[200px] rounded-lg border bg-background text-gray shadow-lg'
-                    align='end'
-                >
-                    <DropdownMenuLabel className='border-b'>
-                        <div className='flex items-center justify-between'>
+                <>
+                    {/* Overlay to capture outside clicks */}
+                    <div
+                        className='fixed inset-0 z-40'
+                        onClick={handleClickOutside}
+                    ></div>
+
+                    {/* Dropdown */}
+                    <div className='absolute right-0 top-full mt-1 w-[240px] bg-foreground rounded-md shadow-md border border-border z-50'>
+                        <div className='flex items-center justify-between p-3 border-b border-border'>
                             <button
                                 onClick={clearFilters}
-                                className='text-dark-gray text-sm font-medium'
+                                className='text-dark-gray text-sm font-medium hover:text-primary-white'
                             >
                                 Clear filters
                             </button>
@@ -138,80 +163,61 @@ const FilterProgram = ({
                                 <X className='h-4 w-4' />
                             </button>
                         </div>
-                    </DropdownMenuLabel>
-
-                    <DropdownMenuRadioGroup
-                        defaultValue={filters[0].value}
-                        value={selectedFilter}
-                        onValueChange={(value) => {
-                            setSelectedFilter(value);
-                            const selectedOption = filters.find(
-                                (filter) => filter.id === value,
-                            );
-
-                            if (selectedOption) {
-                                setFilterOption((prev) => ({
-                                    filter: selectedOption.value /* selectedOption.value */,
-                                    query: searchInput,
-                                    pId: null,
-                                }));
-                                setParentId(null);
-                            }
-                        }}
-                    >
-                        {filters.map((filter) => (
-                            <div
-                                key={filter.id}
-                                className={cn(
-                                    'flex items-center space-x-2 p-2 rounded-md',
-                                    filter.checked
-                                        ? 'bg-primary-light'
-                                        : 'hover:bg-foreground',
-                                )}
-                                onClick={() => toggleFilter(filter.id)}
-                            >
+                        <div className='p-2 max-h-[300px] overflow-y-auto'>
+                            {filters.map((filter) => (
                                 <div
+                                    key={filter.id}
                                     className={cn(
-                                        'h-4 w-4 rounded border flex items-center justify-center',
+                                        'flex items-center space-x-2 p-2 rounded-md',
                                         filter.checked
-                                            ? 'bg-primary border-border-primary-light'
-                                            : 'border-border bg-background',
+                                            ? 'bg-primary-light text-primary-white'
+                                            : 'hover:bg-foreground',
                                     )}
+                                    onClick={() => toggleFilter(filter.id)}
                                 >
-                                    {filter.checked && (
-                                        <svg
-                                            width='10'
-                                            height='10'
-                                            viewBox='0 0 10 10'
-                                            fill='none'
-                                            xmlns='http://www.w3.org/2000/svg'
-                                        >
-                                            <path
-                                                d='M8.33334 2.5L3.75001 7.08333L1.66667 5'
-                                                stroke='white'
-                                                strokeWidth='1.5'
-                                                strokeLinecap='round'
-                                                strokeLinejoin='round'
-                                            />
-                                        </svg>
-                                    )}
+                                    <div
+                                        className={cn(
+                                            'h-4 w-4 rounded border flex items-center justify-center',
+                                            filter.checked
+                                                ? 'bg-primary border-border-primary-light'
+                                                : 'border-border-primary-light bg-background',
+                                        )}
+                                    >
+                                        {filter.checked && (
+                                            <svg
+                                                width='10'
+                                                height='10'
+                                                viewBox='0 0 10 10'
+                                                fill='none'
+                                                xmlns='http://www.w3.org/2000/svg'
+                                            >
+                                                <path
+                                                    d='M8.33334 2.5L3.75001 7.08333L1.66667 5'
+                                                    stroke='white'
+                                                    strokeWidth='1.5'
+                                                    strokeLinecap='round'
+                                                    strokeLinejoin='round'
+                                                />
+                                            </svg>
+                                        )}
+                                    </div>
+                                    <span
+                                        className={cn(
+                                            'text-sm cursor-pointer',
+                                            filter.checked
+                                                ? 'text-primary-white font-medium'
+                                                : 'text-dark-gray',
+                                        )}
+                                    >
+                                        {filter.label}
+                                    </span>
                                 </div>
-                                <span
-                                    className={cn(
-                                        'text-sm cursor-pointer',
-                                        filter.checked
-                                            ? 'text-primary-white font-medium text-sm'
-                                            : 'text-dark-gray',
-                                    )}
-                                >
-                                    {filter.label}
-                                </span>
-                            </div>
-                        ))}
-                    </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
+                            ))}
+                        </div>
+                    </div>
+                </>
             )}
-        </DropdownMenu>
+        </div>
     );
 };
 

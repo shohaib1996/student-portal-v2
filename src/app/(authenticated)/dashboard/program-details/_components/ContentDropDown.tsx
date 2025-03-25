@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Accordion,
     AccordionContent,
@@ -20,6 +20,7 @@ import { ChapterType, TContent, TLessonInfo } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import LessionActionMenu from './LessionActionMenu';
 
 const ContentDropDown = ({
     fetchedData,
@@ -28,7 +29,6 @@ const ContentDropDown = ({
     setVideoData,
     videoData,
     option,
-    toggleSidebar,
 }: {
     fetchedData: TContent[] | null;
     parentId?: string | null;
@@ -53,7 +53,6 @@ const ContentDropDown = ({
         }>
     >;
     setParentId: React.Dispatch<React.SetStateAction<string | null>>;
-    toggleSidebar?: () => void;
 }) => {
     function formatSeconds(totalSeconds: number) {
         const minutes = Math.floor(totalSeconds / 60);
@@ -121,15 +120,17 @@ const ContentDropDown = ({
                                     '[&[data-state=open]>div>div>svg]:stroke-primary [&[data-state=open]>div>p]:text-primary'
                                 }`}
                                 // isChevronDown={false}
-                                onClick={() =>
-                                    setVideoData({
-                                        videoInfo: item?.lesson,
-                                        isSideOpen: true,
-                                    })
-                                }
                             >
                                 <div className='flex items-center justify-between w-full p-2'>
-                                    <div className='flex items-center gap-3'>
+                                    <div
+                                        className='flex items-center gap-3'
+                                        onClick={() =>
+                                            setVideoData({
+                                                videoInfo: item?.lesson,
+                                                isSideOpen: true,
+                                            })
+                                        }
+                                    >
                                         <div>
                                             <Play className='h-5 w-5 stroke-gray' />
                                         </div>
@@ -151,7 +152,10 @@ const ContentDropDown = ({
                                         <div className='flex gap-1'>
                                             {renderPriorityBadge(item.priority)}
                                         </div>
-                                        <MoreVertical className='h-5 w-5 text-dark-gray' />
+                                        <LessionActionMenu
+                                            lessonId={item?._id}
+                                            courseId={item?.myCourse?.course}
+                                        />
                                     </div>
                                 </div>
                             </AccordionTrigger>
@@ -240,8 +244,11 @@ const ContentDropDown = ({
                             <div className='flex items-center justify-between w-full p-2'>
                                 <div className='flex items-center gap-3'>
                                     <div className='bg-primary-light mr-1.5 p-1.5 rounded-md'>
-                                        <Folder className='h-5 w-5 stroke-primary' />
-                                        {/* <ChevronDown className='h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200' /> */}
+                                        {parentId ? (
+                                            <Folder className='h-5 w-5 stroke-primary' />
+                                        ) : (
+                                            <ChevronDown className='h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200' />
+                                        )}
                                     </div>
                                     <div>
                                         <h3 className='font-medium text-black'>
@@ -307,7 +314,7 @@ const ContentDropDown = ({
                                 </div>
                             </div>
                         </AccordionTrigger>
-                        <AccordionContent className='border-t border-border bg-background pb-0'>
+                        <AccordionContent className='border-t border-border pb-0'>
                             {item.chapter.children &&
                             item.chapter.children.length > 0 ? (
                                 <Accordion
@@ -352,7 +359,7 @@ const ContentDropDown = ({
             return null;
         });
     };
-
+    console.log(fetchedData);
     return (
         <div
             className={cn(

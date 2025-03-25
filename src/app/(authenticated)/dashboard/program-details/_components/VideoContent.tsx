@@ -5,6 +5,7 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
 
 const VideoContent = ({
     videoData,
@@ -22,7 +23,7 @@ const VideoContent = ({
 
     return (
         <div
-            className={`${videoData?.isSideOpen ? 'lg:col-span-1' : 'hidden'} `}
+            className={`${videoData?.isSideOpen ? 'lg:col-span-2' : 'hidden'} `}
         >
             {videoData?.videoInfo?.url && (
                 <iframe
@@ -57,17 +58,17 @@ const VideoContent = ({
                                 </span>
                             </div>
                         </div>
-                        <div className='text-sm text-gray-500'>
+                        <div className='text-sm text-gray'>
                             Jan 30, 2024 | 12:30 PM
                         </div>
                     </div>
                 </div>
                 <div className='flex items-center gap-2'>
-                    <button className='flex items-center gap-1 text-gray-500 hover:text-gray-700'>
+                    <button className='flex items-center gap-1 text-gray hover:text-dark-gray'>
                         <Pin className='h-4 w-4' />
                         <span className='text-sm'>Pin</span>
                     </button>
-                    <button className='flex items-center gap-1 text-gray-500 hover:text-gray-700'>
+                    <button className='flex items-center gap-1 text-gray hover:text-dark-gray'>
                         <Share className='h-4 w-4' />
                         <span className='text-sm'>Share</span>
                     </button>
@@ -77,11 +78,11 @@ const VideoContent = ({
             {/* Main Tabs */}
             <div className='flex-1 overflow-auto'>
                 <Tabs defaultValue='overview' className='w-full'>
-                    <div className='border-b border-gray-200'>
+                    <div className='border-b border-border'>
                         <TabsList className='h-auto bg-transparent p-0 border-0 gap-8'>
                             <TabsTrigger
                                 value='overview'
-                                className='px-0 py-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none'
+                                className='px-0 py-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-border-primary-light data-[state=active]:text-primary-white rounded-none'
                             >
                                 <div className='flex items-center gap-2'>
                                     <svg
@@ -90,7 +91,7 @@ const VideoContent = ({
                                         viewBox='0 0 24 24'
                                         fill='none'
                                         xmlns='http://www.w3.org/2000/svg'
-                                        className='text-blue-600'
+                                        className='text-primary-white'
                                     >
                                         <path
                                             d='M4 6H20M4 10H20M4 14H20M4 18H20'
@@ -105,7 +106,7 @@ const VideoContent = ({
                             </TabsTrigger>
                             <TabsTrigger
                                 value='notes'
-                                className='px-0 py-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none'
+                                className='px-0 py-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-border-primary-light data-[state=active]:text-primary-white rounded-none'
                             >
                                 <div className='flex items-center gap-2'>
                                     <svg
@@ -114,7 +115,7 @@ const VideoContent = ({
                                         viewBox='0 0 24 24'
                                         fill='none'
                                         xmlns='http://www.w3.org/2000/svg'
-                                        className='text-gray-500'
+                                        className='text-gray'
                                     >
                                         <path
                                             d='M11 4H4V20H20V13'
@@ -157,16 +158,16 @@ const VideoContent = ({
                             </TabsTrigger>
                             <TabsTrigger
                                 value='download'
-                                className='px-0 py-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none'
+                                className='px-0 py-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-border-primary-light data-[state=active]:text-primary-white rounded-none'
                             >
                                 <div className='flex items-center gap-2'>
-                                    <Download className='h-4 w-4 text-gray-500' />
+                                    <Download className='h-4 w-4 text-gray' />
                                     Download
                                 </div>
                             </TabsTrigger>
                             <TabsTrigger
                                 value='ratings'
-                                className='px-0 py-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none'
+                                className='px-0 py-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-border-primary-light data-[state=active]:text-primary-white rounded-none'
                             >
                                 <div className='flex items-center gap-2'>
                                     <svg
@@ -175,7 +176,7 @@ const VideoContent = ({
                                         viewBox='0 0 24 24'
                                         fill='none'
                                         xmlns='http://www.w3.org/2000/svg'
-                                        className='text-gray-500'
+                                        className='text-gray'
                                     >
                                         <path
                                             d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z'
@@ -199,12 +200,12 @@ const VideoContent = ({
                             {/* Description Section */}
                             <div className='mb-2'>
                                 <div className='flex items-center gap-2 mb-2'>
-                                    <div className='w-4 h-4 rounded-full bg-blue-600'></div>
-                                    <h2 className='text-base font-medium text-gray-900'>
+                                    <div className='w-4 h-4 rounded-full bg-primary'></div>
+                                    <h2 className='text-base font-medium text-black'>
                                         Description
                                     </h2>
                                 </div>
-                                <p className='text-gray-700 text-sm ml-6'>
+                                <p className='text-dark-gray text-sm ml-6'>
                                     {videoData?.videoInfo?.title ||
                                         'Bootcamps Hub is an all-in-one SaaS platform designed for high-ticket coaches and educators. It empowers you to launch, manage, and scale premium boot camps without relying on fragmented tools like Udemy or Skillshare.'}
                                 </p>
@@ -213,18 +214,18 @@ const VideoContent = ({
                             {/* Resources Section */}
                             <div className='mb-2'>
                                 <div className='flex items-center gap-2 mb-2'>
-                                    <h2 className='text-base font-medium text-gray-900'>
+                                    <h2 className='text-base font-medium text-black'>
                                         Resources
                                     </h2>
                                 </div>
                                 <div className=''>
-                                    <div className='flex border-b border-gray-200 overflow-hidden'>
+                                    <div className='flex border-b border-border overflow-hidden'>
                                         <button
                                             className={cn(
                                                 'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
                                                 activeResourceTab === 'summary'
-                                                    ? 'text-blue-600 border-b-2 border-blue-600'
-                                                    : 'text-gray-500 hover:text-gray-700',
+                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
+                                                    : 'text-gray hover:text-dark-gray',
                                             )}
                                             onClick={() =>
                                                 setActiveResourceTab('summary')
@@ -239,8 +240,8 @@ const VideoContent = ({
                                                 className={
                                                     activeResourceTab ===
                                                     'summary'
-                                                        ? 'text-blue-600'
-                                                        : 'text-gray-500'
+                                                        ? 'text-primary-white'
+                                                        : 'text-gray'
                                                 }
                                             >
                                                 <path
@@ -258,8 +259,8 @@ const VideoContent = ({
                                                 'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
                                                 activeResourceTab ===
                                                     'assessments'
-                                                    ? 'text-blue-600 border-b-2 border-blue-600'
-                                                    : 'text-gray-500 hover:text-gray-700',
+                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
+                                                    : 'text-gray hover:text-dark-gray',
                                             )}
                                             onClick={() =>
                                                 setActiveResourceTab(
@@ -276,8 +277,8 @@ const VideoContent = ({
                                                 className={
                                                     activeResourceTab ===
                                                     'assessments'
-                                                        ? 'text-blue-600'
-                                                        : 'text-gray-500'
+                                                        ? 'text-primary-white'
+                                                        : 'text-gray'
                                                 }
                                             >
                                                 <path
@@ -294,8 +295,8 @@ const VideoContent = ({
                                                 'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
                                                 activeResourceTab ===
                                                     'interview'
-                                                    ? 'text-blue-600 border-b-2 border-blue-600'
-                                                    : 'text-gray-500 hover:text-gray-700',
+                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
+                                                    : 'text-gray hover:text-dark-gray',
                                             )}
                                             onClick={() =>
                                                 setActiveResourceTab(
@@ -312,8 +313,8 @@ const VideoContent = ({
                                                 className={
                                                     activeResourceTab ===
                                                     'interview'
-                                                        ? 'text-blue-600'
-                                                        : 'text-gray-500'
+                                                        ? 'text-primary-white'
+                                                        : 'text-gray'
                                                 }
                                             >
                                                 <path
@@ -331,8 +332,8 @@ const VideoContent = ({
                                                 'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
                                                 activeResourceTab ===
                                                     'behavioral'
-                                                    ? 'text-blue-600 border-b-2 border-blue-600'
-                                                    : 'text-gray-500 hover:text-gray-700',
+                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
+                                                    : 'text-gray hover:text-dark-gray',
                                             )}
                                             onClick={() =>
                                                 setActiveResourceTab(
@@ -349,8 +350,8 @@ const VideoContent = ({
                                                 className={
                                                     activeResourceTab ===
                                                     'behavioral'
-                                                        ? 'text-blue-600'
-                                                        : 'text-gray-500'
+                                                        ? 'text-primary-white'
+                                                        : 'text-gray'
                                                 }
                                             >
                                                 <path
@@ -367,8 +368,8 @@ const VideoContent = ({
                                             className={cn(
                                                 'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
                                                 activeResourceTab === 'analytic'
-                                                    ? 'text-blue-600 border-b-2 border-blue-600'
-                                                    : 'text-gray-500 hover:text-gray-700',
+                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
+                                                    : 'text-gray hover:text-dark-gray',
                                             )}
                                             onClick={() =>
                                                 setActiveResourceTab('analytic')
@@ -383,8 +384,8 @@ const VideoContent = ({
                                                 className={
                                                     activeResourceTab ===
                                                     'analytic'
-                                                        ? 'text-blue-600'
-                                                        : 'text-gray-500'
+                                                        ? 'text-primary-white'
+                                                        : 'text-gray'
                                                 }
                                             >
                                                 <path
@@ -401,8 +402,8 @@ const VideoContent = ({
                                             className={cn(
                                                 'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
                                                 activeResourceTab === 'labs'
-                                                    ? 'text-blue-600 border-b-2 border-blue-600'
-                                                    : 'text-gray-500 hover:text-gray-700',
+                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
+                                                    : 'text-gray hover:text-dark-gray',
                                             )}
                                             onClick={() =>
                                                 setActiveResourceTab('labs')
@@ -416,8 +417,8 @@ const VideoContent = ({
                                                 xmlns='http://www.w3.org/2000/svg'
                                                 className={
                                                     activeResourceTab === 'labs'
-                                                        ? 'text-blue-600'
-                                                        : 'text-gray-500'
+                                                        ? 'text-primary-white'
+                                                        : 'text-gray'
                                                 }
                                             >
                                                 <path
@@ -442,8 +443,8 @@ const VideoContent = ({
                                                 'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
                                                 activeResourceTab ===
                                                     'presentations'
-                                                    ? 'text-blue-600 border-b-2 border-blue-600'
-                                                    : 'text-gray-500 hover:text-gray-700',
+                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
+                                                    : 'text-gray hover:text-dark-gray',
                                             )}
                                             onClick={() =>
                                                 setActiveResourceTab(
@@ -460,8 +461,8 @@ const VideoContent = ({
                                                 className={
                                                     activeResourceTab ===
                                                     'presentations'
-                                                        ? 'text-blue-600'
-                                                        : 'text-gray-500'
+                                                        ? 'text-primary-white'
+                                                        : 'text-gray'
                                                 }
                                             >
                                                 <path
@@ -482,7 +483,7 @@ const VideoContent = ({
                                                 What you&apos;re going to get
                                                 from this course
                                             </h3>
-                                            <ul className='text-sm text-gray-700 space-y-2 pl-5 list-disc'>
+                                            <ul className='text-sm text-dark-gray space-y-2 pl-5 list-disc'>
                                                 <li>
                                                     Understand the core
                                                     principles of automation
@@ -543,7 +544,7 @@ const VideoContent = ({
                                         viewBox='0 0 24 24'
                                         fill='none'
                                         xmlns='http://www.w3.org/2000/svg'
-                                        className='text-gray-500'
+                                        className='text-gray'
                                     >
                                         <path
                                             d='M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7118 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0035 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92179 4.44061 8.37488 5.27072 7.03258C6.10083 5.69028 7.28825 4.6056 8.7 3.90003C9.87812 3.30496 11.1801 2.99659 12.5 3.00003H13C15.0843 3.11502 17.053 3.99479 18.5291 5.47089C20.0052 6.94699 20.885 8.91568 21 11V11.5Z'
@@ -553,10 +554,7 @@ const VideoContent = ({
                                             strokeLinejoin='round'
                                         />
                                     </svg>
-                                    <h2 className='text-base font-medium text-gray-900 flex items-center gap-2'>
-                                        <span>Comments (16)</span>
-                                        <ChevronDown className='h-4 w-4' />
-                                    </h2>
+                                    <GlobalCommentsSection />
                                 </div>
                             </div>
                         </div>
@@ -566,9 +564,9 @@ const VideoContent = ({
                         value='notes'
                         className='p-4 m-0 data-[state=active]:border-0'
                     >
-                        <div className='border border-gray-200 rounded-md p-4'>
+                        <div className='border border-border rounded-md p-4'>
                             <textarea
-                                className='w-full h-40 p-2 border border-gray-200 rounded-md text-sm'
+                                className='w-full h-40 p-2 border border-border rounded-md text-sm'
                                 placeholder='Add your notes here...'
                             ></textarea>
                             <div className='flex justify-end mt-2'>
@@ -583,14 +581,12 @@ const VideoContent = ({
                         value='download'
                         className='p-4 m-0 data-[state=active]:border-0'
                     >
-                        <div className='border border-gray-200 rounded-md p-4 flex items-center justify-between'>
+                        <div className='border border-border rounded-md p-4 flex items-center justify-between'>
                             <div>
                                 <h3 className='font-medium'>
                                     Automation Fundamentals.mp4
                                 </h3>
-                                <p className='text-sm text-gray-500'>
-                                    720p, 45MB
-                                </p>
+                                <p className='text-sm text-gray'>720p, 45MB</p>
                             </div>
                             <Button className='bg-blue-600 hover:bg-blue-700'>
                                 <Download className='h-4 w-4 mr-2' />
@@ -604,7 +600,7 @@ const VideoContent = ({
                         className='p-4 m-0 data-[state=active]:border-0'
                     >
                         <div className='flex items-center gap-4 mb-4'>
-                            <div className='text-4xl font-bold text-gray-900'>
+                            <div className='text-4xl font-bold text-black'>
                                 4.8
                             </div>
                             <div className='flex-1'>
@@ -615,7 +611,7 @@ const VideoContent = ({
                                             className={`h-5 w-5 ${star <= 4 ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
                                         />
                                     ))}
-                                    <span className='ml-2 text-sm text-gray-500'>
+                                    <span className='ml-2 text-sm text-gray'>
                                         (128 ratings)
                                     </span>
                                 </div>

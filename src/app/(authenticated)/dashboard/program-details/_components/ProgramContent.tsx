@@ -1,19 +1,12 @@
 import { ICourseData, TContent, TLessonInfo } from '@/types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ProgramSidebar } from './ProgramSidebar';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
-import {
-    Search,
-    PanelLeft,
-    PanelLeftClose,
-    SlidersHorizontal,
-} from 'lucide-react';
+import { Search, PanelLeft, PanelLeftClose } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
-import { ModuleList } from './ModuleList';
 import ContentDropDown from './ContentDropDown';
 import VideoContent from './VideoContent';
 import FilterProgram from './FilterProgram';
@@ -60,8 +53,14 @@ const ProgramContent = ({
         setSidebarOpen(!sidebarOpen);
     };
 
+    useEffect(() => {
+        if (videoData?.isSideOpen) {
+            setSidebarOpen(false);
+        }
+    }, [videoData?.isSideOpen]);
+
     return (
-        <div className='p-2 flex relative'>
+        <div className='p-2 flex relative bg-foreground'>
             {/* Desktop Sidebar */}
             <div
                 className={cn(
@@ -153,7 +152,7 @@ const ProgramContent = ({
                             <Input
                                 onChange={(e) => setSearchInput(e.target.value)}
                                 placeholder='Search chapter & modules...'
-                                className='pl-9 w-[300px] border-border rounded-lg text-dark-gray placeholder:text-dark-gray'
+                                className='pl-9 w-[300px] border-border rounded-lg text-dark-gray placeholder:text-dark-gray bg-foreground'
                             />
                         </div>
                         <FilterProgram
@@ -165,7 +164,7 @@ const ProgramContent = ({
                 </div>
 
                 <div
-                    className={`mt-common ${videoData?.isSideOpen ? 'relative grid grid-cols-2 gap-common' : 'block'} `}
+                    className={`mt-common ${videoData?.isSideOpen ? 'relative grid grid-cols-2 lg:grid-cols-3 gap-common' : 'block'} `}
                 >
                     <VideoContent videoData={videoData} />
                     {option?.courseProgramsLoading && parentId === null ? (
@@ -194,7 +193,6 @@ const ProgramContent = ({
                             option={option}
                             setVideoData={setVideoData}
                             videoData={videoData}
-                            toggleSidebar={toggleSidebar}
                         />
                     )}
                 </div>

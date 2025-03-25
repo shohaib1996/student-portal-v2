@@ -66,7 +66,6 @@ interface Module {
 }
 
 export default function ProgramDetailsComp({ slug }: { slug: string }) {
-    const pathname = usePathname();
     const router = useRouter();
 
     // Fetch program and course data
@@ -117,7 +116,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                 setFetchedData((prev) => {
                     if (!prev) {
                         return res.chapters;
-                    } // Initial data load
+                    }
                     return mergeChapters(prev, parent, res.chapters);
                 });
             } else {
