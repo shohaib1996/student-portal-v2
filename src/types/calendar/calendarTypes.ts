@@ -197,6 +197,7 @@ export type TEvent = {
         status: 'accepted' | 'pending' | 'denied' | 'canceled'; // Add more statuses if applicable
         _id?: string;
     };
+    attendeeCount?: number;
 };
 
 export type TInterval = {
