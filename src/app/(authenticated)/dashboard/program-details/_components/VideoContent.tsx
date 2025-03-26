@@ -16,10 +16,17 @@ const VideoContent = ({
     };
 }) => {
     if (!videoData || (!videoData?.videoInfo && videoData?.isSideOpen)) {
-        return <div>Loading...</div>; // Return loading if videoInfo is null or videoData is not provided
+        return <div>Loading...</div>;
     }
 
-    const [activeResourceTab, setActiveResourceTab] = useState('summary');
+    const tabData = videoData?.videoInfo?.data;
+    const tabs = tabData
+        ? Object.entries(tabData)?.map(([key, value]) => ({
+              title: key,
+              label: key.charAt(0).toUpperCase() + key.slice(1),
+              data: value,
+          }))
+        : [];
 
     return (
         <div
@@ -218,325 +225,98 @@ const VideoContent = ({
                                         Resources
                                     </h2>
                                 </div>
-                                <div className=''>
-                                    <div className='flex border-b border-border overflow-hidden'>
-                                        <button
-                                            className={cn(
-                                                'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
-                                                activeResourceTab === 'summary'
-                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
-                                                    : 'text-gray hover:text-dark-gray',
-                                            )}
-                                            onClick={() =>
-                                                setActiveResourceTab('summary')
-                                            }
-                                        >
-                                            <svg
-                                                width='16'
-                                                height='16'
-                                                viewBox='0 0 24 24'
-                                                fill='none'
-                                                xmlns='http://www.w3.org/2000/svg'
-                                                className={
-                                                    activeResourceTab ===
-                                                    'summary'
-                                                        ? 'text-primary-white'
-                                                        : 'text-gray'
-                                                }
+                                <Tabs defaultValue='summary' className=''>
+                                    <TabsList className='bg-foreground p-1 rounded-full gap-2 flex-wrap'>
+                                        {tabs?.map((tab) => (
+                                            <TabsTrigger
+                                                key={tab.title}
+                                                value={tab.title}
+                                                className={cn(
+                                                    'rounded-full data-[state=active]:bg-primary-light data-[state=active]:text-white text-sm font-medium',
+                                                    'data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-border-primary-light',
+                                                    'text-gray hover:text-dark-gray',
+                                                )}
                                             >
-                                                <path
-                                                    d='M4 6H20M4 10H20M4 14H20M4 18H12'
-                                                    stroke='currentColor'
-                                                    strokeWidth='2'
-                                                    strokeLinecap='round'
-                                                    strokeLinejoin='round'
-                                                />
-                                            </svg>
-                                            Summary
-                                        </button>
-                                        <button
-                                            className={cn(
-                                                'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
-                                                activeResourceTab ===
-                                                    'assessments'
-                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
-                                                    : 'text-gray hover:text-dark-gray',
-                                            )}
-                                            onClick={() =>
-                                                setActiveResourceTab(
-                                                    'assessments',
-                                                )
-                                            }
-                                        >
-                                            <svg
-                                                width='16'
-                                                height='16'
-                                                viewBox='0 0 24 24'
-                                                fill='none'
-                                                xmlns='http://www.w3.org/2000/svg'
-                                                className={
-                                                    activeResourceTab ===
-                                                    'assessments'
-                                                        ? 'text-primary-white'
-                                                        : 'text-gray'
-                                                }
-                                            >
-                                                <path
-                                                    d='M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5M12 12H15M12 16H15M9 12H9.01M9 16H9.01'
-                                                    stroke='currentColor'
-                                                    strokeWidth='2'
-                                                    strokeLinecap='round'
-                                                />
-                                            </svg>
-                                            Assessments
-                                        </button>
-                                        <button
-                                            className={cn(
-                                                'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
-                                                activeResourceTab ===
-                                                    'interview'
-                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
-                                                    : 'text-gray hover:text-dark-gray',
-                                            )}
-                                            onClick={() =>
-                                                setActiveResourceTab(
-                                                    'interview',
-                                                )
-                                            }
-                                        >
-                                            <svg
-                                                width='16'
-                                                height='16'
-                                                viewBox='0 0 24 24'
-                                                fill='none'
-                                                xmlns='http://www.w3.org/2000/svg'
-                                                className={
-                                                    activeResourceTab ===
-                                                    'interview'
-                                                        ? 'text-primary-white'
-                                                        : 'text-gray'
-                                                }
-                                            >
-                                                <path
-                                                    d='M8 9H16M8 13H14M8 17H11M13 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V9L13 2Z'
-                                                    stroke='currentColor'
-                                                    strokeWidth='2'
-                                                    strokeLinecap='round'
-                                                    strokeLinejoin='round'
-                                                />
-                                            </svg>
-                                            Interview
-                                        </button>
-                                        <button
-                                            className={cn(
-                                                'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
-                                                activeResourceTab ===
-                                                    'behavioral'
-                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
-                                                    : 'text-gray hover:text-dark-gray',
-                                            )}
-                                            onClick={() =>
-                                                setActiveResourceTab(
-                                                    'behavioral',
-                                                )
-                                            }
-                                        >
-                                            <svg
-                                                width='16'
-                                                height='16'
-                                                viewBox='0 0 24 24'
-                                                fill='none'
-                                                xmlns='http://www.w3.org/2000/svg'
-                                                className={
-                                                    activeResourceTab ===
-                                                    'behavioral'
-                                                        ? 'text-primary-white'
-                                                        : 'text-gray'
-                                                }
-                                            >
-                                                <path
-                                                    d='M9 6L20 6M9 12H20M9 18H20M5 6V6.01M5 12V12.01M5 18V18.01'
-                                                    stroke='currentColor'
-                                                    strokeWidth='2'
-                                                    strokeLinecap='round'
-                                                    strokeLinejoin='round'
-                                                />
-                                            </svg>
-                                            Behavioral
-                                        </button>
-                                        <button
-                                            className={cn(
-                                                'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
-                                                activeResourceTab === 'analytic'
-                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
-                                                    : 'text-gray hover:text-dark-gray',
-                                            )}
-                                            onClick={() =>
-                                                setActiveResourceTab('analytic')
-                                            }
-                                        >
-                                            <svg
-                                                width='16'
-                                                height='16'
-                                                viewBox='0 0 24 24'
-                                                fill='none'
-                                                xmlns='http://www.w3.org/2000/svg'
-                                                className={
-                                                    activeResourceTab ===
-                                                    'analytic'
-                                                        ? 'text-primary-white'
-                                                        : 'text-gray'
-                                                }
-                                            >
-                                                <path
-                                                    d='M16 8V16M12 11V16M8 14V16M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z'
-                                                    stroke='currentColor'
-                                                    strokeWidth='2'
-                                                    strokeLinecap='round'
-                                                    strokeLinejoin='round'
-                                                />
-                                            </svg>
-                                            Analytic
-                                        </button>
-                                        <button
-                                            className={cn(
-                                                'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
-                                                activeResourceTab === 'labs'
-                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
-                                                    : 'text-gray hover:text-dark-gray',
-                                            )}
-                                            onClick={() =>
-                                                setActiveResourceTab('labs')
-                                            }
-                                        >
-                                            <svg
-                                                width='16'
-                                                height='16'
-                                                viewBox='0 0 24 24'
-                                                fill='none'
-                                                xmlns='http://www.w3.org/2000/svg'
-                                                className={
-                                                    activeResourceTab === 'labs'
-                                                        ? 'text-primary-white'
-                                                        : 'text-gray'
-                                                }
-                                            >
-                                                <path
-                                                    d='M19.7778 17.5H4.22222L12 4.5L19.7778 17.5Z'
-                                                    stroke='currentColor'
-                                                    strokeWidth='2'
-                                                    strokeLinecap='round'
-                                                    strokeLinejoin='round'
-                                                />
-                                                <path
-                                                    d='M9.5 10.5L12 15.5L14.5 10.5'
-                                                    stroke='currentColor'
-                                                    strokeWidth='2'
-                                                    strokeLinecap='round'
-                                                    strokeLinejoin='round'
-                                                />
-                                            </svg>
-                                            Labs
-                                        </button>
-                                        <button
-                                            className={cn(
-                                                'px-2 py-2 text-sm font-medium whitespace-nowrap flex items-center gap-1',
-                                                activeResourceTab ===
-                                                    'presentations'
-                                                    ? 'text-primary-white border-b-2 border-border-primary-light'
-                                                    : 'text-gray hover:text-dark-gray',
-                                            )}
-                                            onClick={() =>
-                                                setActiveResourceTab(
-                                                    'presentations',
-                                                )
-                                            }
-                                        >
-                                            <svg
-                                                width='16'
-                                                height='16'
-                                                viewBox='0 0 24 24'
-                                                fill='none'
-                                                xmlns='http://www.w3.org/2000/svg'
-                                                className={
-                                                    activeResourceTab ===
-                                                    'presentations'
-                                                        ? 'text-primary-white'
-                                                        : 'text-gray'
-                                                }
-                                            >
-                                                <path
-                                                    d='M8 13V17M16 11V17M12 7V17M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z'
-                                                    stroke='currentColor'
-                                                    strokeWidth='2'
-                                                    strokeLinecap='round'
-                                                    strokeLinejoin='round'
-                                                />
-                                            </svg>
-                                            Presentations
-                                        </button>
-                                    </div>
+                                                {/* SVG for Summary */}
+                                                {tab.title === 'summary' && (
+                                                    <svg
+                                                        width='16'
+                                                        height='16'
+                                                        viewBox='0 0 24 24'
+                                                        fill='none'
+                                                        xmlns='http://www.w3.org/2000/svg'
+                                                        className='data-[state=active]:text-primary-white text-gray'
+                                                    >
+                                                        <path
+                                                            d='M4 6H20M4 10H20M4 14H20M4 18H12'
+                                                            stroke='currentColor'
+                                                            strokeWidth='2'
+                                                            strokeLinecap='round'
+                                                            strokeLinejoin='round'
+                                                        />
+                                                    </svg>
+                                                )}
+                                                {tab.title === 'interview' && (
+                                                    <svg
+                                                        width='16'
+                                                        height='16'
+                                                        viewBox='0 0 24 24'
+                                                        fill='none'
+                                                        xmlns='http://www.w3.org/2000/svg'
+                                                        className='data-[state=active]:text-primary-white text-gray'
+                                                    >
+                                                        <path
+                                                            d='M8 9H16M8 13H14M8 17H11M13 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V9L13 2Z'
+                                                            stroke='currentColor'
+                                                            strokeWidth='2'
+                                                            strokeLinecap='round'
+                                                            strokeLinejoin='round'
+                                                        />
+                                                    </svg>
+                                                )}
+                                                {tab.title === 'behavioral' && (
+                                                    <svg
+                                                        width='16'
+                                                        height='16'
+                                                        viewBox='0 0 24 24'
+                                                        fill='none'
+                                                        xmlns='http://www.w3.org/2000/svg'
+                                                        className='data-[state=active]:text-primary-white text-gray'
+                                                    >
+                                                        <path
+                                                            d='M9 6L20 6M9 12H20M9 18H20M5 6V6.01M5 12V12.01M5 18V18.01'
+                                                            stroke='currentColor'
+                                                            strokeWidth='2'
+                                                            strokeLinecap='round'
+                                                            strokeLinejoin='round'
+                                                        />
+                                                    </svg>
+                                                )}
+                                                <span>{tab.label}</span>
+                                            </TabsTrigger>
+                                        ))}
+                                    </TabsList>
 
-                                    {activeResourceTab === 'summary' && (
-                                        <div className='py-2px-2'>
-                                            <h3 className='font-medium mb-2'>
-                                                What you&apos;re going to get
-                                                from this course
-                                            </h3>
-                                            <ul className='text-sm text-dark-gray space-y-2 pl-5 list-disc'>
-                                                <li>
-                                                    Understand the core
-                                                    principles of automation
-                                                    technology
-                                                </li>
-                                                <li>
-                                                    Learn how to implement
-                                                    automation in various
-                                                    business processes
-                                                </li>
-                                                <li>
-                                                    Develop skills to analyze
-                                                    and optimize automation
-                                                    workflows
-                                                </li>
-                                                <li>
-                                                    Apply automation concepts to
-                                                    real-world scenarios
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    )}
-
-                                    {activeResourceTab === 'interview' &&
-                                        videoData?.videoInfo?.data
-                                            ?.interview && (
-                                            <div className='py-2px-2'>
-                                                <p className='whitespace-pre-line text-sm font-semibold text-gray'>
-                                                    {
-                                                        videoData?.videoInfo
-                                                            ?.data?.interview
-                                                    }
-                                                </p>
-                                            </div>
-                                        )}
-
-                                    {activeResourceTab === 'behavioral' &&
-                                        videoData?.videoInfo?.data
-                                            ?.behavioral && (
-                                            <div className='py-2px-2'>
-                                                <p className='whitespace-pre-line text-sm font-semibold text-gray'>
-                                                    {
-                                                        videoData?.videoInfo
-                                                            ?.data?.behavioral
-                                                    }
-                                                </p>
-                                            </div>
-                                        )}
-                                </div>
+                                    {tabs?.map((tab) => (
+                                        <TabsContent
+                                            key={tab.title}
+                                            value={tab.title}
+                                            className='mt-0'
+                                        >
+                                            {tab.data && (
+                                                <div className='py-2 px-2'>
+                                                    <p className='whitespace-pre-line text-sm font-semibold text-gray'>
+                                                        {tab.data}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </TabsContent>
+                                    ))}
+                                </Tabs>
                             </div>
 
                             {/* Comments Section */}
-                            <div>
+                            {/* <div>
                                 <div className='flex items-center gap-2 mb-2'>
                                     <svg
                                         width='16'
@@ -556,7 +336,7 @@ const VideoContent = ({
                                     </svg>
                                     <GlobalCommentsSection />
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </TabsContent>
 

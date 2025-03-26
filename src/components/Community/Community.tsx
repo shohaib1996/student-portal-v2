@@ -323,9 +323,9 @@ const Community = () => {
                     )}
                 </div>
 
-                <div className='hidden flex-1 flex-col md:flex'>
+                <div className='hidden flex-1 flex-col lg:flex'>
                     <div className='no-scrollbar sticky top-0 h-screen overflow-y-auto'>
-                        <UpcomingEvents />
+                        {/* <UpcomingEvents /> */}
                         <TopContributors setUser={setUser} />
                     </div>
                 </div>

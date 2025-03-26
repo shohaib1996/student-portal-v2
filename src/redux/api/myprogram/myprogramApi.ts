@@ -27,6 +27,12 @@ const myProgram = baseApi.injectEndpoints({
                 method: 'GET',
             }),
         }),
+        getLeaderboard: build.query({
+            query: () => ({
+                url: '/progress/leaderboard',
+                method: 'GET',
+            }),
+        }),
     }),
 
     overrideExisting: false,
@@ -37,4 +43,5 @@ export const {
     useGetAgreementQuery,
     useGetMyTermQuery,
     useGetMyProgressQuery,
+    useGetLeaderboardQuery,
 } = myProgram;

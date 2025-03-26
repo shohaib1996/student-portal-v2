@@ -241,7 +241,7 @@ const ContentDropDown = ({
                             }`}
                             onClick={() => setParentId(item._id)}
                         >
-                            <div className='flex items-center justify-between w-full p-2'>
+                            <div className='flex items-center justify-between w-full p-2 flex-wrap'>
                                 <div className='flex items-center gap-3'>
                                     <div className='bg-primary-light mr-1.5 p-1.5 rounded-md'>
                                         {parentId ? (
@@ -255,7 +255,7 @@ const ContentDropDown = ({
                                             {item.chapter.name}
                                         </h3>
                                         <div className='flex items-center gap-4 text-sm text-gray'>
-                                            <span className='flex items-center gap-1'>
+                                            <span className='flex items-center gap-1 text-sm text-nowrap'>
                                                 <svg
                                                     xmlns='http://www.w3.org/2000/svg'
                                                     width='14'
@@ -270,7 +270,7 @@ const ContentDropDown = ({
                                                 </svg>
                                                 {lectures} lectures
                                             </span>
-                                            <span className='flex items-center gap-1'>
+                                            <span className='flex items-center gap-1 text-sm text-nowrap'>
                                                 <svg
                                                     xmlns='http://www.w3.org/2000/svg'
                                                     width='12'
@@ -303,7 +303,7 @@ const ContentDropDown = ({
                                         <div className='flex items-center justify-between mb-1 gap-1.5'>
                                             <Progress
                                                 value={progress}
-                                                className='h-2.5'
+                                                className='h-2.5 bg-primary-light'
                                                 indicatorClass='bg-primary rounded-full'
                                             />
                                             <span className='text-xs text-black'>

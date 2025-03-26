@@ -10,42 +10,69 @@ import { TechnicalTestChart } from './TechnicalTestChat';
 import { MockInterviewChart } from './MockInterviewChart';
 import Link from 'next/link';
 import { Progress } from '@/components/ui/progress';
+import {
+    useGetLeaderboardQuery,
+    useGetMyProgressQuery,
+    useMyProgramQuery,
+} from '@/redux/api/myprogram/myprogramApi';
+import { TProgram, TProgressChart } from '@/types';
+import dayjs from 'dayjs';
 
 type Status = 'approved' | 'pending' | 'cancelled';
 
-const program = {
-    id: '1',
-    title: 'AWS DevOps And CloudOps Engineer',
-    image: '/switchprogram.jpg',
-    rating: 5.0,
-    status: 'approved' as Status,
-    user: {
-        name: 'John Doe',
-        avatar: '/avatar.png',
-        online: true,
-    },
-    organization: 'Org With Logo',
-    branch: 'TS4U IT Engineer Bootcamps',
-    date: 'Dec-2023',
-    payment: {
-        totalFee: 12000,
-        paid: 4000,
-        due: 8000,
-    },
-    progress: 65,
-    switched: false,
-};
-
-const userProgress = {
-    name: 'Vivienne Westwood',
-    avatar: '/avatar.png',
-    rank: 20,
-    score: 543,
-    improvement: 45,
-};
-
 const ProgressComp = () => {
     const router = useRouter();
+    const { data, isLoading, isError, error } = useGetLeaderboardQuery({});
+    const {
+        data: myProgram,
+        isLoading: isProgramLoading,
+        isError: myProgramError,
+    } = useMyProgramQuery({});
+
+    const {
+        data: myProgress,
+        isLoading: isProgressLoading,
+        isError: isProgressError,
+    } = useGetMyProgressQuery<{
+        data: TProgressChart;
+        isLoading: boolean;
+        isError: boolean;
+    }>({});
+
+    const programData: TProgram = myProgram?.program;
+
+    const program = {
+        id: '1',
+        title: programData?.title,
+        image: programData?.image,
+        rating: 5.0,
+        status: 'approved' as Status,
+        user: {
+            name: programData?.instructor?.name,
+            avatar: programData?.instructor?.image,
+            online: programData?.instructor?.isActive,
+        },
+        organization: 'N/A',
+        branch: 'TS4U IT Engineer Bootcamps',
+        date: dayjs(programData?.createdAt).format('MMM-YYYY'),
+        payment: {
+            totalFee: 0,
+            paid: 0,
+            due: 0,
+        },
+        progress: 0,
+        switched: true,
+    };
+
+    // User progress data
+    const userProgress = {
+        name: 'N/A',
+        avatar: '/placeholder.svg?height=40&width=40',
+        rank: data?.myData?.rank,
+        score: myProgress?.metrics?.totalObtainedMark,
+        improvement: myProgress?.metrics?.overallPercentageAllItems,
+    };
+
     return (
         <>
             <GlobalHeader
