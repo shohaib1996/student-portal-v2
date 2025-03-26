@@ -139,12 +139,14 @@ interface EventPopoverTriggerProps {
     children: ReactNode;
     side?: Side;
     updateId?: string | null;
+    className?: string;
 }
 
 export function EventPopoverTrigger({
     children,
     side = 'bottom',
     updateId,
+    className,
 }: EventPopoverTriggerProps) {
     const triggerRef = useRef<HTMLDivElement>(null);
     const { openPopover, closePopover, isOpen, setUpdateId, setIsFullScreen } =
@@ -166,7 +168,11 @@ export function EventPopoverTrigger({
     };
 
     return (
-        <div ref={triggerRef} onClick={handleClick} className='inline-block'>
+        <div
+            ref={triggerRef}
+            onClick={handleClick}
+            className={cn(`inline-block`, className)}
+        >
             {children}
         </div>
     );

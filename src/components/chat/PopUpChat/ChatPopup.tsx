@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useCallback, Suspense, useEffect } from 'react';
-import { MessageCircle, MessageCircleMore } from 'lucide-react';
+import type React from 'react';
+import { useState, useCallback, Suspense, useEffect, useRef } from 'react';
+import { MessageCircleMore } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-// Import our new context
+// Import our context
 import { useChatModals } from './ChatModalsContext';
 import ChatListModal from './ChatListModal';
 import ChatConversationModal from './ChatConversationModal';
@@ -23,6 +24,13 @@ const ChatPopup = () => {
     const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
 
+    // State for button position
+    const [buttonPosition, setButtonPosition] = useState({
+        y: window.innerHeight - 100,
+    });
+    const [isDragging, setIsDragging] = useState(false);
+    const buttonRef = useRef<HTMLDivElement>(null);
+
     // Check for unread messages
     useEffect(() => {
         // Check if there are any chats with unread messages
@@ -31,7 +39,7 @@ const ChatPopup = () => {
             0,
         );
         setHasUnreadMessages(unreadCount > 0);
-    }, []);
+    }, [chats]);
 
     // Toggle chat list
     const toggleChatList = useCallback(() => {
@@ -42,12 +50,62 @@ const ChatPopup = () => {
         }
     }, [isListOpen, openListModal, closeListModal]);
 
+    // Handle drag start
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+        // Only start dragging if it's not a button click
+        if (
+            e.target === buttonRef.current ||
+            buttonRef.current?.contains(e.target as Node)
+        ) {
+            setIsDragging(true);
+            // Prevent text selection during drag
+            e.preventDefault();
+        }
+    }, []);
+
+    // Handle dragging
+    const handleMouseMove = useCallback(
+        (e: MouseEvent) => {
+            if (isDragging) {
+                // Update position, keeping the button on the right side
+                const newY = Math.max(
+                    20,
+                    Math.min(window.innerHeight - 80, e.clientY),
+                );
+                setButtonPosition({ y: newY });
+            }
+        },
+        [isDragging],
+    );
+
+    // Handle drag end
+    const handleMouseUp = useCallback(() => {
+        setIsDragging(false);
+    }, []);
+
+    // Add and remove event listeners
+    useEffect(() => {
+        if (isDragging) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging, handleMouseMove, handleMouseUp]);
+
     return (
         <>
-            {/* Chat button */}
-            <div className='fixed bottom-4 right-4 z-50 hidden lg:block'>
+            {/* Draggable Chat button */}
+            <div
+                ref={buttonRef}
+                className={`fixed right-4 z-50 hidden lg:block cursor-${isDragging ? 'grabbing' : 'grab'}`}
+                style={{ top: `${buttonPosition.y}px` }}
+                onMouseDown={handleMouseDown}
+            >
                 <Button
-                    tooltip='Chat Head'
                     onClick={toggleChatList}
                     className='rounded-full h-12 w-12 p-2 shadow-[0px_2px_20px_0px_rgba(0,0,0,0.50)] relative hover:bg-primary hover:text-pure-white'
                 >

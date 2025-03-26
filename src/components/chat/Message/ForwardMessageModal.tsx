@@ -20,6 +20,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { useDispatch } from 'react-redux';
 import { updateLatestMessage, pushMessage } from '@/redux/features/chatReducer';
 import { socket } from '@/helper/socketManager';
+import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
 
 interface ForwardMessageModalProps {
     isOpen: boolean;
@@ -245,15 +246,16 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className='sm:max-w-md gap-2'>
-                <DialogHeader>
-                    <DialogTitle>Forward To</DialogTitle>
-                </DialogHeader>
-
+        <GlobalDialog
+            open={isOpen}
+            setOpen={onClose}
+            allowFullScreen={false}
+            title='Forward To'
+            className='!max-w-[500px]'
+        >
+            <div className='space-y-2'>
                 {/* Message preview */}
                 {renderMessagePreview()}
-
                 {/* Selected chats */}
                 {selectedChats.length > 0 && (
                     <div className='flex flex-wrap gap-1 max-h-[100px] overflow-y-auto'>
@@ -301,7 +303,6 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                         ))}
                     </div>
                 )}
-
                 {/* Forward button */}
                 <Button
                     className='w-full'
@@ -319,7 +320,6 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                         </>
                     )}
                 </Button>
-
                 {/* Search input */}
                 <div className='border-t pt-2'>
                     <div className='relative '>
@@ -332,7 +332,6 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                         />
                     </div>
                 </div>
-
                 {/* Chats list */}
                 <div className='max-h-60 overflow-y-auto'>
                     {loading ? (
@@ -428,8 +427,8 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                         })
                     )}
                 </div>
-            </DialogContent>
-        </Dialog>
+            </div>
+        </GlobalDialog>
     );
 };
 

@@ -3,7 +3,15 @@
 import type React from 'react';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import WaveSurfer from 'wavesurfer.js';
-import { Play, Pause, Square, Trash, Send, Mic } from 'lucide-react';
+import {
+    Play,
+    Pause,
+    Square,
+    Trash,
+    Send,
+    Mic,
+    CircleStop,
+} from 'lucide-react';
 import { Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -191,22 +199,21 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
 
     return (
         <div className='flex w-full items-center justify-center gap-2.5'>
+            {/* Recording indicator with pink pulse animation */}
             {isRecording && (
-                <div className='min-w-[150px]'>
-                    <span className={`${isRecording ? 'animate-pulse' : ''}`}>
-                        {isRecording ? `Recording ${recordingDuration}s` : ''}
-                    </span>
+                <div className='min-w-[150px] flex items-center gap-2'>
+                    <div className='h-3 w-3 relative flex items-center justify-center'>
+                        <div className='h-3 w-3 rounded-full bg-danger'></div>
+                        <div className='h-3 w-3 rounded-full bg-danger animate-ping absolute top-0.4 left-0.4'></div>
+                    </div>
+                    <span>{`Recording ${recordingDuration}s`}</span>
                 </div>
             )}
 
-            {/* Waveform container */}
-            <div
-                className={`w-full flex items-center justify-between gap-2.5 rounded-2xl p-2.5 ${isRecording ? 'invisible' : 'visible'}`}
-            >
+            {/* Waveform container - Visible at all times */}
+            <div className='w-full flex items-center justify-between gap-2 rounded-2xl'>
                 {/* Current playback time */}
-                <div
-                    className={`text-xs text-gray flex gap-1.5 items-center ${isRecording ? 'invisible' : 'visible'}`}
-                >
+                <div className='text-xs text-gray flex gap-1.5 items-center'>
                     {recordedAudio &&
                         !isRecording &&
                         (isPlaying ? (
@@ -226,21 +233,20 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
                                 <span className='sr-only'>Play</span>
                             </button>
                         ))}
-                    {recordedAudio && formatTime(currentPlaybackTime)}
+                    {recordedAudio &&
+                        !isRecording &&
+                        formatTime(currentPlaybackTime)}
                 </div>
 
                 <div
                     ref={waveFormRef}
-                    className='w-full bg=primary-light rounded-full border-blue-700/20 px-4 py-2'
-                    hidden={isRecording}
+                    className='w-full bg-background rounded-full px-4 py-2'
                 ></div>
 
                 {/* Total duration */}
-                <div
-                    className={`text-xs text-gray flex gap-1.5 items-center ${isRecording ? 'invisible' : 'visible'}`}
-                >
-                    {recordedAudio && formatTime(totalDuration)}
-                    {!isRecording && (
+                <div className='text-xs text-gray flex gap-1.5 items-center'>
+                    {recordedAudio && !isRecording && formatTime(totalDuration)}
+                    {!isRecording && recordedAudio && (
                         <Button
                             onClick={() => setIsRecorderVisible(false)}
                             className='text-danger bg-red-500/10 rounded-full h-9 w-9 transition-colors'
@@ -252,7 +258,7 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
                 </div>
             </div>
 
-            <audio ref={audioRef} hidden />
+            <audio ref={audioRef} />
 
             <div className='flex gap-2.5 items-center justify-between'>
                 {!isRecording ? (
@@ -268,32 +274,33 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
                         {recordedAudio &&
                             !isRecording &&
                             (isSendingAudio ? (
-                                <div className='p-2 rounded-full bg-primary'>
+                                <div className='p-2 rounded-full h-10 w-10 min-w-10 bg-primary'>
                                     <Loader
                                         size={20}
                                         className='text-white animate-spin'
                                     />
                                 </div>
                             ) : (
-                                <button
-                                    className='p-2 rounded-full bg-primary hover:bg-primary/90 transition-colors'
+                                <Button
+                                    className='rounded-full h-10 w-10 min-w-10'
                                     onClick={sendRecording}
                                 >
-                                    <Send size={16} className='text-white' />
+                                    <Send size={16} />
                                     <span className='sr-only'>
                                         Send recording
                                     </span>
-                                </button>
+                                </Button>
                             ))}
                     </>
                 ) : (
-                    <button
-                        className='text-green-500 hover:text-green-600 transition-colors'
+                    <Button
+                        variant={'destructive'}
+                        className='rounded-full bg-red-500/10 hover:bg-red-500/20 text-danger h-10 w-10 min-w-10'
                         onClick={handleStopRecording}
                     >
-                        <Square size={20} />
+                        <CircleStop size={22} />
                         <span className='sr-only'>Stop recording</span>
-                    </button>
+                    </Button>
                 )}
             </div>
         </div>

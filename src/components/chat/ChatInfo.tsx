@@ -171,7 +171,7 @@ const ImageUploader = ({
                                     alt='Preview'
                                     className='absolute inset-0 w-full h-full object-cover z-0'
                                 />
-                                <div className='absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-10'>
+                                <div className='absolute inset-0 bg-pure-black/50 flex flex-col items-center justify-center z-10'>
                                     <Camera className='h-6 w-6 text-white mb-1' />
                                     <p className='text-white text-xs font-medium'>
                                         <span className='text-white underline'>
@@ -766,7 +766,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
 
     return (
         <>
-            <div className='flex flex-col h-full border-l border bg-background'>
+            <div className='flex flex-col h-full border-l border bg-foreground shadow-xl'>
                 <div className='flex items-center justify-between p-2 border-b border'>
                     <h1 className='text-xl font-semibold text-dark-gray'>
                         Chat Info
@@ -779,7 +779,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                 <TabsList className='w-full bg-transparent overflow-x-auto [&::-webkit-scrollbar]:h-[3px] overflow-y-hidden'>
                                     <TabsTrigger
                                         value='about'
-                                        className='flex-1 bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:text-blue-600'
+                                        className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
                                     >
                                         <Info size={16} className='mr-1' />
                                         About
@@ -787,7 +787,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                     {chat?.isChannel && (
                                         <TabsTrigger
                                             value='members'
-                                            className='flex-1 bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:text-blue-600'
+                                            className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
                                         >
                                             <Users size={16} className='mr-1' />
                                             Members ({chat?.membersCount || 0})
@@ -795,21 +795,21 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                     )}
                                     <TabsTrigger
                                         value='images'
-                                        className='flex-1 bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:text-blue-600'
+                                        className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
                                     >
                                         <FileImage size={16} className='mr-1' />
                                         Images ({chat?.imagesCount || 0})
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value='voice'
-                                        className='flex-1 bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:text-blue-600'
+                                        className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
                                     >
                                         <Mic size={16} className='mr-1' />
                                         Voice ({chat?.voiceCount || 0})
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value='file'
-                                        className='flex-1 bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:text-blue-600'
+                                        className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
                                     >
                                         <FolderOpenDot
                                             size={16}
@@ -819,7 +819,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value='link'
-                                        className='flex-1 bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:text-blue-600'
+                                        className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
                                     >
                                         <FolderOpenDot
                                             size={16}
@@ -1129,7 +1129,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className='description flex flex-col gap-1 bg-foreground border rounded-md p-2 w-full'>
+                                        <div className='description flex flex-col gap-1 bg-background border rounded-md p-2 w-full'>
                                             <div className='flex flex-row items-center justify-between'>
                                                 <p className='text-sm text-dark-gray font-semibold'>
                                                     Description
@@ -1264,7 +1264,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                             {/* User details for direct messages */}
                                             {!chat?.isChannel &&
                                                 chat?.otherUser && (
-                                                    <div className='space-y-2 border-t border pt-4'>
+                                                    <div className='space-y-2 border-t border p-2 rounded-lg bg-foreground'>
                                                         <h2 className='font-medium text-gray text-xs'>
                                                             About{' '}
                                                             {
@@ -1307,7 +1307,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                                     )
                                                 }
                                                 variant={'secondary'}
-                                                className='text-start text-gray'
+                                                className='text-start text-gray bg-background'
                                             >
                                                 {!copied
                                                     ? 'Copy invitation link'
@@ -1317,7 +1317,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                                 onClick={handleArchive}
                                                 icon={<ArchiveRestore />}
                                                 variant={'secondary'}
-                                                className='text-start text-gray'
+                                                className='text-start text-gray bg-background'
                                             >
                                                 {chat?.isArchived
                                                     ? 'Retrieve Crowd'
@@ -1329,7 +1329,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                                 }
                                                 icon={<TriangleAlert />}
                                                 variant={'secondary'}
-                                                className='text-start text-gray'
+                                                className='text-start text-gray bg-background'
                                             >
                                                 Report
                                             </Button>

@@ -169,7 +169,7 @@ function CrowdSidebar() {
             <div className='pb-2 border-b'>
                 <div className='relative flex flex-row items-center gap-2'>
                     <Input
-                        className='pl-10 bg-foreground'
+                        className='pl-10 bg-background'
                         onChange={handleChangeSearch}
                         value={searchQuery}
                         type='search'

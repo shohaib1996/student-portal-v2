@@ -75,7 +75,7 @@ function FileItem({ file, index, handleRemove }: FileItemProps) {
 
     return (
         <div
-            className={`relative flex items-center p-2 rounded-md border ${file?.status === 'uploading' ? 'bg-muted/50' : 'bg-background'}`}
+            className={`relative flex items-center p-1 rounded-md border ${file?.status === 'uploading' ? 'bg-muted/50' : 'bg-background'}`}
         >
             {file?.file?.type === 'audio/mp3' || file?.type === 'audio/mp3' ? (
                 <AudioCard audioUrl={file?.url || ''} />
@@ -130,10 +130,10 @@ function FileItem({ file, index, handleRemove }: FileItemProps) {
 
             <button
                 onClick={() => handleRemove(index)}
-                className='absolute top-1 right-1 p-1 rounded-full hover:bg-muted transition-colors'
+                className='absolute bg-danger -top-1.5 -right-1.5 flex items-center justify-center h-4 w-4 rounded-full text-white transition-colors'
                 aria-label='Remove file'
             >
-                <X className='h-4 w-4 text-muted-foreground' />
+                <X size={12} />
             </button>
         </div>
     );
