@@ -420,7 +420,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                         <FormField
                             control={form.control}
                             name='recurrence'
-                            render={({ field }) => (
+                            render={({ field, formState }) => (
                                 <FormItem>
                                     <FormControl>
                                         <div>
@@ -523,8 +523,9 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                         allowDeselect={false}
                                                         className='border-none h-fit w-fit'
                                                         value={dayjs(
-                                                            field.value
-                                                                .endRecurrence,
+                                                            form.watch(
+                                                                'recurrence',
+                                                            )?.endRecurrence,
                                                         )}
                                                         onChange={(val) =>
                                                             field.onChange({
@@ -786,23 +787,35 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                                             <div
                                                                                 onClick={() => {
                                                                                     if (
-                                                                                        selected
+                                                                                        !edit ||
+                                                                                        isMyEvent ||
+                                                                                        event
+                                                                                            ?.permissions
+                                                                                            ?.inviteOthers
                                                                                     ) {
-                                                                                        field.onChange(
-                                                                                            field.value?.filter(
-                                                                                                (
-                                                                                                    u,
-                                                                                                ) =>
-                                                                                                    u._id !==
-                                                                                                    user._id,
-                                                                                            ),
-                                                                                        );
+                                                                                        if (
+                                                                                            selected
+                                                                                        ) {
+                                                                                            field.onChange(
+                                                                                                field.value?.filter(
+                                                                                                    (
+                                                                                                        u,
+                                                                                                    ) =>
+                                                                                                        u._id !==
+                                                                                                        user._id,
+                                                                                                ),
+                                                                                            );
+                                                                                        } else {
+                                                                                            field.onChange(
+                                                                                                [
+                                                                                                    ...field.value,
+                                                                                                    user,
+                                                                                                ],
+                                                                                            );
+                                                                                        }
                                                                                     } else {
-                                                                                        field.onChange(
-                                                                                            [
-                                                                                                ...field.value,
-                                                                                                user,
-                                                                                            ],
+                                                                                        toast.warning(
+                                                                                            'You do not have permission to invite users',
                                                                                         );
                                                                                     }
                                                                                 }}
@@ -864,26 +877,26 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                                                 user
                                                                             }
                                                                         />
-                                                                        <X
-                                                                            onClick={() =>
-                                                                                field.onChange(
-                                                                                    field.value?.filter(
-                                                                                        (
-                                                                                            u,
-                                                                                        ) =>
+                                                                        {(!edit ||
+                                                                            isMyEvent) && (
+                                                                            <X
+                                                                                onClick={() =>
+                                                                                    field.onChange(
+                                                                                        field.value?.filter(
                                                                                             (
-                                                                                                u as TUser
-                                                                                            )
-                                                                                                ._id !==
-                                                                                            user?._id,
-                                                                                    ),
-                                                                                )
-                                                                            }
-                                                                            className='text-danger cursor-pointer'
-                                                                            size={
-                                                                                18
-                                                                            }
-                                                                        />
+                                                                                                u,
+                                                                                            ) =>
+                                                                                                u !==
+                                                                                                user,
+                                                                                        ),
+                                                                                    )
+                                                                                }
+                                                                                className='text-danger cursor-pointer'
+                                                                                size={
+                                                                                    18
+                                                                                }
+                                                                            />
+                                                                        )}
                                                                     </div>
                                                                 );
                                                             },
@@ -973,7 +986,8 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                                                         user as TUser
                                                                                     }
                                                                                 />
-                                                                                {isMyEvent && (
+                                                                                {(!edit ||
+                                                                                    isMyEvent) && (
                                                                                     <X
                                                                                         onClick={() =>
                                                                                             field.onChange(

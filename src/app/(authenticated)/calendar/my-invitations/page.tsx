@@ -24,7 +24,7 @@ import {
     useGetMyEventsQuery,
     useUpdateInvitationMutation,
 } from '@/redux/api/calendar/calendarApi';
-import { useAppSelector } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { TUser } from '@/types/auth';
 import { TEvent } from '@/types/calendar/calendarTypes';
 import { endOfMonth, startOfMonth } from 'date-fns';
@@ -395,6 +395,8 @@ const MyInvitations = () => {
             canHide: false,
         },
     ];
+
+    const dispatch = useAppDispatch();
 
     const handleUpdateInvitation = async ({
         status,

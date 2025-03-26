@@ -20,7 +20,7 @@ import {
     EventPopoverTrigger,
     useEventPopover,
 } from './CreateEvent/EventPopover';
-import { useAppDispatch } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setCurrentDate } from '@/redux/features/calendarReducer';
 import EventButton from './EventButton';
 
@@ -30,9 +30,17 @@ interface WeekViewProps {
 }
 
 export function WeekView({ currentDate, hoursView }: WeekViewProps) {
+    const { eventFilter, todoFilter, priorityFilter, rolesFilter, typeFilter } =
+        useAppSelector((s) => s.calendar);
+
     const { data } = useGetMyEventsQuery({
-        from: startOfWeek(currentDate).toISOString(), // Start of the day (00:00:00)
-        to: endOfWeek(currentDate).toISOString(), // End of the day (23:59:59.999)
+        from: startOfWeek(currentDate).toISOString(),
+        to: endOfWeek(currentDate).toISOString(),
+        statuses: eventFilter,
+        states: todoFilter,
+        priorities: priorityFilter,
+        roles: rolesFilter,
+        type: typeFilter,
     });
     const dispatch = useAppDispatch();
     const { openPopover } = useEventPopover();

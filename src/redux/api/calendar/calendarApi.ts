@@ -293,6 +293,7 @@ const calendarApi = baseApi.injectEndpoints({
                 method: 'POST',
                 data,
             }),
+            invalidatesTags: [tagTypes.calendar],
         }),
 
         addNewSchedule: build.mutation({

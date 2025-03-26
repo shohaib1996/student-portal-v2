@@ -21,6 +21,8 @@ import {
     User,
     SendIcon,
     Send,
+    SquareChartGantt,
+    CalendarFold,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -42,6 +44,7 @@ import {
     setPriorityFilter,
     setRolesFilter,
     setTodoFilter,
+    setTypeFilter,
 } from '@/redux/features/calendarReducer';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
 import { TEvent } from '@/types/calendar/calendarTypes';
@@ -53,7 +56,7 @@ interface CalendarAccordionsProps {
     onDateSelect: (date: Date) => void;
 }
 
-const eventOptions: {
+export const eventOptions: {
     value: 'accepted' | 'pending' | 'denied' | 'finished' | 'proposedTime';
     label: string;
     icon: any;
@@ -84,7 +87,7 @@ const eventOptions: {
         icon: <FinishedIcon />,
     },
 ];
-const todoOptions: {
+export const todoOptions: {
     value: 'confirmed' | 'cancelled' | 'todo' | 'inprogress' | 'completed';
     label: string;
     icon: any;
@@ -105,7 +108,7 @@ const todoOptions: {
         icon: <DeniedIcon />,
     },
 ];
-const priorityOptions: {
+export const priorityOptions: {
     value: 'low' | 'medium' | 'high';
     label: string;
 }[] = [
@@ -123,6 +126,20 @@ const priorityOptions: {
     },
 ];
 
+export const typeOptions: {
+    value: 'event' | 'task';
+    label: string;
+}[] = [
+    {
+        value: 'event',
+        label: 'Event',
+    },
+    {
+        value: 'task',
+        label: 'Task',
+    },
+];
+
 export function CalendarSidebar({
     currentDate,
     onDateSelect,
@@ -133,6 +150,7 @@ export function CalendarSidebar({
         events2: true,
         todo: true,
         holiday: true,
+        type: true,
     });
 
     const {
@@ -141,6 +159,7 @@ export function CalendarSidebar({
         priorityFilter,
         rolesFilter,
         todoFilter,
+        typeFilter,
     } = useAppSelector((s) => s.calendar);
     const dispatch = useAppDispatch();
 
@@ -189,7 +208,7 @@ export function CalendarSidebar({
     const groupedWeekEvents = groupEventsByDay(events);
 
     const isFilterActive = useCallback(
-        (type: 'event' | 'holiday' | 'todo', value: string) => {
+        (type: 'event' | 'holiday' | 'todo' | 'type', value: string) => {
             if (type === 'event') {
                 const exist = (eventFilter as string[]).find(
                     (f) => f === value,
@@ -210,6 +229,13 @@ export function CalendarSidebar({
                 const exist = (priorityFilter as string[]).find(
                     (f) => f === value,
                 );
+                if (exist) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (type === 'type') {
+                const exist = (typeFilter as string[]).find((f) => f === value);
                 if (exist) {
                     return true;
                 } else {
@@ -619,6 +645,72 @@ export function CalendarSidebar({
                                                           item.value,
                                                       ]
                                                     : priorityFilter.filter(
+                                                          (f) =>
+                                                              f !== item.value,
+                                                      ),
+                                            ),
+                                        )
+                                    }
+                                />
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* type accordinon */}
+            <div>
+                <button
+                    onClick={() => toggleSection('type')}
+                    className='flex items-center justify-between w-full p-3 text-sm font-medium text-left'
+                >
+                    <ChevronDown
+                        className={cn(
+                            'h-4 w-4 transition-transform',
+                            expanded.type ? 'rotate-180' : '',
+                        )}
+                    />
+                    <div className='flex items-center gap-1 w-full text-dark-gray'>
+                        <CalendarFold className='text-gray' />
+                        <span className='ps-2'>Type</span>
+                        <Checkbox
+                            onClick={(e) => e.stopPropagation()}
+                            className='ms-auto'
+                            checked={typeFilter.length === 2}
+                            onCheckedChange={(val) =>
+                                dispatch(
+                                    setTypeFilter(
+                                        val === true
+                                            ? typeOptions.map((op) => op.value)
+                                            : [],
+                                    ),
+                                )
+                            }
+                        />
+                    </div>
+                </button>
+
+                {expanded.type && (
+                    <div className='p-3 pt-0 space-y-2'>
+                        {typeOptions.map((item) => (
+                            <div
+                                className='flex justify-between items-center'
+                                key={item.value}
+                            >
+                                <div className='flex gap-2 items-center text-sm text-gray'>
+                                    {item.label}
+                                </div>
+                                <Checkbox
+                                    checked={isFilterActive('type', item.value)}
+                                    onCheckedChange={(val) =>
+                                        dispatch(
+                                            setTypeFilter(
+                                                val === true
+                                                    ? [
+                                                          ...typeFilter,
+                                                          item.value,
+                                                      ]
+                                                    : typeFilter.filter(
                                                           (f) =>
                                                               f !== item.value,
                                                       ),
