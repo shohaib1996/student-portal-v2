@@ -7,7 +7,8 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useGetMySingleDocumentQuery } from '@/redux/api/documents/documentsApi';
 
 export interface GlobalDocumentCardProps {
     id?: string;
@@ -43,11 +44,15 @@ export function GlobalDocumentCard({
     imageHeight = 150,
 }: GlobalDocumentCardProps) {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const { data } = useGetMySingleDocumentQuery(searchParams.get('id') || '');
 
-    const handleReadMore = (e: React.MouseEvent) => {
+    const handleReadMore: (e: React.MouseEvent) => void = (
+        e: React.MouseEvent,
+    ) => {
         e.stopPropagation();
         if (id) {
-            router.push(`/dashboard/documents-and-labs?id=${id}`);
+            router.push(`/documents-and-labs?id=${id}`);
         }
         onClick?.();
     };

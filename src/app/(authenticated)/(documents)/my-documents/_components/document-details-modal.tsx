@@ -17,9 +17,10 @@ export interface DocumentDetailsProps {
     isOpen: boolean;
     onClose: () => void;
     documentId: string | null;
+    selectedDocument?: any;
 }
 
-// Define the document interface
+// // Define the document interface
 export interface Document {
     id: string;
     title: string;
@@ -46,8 +47,11 @@ export function DocumentDetailsModal({
     isOpen,
     onClose,
     documentId,
+    selectedDocument,
 }: DocumentDetailsProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    console.log({ selectedDocument });
 
     // Mock document data - in a real app, you would fetch this based on documentId
     const document: Document | null = documentId

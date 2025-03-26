@@ -49,18 +49,20 @@ export function BootcampsSection() {
     }
 
     const bootcampData: BootcampData[] =
-        portalData?.data?.bootcamp?.results.map((item: BootcampItem) => ({
-            icon: item.category.slug, // Use slug for icon matching
-            title: item.category.name,
-            uploadCount: item.completedItems || 0,
-            pinnedCount: item.pinnedItems || 0,
-            completionPercentage:
-                item.totalItems > 0
-                    ? Math.round((item.completedItems / item.totalItems) * 100)
-                    : 0,
-        })) || [];
-
-    console.log(bootcampData);
+        (portalData?.data?.bootcamp?.results &&
+            portalData?.data?.bootcamp?.results.map((item: BootcampItem) => ({
+                icon: item.category.slug, // Use slug for icon matching
+                title: item.category.name,
+                uploadCount: item.completedItems || 0,
+                pinnedCount: item.pinnedItems || 0,
+                completionPercentage:
+                    item.totalItems > 0
+                        ? Math.round(
+                              (item.completedItems / item.totalItems) * 100,
+                          )
+                        : 0,
+            }))) ||
+        [];
 
     // Calculate total completed bootcamps
     const totalCompleted: number =

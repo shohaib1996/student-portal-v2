@@ -22,7 +22,13 @@ export interface MyDocument {
     priority: 'low' | 'medium' | 'high';
     category: string[];
     branches: string[];
-    createdBy: string;
+    createdBy: {
+        _id: string;
+        fullName: string;
+        firstName: string;
+        lastName: string;
+        profilePicture: string;
+    };
     thumbnail: File | string | null;
     organization: string;
     comments: {
@@ -157,6 +163,11 @@ const documentsApi = baseApi.injectEndpoints({
             }),
             providesTags: [tagTypes.documents],
         }),
+        getSingleUploadDocument: build.query({
+            query: (id) => ({
+                url: `/document/userdocument/get/${id}`,
+            }),
+        }),
         updateUserDocument: build.mutation<{ success: boolean }, string>({
             query: (id) => ({
                 url: `/document/userdocument/update/${id}`,
@@ -170,6 +181,11 @@ const documentsApi = baseApi.injectEndpoints({
                 method: 'DELETE',
             }),
             invalidatesTags: [tagTypes.documents],
+        }),
+        getMySingleDocument: build.query<any, any>({
+            query: (id) => ({
+                url: `/document/userdocument/get/${id}`,
+            }),
         }),
     }),
     overrideExisting: false,
@@ -187,6 +203,8 @@ export const {
     useDeleteUserDocumentMutation,
     useUpdateUserDocumentMutation,
     useGetMySlidesQuery,
+    useGetMySingleDocumentQuery,
+    useGetSingleUploadDocumentQuery,
 } = documentsApi;
 
 export default documentsApi;
