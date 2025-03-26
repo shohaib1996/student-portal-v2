@@ -67,7 +67,7 @@ const GlobalDialog = React.forwardRef<HTMLDivElement, GlobalDialogProps>(
                 <DialogContent
                     ref={ref}
                     className={cn(
-                        'global_dialog_modal p-0 bg-background rounded-lg w-[90vw] sm:w-[600px] md:w-[700px] lg:w-[800px] max-w-[95%] sm:max-w-[90%] max-h-[90vh] relative flex flex-col fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] gap-2 border',
+                        'global_dialog_modal p-0 bg-foreground rounded-lg w-[90vw] sm:w-[600px] md:w-[700px] lg:w-[800px] max-w-[95%] sm:max-w-[90%] max-h-[90vh] relative flex flex-col fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] gap-2 border',
                         className,
                         isFullScreen &&
                             'w-[100vw] h-[100vh] max-h-[100vh] max-w-[100vw] rounded-none',
@@ -91,7 +91,7 @@ const GlobalDialog = React.forwardRef<HTMLDivElement, GlobalDialogProps>(
                     {customTitle
                         ? customTitle
                         : header && (
-                              <div className='flex items-center justify-between border-b px-5 py-3 pb-2 sticky top-0 rounded-tr-lg rounded-tl-lg bg-background z-10'>
+                              <div className='flex items-center justify-between border-b px-5 py-3 pb-2 sticky top-0 rounded-tr-lg rounded-tl-lg bg-foreground z-10'>
                                   <div>
                                       <DialogTitle className='text-black font-medium text-xl'>
                                           {title}

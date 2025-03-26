@@ -27,6 +27,7 @@ import {
     removeFromDraft,
     setDraft,
     updateDraftFiles,
+    updateMessage,
     updateSendingInfo,
 } from '@/redux/features/chatReducer';
 import FileItem from './FileItem';
@@ -428,6 +429,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                 .patch(`/chat/update/message/${selectedMessage?._id}`, data)
                 .then((res) => {
                     store.dispatch(removeFromDraft(chatId as string));
+                    store.dispatch(updateMessage(res?.data?.message));
                     setLocalText('');
                     toast.success('Message updated successfully');
                     if (onSentCallback) {

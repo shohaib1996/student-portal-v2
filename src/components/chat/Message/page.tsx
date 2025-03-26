@@ -43,11 +43,14 @@ import {
     type Message,
     removePinnedMessage,
     updateChats,
+    updateEmoji,
+    updateMessage,
 } from '@/redux/features/chatReducer';
 import { useAppSelector } from '@/redux/hooks';
 import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
 import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
+import { store } from '@/redux/store';
 
 const emojies = ['👍', '😍', '❤', '😂', '🥰', '😯'];
 
@@ -145,17 +148,32 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     };
 
     // handle reaction
-    const handleReaction = (emoji: string, messageId: string) => {
+    const handleReaction = (
+        emoji: string,
+        messageId: string,
+        chatId: string,
+    ) => {
+        console.log('chatId', JSON.stringify(chatId, null, 2));
         instance
             .put(`/chat/react/${messageId}`, {
                 symbol: emoji,
             })
-            .then(() => {
-                if (setReload) {
-                    setReload(Math.random() * 100);
-                }
+            .then((res) => {
+                console.log('res.data', JSON.stringify(res.data, null, 2));
+                dispatch(
+                    updateEmoji({
+                        message: {
+                            ...res.data.message,
+                            chat: chatId,
+                        },
+                    }),
+                );
             })
-            .catch(() => {
+            .catch((error) => {
+                console.log(
+                    'error.response.data',
+                    JSON.stringify(error, null, 2),
+                );
                 toast.error('Something went wrong');
             });
     };
@@ -483,6 +501,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                     handleReaction(
                                                         x,
                                                         message._id,
+                                                        message.chat,
                                                     );
                                                     setIsEmojiPickerOpen(false); // Close the emoji list after selection
                                                 }}
@@ -522,7 +541,8 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                     onClick={() =>
                                                         handleReaction(
                                                             x,
-                                                            message?._id,
+                                                            message._id,
+                                                            message.chat,
                                                         )
                                                     }
                                                 >

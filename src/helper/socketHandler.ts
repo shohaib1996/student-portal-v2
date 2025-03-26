@@ -125,6 +125,7 @@ const setupSocketListeners = (api?: any): (() => void) => {
     });
 
     socket.on('updatemessage', (data: MessageData) => {
+        console.log('data', JSON.stringify(data.message, null, 2));
         store.dispatch(
             updateMessage({
                 // chat:

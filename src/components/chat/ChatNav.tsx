@@ -371,14 +371,14 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                 {/* Chat List Container or Create Crowd Interface */}
                 {createCrowdOpen ? (
-                    <div className='w-full lg:w-full 3xl:w-[calc(100%-60px)] bg-foreground'>
+                    <div className='w-[calc(100%-50px)] lg:w-full 3xl:w-[calc(100%-60px)] bg-foreground'>
                         <CreateCrowd
                             isOpen={createCrowdOpen}
                             onClose={() => setCreateCrowdOpen(false)}
                         />
                     </div>
                 ) : (
-                    <div className='w-full lg:w-full 3xl:w-[calc(100%-60px)] bg-foreground chat-list flex flex-col h-[calc(100vh-60px)]'>
+                    <div className='w-[calc(100%-50px)] lg:w-full 3xl:w-[calc(100%-60px)] bg-foreground chat-list flex flex-col h-[calc(100vh-60px)]'>
                         {/* Header with title and actions - Fixed */}
                         <div className='flex items-center justify-between p-2'>
                             <h1 className='text-lg font-semibold'>
