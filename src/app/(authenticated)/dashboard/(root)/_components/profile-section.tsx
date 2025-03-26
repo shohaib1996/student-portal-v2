@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export function ProfileSection() {
     return (
@@ -45,28 +46,30 @@ export function ProfileSection() {
                         </div>
                         <Progress value={95} className='h-2' />
                         <p className='text-xs my-3'>Last updated 1 week ago</p>
-                        <Button
-                            variant='outline'
-                            size='sm'
-                            className='w-full text-xs'
-                        >
-                            Complete Profile
-                            <svg
-                                xmlns='http://www.w3.org/2000/svg'
-                                width='12'
-                                height='12'
-                                viewBox='0 0 24 24'
-                                fill='none'
-                                stroke='currentColor'
-                                strokeWidth='2'
-                                strokeLinecap='round'
-                                strokeLinejoin='round'
-                                className='lucide lucide-arrow-right ml-1'
+                        <Link href='/profile' className='w-full'>
+                            <Button
+                                variant='outline'
+                                size='sm'
+                                className='w-full text-xs'
                             >
-                                <path d='M5 12h14' />
-                                <path d='m12 5 7 7-7 7' />
-                            </svg>
-                        </Button>
+                                Complete Profile
+                                <svg
+                                    xmlns='http://www.w3.org/2000/svg'
+                                    width='12'
+                                    height='12'
+                                    viewBox='0 0 24 24'
+                                    fill='none'
+                                    stroke='currentColor'
+                                    strokeWidth='2'
+                                    strokeLinecap='round'
+                                    strokeLinejoin='round'
+                                    className='lucide lucide-arrow-right ml-1'
+                                >
+                                    <path d='M5 12h14' />
+                                    <path d='m12 5 7 7-7 7' />
+                                </svg>
+                            </Button>
+                        </Link>
                     </div>
 
                     <div className='border rounded-lg p-3 bg-background'>

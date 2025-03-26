@@ -13,7 +13,7 @@ export function ChatsSection() {
                     </p>
                 </div>
 
-                <ViewMoreLink href='#' />
+                <ViewMoreLink href='/chat' />
             </CardHeader>
             <CardContent className='p-2'>
                 {/* Grid Data Table for Chat Statistics */}
