@@ -264,7 +264,7 @@ const GlobalTable = <T,>({
                         },
                     }}
                 >
-                    <div className='thead sticky top-0 bg-background shadow-sm z-50'>
+                    <div className='thead sticky top-0 bg-foreground shadow-sm z-50'>
                         <div className='relative flex'>
                             {table.getHeaderGroups().map((headerGroup, i) => (
                                 <div key={headerGroup.id} className='h-12 flex'>
@@ -315,7 +315,7 @@ const GlobalTable = <T,>({
                                 <Button
                                     onClick={() => setCollumnSettings(true)}
                                     variant={'plain'}
-                                    className='bg-background border-none rounded-none w-9 z-40 justify-center h-12 flex items-center'
+                                    className='bg-foreground border-none rounded-none w-9 z-40 justify-center h-12 flex items-center'
                                 >
                                     <PlusCircle size={18} />
                                 </Button>

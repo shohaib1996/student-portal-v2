@@ -192,13 +192,13 @@ export default function BootcampPage() {
                 />
 
                 {/* Main Content */}
-                <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 my-2 px-3 py-2 bg-foreground rounded-md border'>
+                <div className='grid grid-cols-1 xl:grid-cols-2 gap-6 my-2 px-3 py-2 bg-foreground rounded-md border'>
                     {/* Left Column - Course Info */}
                     <div className=''>
                         {/* Course Title and Info */}
                         <div>
                             <h2 className='text-2xl font-bold mb-2'>
-                                {program.title}
+                                {program?.title}
                             </h2>
                             <div className='flex flex-wrap items-center gap-x-6 gap-y-2 mb-2'>
                                 <div className='flex items-center'>
@@ -228,16 +228,18 @@ export default function BootcampPage() {
                                 </div>
                             </div>
                             <div className='text-gray line-clamp-2'>
-                                {parse(program.description)}
+                                {parse(program?.description)}
                             </div>
                             {/* Bootcamp Details */}
                             <div className='grid grid-cols-1 md:grid-cols-2 space-y-3 my-2.5'>
                                 <div className='flex items-center gap-2'>
-                                    <p className='flex items-center gap-2 font-semibold'>
-                                        <School className='h-5 w-5 mr-1' />
-                                        Company:{' '}
-                                        <span className='text-gray'>
-                                            {program.organization}
+                                    <p className='flex items-center flex-row gap-2 font-semibold'>
+                                        <span className='flex items-center gap-2'>
+                                            <School className='h-5 w-5 mr-1' />
+                                            Company:{' '}
+                                        </span>
+                                        <span className='text-gray text-wrap lg:text-nowrap'>
+                                            N/A
                                         </span>
                                     </p>
                                 </div>
@@ -256,7 +258,7 @@ export default function BootcampPage() {
                                         Session:{' '}
                                         <span className='text-gray'>
                                             {formatDateToCustomString(
-                                                program.createdAt,
+                                                program?.createdAt,
                                                 false,
                                             )}
                                         </span>
@@ -266,14 +268,14 @@ export default function BootcampPage() {
                                     <div className='flex items-center gap-2 font-semibold'>
                                         <div className='h-6 w-6 rounded-full overflow-hidden'>
                                             <Image
-                                                src={program.instructor.image}
+                                                src={program?.instructor?.image}
                                                 alt='Instructor Avatar'
                                                 width={20}
                                                 height={20}
                                                 className='object-cover w-full h-full'
                                             />
                                         </div>
-                                        {program.instructor.name}
+                                        {program?.instructor?.name}
                                     </div>
                                 </div>
                             </div>

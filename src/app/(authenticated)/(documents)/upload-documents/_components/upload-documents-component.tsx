@@ -74,6 +74,7 @@ export default function UploadDocumentComponent() {
         setIsUploadModalOpen(false);
     };
 
+    console.log(myDocuments);
     return (
         <div>
             <div className='mb-3'>

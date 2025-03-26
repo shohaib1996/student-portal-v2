@@ -59,6 +59,9 @@ const LessionActionMenu = ({
             toast.error('Something went wrong. Please try again.');
         }
     };
+    const commingSoon = () => {
+        toast.success('Fetures Coming Soon');
+    };
 
     return (
         <DropdownMenu>
@@ -112,6 +115,7 @@ const LessionActionMenu = ({
                             'w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-foreground text-dark-gray',
                         )}
                         disabled={isLoading}
+                        onClick={commingSoon}
                     >
                         <Share className='h-4 w-4' />
                         <span>Share</span>
@@ -121,6 +125,7 @@ const LessionActionMenu = ({
                             'w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-foreground text-dark-gray',
                         )}
                         disabled={isLoading}
+                        onClick={commingSoon}
                     >
                         <Calendar className='h-4 w-4' />
                         <span>Add to Calendar</span>
@@ -130,6 +135,7 @@ const LessionActionMenu = ({
                             'w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-foreground text-dark-gray',
                         )}
                         disabled={isLoading}
+                        onClick={commingSoon}
                     >
                         <MessageSquare className='h-4 w-4' />
                         <span>Add to Chat</span>
