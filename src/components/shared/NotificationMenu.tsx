@@ -12,9 +12,91 @@ import notificationApi, {
     useGetAllNotificationsQuery,
 } from '@/redux/api/notification/notificationApi';
 import { TNotification } from '@/types/notification';
+import { useMyProgramQuery } from '@/redux/api/myprogram/myprogramApi';
+import { TProgram } from '@/types';
+import { useRouter } from 'next/navigation';
 dayjs.extend(relativeTime);
 
 const NotificationMenu = () => {
+    const { data: programData } = useMyProgramQuery(undefined);
+
+    const program = programData?.program as TProgram;
+    const router = useRouter();
+
+    const generateNotificationUrl = (
+        type: string,
+        entityId: string,
+        text: string,
+    ) => {
+        console.log(type);
+        let url = '';
+        switch (type) {
+            case 'enrollmentApprove':
+                url = `/program`;
+                break;
+            case 'calendarNoti':
+                url = `/calendar?detail=${entityId}`;
+                break;
+
+            case 'calendarReminder':
+                url = `/calendar?detail=${entityId}`;
+                break;
+            case 'createCalendarEvent':
+                url = `/calendar?detail=${entityId}`;
+                break;
+            // newly added -------------------------------------
+            case 'invitationCalendarEvent':
+                url = `/calendar?detail=${entityId}`;
+                break;
+            case 'rescheduleCalendarEvent':
+                url = `/calendar?detail=${entityId}`;
+                break;
+            case 'createMyDocument':
+                url = `/upload-documents`;
+                break;
+            case 'createMockInterview':
+                url = `/mock-interviews`;
+                break;
+            case 'createContent':
+                url = `/documents-and-labs?id=${entityId}`;
+                break;
+            case 'createSlide':
+                url = `/presentation_slide/${entityId}`;
+                break;
+            // case "createImportantLink ":
+            //   url = ``;
+            //   break;
+            case 'createTemplate':
+                url = `/my-templates`;
+                break;
+            case 'createDiagram':
+                url = `/diagram-preview/${entityId}`;
+                break;
+            case 'newLessonAdd':
+                url = `/program-details/${program?.slug}`;
+                break;
+            default:
+                break;
+        }
+        return url;
+    };
+
+    const generateNotificationText = (type: string, user: string) => {
+        let text = '';
+        switch (type) {
+            case 'enrollmentApprove':
+                text = `Congratulations! You are now approved for this program`;
+                break;
+            case 'calendarNoti':
+                text = `Calendar Notification`;
+                break;
+            default:
+                text = 'This notification is not defined';
+                break;
+        }
+        return text;
+    };
+
     const { data: notiData } = useGetAllNotificationsQuery(undefined);
     const notifications = (notiData?.notifications as TNotification[]) || [];
 
@@ -32,6 +114,21 @@ const NotificationMenu = () => {
         if (noti?.opened === false) {
             await store.dispatch(
                 notificationApi.endpoints.markRead.initiate(noti._id) as any,
+            );
+            router.push(
+                generateNotificationUrl(
+                    noti.notificationType as string,
+                    noti.entityId as string,
+                    noti?.text as string,
+                ),
+            );
+        } else {
+            router.push(
+                generateNotificationUrl(
+                    noti.notificationType as string,
+                    noti.entityId as string,
+                    noti?.text as string,
+                ),
             );
         }
     };
@@ -116,8 +213,8 @@ const NotificationMenu = () => {
         >
             <Button
                 icon={<Bell size={18} />}
-                className='rounded-full border-none px-0 w-fit text-text-primary-gray'
-                variant={'plain'}
+                className='rounded-full text-dark-gray'
+                variant={'outline'}
                 size={'icon'}
             ></Button>
         </GlobalDropdown>

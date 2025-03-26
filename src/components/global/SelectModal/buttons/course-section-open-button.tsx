@@ -65,12 +65,16 @@ export default function CourseSectionOpenButton({ title, icon }: Props) {
     return (
         <>
             <Button
+                tooltip={program?.title || 'Select Course'}
                 variant='outline'
                 onClick={handleOpenCourse}
-                className='rounded-full font-semibold text-muted-foreground'
+                className='rounded-full font-semibold text-muted-foreground size-9 md:size-auto '
             >
-                {icon} {program?.title || 'Select Course'}{' '}
-                <ChevronDown size={16} />
+                {icon}{' '}
+                <p className='hidden lg:inline truncate w-full max-w-36'>
+                    {program?.title || 'Select Course'}{' '}
+                </p>
+                <ChevronDown className='lg:block hidden' size={16} />
             </Button>
 
             <CombinedSelectionModal />
