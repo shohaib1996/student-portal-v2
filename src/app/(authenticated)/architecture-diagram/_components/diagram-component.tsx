@@ -101,7 +101,7 @@ const DiagramComponent = () => {
             header: 'Uploaded By',
             cell: ({ row }) => {
                 const createdBy = row.original.createdBy;
-                return <p>Uploaded By</p>;
+                return <span>N/A</span>;
             },
             footer: (data) => data.column.id,
             id: 'uploadedBy',

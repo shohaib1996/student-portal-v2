@@ -273,8 +273,8 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
             >
                 {/* Tabs Navigation */}
                 <div className='border-b border-border'>
-                    <div className='flex justify-between items-center py-2'>
-                        <TabsList className='bg-foreground p-1 rounded-full gap-2'>
+                    <div className='flex flex-col xl:flex-row gap-2 justify-between items-center py-2'>
+                        <TabsList className='bg-foreground p-1 rounded-full gap-2 flex-wrap overflow-y-scroll'>
                             {tabs?.map((tab, i) => (
                                 <TabsTrigger
                                     key={tab?._id || i}
@@ -286,7 +286,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                             ))}
                         </TabsList>
 
-                        <div className='flex items-center gap-4'>
+                        <div className='flex items-center gap-4 flex-wrap'>
                             <div className='flex items-center gap-1 text-nowrap'>
                                 <div className='flex'>
                                     {Array.from(

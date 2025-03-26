@@ -76,25 +76,6 @@ const ProgramContent = ({
                 )}
             </div>
 
-            {/* Mobile Sidebar */}
-            <Sheet>
-                <SheetTrigger asChild>
-                    <Button
-                        variant='outline'
-                        size='icon'
-                        className='lg:hidden mb-4'
-                    >
-                        <PanelLeft className='h-5 w-5' />
-                        <span className='sr-only'>Toggle Sidebar</span>
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side='left' className='w-[280px] p-0'>
-                    <div className='p-4'>
-                        <ProgramSidebar courseData={courseData} />
-                    </div>
-                </SheetContent>
-            </Sheet>
-
             {/* Chapters and Modules Content */}
             <div
                 className={cn(
@@ -102,9 +83,29 @@ const ProgramContent = ({
                     sidebarOpen ? 'lg:pl-2' : 'pl-0',
                 )}
             >
-                <div className='flex justify-between items-center mb-2'>
+                <div className='flex flex-col lg:flex-row justify-between items-center mb-2 gap-2'>
                     {/* Desktop Sidebar Toggle */}
-                    <div className='flex items-center gap-2'>
+                    <div className='flex items-start lg:items-center gap-2'>
+                        {/* Mobile Sidebar */}
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button
+                                    variant='outline'
+                                    size='icon'
+                                    className='lg:hidden mb-4'
+                                >
+                                    <PanelLeft className='h-5 w-5' />
+                                    <span className='sr-only'>
+                                        Toggle Sidebar
+                                    </span>
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side='left' className='w-[280px] p-0'>
+                                <div className='p-4'>
+                                    <ProgramSidebar courseData={courseData} />
+                                </div>
+                            </SheetContent>
+                        </Sheet>
                         <div className='hidden lg:block'>
                             <Button
                                 onClick={toggleSidebar}
@@ -164,7 +165,7 @@ const ProgramContent = ({
                 </div>
 
                 <div
-                    className={`mt-common ${videoData?.isSideOpen ? 'relative grid grid-cols-2 lg:grid-cols-3 gap-common' : 'block'} `}
+                    className={`mt-common ${videoData?.isSideOpen ? 'relative grid grid-cols-1 xl:grid-cols-3 gap-common' : 'block'} `}
                 >
                     <VideoContent videoData={videoData} />
                     {option?.courseProgramsLoading && parentId === null ? (

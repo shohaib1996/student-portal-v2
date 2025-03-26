@@ -25,6 +25,8 @@ const Program = () => {
         isLoading: boolean;
         isError: boolean;
     }>({});
+    const myProgram: TProgramMain = data;
+    const program: TProgram = myProgram?.program;
 
     if (isLoading || isProgressLoading) {
         return (
@@ -128,8 +130,6 @@ const Program = () => {
     if (isError || isProgressError) {
         return <p>Geeting error to fetch</p>;
     }
-    const myProgram: TProgramMain = data;
-    const program: TProgram = myProgram?.program;
 
     return (
         <>

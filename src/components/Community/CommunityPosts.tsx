@@ -6,7 +6,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
+
 import {
     useDeleteCommunityPostsApiMutation,
     useProvideReactionApiMutation,
@@ -14,15 +14,11 @@ import {
 } from '@/redux/api/community/community';
 import { IAuthUser, ICommunityPost } from '@/types';
 import {
-    Ellipsis,
     EllipsisVertical,
-    Heart,
     MessageCircle,
-    MessageSquare,
     RefreshCw,
     Send,
     Share2,
-    SmileIcon,
     SmilePlus,
     ThumbsUp,
 } from 'lucide-react';
@@ -35,14 +31,10 @@ import EditCommunityPost from './EditCommunityPost';
 import SharePost from './SharePost';
 import ReportPost from './ReportPost';
 import FormattingTime from '../global/Community/FormattingTime/FormattingTime';
-import GlobalMarkDownPreview from '../global/Community/MarkDown/GlobalMarkDownPreview';
-import FormattingDate from '../global/Community/FormattingDate/FormattingDate';
 import LoadingSpinner from '../global/Community/LoadingSpinner/LoadingSpinner';
-import Comment from '../global/Community/Comment&Reply/Comment';
 import NewGlobalModal from '../global/Community/modal/GlobalModal';
 import { copyToClipboard } from '@/utils/common';
 import dayjs from 'dayjs';
-import { describe } from 'node:test';
 import { GlobalCommentsSection } from '../global/GlobalCommentSection';
 import PostImageGrid from './PostImageGrid';
 
@@ -62,6 +54,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
         const [postTitle, setPostTitle] = useState<string>('');
         const [postUrl, setPostUrl] = useState<string>('');
         const [showEmojis, setShowEmojis] = useState(false);
+        const [showLikesEmojis, setShowLikesEmojis] = useState(false);
         const [showComments, setShowComments] = useState(false);
         const [open, setOpen] = useState(false);
         const [openEdit, setOpenEdit] = useState(false);
@@ -193,8 +186,6 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                 secondPart: description.slice(splitIndex + 1).trim(),
             };
         }
-
-        const [isLiked, setIsLiked] = useState(false);
 
         const handleCommentSubmit = (content: string) => {
             console.log('New comment:', content);
@@ -425,7 +416,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                         >
                             <MessageCircle className='h-4 w-4 text-gray' />
                             <span className='text-sm text-dark-gray'>
-                                {post?.commentsCount || 32} comments
+                                {post?.commentsCount} comments
                             </span>
                         </div>
                         <div className='flex items-center gap-1'>
@@ -436,26 +427,45 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                 <Share2 className='h-4 w-4 text-gray' />
                             </div>
                             <span className='text-sm text-dark-gray'>
-                                8 share
+                                share
                             </span>
                         </div>
                     </div>
                 </CardFooter>
                 {/* Action Buttons */}
                 <div className='grid grid-cols-4 border-t border-border pt-2'>
-                    <button
+                    <div
                         className={cn(
-                            'flex items-center justify-center gap-2 py-2 text-sm font-medium hover:bg-foreground',
-                            isLiked ? 'text-primary-white' : 'text-dark-gray',
+                            'flex items-center justify-center gap-2 py-2 text-sm font-medium hover:bg-foreground relative cursor-pointer',
+                            'text-dark-gray',
                         )}
-                        onClick={() => setIsLiked(!isLiked)}
+                        onMouseEnter={() => setShowLikesEmojis(true)}
+                        onMouseLeave={() => setShowLikesEmojis(false)}
                     >
-                        <ThumbsUp className='h-5 w-5' />
-                        <span>{isLiked ? 'Liked' : 'Like'}</span>
-                    </button>
+                        <span className='flex gap-2'>
+                            <ThumbsUp className='h-5 w-5' />
+                            Like
+                        </span>
+                        {showLikesEmojis && (
+                            <div className='absolute left-3/4 top-[-50px] flex -translate-x-1/2 transform space-x-2 rounded-lg border bg-background p-2 shadow-lg'>
+                                {emojies.map((emoji, index) => (
+                                    <button
+                                        key={index}
+                                        className='text-2xl transition-transform duration-200 hover:scale-110'
+                                        onClick={() =>
+                                            onEmojiClick(emoji, post._id)
+                                        }
+                                    >
+                                        {emoji}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
                     <button
                         onClick={() => setShowComments(!showComments)}
-                        className='flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-foreground'
+                        className='hidden md:flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-foreground'
                     >
                         <MessageCircle className='h-5 w-5' />
                         <span>Comment</span>
