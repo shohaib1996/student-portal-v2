@@ -97,7 +97,7 @@ const Navbar = () => {
             id: 3,
             content: (
                 <Link
-                    href='/payments'
+                    href='/payment-history'
                     className='flex gap-2 text-dark-gray items-center'
                 >
                     <CircleDollarSign size={18} />
@@ -237,7 +237,7 @@ const Navbar = () => {
                             <Sun size={18} />
                         )}
                     </Button>
-                    {isAuthenticated && isChatAvailable && (
+                    {/* {isAuthenticated && isChatAvailable && (
                         <>
                             <div
                                 onClick={() => router.push('/chat')}
@@ -260,7 +260,7 @@ const Navbar = () => {
                                 </div>
                             </div>
                         </>
-                    )}
+                    )} */}
                     {isAuthenticated && isCalendarAvailable && (
                         <>
                             <Button
