@@ -495,34 +495,7 @@ const MyInvitations = () => {
                                 </Button>
                             </>
                         )}
-                        <SortMenu
-                            value={sortData}
-                            onChange={(val) => toast.info('Comming Soon')}
-                            columns={[]}
-                        />
                         <RangePickerCL value={date} onChange={setDate} />
-                        <FilterModal
-                            value={filterData}
-                            onChange={handleFilter}
-                            columns={[
-                                {
-                                    label: 'Username/Email',
-                                    value: 'query',
-                                },
-                                {
-                                    label: 'Program',
-                                    value: 'program',
-                                },
-                                {
-                                    label: 'Session',
-                                    value: 'session',
-                                },
-                                {
-                                    label: 'Enrollment Date',
-                                    value: 'date',
-                                },
-                            ]}
-                        />
                     </div>
                 }
             />

@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import {
     AlertTriangle,
     Bell,
-    Calendar,
+    Calendar as CalendarIcon,
     ChevronRight,
     Clock,
     GripVertical,
@@ -25,12 +25,23 @@ import {
 import { memo } from 'react';
 import GlobalDropdown from '@/components/global/GlobalDropdown';
 import { TEvent } from '@/types/calendar/calendarTypes';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { useUpdateEventMutation } from '@/redux/api/calendar/calendarApi';
+import dayjs from 'dayjs';
+import { toast } from 'sonner';
 
 interface TaskCardProps {
     task: TEvent;
 }
 
 const TaskCard = memo(({ task }: TaskCardProps) => {
+    const [updateTask, { isLoading: isUpdating }] = useUpdateEventMutation();
+
     const {
         attributes,
         listeners,
@@ -63,6 +74,29 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
 
     const dueDate = 'Tuesday - Mar 04, 2025 at 10:30 AM';
     const reminder = '30 min before';
+
+    const handleSelect = (val: Date) => {
+        handleUpdate(val.toISOString());
+    };
+
+    const handleUpdate = async (date: string) => {
+        try {
+            const res = await updateTask({
+                id: task._id,
+                changes: {
+                    startTime: date,
+                    endTime: date,
+                    isAllDay: true,
+                },
+                updateOption: 'thisEvent',
+            }).unwrap();
+            if (res) {
+                toast.success('Task updated successfully');
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     return (
         <div
@@ -202,19 +236,51 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
 
                     {/* Action buttons */}
                     <div className='flex gap-2'>
-                        <Button variant='primary_light' size='sm'>
-                            Today
-                        </Button>
-                        <Button variant='primary_light' size='sm'>
-                            Tomorrow
-                        </Button>
                         <Button
+                            disabled={isUpdating}
+                            tooltip='Set to today'
                             variant='primary_light'
                             size='sm'
-                            icon={<Calendar className='h-3.5 w-3.5' />}
+                            onClick={() => handleUpdate(dayjs().toISOString())}
                         >
-                            <span>Date & Time</span>
+                            Today
                         </Button>
+                        <Button
+                            disabled={isUpdating}
+                            tooltip='Set to tomorrow'
+                            variant='primary_light'
+                            size='sm'
+                            onClick={() =>
+                                handleUpdate(
+                                    dayjs().add(1, 'day').toISOString(),
+                                )
+                            }
+                        >
+                            Tomorrow
+                        </Button>
+                        <Popover>
+                            <PopoverTrigger>
+                                <Button
+                                    disabled={isUpdating}
+                                    variant='primary_light'
+                                    size='sm'
+                                    icon={
+                                        <CalendarIcon className='h-3.5 w-3.5' />
+                                    }
+                                >
+                                    <span>Date & Time</span>
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                                <Calendar
+                                    mode='single'
+                                    selected={new Date(task.startTime)}
+                                    onSelect={(val) =>
+                                        handleSelect(val as Date)
+                                    }
+                                />
+                            </PopoverContent>
+                        </Popover>
                     </div>
                 </CollapsibleContent>
             </Collapsible>

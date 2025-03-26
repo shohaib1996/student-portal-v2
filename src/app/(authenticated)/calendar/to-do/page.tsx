@@ -49,11 +49,11 @@ const TodoPage = () => {
                             </Link>
                         </Button>
                         <RangePickerCL value={date} onChange={setDate} />
-                        <FilterModal
+                        {/* <FilterModal
                             value={[]}
                             columns={[]}
                             onChange={() => null}
-                        />
+                        /> */}
                         <EventPopoverTrigger>
                             <Button icon={<Plus size={18} />}>
                                 Create New
