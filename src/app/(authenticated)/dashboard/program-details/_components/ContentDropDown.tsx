@@ -14,6 +14,7 @@ import {
     Play,
     MoreVertical,
     ChevronDown,
+    Pin,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ChapterType, TContent, TLessonInfo } from '@/types';
@@ -146,12 +147,17 @@ const ContentDropDown = ({
                                                 )}
                                             </span>
                                         </div>
-                                    </div>
-
-                                    <div className='flex items-center gap-3'>
-                                        <div className='flex gap-1'>
+                                        <div className='flex items-start gap-1'>
                                             {renderPriorityBadge(item.priority)}
                                         </div>
+                                    </div>
+
+                                    <div className='flex items-center gap-1'>
+                                        <span>
+                                            {item.isPinned && (
+                                                <Pin className='h-4 w-4 text-primary-white' />
+                                            )}
+                                        </span>
                                         <LessionActionMenu
                                             lessonId={item?._id}
                                             courseId={item?.myCourse?.course}
@@ -365,7 +371,7 @@ const ContentDropDown = ({
             className={cn(
                 'space-y-4',
                 videoData?.isSideOpen
-                    ? 'no-scrollbar lg:col-span-1 col-span-12 md:max-h-[700px] md:overflow-auto'
+                    ? 'no-scrollbar lg:col-span-1 md:overflow-auto'
                     : 'w-full',
             )}
         >

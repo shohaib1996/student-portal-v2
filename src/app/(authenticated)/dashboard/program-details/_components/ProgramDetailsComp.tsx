@@ -25,6 +25,7 @@ import {
     TProgram,
 } from '@/types';
 import ProgramContent from './ProgramContent';
+import { toast } from 'sonner';
 
 // Types for course data
 interface SubLesson {
@@ -189,6 +190,9 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
             );
         }
     }, [parentId, tabs, selectedTab.value, slug, parentId, filterOption]);
+    const commingSoon = () => {
+        toast.success('Coming Soon...');
+    };
 
     return (
         <div className='bg-background border-t border-border pt-2'>
@@ -206,7 +210,11 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                 tooltip={program?.title}
                 buttons={
                     <div className='flex items-center gap-3 mb-2'>
-                        <Button variant='primary_light' className=''>
+                        <Button
+                            variant='primary_light'
+                            className=''
+                            onClick={commingSoon}
+                        >
                             <span>
                                 <MessageSquareCode
                                     size={20}
@@ -215,7 +223,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                             </span>
                             Leave a Review
                         </Button>
-                        <Button className=''>
+                        <Button className='' onClick={commingSoon}>
                             <span>
                                 <svg
                                     xmlns='http://www.w3.org/2000/svg'
@@ -274,7 +282,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                 {/* Tabs Navigation */}
                 <div className='border-b border-border'>
                     <div className='flex flex-col xl:flex-row gap-2 justify-between items-center py-2'>
-                        <TabsList className='bg-foreground p-1 rounded-full gap-2 flex-wrap overflow-y-scroll'>
+                        <TabsList className='bg-foreground p-1 rounded-full gap-2 flex-wrap overflow-x-auto'>
                             {tabs?.map((tab, i) => (
                                 <TabsTrigger
                                     key={tab?._id || i}

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
+import { toast } from 'sonner';
 
 type Status = 'approved' | 'pending' | 'cancelled';
 
@@ -60,6 +61,9 @@ const ProgramCard = ({ program }: { program: BootcampProgram }) => {
                     </div>
                 );
         }
+    };
+    const commingSoon = () => {
+        toast.success('Coming Soon...');
     };
 
     return (
@@ -139,7 +143,10 @@ const ProgramCard = ({ program }: { program: BootcampProgram }) => {
                         </span>
                     </div>
 
-                    <button className='border border-border rounded-md py-1 px-2 text-primary text-xs font-medium flex items-center gap-1'>
+                    <button
+                        onClick={commingSoon}
+                        className='border border-border rounded-md py-1 px-2 text-primary-white text-xs font-medium flex items-center gap-1'
+                    >
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
                             width='15'

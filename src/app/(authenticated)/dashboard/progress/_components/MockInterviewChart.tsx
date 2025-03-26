@@ -19,7 +19,7 @@ const mockInterviewData = [
         count: 15,
     }, // Teal/Cyan
     { name: 'Reviewed', value: 30, color: '#198754', count: 22 }, // Green
-    { name: 'Not reviewed', value: 5, color: '#fd7e14', count: 15 }, // Orange
+    { name: 'Not reviewed', value: 20, color: '#fd7e14', count: 15 }, // Orange
 ];
 
 export function MockInterviewChart() {
@@ -34,7 +34,7 @@ export function MockInterviewChart() {
                 </div>
                 <Link
                     href='#'
-                    className='text-sm text-primary bg-primary-light hover:bg-primary hover:text-white font-medium flex items-center gap-0.5 py-2 px-2.5 rounded-lg'
+                    className='text-sm text-primary-white bg-primary-light hover:bg-primary hover:text-white font-medium flex items-center gap-0.5 py-2 px-2.5 rounded-lg'
                 >
                     View More
                     <ArrowRight />
@@ -76,7 +76,7 @@ export function MockInterviewChart() {
                             30%
                         </div>
                         <div className='absolute bottom-[40%] right-[20%] text-white font-bold'>
-                            5%
+                            20%
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,7 @@ export function MockInterviewChart() {
                                     className='w-3 h-3 rounded-full'
                                     style={{ backgroundColor: item.color }}
                                 ></div>
-                                <span className='text-sm text-gray-700'>
+                                <span className='text-sm text-dark-gray'>
                                     {item.name}
                                 </span>
                             </div>

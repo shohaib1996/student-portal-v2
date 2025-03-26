@@ -54,13 +54,15 @@ const LessionActionMenu = ({
                 setPinned(false);
             }
 
-            toast.success(`${action} has been successful`);
+            toast.success(
+                `${action.charAt(0).toUpperCase() + action.slice(1)} has been successful`,
+            );
         } catch (error) {
             toast.error('Something went wrong. Please try again.');
         }
     };
     const commingSoon = () => {
-        toast.success('Fetures Coming Soon');
+        toast.success('Coming Soon...');
     };
 
     return (

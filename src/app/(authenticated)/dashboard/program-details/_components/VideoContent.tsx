@@ -6,6 +6,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
+import dayjs from 'dayjs';
+import { toast } from 'sonner';
+import AddNotes from './AddNotes';
+import DownloadTab from './DownloadTab';
+import RatingsTab from './RatingsTab';
 
 const VideoContent = ({
     videoData,
@@ -28,6 +33,9 @@ const VideoContent = ({
           }))
         : [];
 
+    const commingSoon = () => {
+        toast.success('Coming Soon...');
+    };
     return (
         <div
             className={`${videoData?.isSideOpen ? 'lg:col-span-2' : 'hidden'} `}
@@ -66,16 +74,24 @@ const VideoContent = ({
                             </div>
                         </div>
                         <div className='text-sm text-gray'>
-                            Jan 30, 2024 | 12:30 PM
+                            {dayjs(videoData?.videoInfo?.createdAt).format(
+                                'MMM DD, YYYY | hh:mm A',
+                            )}
                         </div>
                     </div>
                 </div>
                 <div className='flex items-center gap-2'>
-                    <button className='flex items-center gap-1 text-gray hover:text-dark-gray'>
+                    <button
+                        onClick={commingSoon}
+                        className='flex items-center gap-1 text-gray hover:text-dark-gray cursor-pointer'
+                    >
                         <Pin className='h-4 w-4' />
                         <span className='text-sm'>Pin</span>
                     </button>
-                    <button className='flex items-center gap-1 text-gray hover:text-dark-gray'>
+                    <button
+                        onClick={commingSoon}
+                        className='flex items-center gap-1 text-gray hover:text-dark-gray cursor-pointer'
+                    >
                         <Share className='h-4 w-4' />
                         <span className='text-sm'>Share</span>
                     </button>
@@ -342,103 +358,23 @@ const VideoContent = ({
 
                     <TabsContent
                         value='notes'
-                        className='p-4 m-0 data-[state=active]:border-0'
+                        className='p-0 m-0 data-[state=active]:border-0'
                     >
-                        <div className='border border-border rounded-md p-4'>
-                            <textarea
-                                className='w-full h-40 p-2 border border-border rounded-md text-sm'
-                                placeholder='Add your notes here...'
-                            ></textarea>
-                            <div className='flex justify-end mt-2'>
-                                <Button className='bg-blue-600 hover:bg-blue-700'>
-                                    Save Notes
-                                </Button>
-                            </div>
-                        </div>
+                        <AddNotes />
                     </TabsContent>
 
                     <TabsContent
                         value='download'
-                        className='p-4 m-0 data-[state=active]:border-0'
+                        className='p-0 m-0 data-[state=active]:border-0'
                     >
-                        <div className='border border-border rounded-md p-4 flex items-center justify-between'>
-                            <div>
-                                <h3 className='font-medium'>
-                                    Automation Fundamentals.mp4
-                                </h3>
-                                <p className='text-sm text-gray'>720p, 45MB</p>
-                            </div>
-                            <Button className='bg-blue-600 hover:bg-blue-700'>
-                                <Download className='h-4 w-4 mr-2' />
-                                Download
-                            </Button>
-                        </div>
+                        <DownloadTab />
                     </TabsContent>
 
                     <TabsContent
                         value='ratings'
-                        className='p-4 m-0 data-[state=active]:border-0'
+                        className='p-0 m-0 data-[state=active]:border-0'
                     >
-                        <div className='flex items-center gap-4 mb-4'>
-                            <div className='text-4xl font-bold text-black'>
-                                4.8
-                            </div>
-                            <div className='flex-1'>
-                                <div className='flex items-center'>
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <Star
-                                            key={star}
-                                            className={`h-5 w-5 ${star <= 4 ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
-                                        />
-                                    ))}
-                                    <span className='ml-2 text-sm text-gray'>
-                                        (128 ratings)
-                                    </span>
-                                </div>
-                                <div className='mt-2 space-y-1'>
-                                    <div className='flex items-center gap-2'>
-                                        <span className='text-xs w-8'>
-                                            5 stars
-                                        </span>
-                                        <div className='flex-1 h-2 bg-gray-200 rounded-full overflow-hidden'>
-                                            <div className='h-full bg-yellow-400 w-[75%]'></div>
-                                        </div>
-                                    </div>
-                                    <div className='flex items-center gap-2'>
-                                        <span className='text-xs w-8'>
-                                            4 stars
-                                        </span>
-                                        <div className='flex-1 h-2 bg-gray-200 rounded-full overflow-hidden'>
-                                            <div className='h-full bg-yellow-400 w-[15%]'></div>
-                                        </div>
-                                    </div>
-                                    <div className='flex items-center gap-2'>
-                                        <span className='text-xs w-8'>
-                                            3 stars
-                                        </span>
-                                        <div className='flex-1 h-2 bg-gray-200 rounded-full overflow-hidden'>
-                                            <div className='h-full bg-yellow-400 w-[5%]'></div>
-                                        </div>
-                                    </div>
-                                    <div className='flex items-center gap-2'>
-                                        <span className='text-xs w-8'>
-                                            2 stars
-                                        </span>
-                                        <div className='flex-1 h-2 bg-gray-200 rounded-full overflow-hidden'>
-                                            <div className='h-full bg-yellow-400 w-[3%]'></div>
-                                        </div>
-                                    </div>
-                                    <div className='flex items-center gap-2'>
-                                        <span className='text-xs w-8'>
-                                            1 star
-                                        </span>
-                                        <div className='flex-1 h-2 bg-gray-200 rounded-full overflow-hidden'>
-                                            <div className='h-full bg-yellow-400 w-[2%]'></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <RatingsTab />
                     </TabsContent>
                 </Tabs>
             </div>
