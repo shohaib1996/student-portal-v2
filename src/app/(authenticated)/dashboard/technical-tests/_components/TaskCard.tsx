@@ -2,9 +2,9 @@ import { CalendarDays, Eye, Gauge, User } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import Image from 'next/image';
 import TaskModal from './TaskModal';
 import { useState } from 'react';
+import { StatusBadge } from './status-badge';
 
 export interface Task {
     id: string;
@@ -216,7 +216,9 @@ export default function TaskCard({ task }: TaskCardProps) {
                         <h3 className='flex-1 text-lg font-semibold text-black leading-normal line-clamp-2'>
                             {task.title}
                         </h3>
-                        <div className=''>{getStatusBadge(task.status)}</div>
+                        <div className=''>
+                            <StatusBadge status={task.status} />
+                        </div>
                     </div>
 
                     <p className='font-medium text-black my-2'>
