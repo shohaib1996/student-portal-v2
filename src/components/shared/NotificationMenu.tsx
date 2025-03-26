@@ -145,8 +145,8 @@ const NotificationMenu = () => {
                                 onClick={() => notificationMarkRead(noti)}
                                 className={`${
                                     !noti.opened
-                                        ? ' bg-sidebar'
-                                        : 'bg-foreground'
+                                        ? ' bg-foreground'
+                                        : 'bg-background'
                                 } rounded-lg border cursor-pointer hover:shadow-md`}
                             >
                                 <div className='flex p-2 gap-2'>

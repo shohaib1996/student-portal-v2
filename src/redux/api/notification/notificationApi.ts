@@ -5,9 +5,10 @@ import { tagTypes } from '../tagType/tagTypes';
 const notificationApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getAllNotifications: build.query({
-            query: () => ({
+            query: (params?: any) => ({
                 url: '/notification/mynotifications',
                 method: 'GET',
+                params,
             }),
             providesTags: [tagTypes.notification],
             async onCacheEntryAdded(
@@ -59,7 +60,30 @@ const notificationApi = baseApi.injectEndpoints({
                 method: 'PATCH',
                 data: { opened: true },
             }),
-            invalidatesTags: [tagTypes.notification],
+            async onQueryStarted(id, { dispatch, queryFulfilled }) {
+                const patchResult = dispatch(
+                    notificationApi.util.updateQueryData(
+                        'getAllNotifications',
+                        undefined,
+                        (draft) => {
+                            // Find the specific notification and update its status
+                            const notification = draft.find(
+                                (n: any) => n._id === id,
+                            );
+                            if (notification) {
+                                notification.opened = true;
+                            }
+                        },
+                    ),
+                );
+
+                try {
+                    await queryFulfilled;
+                } catch {
+                    // If the API call fails, revert the optimistic update
+                    patchResult.undo();
+                }
+            },
         }),
     }),
 });
