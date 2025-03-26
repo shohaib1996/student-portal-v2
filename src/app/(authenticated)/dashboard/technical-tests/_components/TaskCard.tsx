@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import TaskModal from './TaskModal';
 import { useState } from 'react';
 import { StatusBadge } from './status-badge';
+import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
 
 export interface Task {
     id: string;
@@ -234,7 +235,7 @@ export default function TaskCard({ task }: TaskCardProps) {
                                 <Gauge className='h-3.5 w-3.5' />
                                 Total Marks:
                             </span>
-                            <span className='text-black font-semibold'>
+                            <span className='text-black font-semibold col-span-2'>
                                 {task.marks}
                             </span>
                         </p>
@@ -243,8 +244,8 @@ export default function TaskCard({ task }: TaskCardProps) {
                                 <CalendarDays className='h-3.5 w-3.5' />
                                 Deadline:
                             </span>
-                            <span className='text-black font-semibold'>
-                                {task.deadline}
+                            <span className='text-black font-semibold col-span-2'>
+                                {formatDateToCustomString(task.deadline, false)}
                             </span>
                         </p>
                         <p className='text-xs font-medium text-gray grid grid-cols-3 gap-4'>
@@ -252,8 +253,8 @@ export default function TaskCard({ task }: TaskCardProps) {
                                 <User className='h-3.5 w-3.5' />
                                 Workshop:
                             </span>
-                            <span className='text-black font-semibold'>
-                                {task.workshop}
+                            <span className='text-black font-semibold col-span-2'>
+                                {formatDateToCustomString(task.workshop, false)}
                             </span>
                         </p>
                     </div>
