@@ -181,7 +181,7 @@ const Inbox: React.FC<InboxProps> = ({
             isOpen: !prev.isOpen,
         }));
     }, []);
-    console.log({ Mute: chat?.myData });
+
     return (
         <>
             {/* Set position relative so the absolute search box is positioned relative to this container */}

@@ -820,7 +820,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     message={forwardMessage}
                 />
             )}
-            <CreateEventModal />
+            {/* <CreateEventModal /> */}
         </>
     );
 };
