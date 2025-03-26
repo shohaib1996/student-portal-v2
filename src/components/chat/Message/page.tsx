@@ -40,6 +40,7 @@ import DeleteMessage from '../ChatForm/DeleteMessage';
 import { copyTextToClipboard } from '../../../utils/clipboard';
 import {
     addPinnedMessage,
+    type Message,
     removePinnedMessage,
     updateChats,
 } from '@/redux/features/chatReducer';
@@ -50,54 +51,17 @@ import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 const emojies = ['👍', '😍', '❤', '😂', '🥰', '😯'];
 
-interface MessageProps {
-    message: {
-        _id: string;
-        type?: string;
-        sender?: {
-            _id: string;
-            firstName?: string;
-            lastName?: string;
-            fullName?: string;
-            profilePicture?: string;
-            type?: string;
-        };
-        createdAt: string | undefined;
-        status?: string;
-        text?: string;
-        files?: any[];
-        editedAt?: string;
-        replyCount?: number;
-        reactions?: Record<string, number>;
-        chat?: string;
-        pinnedBy?: any;
-    };
-    lastmessage?: boolean;
-    setEditMessage?: (message: any) => void;
-    setThreadMessage?: (message: any) => void;
-    setForwardMessage?: (message: any) => void;
-    hideOptions?: boolean;
-    hideReplyCount?: boolean;
-    source?: string;
-    hideAlign?: boolean;
-    reload?: number;
-    setReload?: (value: number) => void;
-    isAi?: boolean;
-    searchQuery?: string;
-    bottomRef?: React.RefObject<HTMLDivElement | null>;
-}
-
 type MessageComponent = React.ForwardRefExoticComponent<
-    MessageProps & React.RefAttributes<HTMLDivElement>
+    React.RefAttributes<HTMLDivElement>
 >;
 
-const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
+const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     const { data: chats = [] } = useGetChatsQuery();
     const params = useParams();
     const pinnedMessages = useAppSelector(
         (state) =>
             state.chat.pinnedMessages?.[String(params?.chatid) || ''] || [],
-    ) as MessageProps['message'][];
+    ) as Message['message'][];
     const { user } = useAppSelector((state) => state.auth);
     const [deleteMessage, setDeleteMessage] = useState<any>(null);
     const [chatDelOpened, setChatDelOpened] = useState(false);
@@ -132,7 +96,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
     const handleCopyClick = () => {
         if ((message?.files ?? []).length > 0) {
             // for files
-            const allUrl = message?.files?.map((x) => x.url);
+            const allUrl = message?.files?.map((x: { url: string }) => x.url);
             const files = JSON.stringify(allUrl);
 
             copyTextToClipboard(files)
@@ -342,7 +306,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                         message?.type !== 'delete' && (
                                             <div className='flex flex-wrap gap-2 mb-2'>
                                                 {message?.files?.map(
-                                                    (file, i) => (
+                                                    (file: File, i: number) => (
                                                         <FileCard
                                                             file={file}
                                                             key={i}
@@ -417,6 +381,9 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                     </>
                                                 )}
                                             </div>
+                                        )}
+                                        {message?.forwardedFrom && (
+                                            <p>Forwarded</p>
                                         )}
                                     </div>
 

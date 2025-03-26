@@ -30,6 +30,7 @@ export interface Message {
     parentMessage?: string;
     replies?: Message[];
     replyCount?: number;
+    forwardedFrom?: string;
     [key: string]: any;
 }
 
