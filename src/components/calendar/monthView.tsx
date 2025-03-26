@@ -55,7 +55,7 @@ export function MonthView({ currentDate }: MonthViewProps) {
         day = addDays(day, 1);
     }
 
-    const { eventFilter, todoFilter, priorityFilter, rolesFilter } =
+    const { eventFilter, todoFilter, priorityFilter, rolesFilter, typeFilter } =
         useAppSelector((s) => s.calendar);
 
     const { data } = useGetMyEventsQuery({
@@ -65,6 +65,7 @@ export function MonthView({ currentDate }: MonthViewProps) {
         states: todoFilter,
         priorities: priorityFilter,
         roles: rolesFilter,
+        type: typeFilter,
     });
 
     const handleDayClick = (day: Date) => {

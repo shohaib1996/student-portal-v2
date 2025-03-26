@@ -20,7 +20,7 @@ interface DayViewProps {
 }
 
 export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
-    const { eventFilter, todoFilter, priorityFilter, rolesFilter } =
+    const { eventFilter, todoFilter, priorityFilter, rolesFilter, typeFilter } =
         useAppSelector((s) => s.calendar);
     const { data } = useGetMyEventsQuery({
         from: dayjs(currentDate).startOf('day').toISOString(), // Start of the day (00:00:00)
@@ -29,6 +29,7 @@ export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
         states: todoFilter,
         priorities: priorityFilter,
         roles: rolesFilter,
+        type: typeFilter,
     });
 
     const events: TEvent[] = (data?.events as TEvent[]) || [];

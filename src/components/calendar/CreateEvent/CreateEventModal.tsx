@@ -82,6 +82,7 @@ const CreateEventModal = () => {
         if (!event || !updateId) {
             return;
         }
+        console.log(event.recurrence);
         if (event.type === 'event') {
             setTab('event');
             eventForm.reset({

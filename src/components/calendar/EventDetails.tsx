@@ -203,13 +203,11 @@ const EventDetails = () => {
                 <div className='w-full mx-auto'>
                     <div className='flex text-sm text-dark-gray items-center'>
                         <h2>{dayjs(event?.startTime).format('dddd')}, </h2>
-                        <h2>
-                            {dayjs(event?.startTime).format('ddd MM, YYYY')}
-                        </h2>
+                        <h2> {dayjs(event?.startTime).format('MMM, YYYY')}</h2>
                         <p className='text-lg px-1'>•</p>
                         <h2>
-                            {dayjs(event?.startTime).format('HH:mm')} -{' '}
-                            {dayjs(event?.endTime).format('HH:mm')}
+                            {dayjs(event?.startTime).format('hh:mm A')} -{' '}
+                            {dayjs(event?.endTime).format('hh:mm A')}
                         </h2>
                     </div>
                     <div className='flex items-center justify-between'>
@@ -434,7 +432,7 @@ const EventDetails = () => {
 
                     <div className='flex items-center gap-2 text-base font-medium'>
                         <Calendar className='h-4 w-4' />
-                        <span>hellojohndoe@gmail.com</span>
+                        <span>{event.organizer?.email}</span>
                     </div>
 
                     <div className='mt-2'>
