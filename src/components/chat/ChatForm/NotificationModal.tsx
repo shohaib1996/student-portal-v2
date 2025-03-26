@@ -230,7 +230,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                             {/* Option 1: Mute for 1 hour */}
                             <div
                                 className={cn(
-                                    'flex items-center space-x-3 bg-foreground rounded-lg border p-2 cursor-pointer',
+                                    'flex items-center space-x-3 bg-background rounded-lg border p-2 cursor-pointer',
                                     selectedOption === 1
                                         ? 'border-blue-500/30 bg-primary-light'
                                         : 'hover:border-blue-500/30 hover:bg-primary-light',
@@ -246,7 +246,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                             {/* Option 2: Mute for 1 day */}
                             <div
                                 className={cn(
-                                    'flex items-center space-x-3 bg-foreground rounded-lg border p-2 cursor-pointer',
+                                    'flex items-center space-x-3 bg-background rounded-lg border p-2 cursor-pointer',
                                     selectedOption === 2
                                         ? 'border-blue-500/30 bg-primary-light'
                                         : 'hover:border-blue-500/30 hover:bg-primary-light',
@@ -262,7 +262,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                             {/* Option 3: Mute until turned back on */}
                             <div
                                 className={cn(
-                                    'flex items-center space-x-3 bg-foreground rounded-lg border p-2 cursor-pointer',
+                                    'flex items-center space-x-3 bg-background rounded-lg border p-2 cursor-pointer',
                                     selectedOption === 3
                                         ? 'border-blue-500/30 bg-primary-light'
                                         : 'hover:border-blue-500/30 hover:bg-primary-light',
@@ -278,7 +278,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                             {/* Option 4: Custom time */}
                             <div
                                 className={cn(
-                                    'bg-foreground rounded-lg border p-2',
+                                    'bg-background rounded-lg border p-2',
                                     selectedOption === 4
                                         ? 'border-blue-500/30 bg-primary-light'
                                         : 'hover:border-blue-500/30 hover:bg-primary-light',
@@ -303,7 +303,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                                                 <Button
                                                     variant='outline'
                                                     className={cn(
-                                                        'w-full justify-start text-left font-normal bg-background',
+                                                        'w-full justify-start text-left font-normal bg-foreground',
                                                         !date && 'text-gray',
                                                     )}
                                                 >
@@ -328,7 +328,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                                         <TimePicker
                                             value={timeValue}
                                             onChange={setTimeValue}
-                                            className='w-full bg-background'
+                                            className='w-full bg-foreground'
                                         />
                                     </div>
                                 )}

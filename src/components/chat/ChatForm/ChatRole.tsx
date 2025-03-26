@@ -2,7 +2,6 @@
 
 import type React from 'react';
 import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
 import { toast } from 'sonner';
 import { Loader2, SaveIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -34,7 +33,7 @@ const ChatRole: React.FC<ChatRoleProps> = ({
     member,
     handleUpdateCallback,
 }) => {
-    const [role, setRole] = useState('');
+    const [role, setRole] = useState('member');
     const [isUpdating, setIsUpdating] = useState(false);
 
     const modalClose = useCallback(() => {
@@ -42,7 +41,11 @@ const ChatRole: React.FC<ChatRoleProps> = ({
     }, [close]);
 
     useEffect(() => {
-        setRole(member?.role || 'member');
+        if (member && member.role) {
+            setRole(member.role);
+        } else {
+            setRole('member'); // Default value
+        }
     }, [member]);
 
     const handleSave = useCallback(() => {
@@ -75,12 +78,20 @@ const ChatRole: React.FC<ChatRoleProps> = ({
             });
     }, [member, role, chat, handleUpdateCallback, modalClose]);
 
+    const handleRoleChange = (value: string) => {
+        console.log('Role changed to:', value);
+        setRole(value);
+    };
+
+    console.log('Current role:', role);
+    console.log('Member:', member);
+
     return (
         <GlobalDialog
             open={opened}
             setOpen={(open) => !open && modalClose()}
-            title={`${member?.user?.fullName || member?.user?.fullName}'s Role Options`}
-            subTitle={`Assign a role to ${member?.user?.fullName || member?.user?.fullName}.`}
+            title={`${member?.user?.fullName || 'User'}'s Role Options`}
+            subTitle={`Assign a role to ${member?.user?.fullName || 'the user'}.`}
             className='sm:max-w-[550px]'
             allowFullScreen={false}
             buttons={
@@ -101,15 +112,18 @@ const ChatRole: React.FC<ChatRoleProps> = ({
             <div className='py-2'>
                 <RadioGroup
                     value={role}
-                    onValueChange={setRole}
-                    className='space-y-2'
+                    onValueChange={handleRoleChange}
+                    className='space-y-0'
+                    defaultValue='member'
                 >
-                    <div className='flex items-center space-x-2 bg-foreground rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300'>
+                    <div
+                        className={`flex items-center space-x-2 ${role === 'admin' ? 'bg-primary-light' : 'bg-background'} rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300`}
+                    >
                         <RadioGroupItem value='admin' id='admin' />
-                        <div className=''>
+                        <div className='flex-1'>
                             <label
                                 htmlFor='admin'
-                                className='text-black font-medium text-base cursor-pointer'
+                                className='text-black font-medium text-base cursor-pointer block'
                             >
                                 Admin
                             </label>
@@ -120,12 +134,14 @@ const ChatRole: React.FC<ChatRoleProps> = ({
                         </div>
                     </div>
 
-                    <div className='flex items-center space-x-2 bg-foreground rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300'>
+                    <div
+                        className={`flex items-center space-x-2 ${role === 'moderator' ? 'bg-primary-light' : 'bg-background'} rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300`}
+                    >
                         <RadioGroupItem value='moderator' id='moderator' />
-                        <div>
+                        <div className='flex-1'>
                             <label
                                 htmlFor='moderator'
-                                className='text-black font-medium text-base cursor-pointer'
+                                className='text-black font-medium text-base cursor-pointer block'
                             >
                                 Moderator
                             </label>
@@ -136,12 +152,14 @@ const ChatRole: React.FC<ChatRoleProps> = ({
                         </div>
                     </div>
 
-                    <div className='flex items-center space-x-2 bg-foreground rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300'>
+                    <div
+                        className={`flex items-center space-x-2 ${role === 'member' ? 'bg-primary-light' : 'bg-background'} rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300`}
+                    >
                         <RadioGroupItem value='member' id='member' />
-                        <div>
+                        <div className='flex-1'>
                             <label
                                 htmlFor='member'
-                                className='text-black font-medium text-base cursor-pointer'
+                                className='text-black font-medium text-base cursor-pointer block'
                             >
                                 Member
                             </label>

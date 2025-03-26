@@ -16,7 +16,7 @@ export default function DashboardBody() {
         <div className=''>
             <DashboardTitle />
 
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 my-2'>
+            <div className='grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2 my-2'>
                 <OverallProgress />
                 <CalendarSection />
                 <TodoSection />

@@ -39,13 +39,13 @@ const AllEvents = () => {
     });
 
     const events: TEvent[] =
-        (data?.events as TEvent[]).filter((ev) => ev.type !== 'task') || [];
+        (data?.events as TEvent[])?.filter((ev) => ev.type !== 'task') || [];
 
     const pathName = usePathname();
     const router = useRouter();
 
     return (
-        <>
+        <div className='pt-2'>
             <GlobalHeader
                 title={
                     <div>
@@ -62,17 +62,18 @@ const AllEvents = () => {
                             className='text-dark-gray fill-none stroke-none'
                             variant={'secondary'}
                             icon={<MyInvitationsIcon />}
+                            tooltip='My Invitations'
                         >
                             <Link href={'/calendar/my-invitations'}>
-                                My Invitaions
+                                My Invitations
                             </Link>
                         </Button>
                         <RangePickerCL value={date} onChange={setDate} />
-                        <FilterModal
+                        {/* <FilterModal
                             value={[]}
                             columns={[]}
                             onChange={() => null}
-                        />
+                        /> */}
                         <EventPopoverTrigger>
                             <Button icon={<Plus size={18} />}>
                                 Create New
@@ -242,7 +243,7 @@ const AllEvents = () => {
                     }}
                 />
             </div>
-        </>
+        </div>
     );
 };
 

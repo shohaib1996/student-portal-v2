@@ -40,7 +40,7 @@ export function TechnicalTestSection() {
                         Track Your Performance in Technical Tests
                     </p>
                 </div>
-                <ViewMoreLink href='#' />
+                <ViewMoreLink href='/dashboard/technical-test' />
             </CardHeader>
             <CardContent className='p-2'>
                 <div className='grid grid-cols-2 gap-4 mt-4'>

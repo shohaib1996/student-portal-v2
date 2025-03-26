@@ -244,6 +244,10 @@ body {
     .document-container {
         @apply max-w-[1400px] mx-auto;
     }
+
+    .active-tab-design {
+        @apply border-b rounded-none data-[state=active]:text-primary-white data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent;
+    }
 }
 .message-preview a {
     word-break: break-all !important;

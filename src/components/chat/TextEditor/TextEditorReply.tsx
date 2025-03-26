@@ -8,7 +8,6 @@ import dynamic from 'next/dynamic';
 import { toast } from 'sonner';
 import { debounce } from 'lodash';
 import { useParams } from 'next/navigation';
-import { useSelector } from 'react-redux';
 import {
     DropdownMenu,
     DropdownMenuContent,

@@ -24,7 +24,7 @@ import {
     useGetMyEventsQuery,
     useUpdateInvitationMutation,
 } from '@/redux/api/calendar/calendarApi';
-import { useAppSelector } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { TUser } from '@/types/auth';
 import { TEvent } from '@/types/calendar/calendarTypes';
 import { endOfMonth, startOfMonth } from 'date-fns';
@@ -35,6 +35,7 @@ import {
     Eye,
     PlusCircle,
     Timer,
+    X,
     XCircle,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -208,13 +209,41 @@ const MyInvitations = () => {
         }
     };
 
+    const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
+
     const defaultColumns: TCustomColumnDef<TEvent>[] = [
+        {
+            accessorKey: 'select',
+            header: '',
+            cell: ({ row }) => {
+                return (
+                    <Checkbox
+                        checked={selectedEvents.includes(row.original._id)}
+                        onCheckedChange={(val) => {
+                            if (val === false) {
+                                setSelectedEvents((prev) =>
+                                    prev.filter(
+                                        (id) => id !== row.original._id,
+                                    ),
+                                );
+                            } else {
+                                setSelectedEvents((prev) => [
+                                    ...prev,
+                                    row.original._id,
+                                ]);
+                            }
+                        }}
+                    />
+                );
+            },
+            footer: (data) => data.column.id,
+            id: 'select',
+            visible: true,
+            canHide: false,
+        },
         {
             accessorKey: 'title',
             header: 'Meeting Title',
-            // cell: ({ row }) => {
-            //     return <TdUser user={row.original.organizer as TUser} />;
-            // },
             footer: (data) => data.column.id,
             id: 'title',
             visible: true,
@@ -396,6 +425,8 @@ const MyInvitations = () => {
         },
     ];
 
+    const dispatch = useAppDispatch();
+
     const handleUpdateInvitation = async ({
         status,
         event,
@@ -435,40 +466,36 @@ const MyInvitations = () => {
     };
 
     return (
-        <div>
+        <div className='pt-2'>
             <GlobalHeader
                 title={<div>My Invitations</div>}
                 subTitle='Check out all your incoming invitations'
                 buttons={
                     <div className='flex items-center gap-2'>
-                        <SortMenu
-                            value={sortData}
-                            onChange={(val) => setSortData(val)}
-                            columns={[]}
-                        />
+                        {selectedEvents.length > 0 && (
+                            <>
+                                <Button
+                                    onClick={() => setSelectedEvents([])}
+                                    variant={'primary_light'}
+                                >
+                                    {selectedEvents.length} Selected Events
+                                    <X size={18} />
+                                </Button>
+                                <Button
+                                    onClick={() => toast.info('Comming Soon')}
+                                    variant={'primary_light'}
+                                >
+                                    Accept All
+                                </Button>
+                                <Button
+                                    onClick={() => toast.info('Comming Soon')}
+                                    variant={'danger_light'}
+                                >
+                                    Reject All
+                                </Button>
+                            </>
+                        )}
                         <RangePickerCL value={date} onChange={setDate} />
-                        <FilterModal
-                            value={filterData}
-                            onChange={handleFilter}
-                            columns={[
-                                {
-                                    label: 'Username/Email',
-                                    value: 'query',
-                                },
-                                {
-                                    label: 'Program',
-                                    value: 'program',
-                                },
-                                {
-                                    label: 'Session',
-                                    value: 'session',
-                                },
-                                {
-                                    label: 'Enrollment Date',
-                                    value: 'date',
-                                },
-                            ]}
-                        />
                     </div>
                 }
             />

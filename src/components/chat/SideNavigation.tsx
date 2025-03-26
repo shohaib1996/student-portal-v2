@@ -18,6 +18,7 @@ import {
     Bot,
     UserMinus,
     MessageSquareText,
+    MessageSquareMore,
 } from 'lucide-react';
 import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '../global/GlobalTooltip';
@@ -99,7 +100,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
     );
 
     return (
-        <div className='flex flex-col h-full w-[50px]'>
+        <div className='flex flex-col h-full w-10 xl:w-[50px]'>
             <div className='flex flex-col items-center gap-3'>
                 <GlobalTooltip tooltip='All Chats' side='right'>
                     <div
@@ -125,7 +126,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                         className={`bg-transparent hover:bg-primary group text-dark-gray hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('unread')}`}
                     >
                         <div className='relative'>
-                            <MessageSquareText className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
+                            <MessageSquareMore className='h-6 w-6 text-dark-gray group-hover:text-pure-white' />
                             {unread.length > 0 && (
                                 <>
                                     <span className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500'></span>

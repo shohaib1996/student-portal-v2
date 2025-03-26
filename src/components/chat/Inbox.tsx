@@ -19,6 +19,7 @@ import {
     VideoOff,
     SearchIcon,
     PinOff,
+    MoreVertical,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { markRead, updateMyData } from '@/redux/features/chatReducer';
@@ -26,9 +27,17 @@ import { Input } from '../ui/input';
 import NotificationOptionModal from './ChatForm/NotificationModal';
 import { useGetOnlineUsersQuery } from '@/redux/api/chats/chatApi';
 import { useAppSelector } from '@/redux/hooks';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 // Import directly instead of using lazy loading to avoid the initial loading state
 import ChatBody from './ChatBody';
+import { EventPopoverTrigger } from '../calendar/CreateEvent/EventPopover';
+import instance from '@/utils/storage';
 
 dayjs.extend(relativeTime);
 
@@ -88,8 +97,6 @@ const Inbox: React.FC<InboxProps> = ({
     const dispatch = useDispatch();
     const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
     const { chats } = useAppSelector((state) => state.chat);
-
-    // Search state: controls whether the search box is open and holds the search query
     const [search, setSearch] = useState({
         isOpen: false,
         query: '',
@@ -121,8 +128,12 @@ const Inbox: React.FC<InboxProps> = ({
 
             axios
                 .put('/chat/favourite', data)
-                .then((res) => {
-                    toast.success('Favorite saved successfully');
+                .then((res: any) => {
+                    toast.success(
+                        res?.data?.member?.isFavourite === true
+                            ? 'Pinned successfully'
+                            : 'Unpinned successfully',
+                    );
                     dispatch(
                         updateMyData({
                             _id: chat._id,
@@ -131,7 +142,8 @@ const Inbox: React.FC<InboxProps> = ({
                         }),
                     );
                 })
-                .catch((err) => {
+                .catch((err: any) => {
+                    console.error(err);
                     toast.error(
                         err?.response?.data?.error || 'An error occurred',
                     );
@@ -163,6 +175,13 @@ const Inbox: React.FC<InboxProps> = ({
         setIsMeeting((prev) => !prev);
     }, []);
 
+    const toggleSearch = useCallback(() => {
+        setSearch((prev) => ({
+            ...prev,
+            isOpen: !prev.isOpen,
+        }));
+    }, []);
+
     return (
         <>
             {/* Set position relative so the absolute search box is positioned relative to this container */}
@@ -170,12 +189,12 @@ const Inbox: React.FC<InboxProps> = ({
                 <div className='flex flex-col h-full'>
                     <div className='flex items-center justify-between p-2 border-b'>
                         <div className='flex items-center space-x-3'>
-                            {/* <Link
-                                className='text-dark-gray hover:text-primary'
+                            <Link
+                                className='lg:hidden text-dark-gray hover:text-primary'
                                 href='/chat'
                             >
                                 <ArrowLeft className='h-5 w-5 text-dark-gray' />
-                            </Link> */}
+                            </Link>
 
                             <div className='relative'>
                                 <Image
@@ -188,7 +207,7 @@ const Inbox: React.FC<InboxProps> = ({
                                               '/avatar.png'
                                     }
                                     onClick={handleToggleInfo}
-                                    className='cursor-pointer object-cover border shadow-md rounded-full bg-primary w-[40px] h-[40px]'
+                                    className='cursor-pointer object-cover border shadow-md rounded-full bg-primary w-[40px] min-w-[40px] h-[40px]'
                                     alt={
                                         chat?.isChannel
                                             ? chat?.name
@@ -212,7 +231,7 @@ const Inbox: React.FC<InboxProps> = ({
                                 className='cursor-pointer flex flex-col gap-0'
                                 onClick={handleToggleInfo}
                             >
-                                <h4 className='text-dark-gray capitalize text-sm font-semibold truncate'>
+                                <h4 className='text-dark-gray capitalize text-sm font-semibold truncate max-w-[200px] md:max-w-[300px] 3xl:max-w-[550px] '>
                                     {chat?.isChannel
                                         ? chat?.name
                                         : chat?.otherUser?.fullName ||
@@ -243,33 +262,30 @@ const Inbox: React.FC<InboxProps> = ({
                             </div>
                         </div>
 
-                        <div className='flex items-center space-x-2'>
+                        {/* Hidden on small screens, visible on lg and above */}
+                        <div className='hidden lg:flex items-center space-x-2'>
                             <Button
                                 variant='primary_light'
                                 size='icon'
                                 className='border'
-                                onClick={() =>
-                                    setSearch((prev) => ({
-                                        ...prev,
-                                        isOpen: !prev.isOpen,
-                                    }))
-                                }
+                                onClick={toggleSearch}
                             >
                                 <Search className='h-5 w-5' />
                             </Button>
+
                             {chat?.otherUser?.type !== 'bot' && (
                                 <>
-                                    <Button
-                                        variant='primary_light'
-                                        size='icon'
-                                        className='border cursor-pointer'
-                                        asChild
-                                        onClick={() =>
-                                            toast.info('Coming soon!')
-                                        }
-                                    >
-                                        <Calendar className='h-5 w-5' />
-                                    </Button>
+                                    <EventPopoverTrigger>
+                                        <Button
+                                            tooltip='Create Event'
+                                            variant='primary_light'
+                                            size='icon'
+                                            className='border cursor-pointer'
+                                            asChild
+                                        >
+                                            <Calendar className='h-5 w-5' />
+                                        </Button>
+                                    </EventPopoverTrigger>
 
                                     <Button
                                         variant='primary_light'
@@ -285,6 +301,7 @@ const Inbox: React.FC<InboxProps> = ({
                                     </Button>
                                 </>
                             )}
+
                             <Button
                                 variant='primary_light'
                                 size='icon'
@@ -312,6 +329,92 @@ const Inbox: React.FC<InboxProps> = ({
                                     <PinOff className='h-5 w-5 rotate-45' />
                                 )}
                             </Button>
+                        </div>
+
+                        {/* Visible on small screens, hidden on lg and above */}
+                        <div className='lg:hidden'>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant='secondary'
+                                        size='icon'
+                                        className='bg-background h-10 w-10 min-w-10'
+                                    >
+                                        <MoreVertical className='h-5 w-5' />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align='end'>
+                                    <DropdownMenuItem onClick={toggleSearch}>
+                                        <Search className='h-4 w-4 ' />
+                                        Search
+                                    </DropdownMenuItem>
+
+                                    {chat?.otherUser?.type !== 'bot' && (
+                                        <>
+                                            <DropdownMenuItem asChild>
+                                                <EventPopoverTrigger>
+                                                    <div className='flex items-center w-full gap-2 cursor-pointer'>
+                                                        <Calendar className='h-4 w-4 ' />
+                                                        Create Event
+                                                    </div>
+                                                </EventPopoverTrigger>
+                                            </DropdownMenuItem>
+
+                                            <DropdownMenuItem
+                                                onClick={toggleMeeting}
+                                            >
+                                                {isMeeting ? (
+                                                    <>
+                                                        <VideoOff className='h-4 w-4 ' />
+                                                        End Meeting
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Video className='h-4 w-4 ' />
+                                                        Start Meeting
+                                                    </>
+                                                )}
+                                            </DropdownMenuItem>
+                                        </>
+                                    )}
+
+                                    <DropdownMenuItem
+                                        onClick={() => handleNoti()}
+                                    >
+                                        {chat?.myData?.notification?.isOn ? (
+                                            <>
+                                                <Bell className='h-4 w-4 ' />
+                                                Notifications On
+                                            </>
+                                        ) : (
+                                            <>
+                                                <BellOff className='h-4 w-4 ' />
+                                                Notifications Off
+                                            </>
+                                        )}
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            handleFavourite(
+                                                !chat?.myData?.isFavourite,
+                                            )
+                                        }
+                                    >
+                                        {!chat?.myData?.isFavourite ? (
+                                            <>
+                                                <Pin className='h-4 w-4  rotate-45' />
+                                                Pin Chat
+                                            </>
+                                        ) : (
+                                            <>
+                                                <PinOff className='h-4 w-4  rotate-45' />
+                                                Unpin Chat
+                                            </>
+                                        )}
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
 

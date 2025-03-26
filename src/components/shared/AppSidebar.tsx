@@ -10,6 +10,7 @@ import {
     GalleryVerticalEnd,
     HelpCircle,
     MessageSquare,
+    MessageSquareMore,
     Users,
 } from 'lucide-react';
 
@@ -52,6 +53,7 @@ export type TLoookup = {
 };
 
 export function AppSidebar() {
+    const { chats = [] } = useAppSelector((state) => state.chat);
     const { user, isAuthenticated } = useAppSelector((state) => state.auth);
     const [wordEntered, setWordEntered] = useState('');
     const [filteredData, setFilteredData] = useState([]);
@@ -59,10 +61,21 @@ export function AppSidebar() {
     const pathname = usePathname();
     const router = useRouter();
     const searchRef = useRef<HTMLDivElement>(null);
+    // const { chats } = useSelector((state: RootState) => state.chat);
+    const [unread, setUnread] = useState<any[]>([]);
+
+    useEffect(() => {
+        const channels =
+            chats?.filter(
+                (x: any) => x?.isChannel && (x?.unreadCount ?? 0) > 0,
+            ) || [];
+        setUnread(channels); // Add this line to store the result in state
+    }, [chats]);
 
     const { activeCompany, companies, features } = useAppSelector(
         (state) => state.company,
     );
+    const isChatAvailable = features?.find((f) => f.key === 'chat');
     const isCommunityAvailable = features?.find((f) => f.key === 'community');
     const isCalendarAvailable = features?.find((f) => f.key === 'calendar');
     const navigations = useAppSelector((state) => state.navigations);
@@ -569,6 +582,35 @@ export function AppSidebar() {
                                 </SidebarMenuItem>
                             )}
 
+                            {/* Chat */}
+                            {isChatAvailable && (
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        tooltip={'Chat'}
+                                        isActive={pathname === '/chat'}
+                                    >
+                                        <div
+                                            className={`cursor-pointer flex items-center justify-center rounded-md duration-200 `}
+                                        >
+                                            <div className='relative'>
+                                                <MessageSquareMore className='h-5 w-5 text-dark-gray' />
+                                                {unread.length > 0 && (
+                                                    <>
+                                                        <span className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500'></span>
+                                                        <span className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping'></span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <Link
+                                            className='whitespace-nowrap truncate w-full'
+                                            href='/chat'
+                                        >
+                                            Chat
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            )}
                             {/* Community */}
                             {isCommunityAvailable && (
                                 <SidebarMenuItem>

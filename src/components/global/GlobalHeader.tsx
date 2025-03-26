@@ -29,7 +29,7 @@ const GlobalHeader = ({
 
     return (
         <ExpandContext.Provider value={{ open, toggleOpen }}>
-            <div className='flex flex-col sm:flex-row gap-2 sm:items-center justify-between pb-1 border-b border-forground-border'>
+            <div className='flex gap-2 flex-wrap flex-col sm:flex-row sm:items-center justify-between pb-1 border-b border-forground-border'>
                 <div>
                     <div className='flex items-center gap-1'>
                         <h2 className='text-black text-xl font-semibold'>

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { ViewMoreLink } from './view-more-link';
 
 interface DocumentItemProps {
     title: string;
@@ -84,9 +85,7 @@ export function DocumentItem({
                     </div>
                 </div>
             </div>
-            <Button variant='primary_light' size='sm' className='h-7 text-xs'>
-                View More
-            </Button>
+            <ViewMoreLink href='/my-documents' />
         </div>
     );
 }

@@ -8,10 +8,22 @@ import {
     CardHeader,
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, Clock, CreditCard, FileText, Star } from 'lucide-react';
+import {
+    ArrowRight,
+    CalendarDays,
+    Clock,
+    CreditCard,
+    FileText,
+    Network,
+    Star,
+    University,
+} from 'lucide-react';
 import { TCourse } from '@/types';
 import { useState } from 'react';
-import { PaymentModal } from './payment-modal';
+// import { PaymentModal } from './payment-modal';
+import { RadialProgress } from '@/components/global/RadialProgress';
+import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
+import Link from 'next/link';
 
 export default function CourseCard({ course }: { course: TCourse }) {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -26,12 +38,15 @@ export default function CourseCard({ course }: { course: TCourse }) {
 
     return (
         <div>
-            <Card className='w-full max-w-md overflow-hidden border border-border-primary-light bg-primary-light'>
+            <Card className='w-full overflow-hidden border border-border-primary-light bg-foreground'>
                 {/* Banner Image with Active Badge */}
                 <div className='relative'>
                     <div className='relative h-[200px] w-full bg-blue-900/20'>
                         <Image
-                            src={course?.course?.image || '/placeholder.jpg'}
+                            src={
+                                course?.course?.image ||
+                                '/images/course-thumbnail.jpeg'
+                            }
                             alt={course.course?.title}
                             fill
                             className='object-cover brightness-[0.8] contrast-[1.1] saturate-[1.2] filter'
@@ -46,9 +61,9 @@ export default function CourseCard({ course }: { course: TCourse }) {
                 </div>
 
                 {/* User Info */}
-                <div className='flex items-center justify-between  p-3'>
+                <div className='flex items-center justify-between p-2'>
                     <div className='flex items-center gap-1'>
-                        <div className='h-8 w-8 relative rounded-full overflow-hidden bg-background'>
+                        <div className='h-6 w-6 relative rounded-full overflow-hidden bg-background'>
                             <Image
                                 src='/avatar.png'
                                 alt='John Doe'
@@ -62,20 +77,20 @@ export default function CourseCard({ course }: { course: TCourse }) {
                             <h3 className='font-medium text-sm text-black'>
                                 {course?.course?.instructor?.name}
                             </h3>
-                            <p className='text-dark-gray text-xs'>
+                            {/* <p className='text-dark-gray text-xs'>
                                 CloudOps Engineer
-                            </p>
+                            </p> */}
                         </div>
                     </div>
                     <Button
                         variant='outline'
                         size='sm'
-                        className='text-primary'
+                        className='text-primary px-1 py-0.5'
                     >
                         <svg
-                            width='16'
-                            height='16'
-                            viewBox='0 0 16 16'
+                            width='15'
+                            height='15'
+                            viewBox='0 0 15 15'
                             fill='none'
                             xmlns='http://www.w3.org/2000/svg'
                         >
@@ -171,15 +186,27 @@ export default function CourseCard({ course }: { course: TCourse }) {
                     </Button>
                 </div>
 
-                <CardHeader className='pt-0 px-3 pb-0'>
-                    <h2 className='text-xl font-bold truncate'>
-                        {course.course?.title}
-                    </h2>
+                <CardHeader className='pt-0 px-2 pb-0 flex flex-row items-center justify-between gap-1 mb-2'>
+                    <div>
+                        <p className='flex items-center gap-1 '>
+                            <University size={16} /> Org With Logo
+                        </p>
+                        <p className='flex items-center gap-1 line-clamp-1'>
+                            <Network size={16} /> {course.course?.title}
+                        </p>
+                        <p className='flex items-center gap-1 '>
+                            <CalendarDays size={16} />{' '}
+                            {formatDateToCustomString(course.createdAt, false)}
+                        </p>
+                    </div>
+                    <div>
+                        <RadialProgress value={0} />
+                    </div>
                 </CardHeader>
 
-                <CardContent className='space-y-2 px-3 pt-0'>
+                <CardContent className='px-2 pt-0'>
                     {/* Course Details */}
-                    <div className='flex items-center gap-2'>
+                    {/* <div className='flex items-center gap-2'>
                         <div className='flex items-center gap-2 text-sm text-gray-500'>
                             <FileText className='h-4 w-4' />
                             <span>15 Modules</span>
@@ -188,10 +215,10 @@ export default function CourseCard({ course }: { course: TCourse }) {
                             <Clock className='h-4 w-4' />
                             <span>18h 35min</span>
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Rating */}
-                    <div className='flex items-center gap-1'>
+                    {/* <div className='flex items-center gap-1'>
                         {[1, 2, 3, 4, 5].map((star) => (
                             <Star
                                 key={star}
@@ -200,22 +227,28 @@ export default function CourseCard({ course }: { course: TCourse }) {
                         ))}
                         <span className='ml-1 font-medium'>5.0</span>
                         <span className='text-sm text-gray-500'>(30,765)</span>
-                    </div>
+                    </div> */}
 
                     {/* Pricing */}
-                    <div className='flex justify-between'>
+                    <div className='grid grid-cols-3 rounded-md bg-background border border-muted p-2'>
                         <div>
                             <p className='text-sm text-gray'>Total Fee:</p>
                             <p className='font-medium'>${course?.amount}</p>
                         </div>
-                        <div>
+                        <div className='border-l pl-2'>
                             <p className='text-sm text-gray'>Paid:</p>
                             <p className='font-medium'>${course?.paid}</p>
+                        </div>
+                        <div className='border-l pl-2'>
+                            <p className='text-sm text-gray'>Due:</p>
+                            <p className='font-medium'>
+                                ${course?.amount - course?.paid}
+                            </p>
                         </div>
                     </div>
 
                     {/* Progress */}
-                    <div>
+                    {/* <div>
                         <div className='mb-1 flex justify-between'>
                             <span className='text-sm text-gray'>
                                 Overall Progress
@@ -225,30 +258,31 @@ export default function CourseCard({ course }: { course: TCourse }) {
                             </span>
                         </div>
                         <Progress value={35} className='h-2 bg-foreground' />
-                    </div>
+                    </div> */}
                 </CardContent>
 
-                <CardFooter className='grid grid-cols-3 gap-2 p-4 pt-2'>
-                    <Button className='col-span-1 text-sm'>
+                <CardFooter className='border-t border-border grid grid-cols-3 gap-2 p-2 pt-2'>
+                    <Button className='col-span-1 text-xs'>
                         <span>Go to Course</span>
-                        <ArrowRight className='h-4 w-4' />
+                        <ArrowRight className='h-3 w-3' />
                     </Button>
-                    <Button
-                        variant='outline'
-                        className='col-span-1 text-sm'
-                        onClick={handleOpenModal}
-                    >
-                        <CreditCard className='mr-1 h-4 w-4' />
-                        Payment
-                    </Button>
-                    <Button variant='outline' className='col-span-1 text-sm'>
-                        <FileText className='mr-1 h-4 w-4' />
+                    <Link href='/dashboard/payment-history' className='w-full'>
+                        <Button
+                            variant='outline'
+                            className='col-span-1 text-xs w-full'
+                        >
+                            <CreditCard className='mr-1 h-3 w-3' />
+                            Payment
+                        </Button>
+                    </Link>
+                    <Button variant='outline' className='col-span-1 text-xs'>
+                        <FileText className='mr-1 h-3 w-3' />
                         Assessment
                     </Button>
                 </CardFooter>
             </Card>
 
-            <PaymentModal open={isModalOpen} onOpenChange={handleCloseModal} />
+            {/* <PaymentModal open={isModalOpen} onOpenChange={handleCloseModal} /> */}
         </div>
     );
 }

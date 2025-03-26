@@ -12,7 +12,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Loader2, CalendarIcon, SaveIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import axios from 'axios';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { cn } from '@/lib/utils';
@@ -253,25 +252,42 @@ const MuteOption: React.FC<MuteOptionProps> = ({
                                 setSelectedOption(Number.parseInt(value))
                             }
                         >
-                            <div className='flex items-center space-x-2 bg-foreground rounded-lg border p-2'>
+                            <div
+                                className={`flex items-center space-x-2 rounded-lg border p-2 cursor-pointer ${selectedOption === 1 ? 'bg-primary-light' : 'bg-background'}`}
+                            >
                                 <RadioGroupItem value='1' id='option1' />
-                                <label htmlFor='option1' className='text-gray'>
+                                <label
+                                    htmlFor='option1'
+                                    className='text-gray cursor-pointer w-full'
+                                >
                                     Mute for 1 hour
                                 </label>
                             </div>
-                            <div className='flex items-center space-x-2 bg-foreground rounded-lg border p-2'>
+                            <div
+                                className={`flex items-center space-x-2 rounded-lg border p-2 cursor-pointer ${selectedOption === 2 ? 'bg-primary-light' : 'bg-background'}`}
+                            >
                                 <RadioGroupItem value='2' id='option2' />
-                                <label htmlFor='option2' className='text-gray'>
+                                <label
+                                    htmlFor='option2'
+                                    className='text-gray cursor-pointer w-full'
+                                >
                                     Mute for 1 day
                                 </label>
                             </div>
-                            <div className='flex items-center space-x-2 bg-foreground rounded-lg border p-2'>
+                            <div
+                                className={`flex items-center space-x-2 rounded-lg border p-2 cursor-pointer ${selectedOption === 3 ? 'bg-primary-light' : 'bg-background'}`}
+                            >
                                 <RadioGroupItem value='3' id='option3' />
-                                <label htmlFor='option3' className='text-gray'>
+                                <label
+                                    htmlFor='option3'
+                                    className='text-gray cursor-pointer w-full'
+                                >
                                     Mute Until I turn it back on
                                 </label>
                             </div>
-                            <div className='flex items-start space-x-2 bg-foreground rounded-lg border p-2'>
+                            <div
+                                className={`flex items-start space-x-2 rounded-lg border p-2 ${selectedOption === 4 ? 'bg-primary-light' : 'bg-foreground'}`}
+                            >
                                 <RadioGroupItem
                                     value='4'
                                     id='option4'
@@ -280,7 +296,7 @@ const MuteOption: React.FC<MuteOptionProps> = ({
                                 <div className='w-full'>
                                     <label
                                         htmlFor='option4'
-                                        className='text-gray'
+                                        className='text-gray cursor-pointer w-full'
                                     >
                                         Custom time
                                     </label>

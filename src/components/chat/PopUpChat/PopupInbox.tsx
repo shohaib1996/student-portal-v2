@@ -36,6 +36,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
+import {
+    EventPopoverProvider,
+    EventPopoverTrigger,
+} from '@/components/calendar/CreateEvent/EventPopover';
+import CreateEventModal from '@/components/calendar/CreateEvent/CreateEventModal';
 
 // Dynamic imports
 const ChatBody = lazy(() => import('../ChatBody'));
@@ -149,7 +154,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
     }, []);
 
     return (
-        <>
+        <EventPopoverProvider>
             {/* Adjusted container height for dropdown context */}
             <div className='relative rounded-md h-full'>
                 <div className='flex flex-col h-full'>
@@ -268,10 +273,12 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                     className='min-w-[180px]'
                                 >
                                     {/* Calendar option */}
-                                    <DropdownMenuItem className='flex items-center gap-2 cursor-pointer'>
-                                        <Calendar className='h-4 w-4' />
-                                        <span>Calendar</span>
-                                    </DropdownMenuItem>
+                                    <EventPopoverTrigger className='w-full'>
+                                        <DropdownMenuItem className='flex items-center gap-2 cursor-pointer'>
+                                            <Calendar className='h-4 w-4' />
+                                            <span>Calendar</span>
+                                        </DropdownMenuItem>
+                                    </EventPopoverTrigger>
 
                                     {/* Notification option */}
                                     <DropdownMenuItem
@@ -404,8 +411,9 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                         member={chat?.myData}
                     />
                 </Suspense>
+                <CreateEventModal />
             </div>
-        </>
+        </EventPopoverProvider>
     );
 };
 

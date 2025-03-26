@@ -1,4 +1,5 @@
 'use client';
+
 import GlobalHeader from '@/components/global/GlobalHeader';
 import CourseCard from '@/components/program/online-courses/CourseCard';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGetAllCoursesQuery } from '@/redux/api/course/courseApi';
 import { TCourse } from '@/types';
 import { BookOpenText } from 'lucide-react';
-import React from 'react';
 
 const page = () => {
     const { data } = useGetAllCoursesQuery(undefined);
@@ -18,7 +18,7 @@ const page = () => {
 
     const renderCourses = (courses: TCourse[]) => {
         return (
-            <div className='grid pt-2 xl:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-2'>
+            <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2'>
                 {courses.map((course) => (
                     <CourseCard key={course._id} course={course} />
                 ))}
@@ -44,28 +44,28 @@ const page = () => {
             />
 
             <Tabs defaultValue='all'>
-                <TabsList>
+                <TabsList className='bg-transparent'>
                     <TabsTrigger
                         value='all'
-                        className='data-[state=active]:bg-primary'
+                        className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
                     >
                         All
                     </TabsTrigger>
                     <TabsTrigger
                         value='active'
-                        className='data-[state=active]:bg-primary'
+                        className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
                     >
                         Active
                     </TabsTrigger>
                     <TabsTrigger
                         value='pending'
-                        className='data-[state=active]:bg-primary'
+                        className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
                     >
                         Pending
                     </TabsTrigger>
                     <TabsTrigger
                         value='inactive'
-                        className='data-[state=active]:bg-primary'
+                        className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
                     >
                         Inactive
                     </TabsTrigger>

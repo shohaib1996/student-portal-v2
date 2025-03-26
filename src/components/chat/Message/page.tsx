@@ -40,64 +40,31 @@ import DeleteMessage from '../ChatForm/DeleteMessage';
 import { copyTextToClipboard } from '../../../utils/clipboard';
 import {
     addPinnedMessage,
+    type Message,
     removePinnedMessage,
     updateChats,
+    updateEmoji,
+    updateMessage,
 } from '@/redux/features/chatReducer';
 import { useAppSelector } from '@/redux/hooks';
 import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
 import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
+import { store } from '@/redux/store';
 
 const emojies = ['👍', '😍', '❤', '😂', '🥰', '😯'];
 
-interface MessageProps {
-    message: {
-        _id: string;
-        type?: string;
-        sender?: {
-            _id: string;
-            firstName?: string;
-            lastName?: string;
-            fullName?: string;
-            profilePicture?: string;
-            type?: string;
-        };
-        createdAt: string | undefined;
-        status?: string;
-        text?: string;
-        files?: any[];
-        editedAt?: string;
-        replyCount?: number;
-        reactions?: Record<string, number>;
-        chat?: string;
-        pinnedBy?: any;
-    };
-    lastmessage?: boolean;
-    setEditMessage?: (message: any) => void;
-    setThreadMessage?: (message: any) => void;
-    setForwardMessage?: (message: any) => void;
-    hideOptions?: boolean;
-    hideReplyCount?: boolean;
-    source?: string;
-    hideAlign?: boolean;
-    reload?: number;
-    setReload?: (value: number) => void;
-    isAi?: boolean;
-    searchQuery?: string;
-    bottomRef?: React.RefObject<HTMLDivElement | null>;
-}
-
 type MessageComponent = React.ForwardRefExoticComponent<
-    MessageProps & React.RefAttributes<HTMLDivElement>
+    React.RefAttributes<HTMLDivElement>
 >;
 
-const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
+const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     const { data: chats = [] } = useGetChatsQuery();
     const params = useParams();
     const pinnedMessages = useAppSelector(
         (state) =>
             state.chat.pinnedMessages?.[String(params?.chatid) || ''] || [],
-    ) as MessageProps['message'][];
+    ) as Message['message'][];
     const { user } = useAppSelector((state) => state.auth);
     const [deleteMessage, setDeleteMessage] = useState<any>(null);
     const [chatDelOpened, setChatDelOpened] = useState(false);
@@ -132,7 +99,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
     const handleCopyClick = () => {
         if ((message?.files ?? []).length > 0) {
             // for files
-            const allUrl = message?.files?.map((x) => x.url);
+            const allUrl = message?.files?.map((x: { url: string }) => x.url);
             const files = JSON.stringify(allUrl);
 
             copyTextToClipboard(files)
@@ -181,17 +148,32 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
     };
 
     // handle reaction
-    const handleReaction = (emoji: string, messageId: string) => {
+    const handleReaction = (
+        emoji: string,
+        messageId: string,
+        chatId: string,
+    ) => {
+        console.log('chatId', JSON.stringify(chatId, null, 2));
         instance
             .put(`/chat/react/${messageId}`, {
                 symbol: emoji,
             })
-            .then(() => {
-                if (setReload) {
-                    setReload(Math.random() * 100);
-                }
+            .then((res) => {
+                console.log('res.data', JSON.stringify(res.data, null, 2));
+                dispatch(
+                    updateEmoji({
+                        message: {
+                            ...res.data.message,
+                            chat: chatId,
+                        },
+                    }),
+                );
             })
-            .catch(() => {
+            .catch((error) => {
+                console.log(
+                    'error.response.data',
+                    JSON.stringify(error, null, 2),
+                );
                 toast.error('Something went wrong');
             });
     };
@@ -225,7 +207,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
     const handlePin = (message: any) => {
         const isPinned = Boolean(message.pinnedBy);
         const endpoint = isPinned
-            ? `/chat/unpin/${message._id}`
+            ? `/chat/pin/${message._id}`
             : `/chat/pin/${message._id}`;
 
         instance
@@ -342,7 +324,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                         message?.type !== 'delete' && (
                                             <div className='flex flex-wrap gap-2 mb-2'>
                                                 {message?.files?.map(
-                                                    (file, i) => (
+                                                    (file: File, i: number) => (
                                                         <FileCard
                                                             file={file}
                                                             key={i}
@@ -367,7 +349,9 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
 
                                     <div className='flex justify-between items-center mt-2 text-xs'>
                                         {message?.type !== 'delete' && (
-                                            <div className='flex items-center gap-1 text-pure-white/80'>
+                                            <div
+                                                className={`flex items-center gap-1 text-pure-white/80`}
+                                            >
                                                 {message?.sender?._id ===
                                                     user?._id && (
                                                     <>
@@ -417,6 +401,19 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                     </>
                                                 )}
                                             </div>
+                                        )}
+                                        {message?.forwardedFrom && (
+                                            <p
+                                                className={`ml-5 text-xs flex flex-row items-center ${
+                                                    message?.sender?._id ===
+                                                    user?._id
+                                                        ? 'text-pure-white/80'
+                                                        : 'text-gray'
+                                                }`}
+                                            >
+                                                <Forward size={16} />
+                                                Forwarded
+                                            </p>
                                         )}
                                     </div>
 
@@ -504,6 +501,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                     handleReaction(
                                                         x,
                                                         message._id,
+                                                        message.chat,
                                                     );
                                                     setIsEmojiPickerOpen(false); // Close the emoji list after selection
                                                 }}
@@ -543,7 +541,8 @@ const Message = forwardRef<HTMLDivElement, MessageProps>((props, ref) => {
                                                     onClick={() =>
                                                         handleReaction(
                                                             x,
-                                                            message?._id,
+                                                            message._id,
+                                                            message.chat,
                                                         )
                                                     }
                                                 >
