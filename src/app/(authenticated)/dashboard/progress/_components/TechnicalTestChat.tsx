@@ -105,7 +105,7 @@ export function TechnicalTestChart() {
                                     </ResponsiveContainer>
 
                                     {/* Percentage labels */}
-                                    <div className='absolute top-[18%] right-[10%] text-xs font-medium text-white'>
+                                    <div className='absolute top-[18%] right-[15%] text-xs font-medium text-white'>
                                         35%
                                     </div>
                                     <div className='absolute bottom-[10%] right-[35%] text-xs font-medium text-white'>
@@ -114,10 +114,10 @@ export function TechnicalTestChart() {
                                     <div className='absolute bottom-[30%] left-[10%] text-xs font-medium text-white'>
                                         22%
                                     </div>
-                                    <div className='absolute top-[10%] left-[18%] text-xs font-medium text-white'>
+                                    <div className='absolute top-[15%] left-[18%] text-xs font-medium text-white'>
                                         10%
                                     </div>
-                                    <div className='absolute top-[0%] left-[40%] text-xs font-medium text-white'>
+                                    <div className='absolute top-[5%] left-[40%] text-xs font-medium text-white'>
                                         5%
                                     </div>
                                 </>
@@ -128,50 +128,50 @@ export function TechnicalTestChart() {
                     <div className='md:w-2/3 space-y-4 pb-2 px-2'>
                         <div className='flex items-center justify-between'>
                             <div className='flex items-center gap-2'>
-                                <div className='w-4 h-4 rounded-full bg-blue-500'></div>
-                                <span className='text-gray-600'>
+                                <div className='w-4 h-4 rounded-full bg-primary'></div>
+                                <span className='text-dark-gray'>
                                     Total Assignments
                                 </span>
                             </div>
-                            <span className='font-medium text-gray-900 text-lg'>
+                            <span className='font-medium text-black text-lg'>
                                 80
                             </span>
                         </div>
                         <div className='flex items-center justify-between'>
                             <div className='flex items-center gap-2'>
                                 <div className='w-4 h-4 rounded-full bg-teal-500'></div>
-                                <span className='text-gray-600'>
+                                <span className='text-dark-gray'>
                                     Total Answers
                                 </span>
                             </div>
-                            <span className='font-medium text-gray-900 text-lg'>
+                            <span className='font-medium text-black text-lg'>
                                 50
                             </span>
                         </div>
                         <div className='flex items-center justify-between'>
                             <div className='flex items-center gap-2'>
                                 <div className='w-4 h-4 rounded-full bg-green-500'></div>
-                                <span className='text-gray-600'>Accepted</span>
+                                <span className='text-dark-gray'>Accepted</span>
                             </div>
-                            <span className='font-medium text-gray-900 text-lg'>
+                            <span className='font-medium text-black text-lg'>
                                 20
                             </span>
                         </div>
                         <div className='flex items-center justify-between'>
                             <div className='flex items-center gap-2'>
                                 <div className='w-4 h-4 rounded-full bg-orange-500'></div>
-                                <span className='text-gray-600'>Pending</span>
+                                <span className='text-dark-gray'>Pending</span>
                             </div>
-                            <span className='font-medium text-gray-900 text-lg'>
+                            <span className='font-medium text-black text-lg'>
                                 15
                             </span>
                         </div>
                         <div className='flex items-center justify-between'>
                             <div className='flex items-center gap-2'>
                                 <div className='w-4 h-4 rounded-full bg-red-500'></div>
-                                <span className='text-gray-600'>Rejected</span>
+                                <span className='text-dark-gray'>Rejected</span>
                             </div>
-                            <span className='font-medium text-gray-900 text-lg'>
+                            <span className='font-medium text-black text-lg'>
                                 5
                             </span>
                         </div>
