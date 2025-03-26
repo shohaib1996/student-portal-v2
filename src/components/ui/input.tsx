@@ -47,7 +47,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     className={cn(
                         'flex items-center w-full rounded-lg bg-background transition-colors group border border-input',
                         isFocused &&
-                            'ring-2 ring-blue-700/30 border-transparent',
+                            'ring-1 ring-blue-700/30 border-transparent',
                         className,
                     )}
                 >

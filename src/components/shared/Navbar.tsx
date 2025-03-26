@@ -10,7 +10,10 @@ import {
     Globe,
     MessageSquareDot,
     MessageSquareMore,
+    GraduationCap,
+    Menu,
     Moon,
+    PanelRightOpen,
     Search,
     Settings,
     Sun,
@@ -18,7 +21,6 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { setCompanySwitcher } from '@/redux/features/comapnyReducer';
 import Cookies from 'js-cookie';
 import Link from 'next/link';
 import NotificationMenu from './NotificationMenu';
@@ -28,6 +30,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { getInitialsFromName } from '@/utils/common';
 import CourseSectionOpenButton from '../global/SelectModal/buttons/course-section-open-button';
 import { useRouter } from 'nextjs-toploader/app';
+import Image from 'next/image';
+import { SidebarTrigger } from '../ui/sidebar';
 
 const Navbar = () => {
     const dispatch = useAppDispatch();
@@ -123,49 +127,64 @@ const Navbar = () => {
                 </Link>
             ),
         },
+        {
+            id: 8,
+            content: (
+                <Button className='md:hidden' variant={'primary_light'}>
+                    <Link href='/docs' target='_blank'>
+                        Manual
+                    </Link>
+                </Button>
+            ),
+        },
     ].filter(Boolean);
+
+    const [searchOpen, setSearchOpen] = useState(false);
 
     return (
         <div className='sticky top-0 z-20 flex flex-shrink-0 w-full h-[55px] box-border bg-foreground border-b border-forground-border shadow-sm'>
-            <div className='flex justify-between w-full h-full items-center px-2'>
+            <div className='flex gap-2 relative justify-between w-full h-full items-center px-2'>
                 <Input
-                    className='h-9 rounded-full lg:w-[390px] text-dark-gray'
+                    className='h-9 rounded-full md:w-[390px] md:inline-flex hidden w-9 text-dark-gray'
                     placeholder='Search here'
                     prefix={<Search size={18} />}
                 />
-                <div className='flex gap-4 items-center'>
-                    {/* <Button
-                        variant={'secondary'}
-                        className='rounded-full  text-dark-gray max-w-[200px]'
-                        onClick={() => dispatch(setCompanySwitcher(true))}
+                <div className='flex aspect-square md:hidden items-center justify-center'>
+                    <Image
+                        src={theme === 'dark' ? '/logo.png' : '/logo-blue.png'}
+                        width={120}
+                        height={30}
+                        alt='logo'
+                    />
+                </div>
+                <div className='flex xl:gap-3 md:gap-2 gap-1 items-center'>
+                    <Button
+                        onClick={() => setSearchOpen((prev) => !prev)}
+                        className='rounded-full size-9 text-dark-gray md:hidden'
+                        variant={'outline'}
+                        icon={<Search size={18} />}
+                    />
+
+                    <CourseSectionOpenButton
+                        icon={
+                            <GraduationCap
+                                className='text-dark-gray'
+                                size={18}
+                            />
+                        }
+                    />
+
+                    <Button
+                        className='md:block hidden'
+                        variant={'primary_light'}
                     >
-                        <p className='truncate w-full'>
-                            {companies?.find((c) => c._id === activeCompany)
-                                ?.name || 'Select Company'}
-                        </p>
-                        <p>
-                            <ChevronDown size={16} />
-                        </p>
-                    </Button> */}
-
-                    <CourseSectionOpenButton />
-
-                    <Button variant={'primary_light'}>
                         <Link href='/docs' target='_blank'>
                             Manual
                         </Link>
                     </Button>
-                    <div className='border-none flex gap-1 h-full items-center text-dark-gray'>
-                        <p>
-                            <Globe size={16} />
-                        </p>
-                        <p>English</p>
-                        <p>
-                            <ChevronDown size={16} />
-                        </p>
-                    </div>
-                    <div
-                        className='border-none flex gap-1 h-full items-center text-dark-gray cursor-pointer'
+                    <Button
+                        className='rounded-full size-9 text-dark-gray'
+                        variant={'outline'}
                         onClick={() =>
                             setTheme(theme === 'dark' ? 'light' : 'dark')
                         }
@@ -175,7 +194,7 @@ const Navbar = () => {
                         ) : (
                             <Sun size={18} />
                         )}
-                    </div>
+                    </Button>
                     {isAuthenticated && isChatAvailable && (
                         <>
                             <div
@@ -203,7 +222,7 @@ const Navbar = () => {
                     {isAuthenticated && isCalendarAvailable && (
                         <>
                             <Button
-                                variant={'secondary'}
+                                variant={'outline'}
                                 size={'icon'}
                                 className='rounded-full text-dark-gray'
                                 onClick={() => router.push('/calendar')}
@@ -247,7 +266,20 @@ const Navbar = () => {
                             </AvatarFallback>
                         </Avatar>
                     </GlobalDropdown>
+                    <SidebarTrigger className='md:hidden text-dark-gray'>
+                        <Menu size={18} />
+                    </SidebarTrigger>
                 </div>
+
+                {searchOpen && (
+                    <div className='absolute md:hidden shadow-md px-2 bg-foreground flex items-center top-[52px] left-0 w-full h-9 z-[999999]'>
+                        <Input
+                            className='h-7 bg-background rounded-full w-full  text-dark-gray'
+                            placeholder='Search here'
+                            prefix={<Search size={18} />}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

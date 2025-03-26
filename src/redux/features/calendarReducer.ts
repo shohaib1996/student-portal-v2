@@ -15,6 +15,7 @@ type TInitialState = {
         | 'inprogress'
         | 'completed'
     )[];
+    typeFilter: ('task' | 'event')[];
     holidayFilter: string[];
     rolesFilter: ('organizer' | 'attendee')[];
     priorityFilter: ('low' | 'medium' | 'high')[];
@@ -26,6 +27,7 @@ const initialState: TInitialState = {
     todoFilter: [],
     holidayFilter: [],
     rolesFilter: [],
+    typeFilter: [],
     priorityFilter: [],
     currentDate: null,
 };
@@ -54,6 +56,12 @@ const calendarSlice = createSlice({
             action: PayloadAction<TInitialState['todoFilter']>,
         ) => {
             state.todoFilter = action.payload;
+        },
+        setTypeFilter: (
+            state,
+            action: PayloadAction<TInitialState['typeFilter']>,
+        ) => {
+            state.typeFilter = action.payload;
         },
         setHolidayFilter: (state, action: PayloadAction<string[]>) => {
             state.holidayFilter = action.payload;
@@ -90,6 +98,7 @@ export const {
     setRolesFilter,
     setPriorityFilter,
     setCurrentDate,
+    setTypeFilter,
     resetFilters,
 } = calendarSlice.actions;
 

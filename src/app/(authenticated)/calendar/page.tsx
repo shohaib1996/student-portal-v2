@@ -26,6 +26,13 @@ import { useRouter } from 'next/navigation';
 import EventDetails from '@/components/calendar/EventDetails';
 import { EventPopoverProvider } from '@/components/calendar/CreateEvent/EventPopover';
 import Link from 'next/link';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import FilterIcon from '@/components/svgs/common/FilterIcon';
+import CalendarFilter from '@/components/calendar/Filter/CalendarFilter';
 
 interface CustomSheetContentProps
     extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content> {
@@ -83,11 +90,7 @@ const CalendarPage = () => {
                             icon={<AvailabilityIcon />}
                             variant={'secondary'}
                         ></Button>
-                        <FilterModal
-                            value={[]}
-                            columns={[]}
-                            onChange={() => null}
-                        />
+                        <CalendarFilter />
                         <Button icon={<Plus size={18} />}>Create New</Button>
                     </div>
                 }
