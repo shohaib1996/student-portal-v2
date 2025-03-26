@@ -189,7 +189,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     const handlePin = (message: any) => {
         const isPinned = Boolean(message.pinnedBy);
         const endpoint = isPinned
-            ? `/chat/unpin/${message._id}`
+            ? `/chat/pin/${message._id}`
             : `/chat/pin/${message._id}`;
 
         instance
@@ -331,7 +331,9 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
 
                                     <div className='flex justify-between items-center mt-2 text-xs'>
                                         {message?.type !== 'delete' && (
-                                            <div className='flex items-center gap-1 text-pure-white/80'>
+                                            <div
+                                                className={`flex items-center gap-1 text-pure-white/80`}
+                                            >
                                                 {message?.sender?._id ===
                                                     user?._id && (
                                                     <>
@@ -383,7 +385,17 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             </div>
                                         )}
                                         {message?.forwardedFrom && (
-                                            <p>Forwarded</p>
+                                            <p
+                                                className={`ml-5 text-xs flex flex-row items-center ${
+                                                    message?.sender?._id ===
+                                                    user?._id
+                                                        ? 'text-pure-white/80'
+                                                        : 'text-gray'
+                                                }`}
+                                            >
+                                                <Forward size={16} />
+                                                Forwarded
+                                            </p>
                                         )}
                                     </div>
 

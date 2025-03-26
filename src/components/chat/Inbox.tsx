@@ -29,6 +29,7 @@ import { useAppSelector } from '@/redux/hooks';
 
 // Import directly instead of using lazy loading to avoid the initial loading state
 import ChatBody from './ChatBody';
+import { EventPopoverTrigger } from '../calendar/CreateEvent/EventPopover';
 
 dayjs.extend(relativeTime);
 
@@ -170,12 +171,12 @@ const Inbox: React.FC<InboxProps> = ({
                 <div className='flex flex-col h-full'>
                     <div className='flex items-center justify-between p-2 border-b'>
                         <div className='flex items-center space-x-3'>
-                            {/* <Link
-                                className='text-dark-gray hover:text-primary'
+                            <Link
+                                className='lg:hidden text-dark-gray hover:text-primary'
                                 href='/chat'
                             >
                                 <ArrowLeft className='h-5 w-5 text-dark-gray' />
-                            </Link> */}
+                            </Link>
 
                             <div className='relative'>
                                 <Image
@@ -259,17 +260,17 @@ const Inbox: React.FC<InboxProps> = ({
                             </Button>
                             {chat?.otherUser?.type !== 'bot' && (
                                 <>
-                                    <Button
-                                        variant='primary_light'
-                                        size='icon'
-                                        className='border cursor-pointer'
-                                        asChild
-                                        onClick={() =>
-                                            toast.info('Coming soon!')
-                                        }
-                                    >
-                                        <Calendar className='h-5 w-5' />
-                                    </Button>
+                                    <EventPopoverTrigger>
+                                        <Button
+                                            tooltip='Create Event'
+                                            variant='primary_light'
+                                            size='icon'
+                                            className='border cursor-pointer'
+                                            asChild
+                                        >
+                                            <Calendar className='h-5 w-5' />
+                                        </Button>
+                                    </EventPopoverTrigger>
 
                                     <Button
                                         variant='primary_light'

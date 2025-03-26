@@ -58,6 +58,13 @@ import {
     Users as UsersIcon,
     SlidersHorizontal,
     ChevronDown,
+    User,
+    Users,
+    MessageSquareMore,
+    UserCheck,
+    Archive,
+    Bot,
+    UserMinus,
 } from 'lucide-react';
 import { useAppSelector } from '@/redux/hooks';
 import { useFindOrCreateChatMutation } from '@/redux/api/chats/chatApi';
@@ -358,20 +365,20 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
         <div className='chat-nav h-full'>
             <div className='flex flex-row h-full border-r'>
                 {/* Side Navigation - Fixed */}
-                <div className='bg-primary-light p-1 border border-primary h-[calc(100vh-60px)]'>
+                <div className='lg:hidden 3xl:block bg-primary-light p-1 border border-primary h-[calc(100vh-60px)]'>
                     <SideNavigation active={active} setActive={setActive} />
                 </div>
 
                 {/* Chat List Container or Create Crowd Interface */}
                 {createCrowdOpen ? (
-                    <div className='w-[calc(100%-60px)] bg-foreground'>
+                    <div className='w-full lg:w-full 3xl:w-[calc(100%-60px)] bg-foreground'>
                         <CreateCrowd
                             isOpen={createCrowdOpen}
                             onClose={() => setCreateCrowdOpen(false)}
                         />
                     </div>
                 ) : (
-                    <div className='w-[calc(100%-60px)] bg-foreground chat-list flex flex-col h-[calc(100vh-60px)]'>
+                    <div className='w-full lg:w-full 3xl:w-[calc(100%-60px)] bg-foreground chat-list flex flex-col h-[calc(100vh-60px)]'>
                         {/* Header with title and actions - Fixed */}
                         <div className='flex items-center justify-between p-2'>
                             <h1 className='text-lg font-semibold'>
@@ -464,13 +471,132 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                 placeholder='Search Chat...'
                                             />
                                             <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
-                                            <Button
-                                                variant='secondary'
-                                                size='icon'
-                                                className=''
-                                            >
-                                                <SlidersHorizontal className='h-4 w-4 text-gray' />
-                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        variant='secondary'
+                                                        size='icon'
+                                                        className='bg-background w-10 min-w-10'
+                                                    >
+                                                        <SlidersHorizontal className='h-4 w-4 text-gray' />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent
+                                                    align='end'
+                                                    className='w-56'
+                                                >
+                                                    <DropdownMenuLabel>
+                                                        Filter Chats
+                                                    </DropdownMenuLabel>
+
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            setActive('chats')
+                                                        }
+                                                        className='flex items-center gap-2'
+                                                    >
+                                                        <User className='h-4 w-4' />
+                                                        <span>All Chats</span>
+                                                    </DropdownMenuItem>
+
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            setActive('crowds')
+                                                        }
+                                                        className='flex items-center gap-2'
+                                                    >
+                                                        <Users className='h-4 w-4' />
+                                                        <span>Crowds</span>
+                                                    </DropdownMenuItem>
+
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            setActive('unread')
+                                                        }
+                                                        className='flex items-center gap-2'
+                                                    >
+                                                        <MessageSquareMore className='h-4 w-4' />
+                                                        <span>
+                                                            Unread Messages
+                                                        </span>
+                                                    </DropdownMenuItem>
+
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            setActive(
+                                                                'favourites',
+                                                            )
+                                                        }
+                                                        className='flex items-center gap-2'
+                                                    >
+                                                        <Pin className='h-4 w-4' />
+                                                        <span>Pinned</span>
+                                                    </DropdownMenuItem>
+
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            setActive('onlines')
+                                                        }
+                                                        className='flex items-center gap-2'
+                                                    >
+                                                        <UserCheck className='h-4 w-4' />
+                                                        <span>
+                                                            Online Users
+                                                        </span>
+                                                    </DropdownMenuItem>
+
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            setActive(
+                                                                'archived',
+                                                            )
+                                                        }
+                                                        className='flex items-center gap-2'
+                                                    >
+                                                        <Archive className='h-4 w-4' />
+                                                        <span>Archived</span>
+                                                    </DropdownMenuItem>
+
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            setActive('search')
+                                                        }
+                                                        className='flex items-center gap-2'
+                                                    >
+                                                        <Search className='h-4 w-4' />
+                                                        <span>Search</span>
+                                                    </DropdownMenuItem>
+
+                                                    {process.env
+                                                        .NEXT_PUBLIC_AI_BOT_ID && (
+                                                        <DropdownMenuItem
+                                                            onClick={() => {
+                                                                setActive('ai');
+                                                                handleCreateChat(
+                                                                    process.env
+                                                                        .NEXT_PUBLIC_AI_BOT_ID as string,
+                                                                );
+                                                            }}
+                                                            className='flex items-center gap-2'
+                                                        >
+                                                            <Bot className='h-4 w-4' />
+                                                            <span>AI Bot</span>
+                                                        </DropdownMenuItem>
+                                                    )}
+
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            setActive('blocked')
+                                                        }
+                                                        className='flex items-center gap-2'
+                                                    >
+                                                        <UserMinus className='h-4 w-4' />
+                                                        <span>
+                                                            Blocked Users
+                                                        </span>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </div>
                                     </div>
                                     <div className='divide-y divide-gray-200 h-[calc(100vh-162px)] overflow-y-auto'>

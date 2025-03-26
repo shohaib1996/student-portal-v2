@@ -24,6 +24,8 @@ import Thread from './thread';
 import EditMessageModal from './Message/EditMessageModal';
 import ForwardMessageModal from './Message/ForwardMessageModal';
 import Highlighter from 'react-highlight-words';
+import { EventPopoverProvider } from '../calendar/CreateEvent/EventPopover';
+import CreateEventModal from '../calendar/CreateEvent/CreateEventModal';
 interface ChatMessage {
     _id: string;
     sender: {
@@ -533,7 +535,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                 )}
 
             <div
-                className={`scrollbar-container ${!showPinnedMessages ? 'h-[calc(100%-170px)]' : 'h-[calc(100%-125px)]'} pl-2`}
+                className={`scrollbar-container flex-grow overflow-hidden pl-2`}
             >
                 <div
                     className='h-full overflow-y-auto'
@@ -818,6 +820,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     message={forwardMessage}
                 />
             )}
+            <CreateEventModal />
         </>
     );
 };

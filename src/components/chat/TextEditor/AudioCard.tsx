@@ -96,7 +96,7 @@ const AudioCard = ({ audioUrl }: AudioCardProps) => {
     }, [waveform, isPlaying]);
 
     return (
-        <div className='w-full'>
+        <div className='w-full lg:min-w-[300px]'>
             <div className='flex items-center p-2 rounded-full bg-white'>
                 <Button
                     onClick={handlePlayPause}

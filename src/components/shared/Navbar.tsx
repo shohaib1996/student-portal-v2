@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input } from '../ui/input';
 import {
     Bell,
@@ -8,6 +8,8 @@ import {
     Captions,
     ChevronDown,
     Globe,
+    MessageSquareDot,
+    MessageSquareMore,
     Moon,
     Search,
     Settings,
@@ -25,19 +27,29 @@ import GlobalDropdown, { DropdownItems } from '../global/GlobalDropdown';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { getInitialsFromName } from '@/utils/common';
 import CourseSectionOpenButton from '../global/SelectModal/buttons/course-section-open-button';
+import { useRouter } from 'nextjs-toploader/app';
 
 const Navbar = () => {
     const dispatch = useAppDispatch();
     const { companies, features, companySwitcher } = useAppSelector(
         (state) => state.company,
     );
+    const router = useRouter();
     const { isAuthenticated } = useAppSelector((s) => s.auth);
     const activeCompany = Cookies.get('activeCompany');
     const isChatAvailable = features?.find((f) => f.key === 'chat');
     const isCalendarAvailable = features?.find((f) => f.key === 'calendar');
-
     const { theme, setTheme } = useTheme();
     const { user } = useAppSelector((s) => s.auth);
+    const [unread, setUnread] = useState<any[]>([]);
+    const { chats = [] } = useAppSelector((state) => state.chat);
+    useEffect(() => {
+        const channels =
+            chats?.filter(
+                (x: any) => x?.isChannel && (x?.unreadCount ?? 0) > 0,
+            ) || [];
+        setUnread(channels);
+    }, [chats]);
 
     const dropdownItems: DropdownItems[] = [
         {
@@ -164,12 +176,37 @@ const Navbar = () => {
                             <Sun size={18} />
                         )}
                     </div>
+                    {isAuthenticated && isChatAvailable && (
+                        <>
+                            <div
+                                onClick={() => router.push('/chat')}
+                                className={`text-dark-gray cursor-pointer h-12 w-8 flex items-center justify-center rounded-md duration-200`}
+                            >
+                                <div className='relative'>
+                                    <Button
+                                        variant={'secondary'}
+                                        size={'icon'}
+                                        className='rounded-full text-dark-gray'
+                                    >
+                                        <MessageSquareMore size={18} />
+                                    </Button>
+                                    {unread.length > 0 && (
+                                        <>
+                                            <span className='absolute -top-0 -right-0 h-2.5 w-2.5 rounded-full bg-red-500'></span>
+                                            <span className='absolute -top-0 -right-0 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping'></span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    )}
                     {isAuthenticated && isCalendarAvailable && (
                         <>
                             <Button
                                 variant={'secondary'}
                                 size={'icon'}
                                 className='rounded-full text-dark-gray'
+                                onClick={() => router.push('/calendar')}
                             >
                                 <Calendar size={18} />
                             </Button>

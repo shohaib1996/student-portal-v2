@@ -29,11 +29,10 @@ import {
     updateDraftFiles,
     updateSendingInfo,
 } from '@/redux/features/chatReducer';
-import { useAppSelector } from '@/redux/hooks';
-import drafts from '../drafts.json';
 import FileItem from './FileItem';
 import CaptureAudio from './CaptureAudio';
 import { instance } from '@/lib/axios/axiosInstance';
+import { useAppSelector } from '@/redux/hooks';
 // Dynamically import EmojiPicker to prevent blocking the main bundle
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
     ssr: false,
@@ -120,6 +119,8 @@ const TextEditor: React.FC<TextEditorProps> = ({
     profileInfoShow,
     chat,
 }) => {
+    const { drafts } = useAppSelector((state) => state.chat);
+    console.log({ drafts });
     const [typing, setTyping] = useState<boolean>(false);
     const mentionsInputRef = useRef<HTMLTextAreaElement>(null);
     const photoVideoInputRef = useRef<HTMLInputElement>(null);
@@ -289,7 +290,11 @@ const TextEditor: React.FC<TextEditorProps> = ({
         const formData = new FormData();
         formData.append('file', file);
         try {
-            const response = await instance.post('/chat/file', formData);
+            const response = await instance.post('/chat/file', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             const fileData = response?.data?.file;
             updateFileStatus(file, {
                 name: fileData?.name,
@@ -392,6 +397,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     };
 
     const sendMessage = () => {
+        console.log('Clicked to the sned button');
         const successFiles = uploadFiles
             .filter((file) => file.url)
             .map((x) => ({
@@ -575,9 +581,9 @@ const TextEditor: React.FC<TextEditorProps> = ({
                     accept='image/*,video/*'
                 />
 
-                <div className=' border-t border-border pt-2 px-2'>
+                <div className=' border-t border-border py-2 px-2'>
                     {uploadFiles.map((uploadFile, index) => (
-                        <div key={index} className='flex flex-wrap gap-2 p-2'>
+                        <div key={index} className='flex flex-wrap gap-2 pb-1'>
                             <FileItem
                                 handleRemove={() =>
                                     handleRemoveItem(uploadFile)
@@ -688,7 +694,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                                 !localText &&
                                                 uploadFiles?.length === 0
                                                     ? 'opacity-50 cursor-not-allowed'
-                                                    : 'bg-primary hover:bg-primary/90'
+                                                    : 'bg-primary'
                                             }`}
                                             disabled={
                                                 !localText &&
