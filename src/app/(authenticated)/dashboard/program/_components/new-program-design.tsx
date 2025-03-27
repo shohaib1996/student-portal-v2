@@ -287,7 +287,7 @@ export default function BootcampPage() {
                                 <h3 className='text-lg font-semibold'>
                                     Your Progress
                                 </h3>
-                                <span className='text-sm font-medium text-blue-600'>
+                                <span className='text-sm font-medium text-primary-white'>
                                     56%
                                 </span>
                             </div>
@@ -301,7 +301,7 @@ export default function BootcampPage() {
                                         <CheckCircle2 className='h-5 w-5 text-green-500' />
                                     </div>
                                     <div>
-                                        <div className='text-sm text-gray'>
+                                        <div className='text-sm text-black'>
                                             Completed
                                         </div>
                                         <div className='text-xl font-semibold'>
@@ -314,7 +314,7 @@ export default function BootcampPage() {
                                         <Clock className='h-5 w-5 text-amber-500' />
                                     </div>
                                     <div>
-                                        <div className='text-sm text-gray'>
+                                        <div className='text-sm text-black'>
                                             In Progress
                                         </div>
                                         <div className='text-xl font-semibold'>
@@ -327,7 +327,7 @@ export default function BootcampPage() {
                                         <Layers className='h-5 w-5 text-purple-500' />
                                     </div>
                                     <div>
-                                        <div className='text-sm text-gray'>
+                                        <div className='text-sm text-black'>
                                             Remaining
                                         </div>
                                         <div className='text-xl font-semibold'>
@@ -588,7 +588,7 @@ export default function BootcampPage() {
                                 <Clock className='h-6 w-6 text-blue-600' />
                             </div>
                             <div>
-                                <p className='text-sm text-gray'>Duration</p>
+                                <p className='text-sm text-black'>Duration</p>
                                 <h4 className='text-xl font-semibold'>
                                     12 Weeks
                                 </h4>
@@ -604,7 +604,7 @@ export default function BootcampPage() {
                                 <Layers className='h-6 w-6 text-purple-600' />
                             </div>
                             <div>
-                                <p className='text-sm'>Modules</p>
+                                <p className='text-sm text-black'>Modules</p>
                                 <h4 className='text-xl font-semibold'>
                                     24 Modules
                                 </h4>
@@ -620,7 +620,9 @@ export default function BootcampPage() {
                                 <Award className='h-6 w-6 text-green-600' />
                             </div>
                             <div>
-                                <p className='text-sm'>Certifications</p>
+                                <p className='text-sm text-black'>
+                                    Certifications
+                                </p>
                                 <h4 className='text-xl font-semibold'>
                                     Industry Recognized
                                 </h4>

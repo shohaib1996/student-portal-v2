@@ -38,7 +38,7 @@ export function ProfileSection() {
                                     My Profile
                                 </h4>
                                 <div className='flex items-center gap-1 text-xs text-muted-foreground'>
-                                    <span className='text-primary px-1 text-[10px] rounded-full bg-foreground'>
+                                    <span className='text-black px-1 text-[10px] rounded-full bg-background'>
                                         95% complete
                                     </span>
                                 </div>

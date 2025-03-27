@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/select';
 import { PieChart, Pie, Cell, ResponsiveContainer, Label } from 'recharts';
 import { useGetMyProgressQuery } from '@/redux/api/myprogram/myprogramApi';
+import { useEffect, useState } from 'react';
 
 interface PieData {
     name: string;
@@ -54,6 +55,23 @@ const renderCustomizedLabel = ({
 
 export function OverallProgress() {
     const { data: myProgress, isLoading, error } = useGetMyProgressQuery({});
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+    // Check screen size on component mount and when window resizes
+    useEffect(() => {
+        const checkScreenSize = () => {
+            setIsSmallScreen(window.innerWidth < 768); // 768px is a common breakpoint for medium screens
+        };
+
+        // Initial check
+        checkScreenSize();
+
+        // Add event listener for window resize
+        window.addEventListener('resize', checkScreenSize);
+
+        // Cleanup
+        return () => window.removeEventListener('resize', checkScreenSize);
+    }, []);
 
     interface MyProgressResult {
         title: string;
@@ -132,7 +150,9 @@ export function OverallProgress() {
                         <div>Loading...</div>
                     </div>
                 ) : (
-                    <div className='flex items-center justify-between mt-4'>
+                    <div
+                        className={`flex ${isSmallScreen ? 'flex-col' : 'flex-row'} items-center justify-between mt-4`}
+                    >
                         <div className='h-[200px] w-[200px] relative mx-auto'>
                             <ResponsiveContainer width='100%' height='100%'>
                                 <PieChart>
@@ -167,7 +187,9 @@ export function OverallProgress() {
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
-                        <div className='space-y-2 flex-1 max-h-48 overflow-y-auto'>
+                        <div
+                            className={`space-y-2 ${isSmallScreen ? 'w-full mt-4' : 'flex-1'} max-h-48 overflow-y-auto`}
+                        >
                             {data.map((item) => (
                                 <div key={item.name} className='flex flex-col'>
                                     <div className='flex items-center justify-between'>

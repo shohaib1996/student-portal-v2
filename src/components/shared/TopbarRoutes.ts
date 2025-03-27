@@ -38,7 +38,7 @@ const TopbarRoutes = () => {
         },
         {
             name: 'Show n Tell',
-            route: '/dashboard/show-and-tell',
+            route: '/dashboard/show-n-tell',
         },
         {
             name: 'Leaderboard',
