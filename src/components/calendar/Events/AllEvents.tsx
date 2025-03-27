@@ -83,11 +83,11 @@ const AllEvents = () => {
                 }
             />
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-2'>
+                <div className='grid overflow-y-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-2'>
                     {events.map((event, i) => (
                         <div
                             key={event._id}
-                            className='bg-foreground rounded-lg border border-border-primary-light overflow-hidden py-2 px-2.5'
+                            className='bg-foreground rounded-lg border border-border-primary-light py-2 px-2.5'
                         >
                             {/* Card Header */}
                             <div
@@ -118,7 +118,7 @@ const AllEvents = () => {
 
                             {/* Card Content */}
                             <div className='space-y-2'>
-                                <div className='flex justify-between items-start'>
+                                <div className='flex flex-wrap justify-between items-start'>
                                     <div className='flex items-center gap-1'>
                                         <Clock
                                             size={12}
@@ -187,7 +187,7 @@ const AllEvents = () => {
                                         <span className='text-dark-gray text-xs font-semibold'>
                                             Agenda:
                                         </span>
-                                        <div className='text-xs truncate'>
+                                        <div className='text-xs truncate overflow-x-hidden'>
                                             {event?.description}
                                         </div>
                                     </div>

@@ -50,8 +50,8 @@ export function RangePickerCL({
                             !date && 'text-muted-foreground',
                         )}
                     >
-                        <CalendarIcon className='mr-2 h-4 w-4' />
-                        <p className='hidden md:block'>
+                        <CalendarIcon className='h-4 w-4' />
+                        <p className='hidden md:block md:ml-2'>
                             {date?.from ? (
                                 date.to ? (
                                     <>
@@ -76,7 +76,7 @@ export function RangePickerCL({
                             Apply
                         </Button>
                     </div>
-                    <div className='flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 p-3 pt-0'>
+                    <div className='flex max-w-[80vw] overflow-x-auto gap-2 p-3 pt-0'>
                         <div>
                             <div className='py-1 text-sm font-medium'>From</div>
                             <Calendar

@@ -393,7 +393,7 @@ const CreateEventModal = () => {
                 }
                 sidebar={
                     <div className='w-[600px] hidden lg:block h-screen border-r border-forground-border overflow-y-auto'>
-                        <div className='sticky top-0 flex justify-between py-3 px-2 bg-background border-b border-forground-border z-30 items-center'>
+                        <div className='sticky gap-1 top-0 flex justify-between py-3 px-2 bg-background border-b border-forground-border z-30 items-center'>
                             <Button
                                 onClick={handlePrev}
                                 size={'icon'}
@@ -402,7 +402,7 @@ const CreateEventModal = () => {
                             >
                                 <ChevronLeft size={18} />
                             </Button>
-                            <h2 className='text-black text-lg font-semibold'>
+                            <h2 className='text-black lg:text-lg md:text-base font-semibold truncate '>
                                 {currentDate.format('dddd - D MMMM, YYYY')}
                             </h2>
                             <Button
