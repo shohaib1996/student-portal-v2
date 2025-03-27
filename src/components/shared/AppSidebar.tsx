@@ -298,10 +298,10 @@ export function AppSidebar() {
                                                                             asChild
                                                                             isActive={
                                                                                 pathname ===
-                                                                                '/show-and-tell'
+                                                                                '/show-n-tell'
                                                                             }
                                                                         >
-                                                                            <Link href='/show-and-tell'>
+                                                                            <Link href='/show-n-tell'>
                                                                                 Show
                                                                                 n
                                                                                 Tell

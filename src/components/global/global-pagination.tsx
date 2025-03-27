@@ -103,7 +103,7 @@ export function GlobalPagination({
 
     return (
         <div className='flex items-center justify-between border-t border-border pt-4'>
-            <div className='text-sm text-muted-foreground'>
+            <div className='text-sm text-black'>
                 Showing {showingStart} to {showingEnd} of {totalItems} entries
             </div>
             <div className='flex items-center gap-1'>
@@ -139,7 +139,7 @@ export function GlobalPagination({
                     )}
                 </Button>
             </div>
-            <div className='text-sm text-muted-foreground'>
+            <div className='text-sm text-black'>
                 {totalItems} / Page{' '}
                 <select
                     className='rounded border border-input bg-background px-1'
