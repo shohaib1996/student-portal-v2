@@ -635,7 +635,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                         }`}
                                                         onClick={handleNavClick}
                                                     >
-                                                        <div className='flex items-start p-4 gap-3'>
+                                                        <div className='flex items-start p-2 gap-2'>
                                                             {/* Avatar */}
                                                             <div className='relative flex-shrink-0'>
                                                                 <Avatar className='h-10 w-10'>
@@ -685,7 +685,85 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                             ?._id,
                                                                 ) ? (
                                                                     <span className='absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white'></span>
-                                                                ) : null}
+                                                                ) : (
+                                                                    <span className='absolute bottom-0 right-0 h-3 w-fit rounded-full bg-green-900 text-pure-white border border-green-500 text-[8px] px-1'>
+                                                                        {chat
+                                                                            ?.otherUser
+                                                                            ?.lastActive &&
+                                                                            (() => {
+                                                                                const now =
+                                                                                    dayjs();
+                                                                                const active =
+                                                                                    dayjs(
+                                                                                        chat
+                                                                                            ?.otherUser
+                                                                                            ?.lastActive,
+                                                                                    );
+                                                                                const diffSeconds =
+                                                                                    now.diff(
+                                                                                        active,
+                                                                                        'second',
+                                                                                    );
+                                                                                const diffMinutes =
+                                                                                    now.diff(
+                                                                                        active,
+                                                                                        'minute',
+                                                                                    );
+                                                                                const diffHours =
+                                                                                    now.diff(
+                                                                                        active,
+                                                                                        'hour',
+                                                                                    );
+                                                                                const diffDays =
+                                                                                    now.diff(
+                                                                                        active,
+                                                                                        'day',
+                                                                                    );
+                                                                                const diffMonths =
+                                                                                    now.diff(
+                                                                                        active,
+                                                                                        'month',
+                                                                                    );
+                                                                                const diffYears =
+                                                                                    now.diff(
+                                                                                        active,
+                                                                                        'year',
+                                                                                    );
+
+                                                                                if (
+                                                                                    diffSeconds <
+                                                                                    60
+                                                                                ) {
+                                                                                    return `${diffSeconds}s`;
+                                                                                }
+                                                                                if (
+                                                                                    diffMinutes <
+                                                                                    60
+                                                                                ) {
+                                                                                    return `${diffMinutes}m`;
+                                                                                }
+                                                                                if (
+                                                                                    diffHours <
+                                                                                    24
+                                                                                ) {
+                                                                                    return `${diffHours}h`;
+                                                                                }
+                                                                                if (
+                                                                                    diffDays <
+                                                                                    30
+                                                                                ) {
+                                                                                    return `${diffDays}d`;
+                                                                                }
+                                                                                if (
+                                                                                    diffMonths <
+                                                                                    12
+                                                                                ) {
+                                                                                    return `${diffMonths}mo`;
+                                                                                }
+                                                                                return `${diffYears}yr`;
+                                                                            })()}
+                                                                    </span>
+                                                                )}
                                                             </div>
 
                                                             {/* Chat content */}
