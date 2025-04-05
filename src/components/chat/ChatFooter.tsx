@@ -78,7 +78,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
 }) => {
     if (chat?.isReadOnly && chat?.myData?.role === 'member') {
         return (
-            <div className='mb-8 p-4 border-t border-border'>
+            <div className='p-4 border-t border-border'>
                 <p className='text-center font-semibold text-danger'>
                     This is a read only crowd! Only admins can send message
                 </p>

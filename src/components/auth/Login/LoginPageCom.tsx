@@ -64,7 +64,7 @@ const LoginPageCom = () => {
 
     return (
         <div className='mx-auto flex min-h-screen md:max-w-screen-2xl items-center justify-center bg-background'>
-            <div className='flex min-h-screen md:w-1/2 flex-col justify-center rounded-lg bg-foreground p-8 shadow-lg'>
+            <div className='flex min-h-screen md:w-1/2 flex-col justify-center bg-background p-8 shadow-lg'>
                 <h2 className='mb-4 text-center text-3xl font-semibold text-black'>
                     Welcome back!
                 </h2>

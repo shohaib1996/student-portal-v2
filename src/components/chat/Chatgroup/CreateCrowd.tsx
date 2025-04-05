@@ -282,7 +282,7 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
                                 onChange={(e) =>
                                     handleSearchUser(e.target.value)
                                 }
-                                className='pl-8 bg-foreground'
+                                className='pl-8 bg-background'
                             />
                             <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
                         </div>

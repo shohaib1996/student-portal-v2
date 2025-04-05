@@ -128,7 +128,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
     const [records, setRecords] = useState<Chat[]>([]);
     const [loading, setLoading] = useState(true);
     const [hasMore, setHasMore] = useState<boolean>(true);
-    const [displayCount, setDisplayCount] = useState<number>(10);
+    const [displayCount, setDisplayCount] = useState<number>(20);
     const [active, setActive] = useState('chats');
     const [createCrowdOpen, setCreateCrowdOpen] = useState<boolean>(false);
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
@@ -470,7 +470,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                             <Button
                                 variant='secondary'
                                 size='icon'
-                                className='h-9 w-9 min-w-9'
+                                className='h-9 w-9 min-w-9 bg-background'
                             >
                                 <SlidersHorizontal className='h-4 w-4 text-gray' />
                             </Button>

@@ -287,7 +287,7 @@ const Inbox: React.FC<InboxProps> = ({
                                         </Button>
                                     </EventPopoverTrigger>
 
-                                    <Button
+                                    {/* <Button
                                         variant='primary_light'
                                         size='icon'
                                         className='border'
@@ -298,7 +298,7 @@ const Inbox: React.FC<InboxProps> = ({
                                         ) : (
                                             <Video className='h-5 w-5' />
                                         )}
-                                    </Button>
+                                    </Button> */}
                                 </>
                             )}
 
@@ -360,7 +360,7 @@ const Inbox: React.FC<InboxProps> = ({
                                                 </EventPopoverTrigger>
                                             </DropdownMenuItem>
 
-                                            <DropdownMenuItem
+                                            {/* <DropdownMenuItem
                                                 onClick={toggleMeeting}
                                             >
                                                 {isMeeting ? (
@@ -374,7 +374,7 @@ const Inbox: React.FC<InboxProps> = ({
                                                         Start Meeting
                                                     </>
                                                 )}
-                                            </DropdownMenuItem>
+                                            </DropdownMenuItem> */}
                                         </>
                                     )}
 
