@@ -74,7 +74,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/profile'
-                    className='flex gap-2 text-dark-gray items-center'
+                    className='flex gap-2 text-dark-gray items-center hover:underline'
                 >
                     <UserRound size={18} />
                     My Profile
@@ -86,7 +86,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/change-password'
-                    className='flex gap-2 text-dark-gray items-center'
+                    className='flex gap-2 text-dark-gray items-center hover:underline'
                 >
                     <BookOpenText size={18} />
                     Change Password
@@ -98,7 +98,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/payment-history'
-                    className='flex gap-2 text-dark-gray items-center'
+                    className='flex gap-2 text-dark-gray items-center hover:underline'
                 >
                     <CircleDollarSign size={18} />
                     Payments
@@ -110,7 +110,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/aggrements'
-                    className='flex gap-2 text-dark-gray items-center'
+                    className='flex gap-2 text-dark-gray items-center hover:underline'
                 >
                     <ScrollText size={18} />
                     Aggrements
@@ -122,7 +122,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/docs'
-                    className='flex gap-2 text-dark-gray items-center'
+                    className='flex gap-2 text-dark-gray items-center hover:underline'
                 >
                     <Bell size={18} />
                     User Manual
@@ -134,7 +134,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/notification-preferences'
-                    className='flex gap-2 text-dark-gray items-center'
+                    className='flex gap-2 text-dark-gray items-center hover:underline'
                 >
                     <BellDot size={18} />
                     Notification Preferences

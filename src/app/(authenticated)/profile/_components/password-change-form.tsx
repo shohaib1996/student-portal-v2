@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Check, CircleX, CircleCheckBig } from 'lucide-react';
 import PasswordInput from './password-input';
+import { useAppSelector } from '@/redux/hooks';
+import dayjs from 'dayjs';
 
 interface PasswordChangeFormProps {
     username: string;
@@ -25,6 +27,7 @@ export default function PasswordChangeForm({
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { user } = useAppSelector((state) => state.auth);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -56,19 +59,12 @@ export default function PasswordChangeForm({
         }
     };
 
-    const formatDate = (date: Date) => {
-        return date.toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-        });
-    };
-
     return (
         <Card className='max-w-4xl mx-auto mb-3 shadow-none overflow-hidden border-none'>
             <CardHeader className='p-2'>
                 <CardTitle className='text-center text-lg font-medium'>
-                    {username} Changed his Password on {formatDate(date)}
+                    {user?.fullName} Changed his Password on{' '}
+                    {dayjs(user?.updatedAt).format('MMMM DD, YYYY')}
                 </CardTitle>
             </CardHeader>
             <CardContent className='p-2'>

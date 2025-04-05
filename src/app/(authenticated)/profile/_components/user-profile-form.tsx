@@ -587,9 +587,14 @@ export default function UserProfileForm() {
                                                 name: 'phone',
                                                 required: true,
                                             }}
-                                            enableSearch={true}
-                                            disableSearchIcon={true}
                                             searchPlaceholder='Search country...'
+                                            inputStyle={{
+                                                background:
+                                                    'hsl(var(--background))',
+                                            }}
+                                            buttonStyle={{
+                                                background: 'transparent',
+                                            }}
                                         />
                                         <div className='absolute right-3 top-1/2 transform -translate-y-1/2 z-10'>
                                             <Check className='h-5 w-5 text-green-500' />
