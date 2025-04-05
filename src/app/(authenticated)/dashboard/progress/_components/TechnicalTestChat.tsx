@@ -47,16 +47,16 @@ const chartConfig = {
 
 export function TechnicalTestChart() {
     return (
-        <Card className='border-0 shadow-none bg-foreground'>
+        <div className='border-0 shadow-none bg-foreground'>
             <div className='border-b border-border'>
                 <h3 className='font-medium text-black mb-1'>Technical Test</h3>
                 <p className='text-sm text-gray mb-2'>
                     View all your technical test data
                 </p>
             </div>
-            <CardContent className='mt-4 p-0'>
-                <div className='flex flex-col md:flex-row items-start gap-6'>
-                    <div className='md:w-1/3 relative'>
+            <div className='mt-4 p-0'>
+                <div className='flex flex-col 3xl:flex-row items-center 3xl:items-start gap-6'>
+                    <div className='3xl:w-1/3 relative'>
                         <div className='w-full aspect-square mx-auto relative'>
                             <div className='absolute inset-0 flex items-center justify-center z-10'>
                                 <div className='w-[50%] h-[50%] rounded-full bg-foreground border-4 border-green-100'></div>
@@ -125,7 +125,7 @@ export function TechnicalTestChart() {
                         </div>
                     </div>
 
-                    <div className='md:w-2/3 space-y-4 pb-2 px-2'>
+                    <div className='w-full 3xl:w-2/3 space-y-4 pb-2 px-2'>
                         <div className='flex items-center justify-between'>
                             <div className='flex items-center gap-2'>
                                 <div className='w-4 h-4 rounded-full bg-primary'></div>
@@ -177,7 +177,7 @@ export function TechnicalTestChart() {
                         </div>
                     </div>
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }

@@ -41,8 +41,8 @@ export function MockInterviewChart() {
                 </Link>
             </div>
 
-            <div className='flex flex-col md:flex-row gap-6'>
-                <div className='md:w-1/3 relative'>
+            <div className='flex flex-col md:flex-row lg:flex-col xl:flex-row gap-6 items-center'>
+                <div className='w-full md:w-2/5 lg:w-full xl:w-1/2 relative'>
                     <div className='w-full max-w-[200px] mx-auto relative'>
                         <ResponsiveContainer width='100%' height={200}>
                             <PieChart>
@@ -66,22 +66,22 @@ export function MockInterviewChart() {
                         </ResponsiveContainer>
 
                         {/* Manually add percentage labels to match the image exactly */}
-                        <div className='absolute top-[15%] right-[25%] text-white font-bold'>
+                        <div className='absolute top-[20%] right-[25%] text-white font-bold'>
                             60%
                         </div>
                         <div className='absolute top-[40%] left-[15%] text-white font-bold'>
                             40%
                         </div>
-                        <div className='absolute bottom-[25%] left-[30%] text-white font-bold'>
+                        <div className='absolute bottom-[20%] left-[40%] text-white font-bold'>
                             30%
                         </div>
-                        <div className='absolute bottom-[40%] right-[20%] text-white font-bold'>
+                        <div className='absolute bottom-[35%] right-[20%] text-white font-bold'>
                             20%
                         </div>
                     </div>
                 </div>
 
-                <div className='md:w-2/3 space-y-3'>
+                <div className='w-full md:w-3/5 lg:w-full xl:w-1/2 space-y-3'>
                     {mockInterviewData.map((item, index) => (
                         <div
                             key={index}
