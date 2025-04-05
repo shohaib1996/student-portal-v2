@@ -6,9 +6,10 @@ import { cn } from '@/lib/utils';
 import { useMyAudioVideoQuery } from '@/redux/api/audio-video/audioVideos';
 import { TMediaItem } from '@/types/audio-videos/audio-videos';
 import Fuse from 'fuse.js';
-import { TvMinimalPlay, Volume2 } from 'lucide-react';
+import { Loader, TvMinimalPlay, Volume2 } from 'lucide-react';
 import { useState } from 'react';
 import AudioVideosCard from './AudioVideosCard';
+import SpinIcon from '@/components/svgs/common/SpinIcon';
 
 const AudioAndVideos = () => {
     const [isAudio, setIsAudio] = useState(true);
@@ -23,7 +24,11 @@ const AudioAndVideos = () => {
     }
 
     if (isLoading) {
-        return <div className=''>please wait...</div>;
+        return (
+            <div className='flex items-center justify-center h-screen'>
+                <Loader className='animate-spin' />
+            </div>
+        );
     }
 
     const medias: TMediaItem[] = data.medias;

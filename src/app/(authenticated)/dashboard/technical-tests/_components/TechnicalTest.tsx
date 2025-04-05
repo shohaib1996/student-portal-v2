@@ -1110,7 +1110,7 @@ import TaskCard from './TaskCard';
 import GlobalHeader from '@/components/global/GlobalHeader';
 import { Button } from '@/components/ui/button';
 import { useGetTechnicalTestsQuery } from '@/redux/api/technicalTest/technicalTest';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import TechnicalMetrics from './TechnicalMetrics';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
@@ -1158,6 +1158,23 @@ const TechnicalTest = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'test' | 'result'>('test');
     const [selectedTask, setSelectedTask] = useState<Assignment | null>(null);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Check for mobile screen size
+    useEffect(() => {
+        const checkForMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        // Initial check
+        checkForMobile();
+
+        // Add event listener for window resize
+        window.addEventListener('resize', checkForMobile);
+
+        // Cleanup
+        return () => window.removeEventListener('resize', checkForMobile);
+    }, []);
 
     const { data, isLoading } = useGetTechnicalTestsQuery({
         page: currentPage,
@@ -1211,13 +1228,15 @@ const TechnicalTest = () => {
             cell: ({ row }) => <span>{row.index + 1}</span>,
             footer: (data) => data.column.id,
             id: 'serial',
-            visible: true,
+            visible: !isMobile,
             canHide: true,
         },
         {
             accessorKey: 'question',
             header: 'Title',
-            cell: ({ row }) => <span>{row.original.question}</span>,
+            cell: ({ row }) => (
+                <span className='line-clamp-2'>{row.original.question}</span>
+            ),
             footer: (data) => data.column.id,
             id: 'question',
             visible: true,
@@ -1234,11 +1253,11 @@ const TechnicalTest = () => {
         },
         {
             accessorKey: 'mark',
-            header: 'Total Marks',
+            header: 'Marks',
             cell: ({ row }) => <span>{row.original.mark}</span>,
             footer: (data) => data.column.id,
             id: 'mark',
-            visible: true,
+            visible: !isMobile,
             canHide: true,
         },
         {
@@ -1256,32 +1275,35 @@ const TechnicalTest = () => {
             cell: ({ row }) => <TdDate date={row.original.workshop} />,
             footer: (data) => data.column.id,
             id: 'workshop',
-            visible: true,
+            visible: !isMobile,
             canHide: true,
         },
         {
             accessorKey: 'actions',
             header: 'Actions',
             cell: ({ row }) => (
-                <div className='flex items-center gap-2'>
+                <div
+                    className={`flex items-center ${isMobile ? 'flex-col' : 'flex-row'} gap-2`}
+                >
                     <Button
                         size='sm'
                         variant='default'
                         disabled={false}
                         onClick={() => handleTestNowClick(row.original)}
-                        className='hover:bg-primary-light rounded-md px-3.5 py-2.5 h-auto'
+                        className='hover:bg-primary-light rounded-md px-3.5 py-2.5 h-auto w-full'
                     >
-                        Test Now <span className='ml-1'>→</span>
+                        {isMobile ? 'Test' : 'Test Now'}{' '}
+                        <span className='ml-1'>→</span>
                     </Button>
                     <Button
                         size='sm'
                         disabled={false}
                         onClick={() => handleSeeResultClick(row.original)}
                         variant='ghost'
-                        className='rounded-md px-3.5 py-2 h-auto flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-gray'
+                        className='rounded-md px-3.5 py-2 h-auto flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-gray w-full'
                     >
                         <Eye className='h-5 w-5' />
-                        See Result
+                        {!isMobile && 'See Result'}
                     </Button>
                 </div>
             ),
@@ -1293,8 +1315,8 @@ const TechnicalTest = () => {
     ];
 
     return (
-        <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
-            <div>
+        <div className='min-h-[calc(100vh-120px)] flex flex-col justify-between'>
+            <div className='flex-1'>
                 <GlobalHeader
                     title='Technical Test'
                     subTitle='Assess Technical Skills with Accuracy and Speed'
@@ -1303,12 +1325,14 @@ const TechnicalTest = () => {
                             <Button
                                 variant={!isGridView ? 'outline' : 'default'}
                                 onClick={() => setIsGridView(true)}
+                                className={isMobile ? 'px-2' : ''}
                             >
                                 <LayoutGrid size={16} />
                             </Button>
                             <Button
                                 variant={isGridView ? 'outline' : 'default'}
                                 onClick={() => setIsGridView(false)}
+                                className={isMobile ? 'px-2' : ''}
                             >
                                 <List size={16} />
                             </Button>
@@ -1322,27 +1346,35 @@ const TechnicalTest = () => {
                 />
                 <TechnicalMetrics />
                 <Tabs defaultValue='tasks' className='w-full'>
-                    <TabsList className='p-0 bg-transparent'>
+                    <TabsList
+                        className={`p-0 bg-transparent ${isMobile ? 'flex flex-wrap' : ''}`}
+                    >
                         <TabsTrigger
                             value='tasks'
                             className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent shadow-none'
                         >
                             <FileText className='h-5 w-5' />
-                            <span>Technical Task ({assignments.length})</span>
+                            <span className={isMobile ? 'text-xs' : ''}>
+                                Technical Task ({assignments.length})
+                            </span>
                         </TabsTrigger>
                         <TabsTrigger
                             value='assignments'
                             className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent shadow-none'
                         >
                             <ClipboardList className='h-5 w-5' />
-                            <span>Assignments ({assignments.length})</span>
+                            <span className={isMobile ? 'text-xs' : ''}>
+                                Assignments ({assignments.length})
+                            </span>
                         </TabsTrigger>
                         <TabsTrigger
                             value='questions'
                             className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent shadow-none'
                         >
                             <MessageCircleQuestion className='h-5 w-5' />
-                            <span>Technical Question (0)</span>
+                            <span className={isMobile ? 'text-xs' : ''}>
+                                Technical Question (0)
+                            </span>
                         </TabsTrigger>
                     </TabsList>
 
@@ -1364,13 +1396,15 @@ const TechnicalTest = () => {
                                 ))}
                             </div>
                         ) : (
-                            <GlobalTable
-                                isLoading={isLoading}
-                                limit={limit}
-                                data={assignments}
-                                defaultColumns={defaultColumns}
-                                tableName='technical-tasks-table'
-                            />
+                            <div className='overflow-x-auto'>
+                                <GlobalTable
+                                    isLoading={isLoading}
+                                    limit={limit}
+                                    data={assignments}
+                                    defaultColumns={defaultColumns}
+                                    tableName='technical-tasks-table'
+                                />
+                            </div>
                         )}
                     </TabsContent>
 
@@ -1392,13 +1426,15 @@ const TechnicalTest = () => {
                                 ))}
                             </div>
                         ) : (
-                            <GlobalTable
-                                isLoading={isLoading}
-                                limit={limit}
-                                data={assignments}
-                                defaultColumns={defaultColumns}
-                                tableName='technical-assignments-table'
-                            />
+                            <div className='overflow-x-auto'>
+                                <GlobalTable
+                                    isLoading={isLoading}
+                                    limit={limit}
+                                    data={assignments}
+                                    defaultColumns={defaultColumns}
+                                    tableName='technical-assignments-table'
+                                />
+                            </div>
                         )}
                     </TabsContent>
 
@@ -1410,12 +1446,14 @@ const TechnicalTest = () => {
                 </Tabs>
             </div>
 
-            <GlobalPagination
-                totalItems={totalItems}
-                currentPage={currentPage}
-                itemsPerPage={limit}
-                onPageChange={handlePageChange}
-            />
+            <div className='mt-4'>
+                <GlobalPagination
+                    totalItems={totalItems}
+                    currentPage={currentPage}
+                    itemsPerPage={limit}
+                    onPageChange={handlePageChange}
+                />
+            </div>
 
             {selectedTask && (
                 <TaskModal

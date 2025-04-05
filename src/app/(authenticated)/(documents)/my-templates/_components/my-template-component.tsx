@@ -348,8 +348,8 @@ export default function MyTemplateComponent() {
     return (
         <div>
             <GlobalHeader
-                title='Documents & Labs'
-                subTitle='View your documents with ease'
+                title='My Templates'
+                subTitle='Browse and manage your saved templates for quick and easy use.'
                 buttons={
                     <div className='flex items-center gap-2'>
                         <FilterModal

@@ -80,6 +80,22 @@ export const reducer = {
 export const middleware = (getDefaultMiddleware: any) =>
     getDefaultMiddleware({
         serializableCheck: {
-            ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+            ignoredActions: [
+                FLUSH,
+                REHYDRATE,
+                PAUSE,
+                PERSIST,
+                PURGE,
+                REGISTER,
+                'chat/addOnlineUser',
+            ],
+            ignoredActionPaths: [
+                'meta.arg',
+                'payload.timestamp',
+                'calendar.currentDate',
+                'baseApi.queries.getMyEvents.originalArgs',
+            ],
+            // Ignore these paths in the state
+            ignoredPaths: ['calendar.currentDate'],
         },
     }).concat(baseApi.middleware);

@@ -14,6 +14,7 @@ const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {
 interface MessagePreviewProps {
     text: string;
     searchQuery?: string;
+    isUser?: boolean;
 }
 
 function transformMessage(text?: string): string {
@@ -47,7 +48,7 @@ const transformDate = (text?: string): string => {
     });
 };
 
-function MessagePreview({ text, searchQuery }: MessagePreviewProps) {
+function MessagePreview({ text, searchQuery, isUser }: MessagePreviewProps) {
     const { theme } = useTheme();
 
     // Transform the text first
@@ -73,7 +74,7 @@ function MessagePreview({ text, searchQuery }: MessagePreviewProps) {
                 wrapperElement={{
                     'data-color-mode': theme === 'dark' ? 'dark' : 'light',
                 }}
-                className={`text-gray-700 dark:text-gray-300`}
+                className={`${isUser ? '!text-pure-white/80 dark:!text-pure-white/80' : '!text-gray dark:!text-pure-white/90'} `}
             />
             {searchQuery && (
                 <div className='hidden'>

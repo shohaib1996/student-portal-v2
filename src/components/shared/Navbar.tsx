@@ -18,6 +18,10 @@ import {
     Settings,
     Sun,
     UserRound,
+    CircleDollarSign,
+    ScrollText,
+    LogOut,
+    BookOpenText,
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -32,6 +36,7 @@ import CourseSectionOpenButton from '../global/SelectModal/buttons/course-sectio
 import { useRouter } from 'nextjs-toploader/app';
 import Image from 'next/image';
 import { SidebarTrigger } from '../ui/sidebar';
+import { persistor } from '@/redux/store';
 
 const Navbar = () => {
     const dispatch = useAppDispatch();
@@ -55,6 +60,14 @@ const Navbar = () => {
         setUnread(channels);
     }, [chats]);
 
+    const handleLogout = () => {
+        Cookies.remove(process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string, {
+            domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN,
+        });
+        persistor.purge();
+        window.location.href = '/auth/login';
+    };
+
     const dropdownItems: DropdownItems[] = [
         {
             id: 2,
@@ -69,37 +82,50 @@ const Navbar = () => {
             ),
         },
         {
+            id: 743,
+            content: (
+                <Link
+                    href='/change-password'
+                    className='flex gap-2 text-dark-gray items-center'
+                >
+                    <BookOpenText size={18} />
+                    Change Password
+                </Link>
+            ),
+        },
+        {
             id: 3,
             content: (
                 <Link
-                    href='/branch-settings'
+                    href='/payment-history'
                     className='flex gap-2 text-dark-gray items-center'
                 >
-                    <Settings size={18} />
+                    <CircleDollarSign size={18} />
+                    Payments
                 </Link>
             ),
         },
         {
-            id: 4,
+            id: 343,
             content: (
                 <Link
-                    href='/notification-setting'
+                    href='/aggrements'
                     className='flex gap-2 text-dark-gray items-center'
                 >
-                    <Bell size={18} />
-                    Notification Settings
+                    <ScrollText size={18} />
+                    Aggrements
                 </Link>
             ),
         },
         {
-            id: 4,
+            id: 98,
             content: (
                 <Link
-                    href='/menu-builder'
+                    href='/docs'
                     className='flex gap-2 text-dark-gray items-center'
                 >
                     <Bell size={18} />
-                    Menu Builder
+                    User Manual
                 </Link>
             ),
         },
@@ -116,18 +142,6 @@ const Navbar = () => {
             ),
         },
         {
-            id: 7,
-            content: (
-                <Link
-                    href='/transcription'
-                    className='flex gap-2 text-dark-gray items-center'
-                >
-                    <Captions size={18} />
-                    Transcription AI
-                </Link>
-            ),
-        },
-        {
             id: 8,
             content: (
                 <Button className='md:hidden' variant={'primary_light'}>
@@ -135,6 +149,34 @@ const Navbar = () => {
                         Manual
                     </Link>
                 </Button>
+            ),
+        },
+        {
+            id: 121,
+            content: (
+                <div className='flex justify-between'>
+                    <Button
+                        className='rounded-full sm:hidden  size-9 text-dark-gray'
+                        variant={'outline'}
+                        onClick={() =>
+                            setTheme(theme === 'dark' ? 'light' : 'dark')
+                        }
+                    >
+                        {theme === 'dark' ? (
+                            <Moon size={18} />
+                        ) : (
+                            <Sun size={18} />
+                        )}
+                    </Button>
+                    <Button
+                        variant={'danger_light'}
+                        className='w'
+                        onClick={() => handleLogout()}
+                    >
+                        <LogOut size={18} />
+                        Logout
+                    </Button>
+                </div>
             ),
         },
     ].filter(Boolean);
@@ -183,7 +225,7 @@ const Navbar = () => {
                         </Link>
                     </Button>
                     <Button
-                        className='rounded-full size-9 text-dark-gray'
+                        className='rounded-full sm:flex hidden size-9 text-dark-gray'
                         variant={'outline'}
                         onClick={() =>
                             setTheme(theme === 'dark' ? 'light' : 'dark')
@@ -195,7 +237,7 @@ const Navbar = () => {
                             <Sun size={18} />
                         )}
                     </Button>
-                    {isAuthenticated && isChatAvailable && (
+                    {/* {isAuthenticated && isChatAvailable && (
                         <>
                             <div
                                 onClick={() => router.push('/chat')}
@@ -203,7 +245,7 @@ const Navbar = () => {
                             >
                                 <div className='relative'>
                                     <Button
-                                        variant={'secondary'}
+                                        variant={'outline'}
                                         size={'icon'}
                                         className='rounded-full text-dark-gray'
                                     >
@@ -218,7 +260,7 @@ const Navbar = () => {
                                 </div>
                             </div>
                         </>
-                    )}
+                    )} */}
                     {isAuthenticated && isCalendarAvailable && (
                         <>
                             <Button

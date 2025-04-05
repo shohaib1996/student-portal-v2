@@ -318,8 +318,8 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                 <Separator className='my-2' />
                 <div className='bg-primary-light rounded-lg p-1.5'>
                     <div className='flex items-start mb-2'>
-                        <div className='bg-background mr-1.5 p-1.5 rounded-md'>
-                            <Play className='h-4 w-4 text-primary' />
+                        <div className='bg-primary mr-1.5 p-1.5 rounded-md'>
+                            <Play className='h-4 w-4 text-pure-white' />
                         </div>
                         <div className='space-y-1'>
                             <h4 className='text-sm font-medium text-black'>
@@ -327,13 +327,13 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                             </h4>
                             <div className='flex items-center gap-2 text-xs text-gray'>
                                 <div className='flex items-center gap-1'>
-                                    <Calendar className='h-3 w-3 text-dark-gray' />
+                                    <Calendar className='h-4 w-4 text-dark-gray' />
                                     <span>
                                         {courseData?.focusedLesson?.date}
                                     </span>
                                 </div>
                                 <div className='flex items-center gap-1'>
-                                    <Clock className='h-3 w-3 text-dark-gray' />
+                                    <Clock className='h-4 w-4 text-dark-gray' />
                                     <span>
                                         {courseData?.focusedLesson?.time}
                                     </span>
@@ -359,7 +359,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         </div>
                         <Progress
                             value={courseData?.focusedLesson?.completion}
-                            className='h-2 bg-background'
+                            className='h-2 bg-pure-black'
                             indicatorClass='bg-primary rounded-full'
                         />
                     </div>

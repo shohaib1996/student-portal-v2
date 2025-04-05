@@ -262,7 +262,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                     className={`flex mb-4 `}
                     style={{ scrollBehavior: 'smooth' }}
                 >
-                    <div className='flex max-w-[80%]'>
+                    <div className='flex max-w-full lg:max-w-[80%]'>
                         <div className='flex-shrink-0 mr-2'>
                             <div
                                 className='cursor-pointer'
@@ -307,7 +307,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         }
                                         className='font-medium text-sm cursor-pointer mb-1 w-full flex flex-row gap-1 items-center'
                                     >
-                                        <p className='truncate'>
+                                        <p className='truncate dark:text-pure-white'>
                                             {message.sender?.fullName ||
                                                 'Bootcamps Hub user'}{' '}
                                         </p>
@@ -336,7 +336,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
 
                                     {message?.type === 'delete' ? (
                                         <p
-                                            className={`text-xs italic ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}
+                                            className={`text-xs italic ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-dark-gray'}`}
                                         >
                                             This message has been deleted
                                         </p>
@@ -344,6 +344,10 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         <MessagePreview
                                             searchQuery={searchQuery}
                                             text={message?.text || ''}
+                                            isUser={
+                                                message?.sender?._id ===
+                                                    user?._id && true
+                                            }
                                         />
                                     )}
 
