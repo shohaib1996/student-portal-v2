@@ -2,7 +2,7 @@ import { Progress } from '@/components/ui/progress';
 import { Check, Clock } from 'lucide-react';
 import Link from 'next/link';
 
-const BottomCalendar = () => {
+const BottomCalendar = ({ data }: { data: any }) => {
     return (
         <div className='bg-foreground rounded-xl border border-border p-4 mb-6'>
             <div className='flex justify-between items-center mb-4'>
@@ -47,13 +47,22 @@ const BottomCalendar = () => {
                             Total Accepted
                         </span>
                     </div>
-                    <div className='text-2xl font-bold text-black mb-2'>72</div>
+                    <div className='text-2xl font-bold text-black mb-2'>
+                        {data?.finished}
+                    </div>
                     <Progress
-                        value={35}
+                        value={parseFloat(
+                            ((data?.finished / data?.total) * 100).toFixed(0),
+                        )}
                         className='h-2 bg-white text-green-500'
                         indicatorClass='bg-green-700'
                     />
-                    <div className='text-xs text-gray text-right mt-1'>35%</div>
+                    <div className='text-xs text-gray text-right mt-1'>
+                        {parseFloat(
+                            ((data?.finished / data?.total) * 100).toFixed(0),
+                        )}
+                        %
+                    </div>
                 </div>
 
                 {/* Total pending */}
@@ -66,13 +75,22 @@ const BottomCalendar = () => {
                             Total pending
                         </span>
                     </div>
-                    <div className='text-2xl font-bold text-black mb-2'>25</div>
+                    <div className='text-2xl font-bold text-black mb-2'>
+                        {data?.current}
+                    </div>
                     <Progress
-                        value={28}
+                        value={parseFloat(
+                            ((data?.current / data?.total) * 100).toFixed(0),
+                        )}
                         className='h-2 bg-white text-orange-500'
                         indicatorClass='bg-orange-700'
                     />
-                    <div className='text-xs text-gray text-right mt-1'>28%</div>
+                    <div className='text-xs text-gray text-right mt-1'>
+                        {parseFloat(
+                            ((data?.current / data?.total) * 100).toFixed(0),
+                        )}
+                        %
+                    </div>
                 </div>
 
                 {/* Denied */}
@@ -100,13 +118,22 @@ const BottomCalendar = () => {
                             Denied
                         </span>
                     </div>
-                    <div className='text-2xl font-bold text-black mb-2'>72</div>
+                    <div className='text-2xl font-bold text-black mb-2'>
+                        {data?.recurrent}
+                    </div>
                     <Progress
-                        value={15}
+                        value={parseFloat(
+                            ((data?.recurrent / data?.total) * 100).toFixed(0),
+                        )}
                         className='h-2 bg-white'
                         indicatorClass='bg-red-700'
                     />
-                    <div className='text-xs text-gray text-right mt-1'>15%</div>
+                    <div className='text-xs text-gray text-right mt-1'>
+                        {parseFloat(
+                            ((data?.recurrent / data?.total) * 100).toFixed(0),
+                        )}
+                        %
+                    </div>
                 </div>
 
                 {/* Proposed New Time */}
@@ -134,13 +161,22 @@ const BottomCalendar = () => {
                             Proposed New Time
                         </span>
                     </div>
-                    <div className='text-2xl font-bold text-black mb-2'>72</div>
+                    <div className='text-2xl font-bold text-black mb-2'>
+                        {data?.upcoming}
+                    </div>
                     <Progress
-                        value={21}
+                        value={parseFloat(
+                            ((data?.upcoming / data?.total) * 100).toFixed(0),
+                        )}
                         className='h-2 bg-white'
                         indicatorClass='bg-cyan-700'
                     />
-                    <div className='text-xs text-gray text-right mt-1'>21%</div>
+                    <div className='text-xs text-gray text-right mt-1'>
+                        {parseFloat(
+                            ((data?.upcoming / data?.total) * 100).toFixed(0),
+                        )}
+                        %
+                    </div>
                 </div>
             </div>
         </div>

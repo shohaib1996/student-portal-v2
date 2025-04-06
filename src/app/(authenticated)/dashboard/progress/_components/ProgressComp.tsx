@@ -18,11 +18,13 @@ import {
 import { TProgram, TProgressChart } from '@/types';
 import dayjs from 'dayjs';
 import BottomCalendar from './BottomCalendar';
+import { useAppSelector } from '@/redux/hooks';
 
 type Status = 'approved' | 'pending' | 'cancelled';
 
 const ProgressComp = () => {
     const router = useRouter();
+    const { user } = useAppSelector((state) => state.auth);
     const { data, isLoading, isError, error } = useGetLeaderboardQuery({});
     const {
         data: myProgram,
@@ -67,13 +69,13 @@ const ProgressComp = () => {
 
     // User progress data
     const userProgress = {
-        name: 'N/A',
-        avatar: '/images/author.png',
+        name: user?.fullName,
+        avatar: user?.profilePicture,
         rank: data?.myData?.rank,
         score: myProgress?.metrics?.totalObtainedMark,
         improvement: myProgress?.metrics?.overallPercentageAllItems,
     };
-    console.log(myProgress);
+
     function calculatePercentage(count: number, limit: number) {
         if (limit === 0) {
             return 0;
@@ -137,15 +139,21 @@ const ProgressComp = () => {
                                 <div className='flex items-center gap-3 my-2'>
                                     <div className='relative'>
                                         <Image
-                                            src='/avatar.png'
-                                            alt={userProgress.name}
+                                            src={
+                                                userProgress.avatar ||
+                                                '/avatar.png'
+                                            }
+                                            alt={
+                                                userProgress.name ||
+                                                'Profile Picture'
+                                            }
                                             width={40}
                                             height={40}
                                             className='rounded-full'
                                         />
                                     </div>
                                     <span className='font-medium text-black'>
-                                        {userProgress.name}
+                                        {userProgress.name || 'N/A'}
                                     </span>
                                 </div>
 
@@ -450,7 +458,12 @@ const ProgressComp = () => {
 
                             {/* Technical Test */}
                             <div className='bg-foreground rounded-xl border border-border py-2.5 px-2'>
-                                <TechnicalTestChart />
+                                <TechnicalTestChart
+                                    data={
+                                        processedData?.technicalTestAnswers
+                                            ?.additionalData
+                                    }
+                                />
                             </div>
                         </div>
 
@@ -600,7 +613,9 @@ const ProgressComp = () => {
                         </div>
 
                         {/* Bottom Calendar Section with 4 cards */}
-                        <BottomCalendar />
+                        <BottomCalendar
+                            data={processedData?.events?.additionalData || []}
+                        />
                     </div>
                 </div>
             </div>
