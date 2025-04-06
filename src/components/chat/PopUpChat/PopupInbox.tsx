@@ -320,10 +320,10 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                         )}
                                     </DropdownMenuItem>
 
-                                    <DropdownMenuSeparator />
+                                    {/* <DropdownMenuSeparator /> */}
 
                                     {/* Meeting toggle option */}
-                                    <DropdownMenuItem
+                                    {/* <DropdownMenuItem
                                         className='flex items-center gap-2 cursor-pointer'
                                         onClick={toggleMeeting}
                                     >
@@ -338,7 +338,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                                 <span>Start Meeting</span>
                                             </>
                                         )}
-                                    </DropdownMenuItem>
+                                    </DropdownMenuItem> */}
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>

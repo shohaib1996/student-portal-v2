@@ -271,7 +271,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     // Update records when chats change - now using RTK Query data
     useEffect(() => {
         if (chats && chats.length > 0) {
-            setRecords(sortByLatestMessage(chats).slice(0, 10)); // Load initial chats
+            setRecords(sortByLatestMessage(chats).slice(0, 20)); // Load initial chats
         }
     }, [chats]);
     // Handle scroll to load more chats

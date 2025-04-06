@@ -262,7 +262,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                     className={`flex mb-4 `}
                     style={{ scrollBehavior: 'smooth' }}
                 >
-                    <div className='flex max-w-[80%]'>
+                    <div className='flex max-w-full lg:max-w-[80%]'>
                         <div className='flex-shrink-0 mr-2'>
                             <div
                                 className='cursor-pointer'
