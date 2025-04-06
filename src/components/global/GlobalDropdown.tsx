@@ -33,7 +33,7 @@ const GlobalDropdown = ({
 }: TProps) => {
     return (
         <Popover open={open} onOpenChange={onOpenChange}>
-            <PopoverTrigger asChild>{children}</PopoverTrigger>
+            <PopoverTrigger>{children}</PopoverTrigger>
             <PopoverContent
                 side={side}
                 align={align}

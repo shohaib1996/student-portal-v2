@@ -51,6 +51,7 @@ const Navbar = () => {
     const { theme, setTheme } = useTheme();
     const { user } = useAppSelector((s) => s.auth);
     const [unread, setUnread] = useState<any[]>([]);
+    const navigations = useAppSelector((state) => state.navigations);
     const { chats = [] } = useAppSelector((state) => state.chat);
     useEffect(() => {
         const channels =
@@ -183,14 +184,41 @@ const Navbar = () => {
 
     const [searchOpen, setSearchOpen] = useState(false);
 
+    const programOpen =
+        navigations.myProgram ||
+        navigations.myE2eProgramAgenda ||
+        navigations.myPurchasedItem ||
+        navigations.myMedia ||
+        navigations.showTell ||
+        navigations.leaderboard ||
+        navigations.technicalTest;
+
+    const documentOpen =
+        navigations.myDocument ||
+        navigations.myUploadedDocument ||
+        navigations.template;
+
+    const interviewOpen =
+        navigations.myMockInterview || navigations.reviewMockInterview;
+
+    const resourcesOpen = navigations.myJobSupport || navigations.family;
+
+    const supportOpen =
+        navigations.myJobSupport ||
+        navigations.family ||
+        navigations.helpCenter ||
+        navigations.myIssue;
+
     return (
         <div className='sticky top-0 z-20 flex flex-shrink-0 w-full h-[55px] box-border bg-foreground border-b border-forground-border shadow-sm'>
             <div className='flex gap-2 relative justify-between w-full h-full items-center px-2'>
-                <Input
-                    className='h-9 rounded-full md:w-[390px] md:inline-flex hidden w-9 text-dark-gray'
-                    placeholder='Search here'
-                    prefix={<Search size={18} />}
-                />
+                <GlobalDropdown dropdownRender={<div>hello</div>}>
+                    <Input
+                        className='h-9 rounded-full md:w-[390px] md:inline-flex hidden w-9 text-dark-gray'
+                        placeholder='Search here'
+                        prefix={<Search size={18} />}
+                    />
+                </GlobalDropdown>
                 <div className='flex aspect-square md:hidden items-center justify-center'>
                     <Image
                         src={theme === 'dark' ? '/logo.png' : '/logo-blue.png'}
