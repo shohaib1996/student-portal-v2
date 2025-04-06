@@ -275,7 +275,9 @@ const CreateEventModal = () => {
                 }
             }
         } catch (err) {
-            console.log(err);
+            toast.error(
+                `Failed to ${updateId ? 'update' : 'add'} event. Please try again later`,
+            );
         }
     }
     async function onTodoSubmit(values: z.infer<typeof TodoFormSchema>) {
@@ -307,7 +309,9 @@ const CreateEventModal = () => {
                 }
             }
         } catch (err) {
-            console.log(err);
+            toast.error(
+                `Failed to ${updateId ? 'update' : 'add'} todo. Please try again later`,
+            );
         }
     }
 

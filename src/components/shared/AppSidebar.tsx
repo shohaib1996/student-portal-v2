@@ -491,7 +491,7 @@ export function AppSidebar() {
                             )}
 
                             {/* Calendar */}
-                            {navigations.myCalendar && isCalendarAvailable && (
+                            {navigations.myCalendar && (
                                 <SidebarMenuItem>
                                     <Collapsible className='group/collapsible w-full'>
                                         <CollapsibleTrigger asChild>
@@ -583,51 +583,51 @@ export function AppSidebar() {
                             )}
 
                             {/* Chat */}
-                            {isChatAvailable && (
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton
-                                        tooltip={'Chat'}
-                                        isActive={pathname === '/chat'}
+                            {/* {isChatAvailable && ( */}
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    tooltip={'Chat'}
+                                    isActive={pathname === '/chat'}
+                                >
+                                    <div
+                                        className={`cursor-pointer flex items-center justify-center rounded-md duration-200 `}
                                     >
-                                        <div
-                                            className={`cursor-pointer flex items-center justify-center rounded-md duration-200 `}
-                                        >
-                                            <div className='relative'>
-                                                <MessageSquareMore className='h-5 w-5 text-dark-gray' />
-                                                {unread.length > 0 && (
-                                                    <>
-                                                        <span className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500'></span>
-                                                        <span className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping'></span>
-                                                    </>
-                                                )}
-                                            </div>
+                                        <div className='relative'>
+                                            <MessageSquareMore className='h-5 w-5 text-dark-gray' />
+                                            {unread.length > 0 && (
+                                                <>
+                                                    <span className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500'></span>
+                                                    <span className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500 animate-ping'></span>
+                                                </>
+                                            )}
                                         </div>
-                                        <Link
-                                            className='whitespace-nowrap truncate w-full'
-                                            href='/chat'
-                                        >
-                                            Chat
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            )}
-                            {/* Community */}
-                            {isCommunityAvailable && (
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton
-                                        tooltip={'Community'}
-                                        isActive={pathname === '/community'}
+                                    </div>
+                                    <Link
+                                        className='whitespace-nowrap truncate w-full'
+                                        href='/chat'
                                     >
-                                        <MessageSquare size={20} />
-                                        <Link
-                                            className='whitespace-nowrap truncate w-full'
-                                            href='/community'
-                                        >
-                                            Community
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            )}
+                                        Chat
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            {/* )} */}
+                            {/* Community */}
+                            {/* {isCommunityAvailable && ( */}
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    tooltip={'Community'}
+                                    isActive={pathname === '/community'}
+                                >
+                                    <MessageSquare size={20} />
+                                    <Link
+                                        className='whitespace-nowrap truncate w-full'
+                                        href='/community'
+                                    >
+                                        Community
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            {/* )} */}
 
                             {/* Supports */}
                             {supportOpen && (
