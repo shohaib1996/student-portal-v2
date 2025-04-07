@@ -74,7 +74,7 @@ const ProgramCard = ({ program }: { program: BootcampProgram }) => {
                 <Image
                     src={program.image || '/placeholder.svg'}
                     alt={program.title}
-                    className='object-cover w-[403px] h-[200px]'
+                    className='object-cover w-full h-[200px]'
                     width={900}
                     height={599}
                 />

@@ -1,22 +1,12 @@
 'use client';
 
 import { Pie, PieChart, Cell, ResponsiveContainer } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     type ChartConfig,
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
 } from '@/components/ui/chart';
-
-// Technical test data
-const technicalTestData = [
-    { name: 'accepted', value: 20, percentage: 35, fill: '#22c55e' }, // Green
-    { name: 'pending', value: 15, percentage: 25, fill: '#f97316' }, // Orange
-    { name: 'rejected', value: 5, percentage: 22, fill: '#ef4444' }, // Red
-    { name: 'totalAnswers', value: 50, percentage: 10, fill: '#14b8a6' }, // Teal
-    { name: 'totalAssignments', value: 80, percentage: 5, fill: '#3b82f6' }, // Blue
-];
 
 // Chart configuration
 const chartConfig = {
@@ -45,18 +35,87 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-export function TechnicalTestChart() {
+const CustomLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    value,
+    total,
+}: {
+    cx: any;
+    cy: any;
+    midAngle: any;
+    innerRadius: any;
+    outerRadius: any;
+    value: any;
+    total: any;
+}) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.6; // Position label in the middle of the slice
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const percentage = total ? ((value / total) * 100).toFixed(1) : 0;
+
     return (
-        <Card className='border-0 shadow-none bg-foreground'>
+        <text
+            x={x}
+            y={y}
+            fill='white'
+            textAnchor='middle'
+            dominantBaseline='central'
+            className='text-xs font-medium'
+        >
+            {`${percentage}%`}
+        </text>
+    );
+};
+
+export function TechnicalTestChart({ data }: { data: any }) {
+    const technicalTestData = [
+        {
+            name: 'accepted',
+            value: data?.acceptedItems || 0,
+            fill: '#22c55e',
+        },
+        {
+            name: 'pending',
+            value: data?.pendingItems || 0,
+            fill: '#f97316',
+        },
+        {
+            name: 'rejected',
+            value: data?.rejectedItems || 0,
+            fill: '#ef4444',
+        },
+        {
+            name: 'totalAnswers',
+            value: data?.totalItems || 0,
+            fill: '#14b8a6',
+        },
+        {
+            name: 'totalAssignments',
+            value: data?.totalItems || 0,
+            fill: '#3b82f6',
+        },
+    ];
+    const totalValue = technicalTestData.reduce(
+        (sum, item) => sum + item.value,
+        0,
+    );
+
+    return (
+        <div className='border-0 shadow-none bg-foreground'>
             <div className='border-b border-border'>
                 <h3 className='font-medium text-black mb-1'>Technical Test</h3>
                 <p className='text-sm text-gray mb-2'>
                     View all your technical test data
                 </p>
             </div>
-            <CardContent className='mt-4 p-0'>
-                <div className='flex flex-col md:flex-row items-start gap-6'>
-                    <div className='md:w-1/3 relative'>
+            <div className='mt-4 p-0'>
+                <div className='flex flex-col 3xl:flex-row items-center 3xl:items-start gap-6'>
+                    <div className='3xl:w-1/3 relative'>
                         <div className='w-full aspect-square mx-auto relative'>
                             <div className='absolute inset-0 flex items-center justify-center z-10'>
                                 <div className='w-[50%] h-[50%] rounded-full bg-foreground border-4 border-green-100'></div>
@@ -66,66 +125,51 @@ export function TechnicalTestChart() {
                                 config={chartConfig}
                                 className='mx-auto aspect-square h-full'
                             >
-                                <>
-                                    <ResponsiveContainer
-                                        width='100%'
-                                        height='100%'
-                                    >
-                                        <PieChart>
-                                            <ChartTooltip
-                                                cursor={false}
-                                                content={
-                                                    <ChartTooltipContent
-                                                        hideLabel
+                                <ResponsiveContainer width='100%' height='100%'>
+                                    <PieChart>
+                                        <ChartTooltip
+                                            cursor={false}
+                                            content={
+                                                <ChartTooltipContent
+                                                    hideLabel
+                                                />
+                                            }
+                                        />
+                                        <Pie
+                                            data={technicalTestData}
+                                            dataKey='value'
+                                            nameKey='name'
+                                            cx='50%'
+                                            cy='50%'
+                                            innerRadius={30}
+                                            outerRadius={90}
+                                            paddingAngle={1}
+                                            startAngle={90}
+                                            endAngle={-270}
+                                            label={(props) => (
+                                                <CustomLabel
+                                                    {...props}
+                                                    total={totalValue}
+                                                />
+                                            )}
+                                            labelLine={false}
+                                        >
+                                            {technicalTestData.map(
+                                                (entry, index) => (
+                                                    <Cell
+                                                        key={`cell-${index}`}
+                                                        fill={entry.fill}
                                                     />
-                                                }
-                                            />
-                                            <Pie
-                                                data={technicalTestData}
-                                                dataKey='percentage'
-                                                nameKey='name'
-                                                cx='50%'
-                                                cy='50%'
-                                                innerRadius={30}
-                                                outerRadius={90}
-                                                paddingAngle={1}
-                                                startAngle={90}
-                                                endAngle={-270}
-                                            >
-                                                {technicalTestData.map(
-                                                    (entry, index) => (
-                                                        <Cell
-                                                            key={`cell-${index}`}
-                                                            fill={entry.fill}
-                                                        />
-                                                    ),
-                                                )}
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
-
-                                    {/* Percentage labels */}
-                                    <div className='absolute top-[18%] right-[15%] text-xs font-medium text-white'>
-                                        35%
-                                    </div>
-                                    <div className='absolute bottom-[10%] right-[35%] text-xs font-medium text-white'>
-                                        25%
-                                    </div>
-                                    <div className='absolute bottom-[30%] left-[10%] text-xs font-medium text-white'>
-                                        22%
-                                    </div>
-                                    <div className='absolute top-[15%] left-[18%] text-xs font-medium text-white'>
-                                        10%
-                                    </div>
-                                    <div className='absolute top-[5%] left-[40%] text-xs font-medium text-white'>
-                                        5%
-                                    </div>
-                                </>
+                                                ),
+                                            )}
+                                        </Pie>
+                                    </PieChart>
+                                </ResponsiveContainer>
                             </ChartContainer>
                         </div>
                     </div>
 
-                    <div className='md:w-2/3 space-y-4 pb-2 px-2'>
+                    <div className='w-full 3xl:w-2/3 space-y-4 pb-2 px-2'>
                         <div className='flex items-center justify-between'>
                             <div className='flex items-center gap-2'>
                                 <div className='w-4 h-4 rounded-full bg-primary'></div>
@@ -134,7 +178,7 @@ export function TechnicalTestChart() {
                                 </span>
                             </div>
                             <span className='font-medium text-black text-lg'>
-                                80
+                                {data?.totalItems || 0}
                             </span>
                         </div>
                         <div className='flex items-center justify-between'>
@@ -145,7 +189,7 @@ export function TechnicalTestChart() {
                                 </span>
                             </div>
                             <span className='font-medium text-black text-lg'>
-                                50
+                                {data?.totalItems || 0}
                             </span>
                         </div>
                         <div className='flex items-center justify-between'>
@@ -154,7 +198,7 @@ export function TechnicalTestChart() {
                                 <span className='text-dark-gray'>Accepted</span>
                             </div>
                             <span className='font-medium text-black text-lg'>
-                                20
+                                {data?.acceptedItems || 0}
                             </span>
                         </div>
                         <div className='flex items-center justify-between'>
@@ -163,7 +207,7 @@ export function TechnicalTestChart() {
                                 <span className='text-dark-gray'>Pending</span>
                             </div>
                             <span className='font-medium text-black text-lg'>
-                                15
+                                {data?.pendingItems || 0}
                             </span>
                         </div>
                         <div className='flex items-center justify-between'>
@@ -172,12 +216,12 @@ export function TechnicalTestChart() {
                                 <span className='text-dark-gray'>Rejected</span>
                             </div>
                             <span className='font-medium text-black text-lg'>
-                                5
+                                {data?.rejectedItems || 0}
                             </span>
                         </div>
                     </div>
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }

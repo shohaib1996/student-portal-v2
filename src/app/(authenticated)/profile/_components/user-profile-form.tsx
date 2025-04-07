@@ -55,15 +55,47 @@ import Image from 'next/image';
 
 // Form validation schema
 const FormSchema = z.object({
-    firstName: z.string().min(2, { message: 'First name is required' }),
-    lastName: z.string().min(2, { message: 'Last name is required' }),
+    firstName: z
+        .string()
+        .min(2, { message: 'First name is required' })
+        .refine((value) => value.trim().length > 0, {
+            message: 'First name cannot be only spaces',
+        })
+        .refine((value) => !/\s\s/.test(value), {
+            message: 'First name cannot contain double spaces',
+        }),
+    lastName: z
+        .string()
+        .min(2, { message: 'Last name is required' })
+        .refine((value) => value.trim().length > 0, {
+            message: 'Last name cannot be only spaces',
+        })
+        .refine((value) => !/\s\s/.test(value), {
+            message: 'Last name cannot contain double spaces',
+        }),
     middleInitial: z.string().optional(),
     gender: z.string().min(1, { message: 'Gender is required' }),
     education: z.string().min(1, { message: 'Education is required' }),
     email: z.string().email({ message: 'Invalid email address' }),
     phone: z.string().min(10, { message: 'Valid phone number is required' }),
-    street: z.string().min(3, { message: 'Street is required' }),
-    city: z.string().min(2, { message: 'City is required' }),
+    street: z
+        .string()
+        .min(3, { message: 'Street is required' })
+        .refine((value) => value.trim().length > 0, {
+            message: 'Street cannot be only spaces',
+        })
+        .refine((value) => !/\s\s/.test(value), {
+            message: 'Street cannot contain double spaces',
+        }),
+    city: z
+        .string()
+        .min(2, { message: 'City is required' })
+        .refine((value) => value.trim().length > 0, {
+            message: 'City cannot be only spaces',
+        })
+        .refine((value) => !/\s\s/.test(value), {
+            message: 'City cannot contain double spaces',
+        }),
     state: z.string().min(1, { message: 'State is required' }),
     country: z.string().min(1, { message: 'Country is required' }),
     facebook: z
@@ -298,6 +330,9 @@ export default function UserProfileForm() {
         console.log('Form submitted:', formData);
         toast.success('Profile updated successfully!');
     };
+    const commingSoon = () => {
+        toast.success('Coming Soon...');
+    };
 
     return (
         <div className='max-w-4xl mx-auto'>
@@ -353,7 +388,10 @@ export default function UserProfileForm() {
                         </h2>
                         <p className='text-sm text-gray-500'>
                             {user?.email || 'johndoe123@gmail.com'}{' '}
-                            <span className='text-blue-600 cursor-pointer'>
+                            <span
+                                className='text-blue-600 cursor-pointer hover:underline'
+                                onClick={commingSoon}
+                            >
                                 Change Email
                             </span>
                         </p>
@@ -397,7 +435,10 @@ export default function UserProfileForm() {
                                         htmlFor='middleInitial'
                                         className='flex'
                                     >
-                                        Middle Initial (Optional)
+                                        Middle Initial{' '}
+                                        <span className='md:hidden lg:block'>
+                                            (Optional)
+                                        </span>
                                     </Label>
                                     <Input
                                         id='middleInitial'
@@ -548,7 +589,7 @@ export default function UserProfileForm() {
                                         <span className='text-red-500 ml-1'>
                                             *
                                         </span>{' '}
-                                        <span className='text-red-500 ml-1 text-xs'>
+                                        <span className='text-red-500 ml-1 text-xs md:hidden lg:block'>
                                             (Not Verified)
                                         </span>
                                     </Label>
@@ -570,7 +611,7 @@ export default function UserProfileForm() {
                                         <span className='text-red-500 ml-1'>
                                             *
                                         </span>{' '}
-                                        <span className='text-green-500 ml-1 text-xs'>
+                                        <span className='text-green-500 ml-1 text-xs md:hidden lg:block'>
                                             (Verified)
                                         </span>
                                     </Label>
@@ -587,9 +628,14 @@ export default function UserProfileForm() {
                                                 name: 'phone',
                                                 required: true,
                                             }}
-                                            enableSearch={true}
-                                            disableSearchIcon={true}
                                             searchPlaceholder='Search country...'
+                                            inputStyle={{
+                                                background:
+                                                    'hsl(var(--background))',
+                                            }}
+                                            buttonStyle={{
+                                                background: 'transparent',
+                                            }}
                                         />
                                         <div className='absolute right-3 top-1/2 transform -translate-y-1/2 z-10'>
                                             <Check className='h-5 w-5 text-green-500' />

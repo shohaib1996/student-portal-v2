@@ -253,3 +253,13 @@ body {
 .message-preview a {
     word-break: break-all !important;
 }
+
+.react-tel-input .flag-dropdown .selected-flag:hover {
+  background-color: hsl(var(--foreground)) !important;
+}
+.react-tel-input .flag-dropdown.open .selected-flag {
+  background-color: hsl(var(--background)) !important;
+}
+.react-tel-input .country-list {
+  background-color: hsl(var(--background)) !important;
+}
