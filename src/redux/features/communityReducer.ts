@@ -157,8 +157,6 @@ const communitySlice = createSlice({
         },
         updatePost: (state, action: PayloadAction<UpdatePostPayload>) => {
             const { label, value, id } = action.payload;
-            console.log(action.payload);
-            console.log(label, value, id);
             const post = state.posts.find((p) => p._id === id);
             if (post) {
                 state.posts[state.posts.indexOf(post)][label] = value;

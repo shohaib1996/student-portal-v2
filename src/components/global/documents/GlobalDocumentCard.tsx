@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Eye } from 'lucide-react';
+import { Eye, PencilLine, Trash } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ export interface GlobalDocumentCardProps {
     title?: string;
     name?: string;
     author?: string;
-    date?: string;
+    createdAt?: string | Date;
     readTime?: number;
     categories?: string[];
     imageUrl?: string;
@@ -25,17 +25,19 @@ export interface GlobalDocumentCardProps {
     badgeVariant?: 'default' | 'secondary' | 'outline' | 'destructive';
     imageHeight?: number;
     onClick?: () => void;
+    redirect: string;
 }
 
 export function GlobalDocumentCard({
     id,
     title,
+    redirect,
     name,
     author,
-    date,
+    createdAt,
     readTime = 2,
     categories = ['Document'],
-    imageUrl = '/images/documents-and-labs-thumbnail.png',
+    imageUrl = '/default_image.png',
     description = 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Consectetur, adipisci?',
     authorAvatar = '/images/author.png',
     showAuthorInfo = true,
@@ -52,28 +54,48 @@ export function GlobalDocumentCard({
     ) => {
         e.stopPropagation();
         if (id) {
-            router.push(`/documents-and-labs?id=${id}`);
+            router.push(`/${redirect}?documentId=${id}&mode=view`);
+        }
+        onClick?.();
+    };
+    const handleEdit: (e: React.MouseEvent) => void = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (id) {
+            router.push(`/${redirect}?documentId=${id}&mode=edit`);
         }
         onClick?.();
     };
 
     return (
         <Card className='overflow-hidden'>
-            <div className='cursor-pointer' onClick={onClick}>
+            <div className='cursor-pointer'>
                 <div className='relative'>
-                    <div className='absolute left-2 top-2 z-10 flex flex-wrap gap-1'>
-                        {categories?.map((category) => (
-                            <Badge
-                                key={category}
-                                variant={badgeVariant}
-                                className='bg-white/90 text-xs font-medium rounded-full'
-                            >
-                                {category}
-                            </Badge>
-                        ))}
+                    <div className='absolute left-2 top-2 z-10 flex flex-wrap gap-1 w-full'>
+                        <div className='flex flex-row items-center justify-between gap-4 w-[calc(100%-16px)]'>
+                            {categories?.map((category) => (
+                                <Badge
+                                    key={category}
+                                    variant={badgeVariant}
+                                    className='bg-pure-black/40 backdrop-blur-2xl text-pure-white text-xs font-medium rounded-full'
+                                >
+                                    {category}
+                                </Badge>
+                            ))}
+                            <div className='flex flex-row items-center gap-2'>
+                                <Button
+                                    onClick={handleEdit}
+                                    className='h-6 w-6 rounded-full bg-primary-light hover:bg-primary'
+                                >
+                                    <PencilLine size={14} />
+                                </Button>
+                                <Button className='h-6 w-6 rounded-full bg-red-500/70 hover:bg-red-500'>
+                                    <Trash size={14} />
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                     <Image
-                        src={imageUrl || '/placeholder.svg'}
+                        src={imageUrl || '/default_image.png'}
                         alt={title || 'thumbnail'}
                         width={400}
                         height={200}
@@ -92,22 +114,26 @@ export function GlobalDocumentCard({
                                     <AvatarFallback>{author[0]}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p className='text-sm font-medium text-muted-foreground'>
+                                    <p className='text-sm font-medium text-gray'>
                                         {author}
                                     </p>
-                                    <p className='text-xs text-muted-foreground'>
-                                        <time dateTime={date}>{date}</time>
+                                    <p className='text-xs text-gray'>
+                                        <time dateTime={createdAt as string}>
+                                            {createdAt as string}
+                                        </time>
                                     </p>
                                 </div>
                             </div>
                         ) : (
-                            <p className='text-xs text-muted-foreground'>
-                                <time dateTime={date}>
-                                    {formatDateToCustomString(date)}
+                            <p className='text-xs text-gray'>
+                                <time dateTime={createdAt as string}>
+                                    {formatDateToCustomString(
+                                        createdAt as string,
+                                    )}
                                 </time>
                             </p>
                         )}
-                        <div className='flex items-center gap-1 text-xs text-muted-foreground'>
+                        <div className='flex items-center gap-1 text-xs text-gray'>
                             <Eye className='h-3 w-3' />
                             <span>{readTime} min read</span>
                         </div>
@@ -115,12 +141,12 @@ export function GlobalDocumentCard({
                     <h3 className='mb-1 line-clamp-2 font-semibold'>
                         {name || title}
                     </h3>
-                    <p className='line-clamp-2 text-sm text-muted-foreground'>
+                    <p className='line-clamp-2 text-sm text-gray'>
                         {description}
                     </p>
                     <Button
                         variant='link'
-                        className='h-auto p-0 text-xs font-medium text-primary'
+                        className='h-auto p-0 text-xs font-medium text-primary-white'
                         onClick={handleReadMore}
                     >
                         Read More →

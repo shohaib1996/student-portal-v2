@@ -73,9 +73,6 @@ export function CalendarSection() {
           }
         : defaultStats;
 
-    console.log({ calendarData });
-    console.log({ stats });
-
     if (error) {
         console.error('Error fetching calendar data:', error);
     }

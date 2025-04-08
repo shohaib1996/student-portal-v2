@@ -1437,7 +1437,7 @@ export function CombinedSelectionModal() {
                             <div
                                 key={enroll._id}
                                 className={cn(
-                                    'border rounded-lg p-2.5',
+                                    'border rounded-lg p-2.5 bg-background',
                                     selectedCourseId === enroll._id &&
                                         'border-primary-white',
                                 )}
@@ -1450,12 +1450,12 @@ export function CombinedSelectionModal() {
                                                 enroll.image ||
                                                 enroll.program.instructor
                                                     .image ||
-                                                '/clients/Abidur Rahman.jpg'
+                                                '/default_image.png'
                                             }
                                             alt={enroll.program.title}
-                                            width={80}
-                                            height={80}
-                                            className='rounded-md object-cover w-full h-full'
+                                            width={200}
+                                            height={200}
+                                            className='rounded-md object-cover w-[80px] h-[80px]'
                                         />
 
                                         <div className='absolute inset-0 flex items-end pb-3 justify-center'>
@@ -1559,16 +1559,16 @@ export function CombinedSelectionModal() {
                                                                 enroll.program
                                                                     .instructor
                                                                     .image ||
-                                                                '/clients/Abidur Rahman.jpg'
+                                                                '/avatar.png'
                                                             }
                                                             alt={
                                                                 enroll.program
                                                                     .instructor
                                                                     .name
                                                             }
-                                                            width={16}
-                                                            height={16}
-                                                            className='rounded-full'
+                                                            width={100}
+                                                            height={10}
+                                                            className='rounded-full h-4 w-4'
                                                         />
                                                         <span className='text-xs text-muted-foreground'>
                                                             {
@@ -1753,7 +1753,7 @@ export function CombinedSelectionModal() {
                     ? 'Select a university or organization to continue your journey'
                     : "If you wish to change to another program, please click on 'Switch' and proceed."
             }
-            className='w-full max-w-4xl bg-white'
+            className='w-full max-w-4xl bg-foreground'
             allowFullScreen={false}
         >
             {activeView === 'university'

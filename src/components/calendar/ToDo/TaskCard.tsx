@@ -94,7 +94,7 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
                 toast.success('Task updated successfully');
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 

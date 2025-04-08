@@ -65,8 +65,6 @@ export const replaceNodeToMention = (string: string) => {
     for (const node of div.querySelectorAll('.mention')) {
         node.outerHTML = `@[${node.getAttribute('data-value')}](${node.getAttribute('data-id')})`;
     }
-
-    console.log(div.innerHTML);
     return div.innerHTML;
 };
 

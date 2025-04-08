@@ -86,15 +86,6 @@ const ActiveProgram = ({
     myProgram: TProgramMain;
     myProgress: TProgressChart;
 }) => {
-    console.log(
-        'Program:',
-        program,
-        'MyProgram:',
-        myProgram,
-        'MyProgress:',
-        myProgress,
-    );
-
     return (
         <div>
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mt-2 mb-3 py-2 px-3 bg-foreground rounded-xl overflow-hidden border border-border items-center'>

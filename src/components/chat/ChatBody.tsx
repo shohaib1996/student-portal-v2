@@ -213,7 +213,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
             }
         }
     }, [chats, params?.chatid, setChatInfo]);
-    console.log({ messages });
+
     useEffect(() => {
         if (chat?.otherUser?._id === process.env.NEXT_PUBLIC_AI_BOT_ID) {
             const currentMessages: any = messages || [];

@@ -159,7 +159,7 @@ export function UploadDocumentModal({
             toast.success('Document added successfully!');
             onClose();
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 
@@ -336,7 +336,7 @@ export function UploadDocumentModal({
                                             htmlFor='document-name'
                                             className='mb-2 flex items-center gap-1'
                                         >
-                                            Document Name{' '}
+                                            Document Name
                                             <span className='text-red-500'>
                                                 *
                                             </span>
@@ -354,7 +354,7 @@ export function UploadDocumentModal({
                                             htmlFor='category-1'
                                             className='mb-2 flex items-center gap-1'
                                         >
-                                            Category{' '}
+                                            Category
                                             <span className='text-red-500'>
                                                 *
                                             </span>
@@ -389,7 +389,7 @@ export function UploadDocumentModal({
                                             htmlFor='category-2'
                                             className='mb-2 flex items-center gap-1'
                                         >
-                                            Category{' '}
+                                            Category
                                             <span className='text-red-500'>
                                                 *
                                             </span>

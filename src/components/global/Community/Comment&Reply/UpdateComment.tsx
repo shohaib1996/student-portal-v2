@@ -43,7 +43,7 @@ const UpdateComment = ({ initialComment, onCancel }: UpdateCommentProps) => {
                 onCancel();
             }
         } catch (error: any) {
-            console.log(error);
+            console.error(error);
         }
     };
 

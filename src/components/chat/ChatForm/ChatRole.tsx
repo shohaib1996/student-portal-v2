@@ -79,12 +79,8 @@ const ChatRole: React.FC<ChatRoleProps> = ({
     }, [member, role, chat, handleUpdateCallback, modalClose]);
 
     const handleRoleChange = (value: string) => {
-        console.log('Role changed to:', value);
         setRole(value);
     };
-
-    console.log('Current role:', role);
-    console.log('Member:', member);
 
     return (
         <GlobalDialog

@@ -131,8 +131,6 @@ export function EditDocumentModal({
                       }))
                     : attachedFileUrls.map((url) => ({ url })), // Use URLs if no new files
         };
-
-        console.log('Updated Document Submission Data:', submissionData);
         onClose();
     };
 

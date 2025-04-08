@@ -44,7 +44,7 @@ const UpdateReply = ({ initialReply, onCancel }: UpdateReplyProps) => {
                 onCancel();
             }
         } catch (error: any) {
-            console.log(error);
+            console.error(error);
         }
     };
     return (

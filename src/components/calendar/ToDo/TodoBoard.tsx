@@ -52,8 +52,6 @@ const TodoBoard = ({ tasks, setTasks }: TProps) => {
         }),
     );
 
-    console.log(tasks);
-
     const statuses: TEvent['status'][] = [
         'todo',
         'inprogress',
@@ -192,7 +190,7 @@ const TodoBoard = ({ tasks, setTasks }: TProps) => {
                     setActiveTask(null);
                 }
                 toast.error('Failed to update task, Please try again later');
-                console.log(err);
+                console.error(err);
             }
         },
         [tasks],

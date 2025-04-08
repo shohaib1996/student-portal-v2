@@ -107,7 +107,7 @@ const EventDetails = () => {
                 setOpen();
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 
@@ -143,7 +143,7 @@ const EventDetails = () => {
                 setProposeModalOpen(false);
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 

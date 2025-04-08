@@ -93,7 +93,7 @@ const CommentItem = <TMedia extends Record<string, any>>({
                 setIsDialogOpen(false);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 

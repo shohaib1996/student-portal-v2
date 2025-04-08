@@ -48,7 +48,7 @@ const Comment = <T extends Record<string, any>>({
                 });
                 setCommentText('');
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         }
     };

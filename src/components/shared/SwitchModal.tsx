@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { X, ArrowRight, Check, Star, CalendarDays } from 'lucide-react';
+import {
+    X,
+    ArrowRight,
+    Check,
+    Star,
+    CalendarDays,
+    Calendar,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -168,12 +175,12 @@ export function SwitchModal({ opened, handleClose }: SwitchModalProps) {
                 setOpen={handleClose}
                 title='Switch Bootcamp'
                 subTitle="If you wish to change to another program, please click on 'Switch' and proceed."
-                className='w-full max-w-4xl bg-white'
+                className='w-full max-w-4xl bg-foreground'
                 allowFullScreen={false}
             >
                 <div className='space-y-6 py-3'>
                     {selectedUniversity && (
-                        <div className='border rounded-lg p-3 flex gap-3'>
+                        <div className='border rounded-lg p-3 flex gap-3 bg-background'>
                             <div className='flex-shrink-0'>
                                 <Image
                                     src={
@@ -202,47 +209,10 @@ export function SwitchModal({ opened, handleClose }: SwitchModalProps) {
                                     {selectedUniversity.description ||
                                         'No description available.'}
                                 </p>
-                                <div className='flex items-center mt-2 text-xs text-muted-foreground'>
-                                    <svg
-                                        className='w-3 h-3 mr-1'
-                                        viewBox='0 0 24 24'
-                                        fill='none'
-                                        xmlns='http://www.w3.org/2000/svg'
-                                    >
-                                        <path
-                                            d='M8 2V5'
-                                            stroke='currentColor'
-                                            strokeWidth='1.5'
-                                            strokeMiterlimit='10'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                        />
-                                        <path
-                                            d='M16 2V5'
-                                            stroke='currentColor'
-                                            strokeWidth='1.5'
-                                            strokeMiterlimit='10'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                        />
-                                        <path
-                                            d='M3.5 9.09H20.5'
-                                            stroke='currentColor'
-                                            strokeWidth='1.5'
-                                            strokeMiterlimit='10'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                        />
-                                        <path
-                                            d='M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z'
-                                            stroke='currentColor'
-                                            strokeWidth='1.5'
-                                            strokeMiterlimit='10'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                        />
-                                    </svg>
-                                    {selectedUniversity.date ?? 'Dec 16, 1971'}{' '}
+                                <div className='flex flex-row gap-1 items-center mt-2 text-xs text-muted-foreground'>
+                                    <Calendar size={14} />
+                                    {selectedUniversity.date ??
+                                        'Dec 16, 1971'}{' '}
                                     | {selectedUniversity.time ?? '12:12AM'}
                                 </div>
                             </div>
@@ -250,7 +220,7 @@ export function SwitchModal({ opened, handleClose }: SwitchModalProps) {
                                 <Button
                                     variant='outline'
                                     size='sm'
-                                    className='text-xs h-8'
+                                    className='text-xs h-8 bg-foreground'
                                     onClick={handleChangeUniversity}
                                 >
                                     Change Company
@@ -415,7 +385,7 @@ export function SwitchModal({ opened, handleClose }: SwitchModalProps) {
                                     <div
                                         key={enroll._id}
                                         className={cn(
-                                            'border rounded-lg p-3',
+                                            'border rounded-lg p-3 bg-background',
                                             selectedProgramId === enroll._id &&
                                                 'border-[#0736d1]',
                                         )}
@@ -427,12 +397,12 @@ export function SwitchModal({ opened, handleClose }: SwitchModalProps) {
                                                         enroll.image ||
                                                         enroll.program
                                                             .instructor.image ||
-                                                        '/clients/Abidur Rahman.jpg'
+                                                        '/default_image.png'
                                                     }
                                                     alt={enroll.program.title}
-                                                    width={80}
-                                                    height={80}
-                                                    className='rounded-md object-cover'
+                                                    width={200}
+                                                    height={200}
+                                                    className='rounded-md object-cover h-[80px] w-[80px]'
                                                 />
                                                 <div className='absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs text-center py-0.5'>
                                                     {(
@@ -507,16 +477,16 @@ export function SwitchModal({ opened, handleClose }: SwitchModalProps) {
                                                                 enroll.program
                                                                     .instructor
                                                                     .image ||
-                                                                '/clients/Abidur Rahman.jpg'
+                                                                '/avatar.png'
                                                             }
                                                             alt={
                                                                 enroll.program
                                                                     .instructor
                                                                     .name
                                                             }
-                                                            width={16}
-                                                            height={16}
-                                                            className='rounded-full'
+                                                            width={100}
+                                                            height={100}
+                                                            className='rounded-full h-4 w-4'
                                                         />
                                                         <span className='text-xs text-muted-foreground'>
                                                             {
@@ -661,14 +631,14 @@ export function SwitchModal({ opened, handleClose }: SwitchModalProps) {
                             )}
                         </TabsContent>
                         <TabsContent value='courses' className='mt-4'>
-                            <div className='flex items-center justify-center h-40 border rounded-md'>
+                            <div className='flex items-center justify-center h-40 border rounded-md bg-background '>
                                 <p className='text-muted-foreground'>
                                     Courses content will appear here
                                 </p>
                             </div>
                         </TabsContent>
                         <TabsContent value='interviews' className='mt-4'>
-                            <div className='flex items-center justify-center h-40 border rounded-md'>
+                            <div className='flex items-center justify-center h-40 border rounded-md bg-background'>
                                 <p className='text-muted-foreground'>
                                     Interviews content will appear here
                                 </p>
