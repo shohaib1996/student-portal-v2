@@ -44,8 +44,6 @@ const LoginPageCom = () => {
         try {
             const response = await loginUser(logInfo).unwrap();
 
-            console.log({ response });
-
             if (response?.isVerified && response?.success) {
                 Cookies.set(
                     process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,

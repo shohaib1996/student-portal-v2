@@ -20,7 +20,7 @@ const FilterModal = ({ columns, onChange, value }: TProps) => {
     const [open, setOpen] = useState(false);
     const [conditions, setConditions] = useState<TConditions[]>([]);
 
-    console.log(value);
+    console.error(value);
 
     useEffect(() => {
         if (value?.length > 0) {

@@ -51,8 +51,6 @@ export function DocumentDetailsModal({
 }: DocumentDetailsProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    console.log({ selectedDocument });
-
     // Mock document data - in a real app, you would fetch this based on documentId
     const document: Document | null = documentId
         ? {

@@ -46,7 +46,6 @@ const calendarApi = baseApi.injectEndpoints({
             async onQueryStarted(args, { dispatch, queryFulfilled, getState }) {
                 try {
                     const { data: createdEvent } = await queryFulfilled;
-                    console.log(createdEvent);
 
                     if (
                         createdEvent &&
@@ -100,7 +99,7 @@ const calendarApi = baseApi.injectEndpoints({
                         });
                     }
                 } catch (err) {
-                    console.log(err);
+                    console.error(err);
                 }
             },
         }),
@@ -136,8 +135,6 @@ const calendarApi = baseApi.injectEndpoints({
             async onQueryStarted(args, { dispatch, queryFulfilled, getState }) {
                 try {
                     const { data: createdEvent } = await queryFulfilled;
-                    console.log(createdEvent);
-
                     const state = getState();
                     const cacheEntries = calendarApi.util.selectInvalidatedBy(
                         state,
@@ -187,7 +184,7 @@ const calendarApi = baseApi.injectEndpoints({
                         );
                     });
                 } catch (err) {
-                    console.log(err);
+                    console.error(err);
                 }
             },
         }),
@@ -205,8 +202,6 @@ const calendarApi = baseApi.injectEndpoints({
             async onQueryStarted(args, { dispatch, queryFulfilled, getState }) {
                 try {
                     const { data: createdEvent } = await queryFulfilled;
-                    console.log(args);
-
                     const state = getState();
                     const cacheEntries = calendarApi.util.selectInvalidatedBy(
                         state,
@@ -282,7 +277,7 @@ const calendarApi = baseApi.injectEndpoints({
                         );
                     });
                 } catch (err) {
-                    console.log(err);
+                    console.error(err);
                 }
             },
         }),

@@ -159,7 +159,7 @@ export function UploadDocumentModal({
             toast.success('Document added successfully!');
             onClose();
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 

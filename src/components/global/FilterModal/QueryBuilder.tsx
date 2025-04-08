@@ -107,7 +107,6 @@ function QueryBuilder({ columns, conditions, setConditions }: TProps) {
         }
 
         if (field === 'date' && operator === 'equals') {
-            console.log(value);
             return (
                 <DatePicker
                     value={dayjs(value as string)}

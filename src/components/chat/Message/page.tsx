@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useState, forwardRef } from 'react';
+import { useState, forwardRef, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -69,6 +69,10 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     const [deleteMessage, setDeleteMessage] = useState<any>(null);
     const [chatDelOpened, setChatDelOpened] = useState(false);
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+    // Add these new state variables at the beginning of the Message component:
+    const [initialReplies, setInitialReplies] = useState([]);
+    const [loadingReplies, setLoadingReplies] = useState(false);
+
     const {
         message,
         lastmessage,
@@ -95,6 +99,28 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
         setDeleteMessage(msg);
         setChatDelOpened(true);
     };
+    // Add this useEffect to fetch initial replies when the message loads
+    useEffect(() => {
+        // Only fetch if the message has replies and we're not in the thread view
+        if (message?.replyCount > 0 && source !== 'thread') {
+            setLoadingReplies(true);
+            instance
+                .post(`/chat/messages`, {
+                    page: 1,
+                    limit: 1,
+                    parentMessage: message._id,
+                    chat: message.chat,
+                })
+                .then((res) => {
+                    setInitialReplies(res.data.messages);
+                    setLoadingReplies(false);
+                })
+                .catch((err) => {
+                    setLoadingReplies(false);
+                    console.error('Failed to fetch initial replies', err);
+                });
+        }
+    }, [message?._id, message?.replyCount, source]);
 
     const handleCopyClick = () => {
         if ((message?.files ?? []).length > 0) {
@@ -153,13 +179,11 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
         messageId: string,
         chatId: string,
     ) => {
-        console.log('chatId', JSON.stringify(chatId, null, 2));
         instance
             .put(`/chat/react/${messageId}`, {
                 symbol: emoji,
             })
             .then((res) => {
-                console.log('res.data', JSON.stringify(res.data, null, 2));
                 dispatch(
                     updateEmoji({
                         message: {
@@ -170,7 +194,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                 );
             })
             .catch((error) => {
-                console.log(
+                console.error(
                     'error.response.data',
                     JSON.stringify(error, null, 2),
                 );
@@ -289,180 +313,185 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                 />
                             </div>
                         </div>
-                        <div className='flex flex-col w-full'>
-                            <div
-                                className={`rounded-lg p-2 ${
-                                    !hideAlign &&
-                                    message?.sender?._id === user?._id
-                                        ? 'bg-primary text-primary-light'
-                                        : 'bg-primary-light border border-blue-600/20'
-                                }`}
-                            >
-                                <div className='flex flex-col'>
-                                    <span
-                                        onClick={() =>
-                                            handleOpenNewChat(
-                                                message?.sender?._id || '',
-                                            )
-                                        }
-                                        className='font-medium text-sm cursor-pointer mb-1 w-full flex flex-row gap-1 items-center'
-                                    >
-                                        <p className='truncate dark:text-pure-white'>
-                                            {message.sender?.fullName ||
-                                                'Bootcamps Hub user'}{' '}
-                                        </p>
+                        <div className='flex flex-col'>
+                            <div className='flex flex-col w-full'>
+                                <div
+                                    className={`rounded-lg p-2 ${
+                                        !hideAlign &&
+                                        message?.sender?._id === user?._id
+                                            ? 'bg-primary text-primary-white'
+                                            : 'bg-primary-light border border-blue-600/20'
+                                    }`}
+                                >
+                                    <div className='flex flex-col'>
                                         <span
-                                            className={`text-xs ml-2 front-normal text-nowrap ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}
-                                        >
-                                            {dayjs(message?.createdAt).format(
-                                                'hh:mm A',
-                                            )}
-                                        </span>
-                                    </span>
-
-                                    {(message?.files ?? []).length > 0 &&
-                                        message?.type !== 'delete' && (
-                                            <div className='flex flex-wrap gap-2 mb-2'>
-                                                {message?.files?.map(
-                                                    (file: File, i: number) => (
-                                                        <FileCard
-                                                            file={file}
-                                                            key={i}
-                                                        />
-                                                    ),
-                                                )}
-                                            </div>
-                                        )}
-
-                                    {message?.type === 'delete' ? (
-                                        <p
-                                            className={`text-xs italic ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-dark-gray'}`}
-                                        >
-                                            This message has been deleted
-                                        </p>
-                                    ) : (
-                                        <MessagePreview
-                                            searchQuery={searchQuery}
-                                            text={message?.text || ''}
-                                            isUser={
-                                                message?.sender?._id ===
-                                                    user?._id && true
+                                            onClick={() =>
+                                                handleOpenNewChat(
+                                                    message?.sender?._id || '',
+                                                )
                                             }
-                                        />
-                                    )}
-
-                                    <div className='flex justify-between items-center mt-2 text-xs'>
-                                        {message?.type !== 'delete' && (
-                                            <div
-                                                className={`flex items-center gap-1 text-pure-white/80`}
-                                            >
-                                                {message?.sender?._id ===
-                                                    user?._id && (
-                                                    <>
-                                                        {message?.status ===
-                                                        'seen' ? (
-                                                            <>
-                                                                <CheckCheck className='h-3 w-3 ' />
-                                                                <span className=''>
-                                                                    {
-                                                                        message?.status
-                                                                    }
-                                                                </span>
-                                                            </>
-                                                        ) : message?.status ===
-                                                          'sent' ? (
-                                                            <>
-                                                                <Check className='h-3 w-3 ' />
-                                                                <span className=''>
-                                                                    {
-                                                                        message?.status
-                                                                    }
-                                                                </span>
-                                                            </>
-                                                        ) : message?.status ===
-                                                          'delivered' ? (
-                                                            <>
-                                                                <CheckCheck className='h-3 w-3 ' />
-                                                                <span className=''>
-                                                                    {
-                                                                        message?.status
-                                                                    }
-                                                                </span>
-                                                            </>
-                                                        ) : message?.status ===
-                                                          'sending' ? (
-                                                            <>
-                                                                <Circle className='h-3 w-3 ' />
-                                                                <span className=''>
-                                                                    {
-                                                                        message?.status
-                                                                    }
-                                                                </span>
-                                                            </>
-                                                        ) : (
-                                                            message?.status
-                                                        )}
-                                                    </>
-                                                )}
-                                            </div>
-                                        )}
-                                        {message?.forwardedFrom && (
-                                            <p
-                                                className={`ml-5 text-xs flex flex-row items-center ${
-                                                    message?.sender?._id ===
-                                                    user?._id
-                                                        ? 'text-pure-white/80'
-                                                        : 'text-gray'
-                                                }`}
-                                            >
-                                                <Forward size={16} />
-                                                Forwarded
+                                            className='font-medium text-sm cursor-pointer mb-1 w-full flex flex-row gap-1 items-center'
+                                        >
+                                            <p className='truncate dark:text-pure-white'>
+                                                {message.sender?.fullName ||
+                                                    'Bootcamps Hub user'}{' '}
                                             </p>
-                                        )}
-                                    </div>
-
-                                    {message?.type !== 'delete' &&
-                                        message?.editedAt && (
-                                            <span className='text-xs italic text-primary'>
-                                                (Edited)
+                                            <span
+                                                className={`text-xs ml-2 front-normal text-nowrap ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}
+                                            >
+                                                {dayjs(
+                                                    message?.createdAt,
+                                                ).format('hh:mm A')}
                                             </span>
-                                        )}
-                                </div>
-                            </div>
+                                        </span>
 
-                            <div className='flex items-center gap-1 mt-1 relative'>
-                                {message?.type !== 'delete' &&
-                                message?.replyCount ? (
-                                    message?.replyCount > 0 &&
-                                    !hideReplyCount && (
+                                        {(message?.files ?? []).length > 0 &&
+                                            message?.type !== 'delete' && (
+                                                <div className='flex flex-wrap gap-2 mb-2'>
+                                                    {message?.files?.map(
+                                                        (
+                                                            file: File,
+                                                            i: number,
+                                                        ) => (
+                                                            <FileCard
+                                                                file={file}
+                                                                key={i}
+                                                            />
+                                                        ),
+                                                    )}
+                                                </div>
+                                            )}
+
+                                        {message?.type === 'delete' ? (
+                                            <p
+                                                className={`text-xs italic ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-dark-gray'}`}
+                                            >
+                                                This message has been deleted
+                                            </p>
+                                        ) : (
+                                            <MessagePreview
+                                                searchQuery={searchQuery}
+                                                text={message?.text || ''}
+                                                isUser={
+                                                    message?.sender?._id ===
+                                                        user?._id && true
+                                                }
+                                            />
+                                        )}
+
+                                        <div className='flex justify-between items-center mt-2 text-xs'>
+                                            {message?.type !== 'delete' && (
+                                                <div
+                                                    className={`flex items-center gap-1 text-pure-white/80`}
+                                                >
+                                                    {message?.sender?._id ===
+                                                        user?._id && (
+                                                        <>
+                                                            {message?.status ===
+                                                            'seen' ? (
+                                                                <>
+                                                                    <CheckCheck className='h-3 w-3 ' />
+                                                                    <span className=''>
+                                                                        {
+                                                                            message?.status
+                                                                        }
+                                                                    </span>
+                                                                </>
+                                                            ) : message?.status ===
+                                                              'sent' ? (
+                                                                <>
+                                                                    <Check className='h-3 w-3 ' />
+                                                                    <span className=''>
+                                                                        {
+                                                                            message?.status
+                                                                        }
+                                                                    </span>
+                                                                </>
+                                                            ) : message?.status ===
+                                                              'delivered' ? (
+                                                                <>
+                                                                    <CheckCheck className='h-3 w-3 ' />
+                                                                    <span className=''>
+                                                                        {
+                                                                            message?.status
+                                                                        }
+                                                                    </span>
+                                                                </>
+                                                            ) : message?.status ===
+                                                              'sending' ? (
+                                                                <>
+                                                                    <Circle className='h-3 w-3 ' />
+                                                                    <span className=''>
+                                                                        {
+                                                                            message?.status
+                                                                        }
+                                                                    </span>
+                                                                </>
+                                                            ) : (
+                                                                message?.status
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {message?.forwardedFrom && (
+                                                <p
+                                                    className={`ml-5 text-xs flex flex-row items-center ${
+                                                        message?.sender?._id ===
+                                                        user?._id
+                                                            ? 'text-pure-white/80'
+                                                            : 'text-gray'
+                                                    }`}
+                                                >
+                                                    <Forward size={16} />
+                                                    Forwarded
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {message?.type !== 'delete' &&
+                                            message?.editedAt && (
+                                                <span className='text-xs italic text-primary'>
+                                                    (Edited)
+                                                </span>
+                                            )}
+                                    </div>
+                                </div>
+
+                                <div className='flex items-center gap-1 mt-1 relative'>
+                                    {message?.type !== 'delete' &&
+                                    message?.replyCount ? (
+                                        message?.replyCount > 0 &&
+                                        !hideReplyCount && (
+                                            <div
+                                                className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer'
+                                                onClick={handleThreadMessage}
+                                            >
+                                                <span className='text-primary-white flex flex-row items-center gap-1'>
+                                                    Replies{' '}
+                                                    {message?.replyCount}{' '}
+                                                </span>
+                                                <ChevronDown className='h-3 w-3 text-gray' />
+                                            </div>
+                                        )
+                                    ) : (
                                         <div
-                                            className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer'
+                                            className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer mr-3'
                                             onClick={handleThreadMessage}
                                         >
-                                            <span className='text-primary flex flex-row items-center gap-1'>
-                                                Replies
-                                                {message?.replyCount}{' '}
+                                            <span className='text-dark-gray'>
+                                                Reply
                                             </span>
-                                            <ChevronDown className='h-3 w-3 text-gray' />
                                         </div>
-                                    )
-                                ) : (
-                                    <div
-                                        className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer mr-3'
-                                        onClick={handleThreadMessage}
-                                    >
-                                        <span className='text-dark-gray'>
-                                            Reply
-                                        </span>
-                                    </div>
-                                )}
-                                {/* Existing reactions */}
-                                {message?.reactions &&
-                                    Object.keys(message?.reactions).length >
-                                        0 && (
-                                        <div className='flex gap-1'>
-                                            {Object.keys(message.reactions).map(
-                                                (e, i) => (
+                                    )}
+                                    {/* Existing reactions */}
+                                    {message?.reactions &&
+                                        Object.keys(message?.reactions).length >
+                                            0 && (
+                                            <div className='flex gap-1'>
+                                                {Object.keys(
+                                                    message.reactions,
+                                                ).map((e, i) => (
                                                     <span
                                                         key={i}
                                                         className={`flex items-center justify-center px-1.5 py-0.5 rounded-full text-xs bg-secondary border ${
@@ -479,43 +508,286 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                             ] ?? ''}
                                                         </span>
                                                     </span>
-                                                ),
-                                            )}
+                                                ))}
+                                            </div>
+                                        )}
+
+                                    {/* Smile-Plus Icon */}
+                                    <div
+                                        className='h-7 w-7 flex items-center justify-center p-1 rounded-full bg-secondary border cursor-pointer'
+                                        onClick={() =>
+                                            setIsEmojiPickerOpen(
+                                                !isEmojiPickerOpen,
+                                            )
+                                        }
+                                    >
+                                        <SmilePlus className='h-4 w-4' />
+                                    </div>
+
+                                    {/* Emoji List */}
+                                    {isEmojiPickerOpen && (
+                                        <div className='flex flex-row items-center gap-1 mt-1 absolute -top-10 left-2 bg-primary-light shadow-md rounded-full p-1'>
+                                            {emojies?.map((x, i) => (
+                                                <div
+                                                    key={i}
+                                                    className={`h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white duration-200 rounded-full p-1 ${x === '❤' ? 'text-red-500' : ''}`}
+                                                    onClick={() => {
+                                                        handleReaction(
+                                                            x,
+                                                            message._id,
+                                                            message.chat,
+                                                        );
+                                                        setIsEmojiPickerOpen(
+                                                            false,
+                                                        ); // Close the emoji list after selection
+                                                    }}
+                                                >
+                                                    {x}
+                                                </div>
+                                            ))}
                                         </div>
                                     )}
-
-                                {/* Smile-Plus Icon */}
-                                <div
-                                    className='h-7 w-7 flex items-center justify-center p-1 rounded-full bg-secondary border cursor-pointer'
-                                    onClick={() =>
-                                        setIsEmojiPickerOpen(!isEmojiPickerOpen)
-                                    }
-                                >
-                                    <SmilePlus className='h-4 w-4' />
                                 </div>
+                            </div>
+                            {/* replies tree ------------------------ */}
+                            {message?.replyCount > 0 &&
+                                initialReplies.length > 0 &&
+                                source !== 'thread' && (
+                                    <div className=''>
+                                        {initialReplies.map(
+                                            (reply: any, index) => (
+                                                <div
+                                                    key={reply._id}
+                                                    className='cursor-pointer my-1' /* Increased margin for gap between replies */
+                                                    onClick={
+                                                        handleThreadMessage
+                                                    }
+                                                >
+                                                    <div className='flex items-start gap-2'>
+                                                        <Image
+                                                            src={
+                                                                reply.sender
+                                                                    ?.type ===
+                                                                'bot'
+                                                                    ? '/chat/bot.png'
+                                                                    : reply
+                                                                          ?.sender
+                                                                          ?.profilePicture ||
+                                                                      '/chat/user.png'
+                                                            }
+                                                            alt={
+                                                                reply?.sender
+                                                                    ?.firstName ||
+                                                                'User'
+                                                            }
+                                                            width={20}
+                                                            height={20}
+                                                            className='rounded-full h-5 w-5 object-cover mt-1'
+                                                        />
+                                                        <div className='flex-1 flex flex-col'>
+                                                            <div
+                                                                className={`rounded-lg p-2 ${
+                                                                    reply
+                                                                        ?.sender
+                                                                        ?._id ===
+                                                                    user?._id
+                                                                        ? 'bg-primary text-primary-light'
+                                                                        : 'bg-primary-light border border-blue-600/20'
+                                                                }`}
+                                                            >
+                                                                <div className='flex items-center gap-1 mb-1'>
+                                                                    <span
+                                                                        className={`font-medium text-xs ${
+                                                                            reply
+                                                                                ?.sender
+                                                                                ?._id ===
+                                                                            user?._id
+                                                                                ? 'text-pure-white'
+                                                                                : ''
+                                                                        }`}
+                                                                    >
+                                                                        {reply
+                                                                            .sender
+                                                                            ?.fullName ||
+                                                                            'Bootcamps Hub user'}
+                                                                    </span>
+                                                                    <span
+                                                                        className={`text-xs ${
+                                                                            reply
+                                                                                ?.sender
+                                                                                ?._id ===
+                                                                            user?._id
+                                                                                ? 'text-pure-white/80'
+                                                                                : 'text-gray'
+                                                                        }`}
+                                                                    >
+                                                                        {dayjs(
+                                                                            reply?.createdAt,
+                                                                        ).format(
+                                                                            'hh:mm A',
+                                                                        )}
+                                                                    </span>
+                                                                </div>
 
-                                {/* Emoji List */}
-                                {isEmojiPickerOpen && (
-                                    <div className='flex flex-row items-center gap-1 mt-1 absolute -top-10 left-2 bg-primary-light shadow-md rounded-full p-1'>
-                                        {emojies?.map((x, i) => (
+                                                                {/* Display files if any */}
+                                                                {(
+                                                                    reply?.files ??
+                                                                    []
+                                                                ).length > 0 &&
+                                                                    reply?.type !==
+                                                                        'delete' && (
+                                                                        <div className='flex flex-wrap gap-2 mb-2 max-w-[180px] md:max-w-[200px]'>
+                                                                            {reply?.files?.map(
+                                                                                (
+                                                                                    file: any,
+                                                                                    i: number,
+                                                                                ) => (
+                                                                                    <FileCard
+                                                                                        file={
+                                                                                            file
+                                                                                        }
+                                                                                        key={
+                                                                                            i
+                                                                                        }
+                                                                                    />
+                                                                                ),
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+
+                                                                {/* Display message content */}
+                                                                {reply?.type ===
+                                                                'delete' ? (
+                                                                    <p
+                                                                        className={`text-xs italic ${
+                                                                            reply
+                                                                                ?.sender
+                                                                                ?._id ===
+                                                                            user?._id
+                                                                                ? 'text-pure-white/80'
+                                                                                : 'text-dark-gray'
+                                                                        }`}
+                                                                    >
+                                                                        This
+                                                                        message
+                                                                        has been
+                                                                        deleted
+                                                                    </p>
+                                                                ) : (
+                                                                    <div
+                                                                        className={`text-xs ${
+                                                                            reply
+                                                                                ?.sender
+                                                                                ?._id ===
+                                                                            user?._id
+                                                                                ? 'text-pure-white'
+                                                                                : ''
+                                                                        }`}
+                                                                    >
+                                                                        {
+                                                                            reply.text
+                                                                        }
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Show edited status if applicable */}
+                                                                {reply?.type !==
+                                                                    'delete' &&
+                                                                    reply?.editedAt && (
+                                                                        <span className='text-xs italic text-primary-white'>
+                                                                            (Edited)
+                                                                        </span>
+                                                                    )}
+                                                            </div>
+
+                                                            {/* Show emoji picker and reactions below the reply message */}
+                                                            <div className='flex items-center gap-1 mt-1 ml-1'>
+                                                                {/* Existing reactions */}
+                                                                {reply?.reactions &&
+                                                                    Object.keys(
+                                                                        reply?.reactions,
+                                                                    ).length >
+                                                                        0 && (
+                                                                        <div className='flex gap-1'>
+                                                                            {Object.keys(
+                                                                                reply.reactions,
+                                                                            ).map(
+                                                                                (
+                                                                                    e,
+                                                                                    i,
+                                                                                ) => (
+                                                                                    <span
+                                                                                        key={
+                                                                                            i
+                                                                                        }
+                                                                                        className={`flex items-center justify-center px-1 py-0.5 rounded-full text-xs bg-secondary border ${
+                                                                                            e ===
+                                                                                            '❤'
+                                                                                                ? 'text-red-500'
+                                                                                                : ''
+                                                                                        }`}
+                                                                                    >
+                                                                                        {
+                                                                                            e
+                                                                                        }
+                                                                                        <span className='text-primary-white text-xs ml-0.5'>
+                                                                                            {reply
+                                                                                                .reactions?.[
+                                                                                                e
+                                                                                            ] ??
+                                                                                                ''}
+                                                                                        </span>
+                                                                                    </span>
+                                                                                ),
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+
+                                                                {/* Smile-Plus Icon (smaller for replies) */}
+                                                                {/* <div
+                                                                className='h-5 w-5 flex items-center justify-center p-1 rounded-full bg-secondary border cursor-pointer'
+                                                                onClick={(
+                                                                    e,
+                                                                ) => {
+                                                                    e.stopPropagation(); // Prevent opening thread when clicking emoji
+                                                                    // We would handle emoji picker here in a real implementation
+                                                                    handleReaction(
+                                                                        '👍',
+                                                                        reply._id,
+                                                                        reply.chat,
+                                                                    );
+                                                                }}
+                                                            >
+                                                                <SmilePlus className='h-3 w-3' />
+                                                            </div> */}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ),
+                                        )}
+
+                                        {/* See more button if there are more replies than we're showing */}
+                                        {message?.replyCount >
+                                            initialReplies.length && (
                                             <div
-                                                key={i}
-                                                className={`h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white duration-200 rounded-full p-1 ${x === '❤' ? 'text-red-500' : ''}`}
-                                                onClick={() => {
-                                                    handleReaction(
-                                                        x,
-                                                        message._id,
-                                                        message.chat,
-                                                    );
-                                                    setIsEmojiPickerOpen(false); // Close the emoji list after selection
-                                                }}
+                                                className='flex justify-center cursor-pointer text-primary-white text-xs hover:bg-primary-light/50 rounded-lg -ml-[70px]'
+                                                onClick={handleThreadMessage}
                                             >
-                                                {x}
+                                                See{' '}
+                                                {message?.replyCount -
+                                                    initialReplies.length}{' '}
+                                                more{' '}
+                                                {message?.replyCount -
+                                                    initialReplies.length ===
+                                                1
+                                                    ? 'reply'
+                                                    : 'replies'}
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
                                 )}
-                            </div>
+                            {/* -------------- X replies tree ------------------------ */}
                         </div>
 
                         {!hideOptions && message?.type !== 'delete' && (
@@ -556,7 +828,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         </div>
                                         {source !== 'thread' && !isAi && (
                                             <DropdownMenuItem
-                                                className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                                className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                                 onClick={handleThreadMessage}
                                             >
                                                 <Reply className='h-4 w-4' />
@@ -567,7 +839,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             message?.sender?._id ===
                                                 user?._id && (
                                                 <DropdownMenuItem
-                                                    className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                                    className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                                     onClick={() => {
                                                         if (setEditMessage) {
                                                             setEditMessage(
@@ -582,7 +854,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             )}
                                         {message?.files?.length === 0 && (
                                             <DropdownMenuItem
-                                                className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                                className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                                 onClick={handleCopyClick}
                                             >
                                                 <Copy className='h-4 w-4' />
@@ -591,7 +863,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         )}
 
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }
@@ -600,7 +872,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             History
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                             onClick={() => {
                                                 handlePin(message);
                                             }}
@@ -611,7 +883,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 : 'Pin Message'}
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }
@@ -620,14 +892,14 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             Star
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                             onClick={handleForward}
                                         >
                                             <Forward className='h-4 w-4' />
                                             Forward
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary'
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }
@@ -653,7 +925,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 </DropdownMenuItem>
                                             )}
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary border-t'
+                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white border-t'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }

@@ -18,7 +18,6 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
     const { user } = useAppSelector((state) => state.auth);
     const { state } = useSidebar();
     const pathName = usePathname();
-    console.log({ pathName });
     const isChat = pathName.includes('/chat') ? true : false;
     useEffect(() => {
         if (user?._id) {

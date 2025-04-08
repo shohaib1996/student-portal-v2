@@ -185,7 +185,7 @@ const Inbox: React.FC<InboxProps> = ({
     return (
         <>
             {/* Set position relative so the absolute search box is positioned relative to this container */}
-            <div className='relative bg-foreground rounded-md shadow-sm h-[calc(100vh-60px)]'>
+            <div className='relative bg-foreground shadow-sm h-[calc(100vh-60px)]'>
                 <div className='flex flex-col h-full'>
                     <div className='flex items-center justify-between p-2 border-b'>
                         <div className='flex items-center space-x-3'>

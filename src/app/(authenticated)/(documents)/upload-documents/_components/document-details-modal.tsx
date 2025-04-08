@@ -125,7 +125,7 @@ export function DocumentDetailsModal({
                 onClose();
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 

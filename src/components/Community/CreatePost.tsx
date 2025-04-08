@@ -71,7 +71,6 @@ const CreatePost = ({ refetch, setRefetch }: ICreatePostProps) => {
                     [file],
                     uploadDocument,
                 );
-                console.log(uploadedFileUrl);
                 if (uploadedFileUrl) {
                     toast.success('File uploaded successfully');
                     setFileUrl(uploadedFileUrl);

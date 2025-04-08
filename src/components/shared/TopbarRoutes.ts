@@ -11,7 +11,7 @@ const TopbarRoutes = () => {
                 setNavigations(res.data.navigation.navigations);
             })
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             });
     }, []);
 

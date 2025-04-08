@@ -327,7 +327,6 @@ export default function UserProfileForm() {
         */
 
         // For now, just show a toast success message
-        console.log('Form submitted:', formData);
         toast.success('Profile updated successfully!');
     };
     const commingSoon = () => {

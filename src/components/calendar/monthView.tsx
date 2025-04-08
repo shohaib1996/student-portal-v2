@@ -69,9 +69,7 @@ export function MonthView({ currentDate }: MonthViewProps) {
     });
 
     const handleDayClick = (day: Date) => {
-        console.log('Day clicked:', format(day, 'yyyy-MM-dd'));
         dispatch(setCurrentDate(day));
-        // You can implement custom logic here, like opening a modal to add an event
     };
 
     const events: TEvent[] = (data?.events as TEvent[]) || [];

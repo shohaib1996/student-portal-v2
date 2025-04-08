@@ -18,8 +18,6 @@ const PresentationCard = ({
     onClick,
     index,
 }: PresentationCardProps) => {
-    console.log(presentation?.createdBy?.fullName);
-
     return (
         <div className='border rounded-lg overflow-hidden bg-foreground'>
             <div className='relative'>

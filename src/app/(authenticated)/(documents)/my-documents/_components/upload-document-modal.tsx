@@ -148,8 +148,6 @@ export function UploadDocumentModal({
             attachedFiles: attachedFileUrls, // Use the uploaded URLs
         };
 
-        console.log('Document Submission Data:', submissionData);
-
         // Uncomment the following line if you want to close the modal after submission
         // onClose();
     };

@@ -461,7 +461,7 @@ const MyInvitations = () => {
                 setEvent(null);
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 
