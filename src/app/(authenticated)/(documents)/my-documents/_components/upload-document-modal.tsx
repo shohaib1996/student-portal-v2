@@ -26,6 +26,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import instance from '@/utils/storage';
 
 export interface UploadDocumentModalProps {
     isOpen: boolean;
@@ -52,7 +53,7 @@ export function UploadDocumentModal({
         formData.append('file', file);
 
         try {
-            const response = await fetch('/api/upload', {
+            const response = await instance('/upload', {
                 method: 'POST',
                 body: formData,
             });
@@ -148,8 +149,7 @@ export function UploadDocumentModal({
             attachedFiles: attachedFileUrls, // Use the uploaded URLs
         };
 
-        // Uncomment the following line if you want to close the modal after submission
-        // onClose();
+        onClose();
     };
 
     return (

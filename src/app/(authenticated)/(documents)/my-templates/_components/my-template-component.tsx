@@ -169,6 +169,7 @@ export default function MyTemplateComponent() {
                 <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
                     {paginatedTemplates.map((content: LabContent) => (
                         <GlobalDocumentCard
+                            redirect='my-templates'
                             key={content._id}
                             {...content}
                             onClick={() => handleDocumentClick(content._id)}

@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,9 +8,11 @@ import { GlobalDocumentDetailsModal } from '@/components/global/documents/Global
 import DownloadIcon from '@/components/svgs/common/DownloadIcon';
 import EditPenIcon from '@/components/svgs/common/EditPenIcon';
 import DeleteTrashIcon from '@/components/svgs/common/DeleteTrashIcon';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { EditDocumentModal } from './edit-document-modal';
 import { DocumentContentArea } from '@/components/global/documents/DocumentContentArea';
+import { useGetMySingleDocumentQuery } from '@/redux/api/documents/documentsApi';
 
 export interface DocumentDetailsProps {
     isOpen: boolean;
@@ -20,7 +21,7 @@ export interface DocumentDetailsProps {
     selectedDocument?: any;
 }
 
-// // Define the document interface
+// Define the document interface
 export interface Document {
     id: string;
     title: string;
@@ -47,75 +48,107 @@ export function DocumentDetailsModal({
     isOpen,
     onClose,
     documentId,
-    selectedDocument,
+    selectedDocument: propDocument,
 }: DocumentDetailsProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
-    // Mock document data - in a real app, you would fetch this based on documentId
-    const document: Document | null = documentId
+    // Get document ID from URL if present, otherwise use the prop
+    const id = searchParams.get('documentId') || documentId;
+    const mode = searchParams.get('mode') || 'view';
+
+    // Fetch document from API if we have an ID and it's not provided in props
+    const {
+        data: apiDocument,
+        isLoading,
+        error,
+    } = useGetMySingleDocumentQuery(id || '', { skip: !id || !!propDocument });
+
+    // Use document from props if available, otherwise use fetched data
+    const documentData = propDocument || apiDocument?.document || null;
+
+    // Format document data to match the expected structure for DocumentContentArea
+    const document = documentData
         ? {
-              id: documentId,
-              title: 'Test Document - For Upload File',
-              author: 'John Doe',
-              uploadDate: 'Jan 20, 2024 | 12:30 PM',
-              lastUpdate: 'Jan 20, 2024 | 12:30 PM',
-              tags: ['development', 'technical test', 'web development'],
-              content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-
-Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum`,
-              imageUrl: '/images/documents-and-labs-thumbnail.png',
-              attachedFiles: [
-                  {
-                      id: 'file-1',
-                      name: 'ab-bg-Groups.jpg',
-                      type: 'image',
-                      size: '1.2 MB',
-                  },
-                  {
-                      id: 'file-2',
-                      name: 'Group - Image 2023',
-                      type: 'image',
-                      size: '0.8 MB',
-                  },
-              ],
-              comments: [
-                  {
-                      id: 'comment-1',
-                      author: 'John Doe',
-                      avatar: '/images/author.png',
-                      time: '10:00 PM',
-                      content:
-                          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard du",
-                      additionalText: 'How are you? I hope you are doing well.',
-                      likes: 20,
-                      replies: 2,
-                  },
-                  {
-                      id: 'comment-2',
-                      author: 'Brooklyn Simmons',
-                      avatar: '/placeholder.svg?height=40&width=40',
-                      time: '10:00 PM',
-                      content: 'Excellent! I really appreciate you.',
-                      likes: 20,
-                      replies: 0,
-                  },
-              ],
+              id: documentData.id || documentData._id,
+              title:
+                  documentData.title ||
+                  documentData.name ||
+                  'Untitled Document',
+              author:
+                  documentData.author ||
+                  documentData.createdBy?.fullName ||
+                  'Unknown',
+              uploadDate:
+                  documentData.uploadDate ||
+                  documentData.createdAt ||
+                  new Date().toISOString(),
+              lastUpdate:
+                  documentData.lastUpdate ||
+                  documentData.updatedAt ||
+                  new Date().toISOString(),
+              tags: Array.isArray(documentData.tags)
+                  ? documentData.tags
+                  : Array.isArray(documentData.category)
+                    ? documentData.category
+                    : [],
+              content: documentData.content || documentData.description || '',
+              imageUrl:
+                  documentData.imageUrl ||
+                  documentData.thumbnail ||
+                  '/images/documents-and-labs-thumbnail.png',
+              attachedFiles:
+                  documentData.attachedFiles ||
+                  (documentData.attachment
+                      ? Array.isArray(documentData.attachment)
+                          ? documentData.attachment.map(
+                                (file: any, index: number) => ({
+                                    id: `file-${index}`,
+                                    name:
+                                        typeof file === 'string'
+                                            ? file
+                                            : file.name || `File ${index}`,
+                                    type: 'document',
+                                    size: '1.0 MB',
+                                }),
+                            )
+                          : []
+                      : []),
           }
         : null;
 
-    // All available tags
-    const allTags = [
-        'development',
-        'development',
-        'development',
-        'devops',
-        'technical test',
-        'web development',
-        'resources',
-        'devops',
-        'technical test',
-        'web development',
-    ];
+    // Open edit modal automatically if mode is 'edit'
+    useEffect(() => {
+        if (mode === 'edit' && isOpen && document) {
+            setIsEditModalOpen(true);
+        }
+    }, [mode, isOpen, document]);
+
+    const handleCommentSubmit = (content: string) => {
+        console.log('New comment:', content);
+    };
+
+    const handleEditClick = () => {
+        if (id) {
+            router.push(`?documentId=${id}&mode=edit`);
+            setIsEditModalOpen(true);
+        }
+    };
+
+    const handleEditModalClose = () => {
+        if (id) {
+            router.push(`?documentId=${id}&mode=view`);
+        }
+        setIsEditModalOpen(false);
+    };
+
+    // All available tags - ensure it's always an array
+    const allTags = Array.isArray(documentData?.tags)
+        ? documentData.tags
+        : Array.isArray(documentData?.category)
+          ? documentData.category
+          : [];
 
     // Related documents
     const relatedDocuments = Array.from({ length: 5 }, (_, i) => ({
@@ -128,28 +161,93 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
         readTime: 12,
     }));
 
-    // Bullet points for the document
-    const bulletPoints = [
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        'Nulla facilisi, sed ut perspiciatis unde omnis error.',
-        'Accusantium doloremque laudantium, totam rem aperiam.',
-        'Ut enim ad minim veniam, quis nostrud exercitation ullamco.',
-        'Duis aute irure dolor in reprehenderit in voluptate velit esse.',
-    ];
+    // Loading state
+    if (isLoading) {
+        return (
+            <GlobalDocumentDetailsModal isOpen={isOpen} onClose={onClose}>
+                <div className='flex items-center justify-center h-full'>
+                    <div className='text-center'>
+                        <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4'></div>
+                        <p>Loading document...</p>
+                    </div>
+                </div>
+            </GlobalDocumentDetailsModal>
+        );
+    }
 
-    const handleCommentSubmit = (content: string) => {
-        console.log('New comment:', content);
-    };
+    // Error state
+    if (error && isOpen) {
+        return (
+            <GlobalDocumentDetailsModal isOpen={isOpen} onClose={onClose}>
+                <div className='flex items-center justify-center h-full'>
+                    <div className='text-center'>
+                        <div className='text-red-500 mb-4'>
+                            <svg
+                                xmlns='http://www.w3.org/2000/svg'
+                                width='64'
+                                height='64'
+                                viewBox='0 0 24 24'
+                                fill='none'
+                                stroke='currentColor'
+                                strokeWidth='2'
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                            >
+                                <circle cx='12' cy='12' r='10'></circle>
+                                <line x1='12' y1='8' x2='12' y2='12'></line>
+                                <line x1='12' y1='16' x2='12.01' y2='16'></line>
+                            </svg>
+                        </div>
+                        <h3 className='text-xl font-semibold mb-2'>
+                            Error Loading Document
+                        </h3>
+                        <p className='text-gray-500 mb-4'>
+                            There was a problem loading the document. Please try
+                            again later.
+                        </p>
+                        <Button onClick={onClose}>Go Back</Button>
+                    </div>
+                </div>
+            </GlobalDocumentDetailsModal>
+        );
+    }
 
-    const handleEditClick = () => {
-        setIsEditModalOpen(true);
-    };
+    // Not found state
+    if (!document && isOpen) {
+        return (
+            <GlobalDocumentDetailsModal isOpen={isOpen} onClose={onClose}>
+                <div className='flex flex-col items-center justify-center h-full'>
+                    <div className='text-red-500 mb-4 w-[70px]'>
+                        <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            width='64'
+                            height='64'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            strokeWidth='2'
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                        >
+                            <circle cx='12' cy='12' r='10'></circle>
+                            <line x1='12' y1='8' x2='12' y2='12'></line>
+                            <line x1='12' y1='16' x2='12.01' y2='16'></line>
+                        </svg>
+                    </div>
+                    <h3 className='text-xl font-semibold mb-2'>
+                        Document Not Found
+                    </h3>
+                    <p className='text-gray-500 mb-4'>
+                        {`The document you're looking for doesn't exist or has
+                            been removed.`}
+                    </p>
+                    <Button onClick={onClose}>Go Back</Button>
+                </div>
+            </GlobalDocumentDetailsModal>
+        );
+    }
 
-    const handleEditModalClose = () => {
-        setIsEditModalOpen(false);
-    };
-
-    if (!document) {
+    if (!isOpen || !document) {
         return null;
     }
 
@@ -218,32 +316,39 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                             {/* Main content area - 2/3 width on large screens */}
                             <DocumentContentArea
                                 document={document}
-                                documentId={documentId}
+                                documentId={id}
                                 onCommentSubmit={handleCommentSubmit}
                             />
 
                             {/* Sidebar - 1/3 width on large screens */}
                             <div className='lg:sticky top-20 space-y-3'>
                                 {/* Tags section */}
-                                <div className='rounded-lg border bg-card p-4 shadow'>
+                                <div className='rounded-lg border bg-background p-4 shadow'>
                                     <h3 className='mb-3 text-sm font-medium'>
                                         Tags
                                     </h3>
                                     <div className='flex flex-wrap gap-2'>
-                                        {allTags.map((tag, index) => (
-                                            <Badge
-                                                key={index}
-                                                variant='outline'
-                                                className='bg-violet-100/50 text-violet-500 rounded-full'
-                                            >
-                                                {tag}
-                                            </Badge>
-                                        ))}
+                                        {Array.isArray(allTags) &&
+                                        allTags.length > 0 ? (
+                                            allTags.map((tag, index) => (
+                                                <Badge
+                                                    key={index}
+                                                    variant='outline'
+                                                    className='bg-purple-100/20 text-purple-600 rounded-full'
+                                                >
+                                                    {tag}
+                                                </Badge>
+                                            ))
+                                        ) : (
+                                            <span className='text-gray-400 text-sm'>
+                                                No tags available
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* New Documents section */}
-                                <div className='rounded-lg border bg-card p-4 shadow'>
+                                <div className='rounded-lg border bg-background p-4 shadow'>
                                     <h3 className='mb-3 text-sm font-medium'>
                                         New Documents
                                     </h3>
@@ -271,7 +376,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                                                     <h4 className='line-clamp-1 text-sm font-medium'>
                                                         {doc.title}
                                                     </h4>
-                                                    <p className='line-clamp-2 text-xs text-muted-foreground'>
+                                                    <p className='line-clamp-2 text-xs text-gray'>
                                                         {doc.excerpt}
                                                     </p>
                                                     <div className='mt-1 flex flex-wrap gap-1'>
@@ -280,7 +385,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                                                                 <Badge
                                                                     key={index}
                                                                     variant='outline'
-                                                                    className='bg-violet-100/50 text-violet-500 rounded-full px-1 py-0 text-[10px]'
+                                                                    className='bg-purple-100/20 text-purple-600 rounded-full px-1 py-0 text-[10px]'
                                                                 >
                                                                     {tag}
                                                                 </Badge>
@@ -303,6 +408,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                 <EditDocumentModal
                     isOpen={isEditModalOpen}
                     onClose={handleEditModalClose}
+                    documentId={id || ''}
                     defaultValues={{
                         description: document.content,
                         name: document.title,
@@ -310,7 +416,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
                         tags: document.tags.join(', '),
                         thumbnailUrl: document.imageUrl,
                         attachedFileUrls: document.attachedFiles.map(
-                            (file) => file.name,
+                            (file: any) => file.name,
                         ),
                     }}
                 />

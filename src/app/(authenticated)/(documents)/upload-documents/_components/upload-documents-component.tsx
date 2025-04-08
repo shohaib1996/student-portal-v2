@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, LayoutGrid, List, Eye } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 import { useGetUploadDocumentsQuery } from '@/redux/api/documents/documentsApi';
 import { DocumentDetailsModal } from './document-details-modal';
@@ -33,13 +33,19 @@ export default function UploadDocumentComponent() {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
     const [filters, setFilters] = useState<FilterValues>({});
-
+    const searchParams = useSearchParams();
+    const documentId = searchParams.get('documentId');
+    const mode = searchParams.get('mode');
     const router = useRouter();
     const { data, error, isLoading } = useGetUploadDocumentsQuery({
         page: currentPage,
         limit: limit,
     });
-
+    useEffect(() => {
+        if (documentId && mode === 'view') {
+            setIsDetailsModalOpen(true);
+        }
+    }, [documentId, mode]);
     const allDocuments = data?.documents || [];
 
     // Filter documents based on filter values
@@ -104,6 +110,7 @@ export default function UploadDocumentComponent() {
     const handleCloseDetailsModal = () => {
         setIsDetailsModalOpen(false);
         setSelectedDocumentId(null);
+        router.push('/upload-documents');
     };
 
     const handleOpenUploadModal = () => {
@@ -281,6 +288,8 @@ export default function UploadDocumentComponent() {
                         {paginatedDocuments.map((doc) => (
                             <GlobalDocumentCard
                                 key={doc._id}
+                                id={doc._id}
+                                redirect='upload-documents'
                                 {...doc}
                                 onClick={() => handleDocumentClick(doc._id)}
                             />
@@ -309,7 +318,7 @@ export default function UploadDocumentComponent() {
             <DocumentDetailsModal
                 isOpen={isDetailsModalOpen}
                 onClose={handleCloseDetailsModal}
-                documentId={selectedDocumentId}
+                documentId={selectedDocumentId || documentId}
             />
 
             <UploadDocumentModal

@@ -56,7 +56,7 @@ export function DocumentContentArea({
                             Slide
                         </TabsTrigger>
                     </TabsList>
-                    <TabsContent value='documents' className='p-4'>
+                    <TabsContent value='documents' className='p-0'>
                         <div className='pt-2'>{document.content}</div>
 
                         <GlobalAttachedFilesSection

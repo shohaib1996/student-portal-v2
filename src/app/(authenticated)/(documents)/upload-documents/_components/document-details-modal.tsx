@@ -6,11 +6,13 @@ import { GlobalDocumentDetailsModal } from '@/components/global/documents/Global
 import DownloadIcon from '@/components/svgs/common/DownloadIcon';
 import EditPenIcon from '@/components/svgs/common/EditPenIcon';
 import DeleteTrashIcon from '@/components/svgs/common/DeleteTrashIcon';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EditDocumentModal } from './edit-document-modal';
 import {
     useDeleteUserDocumentMutation,
-    useGetContentDetailsQuery,
+    useGetSingleUpdatedDocumentByIdQuery,
+    useGetSingleUploadDocumentQuery,
 } from '@/redux/api/documents/documentsApi';
 import { DocumentContentArea } from '@/components/global/documents/DocumentContentArea';
 import { DocumentSidebar } from '@/components/global/documents/DocumentSider';
@@ -32,6 +34,7 @@ export interface DocumentDetailsProps {
     onClose: () => void;
     documentId: string | null;
     documentData?: any;
+    mode?: 'view' | 'edit' | 'add';
 }
 
 export function DocumentDetailsModal({
@@ -39,58 +42,179 @@ export function DocumentDetailsModal({
     onClose,
     documentId,
     documentData,
+    mode = 'view',
 }: DocumentDetailsProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const pathName = usePathname();
+
+    // Get document ID from URL if present, otherwise use the prop
+    const id = searchParams.get('documentId') || documentId;
+    const urlMode = searchParams.get('mode') || mode;
+
     const [
         deleteUserDocument,
         {
-            isLoading: isDeleteing,
+            isLoading: isDeleting,
             isError: isDeleteError,
             isSuccess: isDeleteSuccess,
-            data: deletedData,
         },
     ] = useDeleteUserDocumentMutation();
 
-    // Only fetch data if documentData is not provided and documentId exists
-    const { data, error, isLoading } = documentData
-        ? { data: null, error: null, isLoading: false }
-        : useGetContentDetailsQuery(documentId || '');
+    // Use the appropriate query based on the pathname
+    const { data: uploadDocumentData, isLoading: isUploadDocLoading } =
+        pathName === '/upload-documents'
+            ? useGetSingleUploadDocumentQuery(id || '', {
+                  skip: !id || !!documentData,
+              })
+            : { data: null, isLoading: false };
 
-    // Handle loading and error states
-    if (!documentData && isLoading) {
-        return <div>Loading...</div>;
-    }
+    const { data: contentDetailsData, isLoading: isContentLoading } =
+        pathName !== '/upload-documents'
+            ? useGetSingleUpdatedDocumentByIdQuery(id || '', {
+                  skip: !id || !!documentData,
+              })
+            : { data: null, isLoading: false };
 
-    if (!documentData && error) {
-        return <div>Something went wrong!</div>;
-    }
+    // Determine which data to use
+    const apiData =
+        pathName === '/upload-documents'
+            ? uploadDocumentData
+            : contentDetailsData;
+    const isLoading = isUploadDocLoading || isContentLoading;
 
-    // Use provided documentData if available, otherwise use fetched data
-    const content = documentData || {
-        title: data?.content?.name || 'Untitled',
-        author: data?.content?.createdBy || 'Unknown Author',
-        uploadDate: data?.content?.createdAt || new Date().toISOString(),
-        lastUpdate: data?.content?.updatedAt || new Date().toISOString(),
-        tags: data?.content?.tags || [],
-        content:
-            data?.content?.description || 'description is one the way of home',
-        imageUrl:
-            data?.content?.thumbnail ||
-            '/images/documents-and-labs-thumbnail.png',
-        attachedFiles: data?.content?.attachedFiles || [],
+    // Open edit modal automatically if mode is 'edit'
+    useEffect(() => {
+        if (urlMode === 'edit' && isOpen && (documentData || apiData)) {
+            setIsEditModalOpen(true);
+        }
+    }, [urlMode, isOpen, documentData, apiData]);
+
+    // Format the document data based on its structure
+    const formatDocumentData = () => {
+        // If documentData is provided from props, use that
+        if (documentData) {
+            return {
+                title: documentData.title || documentData.name || 'Untitled',
+                author:
+                    documentData.author ||
+                    documentData.createdBy?.fullName ||
+                    'Unknown Author',
+                uploadDate:
+                    documentData.uploadDate ||
+                    documentData.createdAt ||
+                    new Date().toISOString(),
+                lastUpdate:
+                    documentData.lastUpdate ||
+                    documentData.updatedAt ||
+                    new Date().toISOString(),
+                tags: Array.isArray(documentData.tags)
+                    ? documentData.tags
+                    : Array.isArray(documentData.category)
+                      ? documentData.category
+                      : [],
+                content: documentData.content || documentData.description || '',
+                imageUrl:
+                    documentData.imageUrl ||
+                    documentData.thumbnail ||
+                    '/images/documents-and-labs-thumbnail.png',
+                attachedFiles:
+                    documentData.attachedFiles ||
+                    (Array.isArray(documentData.attachment)
+                        ? documentData.attachment.map(
+                              (file: any, index: number) => ({
+                                  id: `file-${index}`,
+                                  name:
+                                      typeof file === 'string'
+                                          ? file
+                                          : file.name || `File ${index}`,
+                                  type: 'document',
+                                  size: '1.0 MB',
+                              }),
+                          )
+                        : []),
+            };
+        }
+
+        // If on upload-documents page, format data accordingly
+        if (pathName === '/upload-documents' && uploadDocumentData) {
+            const document = uploadDocumentData.document;
+            return {
+                title: document?.name || 'Untitled',
+                author: document?.user || 'Unknown Author',
+                uploadDate: document?.createdAt || new Date().toISOString(),
+                lastUpdate: document?.updatedAt || new Date().toISOString(),
+                tags: Array.isArray(document?.category)
+                    ? document.category
+                    : [],
+                content: document?.description || '',
+                imageUrl:
+                    document?.thumbnail ||
+                    '/images/documents-and-labs-thumbnail.png',
+                attachedFiles: Array.isArray(document?.attachment)
+                    ? document.attachment.map((file: any, index: number) => ({
+                          id: `file-${index}`,
+                          name:
+                              typeof file === 'string'
+                                  ? file
+                                  : file.name || `File ${index}`,
+                          type: 'document',
+                          size: '1.0 MB',
+                      }))
+                    : [],
+            };
+        }
+
+        // For other pages, format accordingly
+        if (contentDetailsData) {
+            const content = contentDetailsData.document;
+            return {
+                title: content?.title || content?.name || 'Untitled',
+                author: content?.createdBy?.fullName || 'Unknown Author',
+                uploadDate: content?.createdAt || new Date().toISOString(),
+                lastUpdate: content?.updatedAt || new Date().toISOString(),
+                tags: Array.isArray(content?.tags)
+                    ? content.tags
+                    : Array.isArray(content?.category)
+                      ? content.category
+                      : [],
+                content: content?.content || content?.description || '',
+                imageUrl:
+                    content?.imageUrl ||
+                    content?.thumbnail ||
+                    '/images/documents-and-labs-thumbnail.png',
+                attachedFiles:
+                    content?.attachedFiles ||
+                    (Array.isArray(content?.attachment)
+                        ? content.attachment.map(
+                              (file: any, index: number) => ({
+                                  id: `file-${index}`,
+                                  name:
+                                      typeof file === 'string'
+                                          ? file
+                                          : file.name || `File ${index}`,
+                                  type: 'document',
+                                  size: '1.0 MB',
+                              }),
+                          )
+                        : []),
+            };
+        }
+
+        // Default empty document
+        return null;
     };
 
+    const content = formatDocumentData();
+
+    // Placeholder tags
     const allTags = [
         'development',
-        'development',
-        'development',
-        'devops',
         'technical test',
         'web development',
         'resources',
         'devops',
-        'technical test',
-        'web development',
     ];
 
     // Related documents
@@ -109,30 +233,95 @@ export function DocumentDetailsModal({
     };
 
     const handleEditClick = () => {
-        setIsEditModalOpen(true);
+        if (id) {
+            router.push(`?documentId=${id}&mode=edit`);
+            setIsEditModalOpen(true);
+        } else {
+            setIsEditModalOpen(true);
+        }
     };
 
     const handleEditModalClose = () => {
+        if (id) {
+            router.push(`?documentId=${id}&mode=view`);
+        }
         setIsEditModalOpen(false);
     };
 
     const handleDelete = async () => {
         try {
-            await deleteUserDocument(documentId || '').unwrap();
-            if (isDeleteSuccess) {
-                toast.success('Document successfully deleted!');
-
-                onClose();
+            if (!id) {
+                return;
             }
+            await deleteUserDocument(id).unwrap();
+            toast.success('Document successfully deleted!');
+            onClose();
         } catch (error) {
             console.error(error);
+            toast.error('Failed to delete document');
         }
     };
 
-    // If neither documentData nor fetched data is available
-    if (!documentData && !data && !isLoading) {
+    // Loading state
+    if (isLoading && isOpen) {
+        return (
+            <GlobalDocumentDetailsModal isOpen={isOpen} onClose={onClose}>
+                <div className='flex items-center justify-center h-full'>
+                    <div className='text-center'>
+                        <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4'></div>
+                        <p>Loading document...</p>
+                    </div>
+                </div>
+            </GlobalDocumentDetailsModal>
+        );
+    }
+
+    // Error or not found state
+    if (!content && isOpen) {
+        return (
+            <GlobalDocumentDetailsModal isOpen={isOpen} onClose={onClose}>
+                <div className='flex items-center justify-center h-full'>
+                    <div className='text-center'>
+                        <div className='text-red-500 mb-4'>
+                            <svg
+                                xmlns='http://www.w3.org/2000/svg'
+                                width='64'
+                                height='64'
+                                viewBox='0 0 24 24'
+                                fill='none'
+                                stroke='currentColor'
+                                strokeWidth='2'
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                            >
+                                <circle cx='12' cy='12' r='10'></circle>
+                                <line x1='12' y1='8' x2='12' y2='12'></line>
+                                <line x1='12' y1='16' x2='12.01' y2='16'></line>
+                            </svg>
+                        </div>
+                        <h3 className='text-xl font-semibold mb-2'>
+                            Document Not Found
+                        </h3>
+                        <p className='text-gray-500 mb-4'>
+                            {`The document you're looking for doesn't exist or has
+                            been removed.`}
+                        </p>
+                        <Button onClick={onClose}>Go Back</Button>
+                    </div>
+                </div>
+            </GlobalDocumentDetailsModal>
+        );
+    }
+
+    if (!isOpen || !content) {
         return null;
     }
+
+    // Get document tags for the sidebar
+    const documentTags =
+        Array.isArray(content.tags) && content.tags.length > 0
+            ? content.tags
+            : allTags;
 
     return (
         <>
@@ -189,9 +378,9 @@ export function DocumentDetailsModal({
                                 variant='outline'
                                 size='sm'
                                 onClick={handleDelete}
-                                disabled={isDeleteing || !documentId}
+                                disabled={isDeleting || !id}
                             >
-                                {isDeleteing ? (
+                                {isDeleting ? (
                                     <LoaderCircle className='h-4 w-4 animate-spin' />
                                 ) : (
                                     <DeleteTrashIcon className='h-4 w-4' />
@@ -204,12 +393,12 @@ export function DocumentDetailsModal({
                         <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
                             <DocumentContentArea
                                 document={content}
-                                documentId={documentId}
+                                documentId={id}
                                 onCommentSubmit={handleCommentSubmit}
                             />
 
                             <DocumentSidebar
-                                tags={data?.content?.tags || allTags}
+                                tags={documentTags}
                                 relatedDocuments={relatedDocuments}
                             />
                         </div>
@@ -222,20 +411,27 @@ export function DocumentDetailsModal({
                 <EditDocumentModal
                     isOpen={isEditModalOpen}
                     onClose={handleEditModalClose}
+                    // documentId={id || ''}
                     defaultValues={{
                         description: content.content,
                         name: content.title,
-                        categories: content.tags.slice(0, 2),
-                        tags: content.tags.join(', '),
+                        categories: Array.isArray(content.tags)
+                            ? content.tags.slice(0, 2)
+                            : [],
+                        tags: Array.isArray(content.tags)
+                            ? content.tags.join(', ')
+                            : '',
                         thumbnailUrl: content.imageUrl,
-                        attachedFileUrls: content.attachedFiles.map(
-                            (file: {
-                                id: string;
-                                name: string;
-                                type: string;
-                                size: string;
-                            }) => file.name,
-                        ),
+                        attachedFileUrls: Array.isArray(content.attachedFiles)
+                            ? content.attachedFiles.map(
+                                  (file: {
+                                      id: string;
+                                      name: string;
+                                      type: string;
+                                      size: string;
+                                  }) => file.name,
+                              )
+                            : [],
                     }}
                 />
             )}

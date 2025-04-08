@@ -24,14 +24,14 @@ export function DocumentSidebar({
     return (
         <div className='lg:sticky top-20 space-y-3'>
             {/* Tags section */}
-            <div className='rounded-lg border bg-card p-4 shadow'>
+            <div className='rounded-lg border bg-background p-4 shadow'>
                 <h3 className='mb-3 text-sm font-medium'>Tags</h3>
                 <div className='flex flex-wrap gap-2'>
                     {tags.map((tag, index) => (
                         <Badge
                             key={index}
                             variant='outline'
-                            className='bg-violet-100/50 text-violet-500 rounded-full'
+                            className='bg-purple-500/20 backdrop-blur-2xl text-purple-500 rounded-full'
                         >
                             {tag}
                         </Badge>
@@ -40,7 +40,7 @@ export function DocumentSidebar({
             </div>
 
             {/* New Documents section */}
-            <div className='rounded-lg border bg-card p-4 shadow'>
+            <div className='rounded-lg border bg-background p-4 shadow'>
                 <h3 className='mb-3 text-sm font-medium'>New Documents</h3>
                 <div className='space-y-4'>
                     {relatedDocuments.map((doc) => (
@@ -68,7 +68,7 @@ export function DocumentSidebar({
                                         <Badge
                                             key={index}
                                             variant='outline'
-                                            className='bg-violet-100/50 text-violet-500 rounded-full px-1 py-0 text-[10px]'
+                                            className='bg-purple-500/20 backdrop-blur-2xl text-purple-500 rounded-full px-1 py-0 text-[10px]'
                                         >
                                             {tag}
                                         </Badge>

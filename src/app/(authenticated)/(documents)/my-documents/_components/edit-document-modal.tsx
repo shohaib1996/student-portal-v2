@@ -38,12 +38,14 @@ export interface EditDocumentModalProps {
         thumbnailUrl: string;
         attachedFileUrls: string[];
     };
+    documentId: string;
 }
 
 export function EditDocumentModal({
     isOpen,
     onClose,
     defaultValues,
+    documentId,
 }: EditDocumentModalProps) {
     const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
         null,
