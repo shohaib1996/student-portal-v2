@@ -60,7 +60,7 @@ export default function PasswordChangeForm({
     };
 
     return (
-        <Card className='max-w-4xl mx-auto mb-3 shadow-none overflow-hidden border-none'>
+        <Card className='max-w-4xl mx-auto my-3 shadow-none overflow-hidden border-none'>
             <CardHeader className='p-2'>
                 <CardTitle className='text-center text-lg font-medium'>
                     {user?.fullName} Changed his Password on{' '}
