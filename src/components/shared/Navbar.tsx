@@ -214,7 +214,7 @@ const Navbar = () => {
             <div className='flex gap-2 relative justify-between w-full h-full items-center px-2'>
                 <GlobalDropdown dropdownRender={<div>hello</div>}>
                     <Input
-                        className='h-9 rounded-full md:w-[390px] md:inline-flex hidden w-9 text-dark-gray'
+                        className='h-9 rounded-full md:w-[390px] hidden w-9 text-dark-gray'
                         placeholder='Search here'
                         prefix={<Search size={18} />}
                     />
@@ -228,12 +228,12 @@ const Navbar = () => {
                     />
                 </div>
                 <div className='flex xl:gap-3 md:gap-2 gap-1 items-center'>
-                    <Button
+                    {/* <Button
                         onClick={() => setSearchOpen((prev) => !prev)}
                         className='rounded-full size-9 text-dark-gray md:hidden'
                         variant={'outline'}
                         icon={<Search size={18} />}
-                    />
+                    /> */}
 
                     <CourseSectionOpenButton
                         icon={

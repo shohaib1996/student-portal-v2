@@ -146,7 +146,7 @@ export function GlobalDocumentCard({
                     </p>
                     <Button
                         variant='link'
-                        className='h-auto p-0 text-xs font-medium text-primary-white'
+                        className='h-auto p-0 text-xs font-medium text-primary-white hover:no-underline'
                         onClick={handleReadMore}
                     >
                         Read More →
