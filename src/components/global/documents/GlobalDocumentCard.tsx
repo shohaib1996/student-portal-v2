@@ -15,7 +15,7 @@ export interface GlobalDocumentCardProps {
     title?: string;
     name?: string;
     author?: string;
-    date?: string;
+    createdAt?: string | Date;
     readTime?: number;
     categories?: string[];
     imageUrl?: string;
@@ -34,10 +34,10 @@ export function GlobalDocumentCard({
     redirect,
     name,
     author,
-    date,
+    createdAt,
     readTime = 2,
     categories = ['Document'],
-    imageUrl = '/images/documents-and-labs-thumbnail.png',
+    imageUrl = '/default_image.png',
     description = 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Consectetur, adipisci?',
     authorAvatar = '/images/author.png',
     showAuthorInfo = true,
@@ -58,10 +58,17 @@ export function GlobalDocumentCard({
         }
         onClick?.();
     };
+    const handleEdit: (e: React.MouseEvent) => void = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (id) {
+            router.push(`/${redirect}?documentId=${id}&mode=edit`);
+        }
+        onClick?.();
+    };
 
     return (
         <Card className='overflow-hidden'>
-            <div className='cursor-pointer' onClick={onClick}>
+            <div className='cursor-pointer'>
                 <div className='relative'>
                     <div className='absolute left-2 top-2 z-10 flex flex-wrap gap-1 w-full'>
                         <div className='flex flex-row items-center justify-between gap-4 w-[calc(100%-16px)]'>
@@ -75,7 +82,10 @@ export function GlobalDocumentCard({
                                 </Badge>
                             ))}
                             <div className='flex flex-row items-center gap-2'>
-                                <Button className='h-6 w-6 rounded-full bg-primary-light hover:bg-primary'>
+                                <Button
+                                    onClick={handleEdit}
+                                    className='h-6 w-6 rounded-full bg-primary-light hover:bg-primary'
+                                >
                                     <PencilLine size={14} />
                                 </Button>
                                 <Button className='h-6 w-6 rounded-full bg-red-500/70 hover:bg-red-500'>
@@ -108,14 +118,18 @@ export function GlobalDocumentCard({
                                         {author}
                                     </p>
                                     <p className='text-xs text-gray'>
-                                        <time dateTime={date}>{date}</time>
+                                        <time dateTime={createdAt as string}>
+                                            {createdAt as string}
+                                        </time>
                                     </p>
                                 </div>
                             </div>
                         ) : (
                             <p className='text-xs text-gray'>
-                                <time dateTime={date}>
-                                    {formatDateToCustomString(date)}
+                                <time dateTime={createdAt as string}>
+                                    {formatDateToCustomString(
+                                        createdAt as string,
+                                    )}
                                 </time>
                             </p>
                         )}

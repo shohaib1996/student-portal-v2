@@ -45,9 +45,12 @@ export default function UploadDocumentComponent() {
         if (documentId && mode === 'view') {
             setIsDetailsModalOpen(true);
         }
+        if (documentId && mode === 'edit') {
+            setIsUploadModalOpen(true);
+        }
     }, [documentId, mode]);
     const allDocuments = data?.documents || [];
-
+    console.log({ allDocuments });
     // Filter documents based on filter values
     const filteredDocuments = useMemo(() => {
         return allDocuments.filter((doc) => {
