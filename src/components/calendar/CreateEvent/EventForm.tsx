@@ -743,14 +743,14 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                 name='attendees'
                                 render={({ field }) => (
                                     <FormItem
-                                        className={cn('col-span-5', {
+                                        className={cn('col-span-5 w-full', {
                                             'order-5': isFullScreen,
                                         })}
                                     >
                                         <FormControl>
-                                            <div>
+                                            <div className='w-full'>
                                                 <GlobalDropdown
-                                                    className='w-[--radix-popover-trigger-width]'
+                                                    className='w-[--radix-popover-trigger-width] '
                                                     dropdownRender={
                                                         <div className='p-2'>
                                                             <Input
@@ -850,14 +850,12 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                         </div>
                                                     }
                                                 >
-                                                    <div className='cursor-pointer'>
-                                                        <div className='w-full border border-forground-border h-10 rounded-md bg-foreground flex px-3 items-center text-dark-gray gap-2'>
-                                                            <Users size={18} />
-                                                            Add Guests{' '}
-                                                            <span className='text-danger'>
-                                                                *
-                                                            </span>
-                                                        </div>
+                                                    <div className='w-full border border-forground-border h-10 rounded-md bg-foreground flex px-3 items-center text-dark-gray gap-2'>
+                                                        <Users size={18} />
+                                                        Add Guests{' '}
+                                                        <span className='text-danger'>
+                                                            *
+                                                        </span>
                                                     </div>
                                                 </GlobalDropdown>
 
