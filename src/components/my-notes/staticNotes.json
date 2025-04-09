@@ -1,0 +1,142 @@
+[
+    {
+        "id": 1,
+        "title": "Introduction to JavaScript",
+        "date": "2025-03-01",
+        "description": "This note covers the basics of JavaScript including variables, data types, and control structures. It's the foundation for all upcoming lessons.",
+        "purpose": { "type": "module", "title": "JavaScript Basics" }
+    },
+    {
+        "id": 2,
+        "title": "DOM Manipulation Deep Dive",
+        "date": "2025-03-03",
+        "description": "Detailed explanation of how to select, modify, and remove elements using DOM methods. Includes real-world examples and edge cases.",
+        "purpose": { "type": "video", "title": "DOM Essentials" }
+    },
+    {
+        "id": 3,
+        "title": "Working with Arrays",
+        "date": "2025-03-05",
+        "description": "Explores various array methods including map, filter, reduce, and forEach with practical use-cases and performance insights.",
+        "purpose": { "type": "document", "title": "Array Guide" }
+    },
+    {
+        "id": 4,
+        "title": "CSS Flexbox Layouts",
+        "date": "2025-03-06",
+        "description": "Understanding Flexbox: from containers and items to alignment and spacing. Useful for responsive UI designs.",
+        "purpose": { "type": "presentation", "title": "Responsive Layouts" }
+    },
+    {
+        "id": 5,
+        "title": "ES6 Features Overview",
+        "date": "2025-03-07",
+        "description": "Brief overview of ES6 features like arrow functions, destructuring, template literals, and default parameters.",
+        "purpose": { "type": "module", "title": "Modern JavaScript" }
+    },
+    {
+        "id": 6,
+        "title": "Promises and Async/Await",
+        "date": "2025-03-08",
+        "description": "A breakdown of asynchronous JavaScript patterns. Includes real-life examples and error handling strategies.",
+        "purpose": { "type": "video", "title": "Async Patterns" }
+    },
+    {
+        "id": 7,
+        "title": "Setting Up a React App",
+        "date": "2025-03-09",
+        "description": "Step-by-step guide on how to create a React project using Vite or Create React App, including directory structure and initial config.",
+        "purpose": { "type": "document", "title": "React Setup" }
+    },
+    {
+        "id": 8,
+        "title": "Understanding useState and useEffect",
+        "date": "2025-03-10",
+        "description": "This note dives into the most commonly used React hooks with hands-on examples and lifecycle comparison.",
+        "purpose": { "type": "presentation", "title": "React Hooks 101" }
+    },
+    {
+        "id": 9,
+        "title": "State Management with Redux",
+        "date": "2025-03-11",
+        "description": "Learn the principles of Redux, action creators, reducers, and middleware through a simple counter app.",
+        "purpose": { "type": "module", "title": "Redux Crash Course" }
+    },
+    {
+        "id": 10,
+        "title": "Responsive Design Principles",
+        "date": "2025-03-12",
+        "description": "Best practices for mobile-first design, breakpoints, and accessibility tips to build user-friendly web interfaces.",
+        "purpose": { "type": "video", "title": "Design for All Devices" }
+    },
+    {
+        "id": 11,
+        "title": "Git Basics and Workflow",
+        "date": "2025-03-13",
+        "description": "Explains the basic Git commands, branching strategies, and how to collaborate efficiently on GitHub.",
+        "purpose": { "type": "document", "title": "Git Handbook" }
+    },
+    {
+        "id": 12,
+        "title": "Forms in React",
+        "date": "2025-03-14",
+        "description": "Guide on handling controlled and uncontrolled components, form validations, and submission handling.",
+        "purpose": { "type": "presentation", "title": "React Forms" }
+    },
+    {
+        "id": 13,
+        "title": "Using APIs with Fetch",
+        "date": "2025-03-15",
+        "description": "Covers the basics of sending HTTP requests using fetch, handling responses, and managing errors.",
+        "purpose": { "type": "module", "title": "API Integration" }
+    },
+    {
+        "id": 14,
+        "title": "Authentication in Web Apps",
+        "date": "2025-03-16",
+        "description": "An introduction to login systems, token-based authentication, and using tools like JWT.",
+        "purpose": { "type": "video", "title": "Secure Auth Systems" }
+    },
+    {
+        "id": 15,
+        "title": "Creating Dynamic Routes in React Router",
+        "date": "2025-03-17",
+        "description": "Learn how to use `useParams`, dynamic routes, and nested routes effectively in your SPA.",
+        "purpose": { "type": "document", "title": "Routing Essentials" }
+    },
+    {
+        "id": 16,
+        "title": "Debugging JavaScript",
+        "date": "2025-03-18",
+        "description": "Tips and tools for debugging JS code using console logs, browser dev tools, and linters.",
+        "purpose": { "type": "presentation", "title": "Debug Like a Pro" }
+    },
+    {
+        "id": 17,
+        "title": "Deploying to Netlify",
+        "date": "2025-03-19",
+        "description": "Walkthrough for deploying static websites to Netlify, configuring environment variables, and troubleshooting.",
+        "purpose": { "type": "module", "title": "Web Deployment" }
+    },
+    {
+        "id": 18,
+        "title": "React Context API",
+        "date": "2025-03-20",
+        "description": "Understand the Context API for state sharing without props drilling, with practical examples.",
+        "purpose": { "type": "video", "title": "Global State with Context" }
+    },
+    {
+        "id": 19,
+        "title": "Styling with Tailwind CSS",
+        "date": "2025-03-21",
+        "description": "Intro to utility-first CSS using Tailwind. Covers installation, setup, and usage in React.",
+        "purpose": { "type": "document", "title": "Tailwind Starter Guide" }
+    },
+    {
+        "id": 20,
+        "title": "Performance Optimization Tips",
+        "date": "2025-03-22",
+        "description": "# 🚀 Project Name: **NextGen Dashboard**\n\nWelcome to the **NextGen Dashboard** documentation — your ultimate guide to mastering the modern, minimal, and blazing-fast UI experience.\n\n---\n\n## ✨ Features\n\n- 🔥 **Live Metrics** — real-time updates using WebSockets.\n- 📊 **Analytics Dashboard** — visual insights with interactive charts.\n- 🔐 **Secure Authentication** — OAuth + JWT combo.\n- 🎨 **Fully Customizable UI** — Tailwind + Theme support.\n\n---\n\n## 📦 Installation\n\n```bash\ngit clone https://github.com/example/nextgen-dashboard.git\ncd nextgen-dashboard\npnpm install\npnpm dev\n```\n\n> 💡 _Make sure Node.js >= 18.0 is installed._\n\n---\n\n## 📁 Folder Structure\n\n```plaintext\n├── components/\n│   ├── Header.tsx\n│   └── Sidebar.tsx\n├── pages/\n│   ├── index.tsx\n│   └── dashboard.tsx\n├── styles/\n│   └── globals.css\n```\n\n---\n\n## 🧱 Tech Stack\n\n| Tech       | Description                    |\n|------------|--------------------------------|\n| Next.js    | React Framework                |\n| Tailwind   | Utility-first CSS              |\n| Zustand    | State Management               |\n| Chart.js   | Data Visualization             |\n| Prisma     | ORM for Database Integration   |\n\n---\n\n### 🛠 API Endpoints\n\n#### GET `/api/stats`\n\nFetches user stats.\n\n```json\n{\n  \"users\": 1278,\n  \"active\": 963\n}\n```\n\n#### POST `/api/feedback`\n\nSubmit user feedback.\n\n```json\n{\n  \"message\": \"Great experience!\",\n  \"rating\": 5\n}\n```\n\n---\n\n## 📌 To-Do List\n\n- [x] Build UI Components  \n- [x] Add Authentication  \n- [ ] Integrate Payments  \n- [ ] Write Unit Tests  \n\n---\n\n## 📚 Documentation\n\nFor detailed docs, visit our [Wiki](https://github.com/example/nextgen-dashboard/wiki) or check the `/docs` folder.\n\n---\n\n## ⚠️ Known Issues\n\n> ❗ Dark mode toggle sometimes flickers in Safari. Fix coming soon.\n\n---\n\n## ❤️ Contributors\n\n- **Mahmudul Hasan Khan** — _Lead Developer_\n- **Zannatul Shaolin** — _UI/UX_\n- **Sagor Ahamed** — _Backend Wizard_\n\n---\n\n## 📄 License\n\nMIT © 2025 NextGen Team  \n_“Simplicity is the ultimate sophistication.”_ — Leonardo da Vinci",
+        "purpose": { "type": "presentation", "title": "Boost Your Web App" }
+    }
+]
