@@ -6,16 +6,21 @@ import { Lock, UserRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import UserProfileForm from './user-profile-form';
 import PasswordChangeForm from './password-change-form';
+import GlobalHeader from '@/components/global/GlobalHeader';
 
 const MyProfileComponent = () => {
     const [isProfile, setIsProfile] = useState<boolean>(true);
 
     return (
-        <div>
-            <h2 className='text-center font-semibold text-xl mb-3'>
+        <div className='pt-2'>
+            {/* <h2 className='text-center font-semibold text-xl mb-3'>
                 Profile Settings
-            </h2>
-            <div className='flex items-cente justify-center gap-2 border-b'>
+            </h2> */}
+            <GlobalHeader
+                subTitle='Manage your personal information and preferences'
+                title='Profile Settings'
+            />
+            <div className='flex items-cente justify-center gap-2 border-b w-fit mx-auto mt-3'>
                 <Button
                     onClick={() => setIsProfile(true)}
                     variant='ghost'

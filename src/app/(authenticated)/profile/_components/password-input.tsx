@@ -57,7 +57,7 @@ export default function PasswordInput({
                     placeholder={placeholder}
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    className='pr-10 bg-foreground'
+                    className='pr-10 bg-background'
                     required={required}
                 />
                 <button

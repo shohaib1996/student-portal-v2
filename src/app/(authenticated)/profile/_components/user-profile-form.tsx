@@ -1,11 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+
+// Shadcn Form Components
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 
 // UI Components
 import { Calendar } from '@/components/ui/calendar';
@@ -48,10 +58,15 @@ import {
     CircleCheckBig,
     CircleX,
     CloudUpload,
+    Loader,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppSelector } from '@/redux/hooks';
 import Image from 'next/image';
+import { DatePicker } from '@/components/global/DatePicket';
+import dayjs from 'dayjs';
+import { instance } from '@/lib/axios/axiosInstance';
+import { setUser } from '@/redux/features/auth/authReducer';
 
 // Form validation schema
 const FormSchema = z.object({
@@ -102,18 +117,61 @@ const FormSchema = z.object({
         .string()
         .url({ message: 'Invalid URL' })
         .optional()
-        .or(z.literal('')),
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value) {
+                    return true;
+                }
+                return /^(https?:\/\/)?(www\.)?facebook\.com.*/.test(value);
+            },
+            { message: 'Invalid Facebook URL' },
+        ),
     linkedin: z
         .string()
         .url({ message: 'Invalid URL' })
         .optional()
-        .or(z.literal('')),
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value) {
+                    return true;
+                }
+                return /^(https?:\/\/)?(www\.)?linkedin\.com.*/.test(value);
+            },
+            { message: 'Invalid LinkedIn URL' },
+        ),
     instagram: z
         .string()
         .url({ message: 'Invalid URL' })
         .optional()
-        .or(z.literal('')),
-    x: z.string().url({ message: 'Invalid URL' }).optional().or(z.literal('')),
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value) {
+                    return true;
+                }
+                return /^(https?:\/\/)?(www\.)?instagram\.com.*/.test(value);
+            },
+            { message: 'Invalid Instagram URL' },
+        ),
+    twitter: z
+        .string()
+        .url({ message: 'Invalid URL' })
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value) {
+                    return true;
+                }
+                return (
+                    /^(https?:\/\/)?(www\.)?twitter\.com.*/.test(value) ||
+                    /^(https?:\/\/)?(www\.)?x\.com.*/.test(value)
+                );
+            },
+            { message: 'Invalid X/Twitter URL' },
+        ),
     website: z
         .string()
         .url({ message: 'Invalid URL' })
@@ -123,7 +181,16 @@ const FormSchema = z.object({
         .string()
         .url({ message: 'Invalid URL' })
         .optional()
-        .or(z.literal('')),
+        .or(z.literal(''))
+        .refine(
+            (value) => {
+                if (!value) {
+                    return true;
+                }
+                return /^(https?:\/\/)?(www\.)?github\.com.*/.test(value);
+            },
+            { message: 'Invalid GitHub URL' },
+        ),
     dateOfBirth: z.date(),
     about: z.string().min(10, {
         message: 'About section should have at least 10 characters',
@@ -139,28 +206,20 @@ export default function UserProfileForm() {
     const [memberSince, setMemberSince] = useState(
         user?.createdAt ? new Date(user.createdAt) : new Date(2010, 0, 12),
     );
-    const [resumeFile, setResumeFile] = useState<File | null>(null);
-    const [resumeFileName, setResumeFileName] = useState(
-        user?.personalData?.resume
-            ? user.personalData.resume.split('/').pop()
-            : '',
-    );
-    const [resumeError, setResumeError] = useState(false);
     const [streetCharCount, setStreetCharCount] = useState(640);
     const [cityCharCount, setCityCharCount] = useState(835);
     const [aboutCharCount, setAboutCharCount] = useState(834);
     const [phoneNumber, setPhoneNumber] = useState<string>(
         typeof user?.phone === 'string' ? user.phone : '919876543210',
     );
+    const [files, setFiles] = useState<File[]>([]);
+    const [uploadFiles, setUploadFiles] = useState<string[]>([]);
+    const [resumeFiledText, setResumeFiledText] = useState('Upload Resume');
+    const [uploadingFiles, setUploadingFiles] = useState(false);
+    const [uploadError, setUploadError] = useState(false);
 
     // Form setup
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        setValue,
-        reset,
-    } = useForm({
+    const form = useForm({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             firstName: user?.firstName || '',
@@ -184,7 +243,8 @@ export default function UserProfileForm() {
             instagram:
                 user?.personalData?.socialMedia?.instagram ||
                 'https://www.instagram.com',
-            x: user?.personalData?.socialMedia?.twitter || 'https://www.x.com',
+            twitter:
+                user?.personalData?.socialMedia?.twitter || 'https://www.x.com',
             website: user?.website || 'https://www.johndoe.com',
             github:
                 user?.personalData?.socialMedia?.github ||
@@ -195,10 +255,14 @@ export default function UserProfileForm() {
         },
     });
 
+    const resumeNameFormater = (url: string) => {
+        return url?.split('/')?.pop()?.split('-')?.slice(1)?.join('-');
+    };
+
     // Load user data when available
     useEffect(() => {
         if (user) {
-            reset({
+            form.reset({
                 firstName: user.firstName || '',
                 lastName: user.lastName || '',
                 middleInitial: user.middleInitial || '',
@@ -222,7 +286,7 @@ export default function UserProfileForm() {
                 instagram:
                     user.personalData?.socialMedia?.instagram ||
                     'https://www.instagram.com',
-                x:
+                twitter:
                     user.personalData?.socialMedia?.twitter ||
                     'https://www.x.com',
                 website: user.website || 'https://www.johndoe.com',
@@ -246,49 +310,74 @@ export default function UserProfileForm() {
             );
             setPhoneNumber((user.phone || '919876543210') as string);
 
-            if (user.personalData?.resume) {
-                setResumeFileName(user.personalData.resume.split('/').pop());
-                setResumeError(false);
-            }
+            setResumeFiledText(
+                resumeNameFormater(user.personalData?.resume || '') ||
+                    'Upload Resume',
+            );
         }
-    }, [user, reset]);
+    }, [user, form.reset]);
+
+    const handleUpload = (sfiles: FileList | null) => {
+        if (sfiles) {
+            const fileList = Array.from(sfiles);
+            const allowedExtensions = [
+                'jpg',
+                'jpeg',
+                'png',
+                'pdf',
+                'doc',
+                'docx',
+            ];
+            const filteredFiles = fileList.filter((file) => {
+                const extension = file?.name?.split('.')?.pop()?.toLowerCase();
+                if (!extension) {
+                    return false;
+                }
+                return allowedExtensions.includes(extension);
+            });
+            filteredFiles.forEach((file) => {
+                const exist = files.find((f) => file.name === f.name);
+                if (!exist) {
+                    setUploadingFiles(true);
+                    setFiles((prev) => [...prev, file]);
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    instance
+                        .post('/document/userdocumentfile', formData, {
+                            headers: {
+                                'Content-Type': 'multipart/formdata',
+                            },
+                        })
+                        .then((res) => {
+                            setUploadFiles((prev) => [res.data.fileUrl]);
+                            setResumeFiledText(
+                                resumeNameFormater(res.data.fileUrl) || '',
+                            );
+                            setUploadingFiles(false);
+                            setUploadError(false);
+                        })
+                        .catch((err) => {
+                            setUploadError(true);
+                            setUploadingFiles(false);
+                            console.log(err);
+                        });
+                }
+            });
+        }
+    };
 
     // Handle date changes
     useEffect(() => {
-        setValue('dateOfBirth', date);
-    }, [date, setValue]);
+        form.setValue('dateOfBirth', date);
+    }, [date, form.setValue]);
 
     // Handle resume file selection
     interface ResumeChangeEvent extends React.ChangeEvent<HTMLInputElement> {
         target: HTMLInputElement & { files: FileList };
     }
 
-    const handleResumeChange = (e: ResumeChangeEvent) => {
-        const file = e.target.files[0];
-        if (file) {
-            setResumeFile(file);
-            setResumeFileName(file.name);
-            setResumeError(false);
-
-            // In a real application, you'd upload the file here
-            // and store the returned URL in Redux
-            /*
-        const formData = new FormData();
-        formData.append('file', file);
-        dispatch(uploadDocument(formData))
-          .then((response) => {
-          // Handle successful upload
-          })
-          .catch((error) => {
-          setResumeError(true);
-          toast.error('Failed to upload resume');
-          });
-        */
-        }
-    };
-
     // Handle form submission
-    const onSubmit = (data: any) => {
+    const onSubmit = async (data: any) => {
         // Add the date and additional fields to the data
         const formData = {
             ...data,
@@ -296,9 +385,7 @@ export default function UserProfileForm() {
             phone: phoneNumber,
             fullName: `${data.firstName} ${data.middleInitial ? data.middleInitial + ' ' : ''}${data.lastName}`,
             personalData: {
-                resume: resumeFile
-                    ? resumeFileName
-                    : user?.personalData?.resume,
+                resume: uploadFiles[0],
                 address: {
                     street: data.street,
                     city: data.city,
@@ -315,27 +402,24 @@ export default function UserProfileForm() {
             },
         };
 
-        // In a real application, dispatch the update action
-        /*
-        dispatch(updateUserProfile(formData))
-          .then(() => {
-            toast.success('Profile updated successfully!');
-          })
-          .catch((error) => {
-            toast.error('Failed to update profile');
-          });
-        */
-
-        // For now, just show a toast success message
-        console.log('Form submitted:', formData);
-        toast.success('Profile updated successfully!');
+        try {
+            const res = await instance.patch(`/user/updateuser`, formData);
+            if (res?.data?.success) {
+                dispatch(setUser(res?.data?.user));
+                toast.success('Profile updated successfully');
+            }
+        } catch (err) {
+            console.log(err);
+        }
     };
     const commingSoon = () => {
         toast.success('Coming Soon...');
     };
 
+    const uploadRef = useRef<HTMLInputElement>(null);
+
     return (
-        <div className='max-w-4xl mx-auto'>
+        <div className='max-w-[1200px] mx-auto'>
             <style jsx global>{`
                 .react-tel-input .form-control {
                     width: 100%;
@@ -370,7 +454,7 @@ export default function UserProfileForm() {
             `}</style>
 
             <div className='flex flex-col'>
-                <div className='flex items-center my-3 bg-foreground p-2 gap-2 rounded-lg'>
+                <div className='flex items-center my-3 bg-foreground p-4 gap-2 rounded-lg'>
                     <div className='relative'>
                         <div className='w-10 h-10 rounded-full bg-gray-300 overflow-hidden'>
                             <Image
@@ -398,764 +482,833 @@ export default function UserProfileForm() {
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    {/* Personal Information */}
-                    <Card className='mb-3 shadow-none overflow-hidden rounded-lg border-none'>
-                        <CardContent className='p-2 bg-foreground'>
-                            <div className='flex items-center mb-3 border-b'>
-                                <UserRound className='h-4 w-4 mr-2' />
-                                <h3 className='text-lg font-medium'>
-                                    Personal Information
-                                </h3>
-                                <Info className='h-4 w-4 ml-2 text-gray-400' />
-                            </div>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)}>
+                        {/* Personal Information */}
+                        <Card className='mb-3 shadow-none overflow-hidden rounded-lg border-none'>
+                            <CardContent className='md:p-4 p-2 bg-foreground'>
+                                <div className='flex items-center mb-3 border-b'>
+                                    <UserRound className='h-4 w-4 mr-2' />
+                                    <h3 className='text-lg font-medium'>
+                                        Personal Information
+                                    </h3>
+                                    <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                </div>
 
-                            <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
-                                <div className='space-y-2'>
-                                    <Label htmlFor='firstName' className='flex'>
-                                        First Name{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>
-                                    </Label>
-                                    <Input
-                                        id='firstName'
-                                        placeholder='Enter first name'
-                                        {...register('firstName')}
+                                <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
+                                    <FormField
+                                        control={form.control}
+                                        name='firstName'
+                                        render={({ field }) => (
+                                            <FormItem className=''>
+                                                <FormLabel className='flex'>
+                                                    First Name{' '}
+                                                    <span className='text-red-500 ml-1'>
+                                                        *
+                                                    </span>
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder='Enter first name'
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                    {errors.firstName && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.firstName.message}
-                                        </p>
-                                    )}
-                                </div>
 
-                                <div className='space-y-2'>
-                                    <Label
-                                        htmlFor='middleInitial'
-                                        className='flex'
-                                    >
-                                        Middle Initial{' '}
-                                        <span className='md:hidden lg:block'>
-                                            (Optional)
-                                        </span>
-                                    </Label>
-                                    <Input
-                                        id='middleInitial'
-                                        placeholder='Enter middle name'
-                                        {...register('middleInitial')}
+                                    <FormField
+                                        control={form.control}
+                                        name='middleInitial'
+                                        render={({ field }) => (
+                                            <FormItem className=''>
+                                                <FormLabel className='flex'>
+                                                    Middle Initial{' '}
+                                                    <span className='md:hidden lg:block'>
+                                                        (Optional)
+                                                    </span>
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder='Enter middle name'
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </div>
 
-                                <div className='space-y-2'>
-                                    <Label htmlFor='lastName' className='flex'>
-                                        Last Name{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>
-                                    </Label>
-                                    <Input
-                                        id='lastName'
-                                        placeholder='Enter last name'
-                                        {...register('lastName')}
+                                    <FormField
+                                        control={form.control}
+                                        name='lastName'
+                                        render={({ field }) => (
+                                            <FormItem className=''>
+                                                <FormLabel className='flex'>
+                                                    Last Name{' '}
+                                                    <span className='text-red-500 ml-1'>
+                                                        *
+                                                    </span>
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder='Enter last name'
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                    {errors.lastName && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.lastName.message}
-                                        </p>
-                                    )}
-                                </div>
 
-                                <div className='space-y-2'>
-                                    <Label htmlFor='dob' className='flex'>
-                                        Date of Birth{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>
-                                    </Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                type='button'
-                                                variant='outline'
-                                                className={cn(
-                                                    'w-full justify-start h-[40px] text-left font-normal',
-                                                    !date &&
-                                                        'text-muted-foreground',
-                                                )}
-                                            >
-                                                <CalendarIcon className='mr-2 h-4 w-4' />
-                                                {date ? (
-                                                    format(date, 'MMM dd, yyyy')
-                                                ) : (
-                                                    <span>Pick a date</span>
-                                                )}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className='w-auto p-0'>
-                                            <Calendar
-                                                mode='single'
-                                                selected={date}
-                                                onSelect={(day) =>
-                                                    day && setDate(day)
-                                                }
-                                                initialFocus
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-
-                                <div className='space-y-2'>
-                                    <Label htmlFor='gender' className='flex'>
-                                        Gender{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>
-                                    </Label>
-                                    <Select
-                                        defaultValue={user?.gender || 'male'}
-                                        onValueChange={(value) =>
-                                            setValue('gender', value)
-                                        }
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder='Select gender' />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value='male'>
-                                                Male
-                                            </SelectItem>
-                                            <SelectItem value='female'>
-                                                Female
-                                            </SelectItem>
-                                            <SelectItem value='other'>
-                                                Other
-                                            </SelectItem>
-                                            <SelectItem value='prefer-not-to-say'>
-                                                Prefer not to say
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.gender && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.gender.message}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className='space-y-2'>
-                                    <Label htmlFor='education' className='flex'>
-                                        Education{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>
-                                    </Label>
-                                    <Select
-                                        defaultValue={
-                                            user?.education || 'bachelors'
-                                        }
-                                        onValueChange={(value) =>
-                                            setValue('education', value)
-                                        }
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder='Select education' />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value='highschool'>
-                                                High School
-                                            </SelectItem>
-                                            <SelectItem value='bachelors'>
-                                                {`Bachelor's`}
-                                            </SelectItem>
-                                            <SelectItem value='masters'>
-                                                {`Master's`}
-                                            </SelectItem>
-                                            <SelectItem value='phd'>
-                                                PhD
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.education && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.education.message}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className='space-y-2'>
-                                    <Label htmlFor='email' className='flex'>
-                                        Email Address{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>{' '}
-                                        <span className='text-red-500 ml-1 text-xs md:hidden lg:block'>
-                                            (Not Verified)
-                                        </span>
-                                    </Label>
-                                    <Input
-                                        id='email'
-                                        placeholder='Enter email'
-                                        {...register('email')}
-                                    />
-                                    {errors.email && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.email.message}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className='space-y-2'>
-                                    <Label htmlFor='phone' className='flex'>
-                                        Phone Number{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>{' '}
-                                        <span className='text-green-500 ml-1 text-xs md:hidden lg:block'>
-                                            (Verified)
-                                        </span>
-                                    </Label>
-                                    <div className='relative'>
-                                        <PhoneInput
-                                            country={'in'}
-                                            value={phoneNumber as string}
-                                            onChange={(phone) => {
-                                                setPhoneNumber(phone);
-                                                setValue('phone', phone);
-                                            }}
-                                            inputProps={{
-                                                id: 'phone',
-                                                name: 'phone',
-                                                required: true,
-                                            }}
-                                            searchPlaceholder='Search country...'
-                                            inputStyle={{
-                                                background:
-                                                    'hsl(var(--background))',
-                                            }}
-                                            buttonStyle={{
-                                                background: 'transparent',
-                                            }}
-                                        />
-                                        <div className='absolute right-3 top-1/2 transform -translate-y-1/2 z-10'>
-                                            <Check className='h-5 w-5 text-green-500' />
-                                        </div>
-                                    </div>
-                                    {errors.phone && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.phone.message}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className='space-y-2'>
-                                    <Label htmlFor='resume' className='flex'>
-                                        Resume{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>
-                                    </Label>
-                                    <div className='border rounded-md p-2 relative'>
-                                        <input
-                                            type='file'
-                                            id='resume'
-                                            className='opacity-0 absolute inset-0 w-full cursor-pointer'
-                                            onChange={handleResumeChange}
-                                            accept='.pdf,.doc,.docx'
-                                        />
-                                        <div className='flex items-center'>
-                                            <div className='bg-gray-100 p-0 rounded mr-2'>
-                                                <FileText className='h-5 w-5 text-gray-500' />
-                                            </div>
-                                            <div className='flex-1 truncate'>
-                                                <span className='text-sm'>
-                                                    {resumeFileName ||
-                                                        'Click to upload resume'}
-                                                </span>
-                                            </div>
-                                            <div
-                                                className={`ml-2 ${resumeError ? 'text-red-500' : ''}`}
-                                            >
-                                                {resumeError ? (
-                                                    <X className='h-5 w-5' />
-                                                ) : resumeFileName ? (
-                                                    <Check className='h-5 w-5 text-green-500' />
-                                                ) : (
-                                                    <CloudUpload className='h-5 w-5' />
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className='space-y-2'>
-                                    <Label
-                                        htmlFor='memberSince'
-                                        className='flex'
-                                    >
-                                        Member Since{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>
-                                    </Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                type='button'
-                                                variant='outline'
-                                                className={cn(
-                                                    'w-full justify-start text-left font-normal cursor-not-allowed',
-                                                    !memberSince &&
-                                                        'text-muted-foreground',
-                                                )}
-                                                disabled
-                                            >
-                                                <CalendarIcon className='mr-2 h-4 w-4' />
-                                                {memberSince ? (
-                                                    format(
-                                                        memberSince,
-                                                        'MMM dd, yyyy',
-                                                    )
-                                                ) : (
-                                                    <span>Pick a date</span>
-                                                )}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className='w-auto p-0'>
-                                            <Calendar
-                                                mode='single'
-                                                selected={memberSince}
-                                                onSelect={(day) =>
-                                                    day && setMemberSince(day)
-                                                }
-                                                initialFocus
-                                                disabled
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Address */}
-                    <Card className='mb-3 shadow-none overflow-hidden rounded-lg border-none'>
-                        <CardContent className='p-2 bg-foreground'>
-                            <div className='flex items-center mb-3 border-b'>
-                                <Globe className='h-4 w-4 mr-2' />
-                                <h3 className='text-lg font-medium'>Address</h3>
-                                <Info className='h-4 w-4 ml-2 text-gray-400' />
-                            </div>
-
-                            <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
-                                <div className='space-y-2 relative'>
-                                    <Label htmlFor='street' className='flex'>
-                                        Street{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>
-                                    </Label>
-                                    <Input
-                                        id='street'
-                                        placeholder='Enter street address'
-                                        {...register('street')}
-                                        onChange={(e) => {
-                                            setValue('street', e.target.value);
-                                            setStreetCharCount(
-                                                640 - e.target.value.length,
-                                            );
-                                        }}
-                                    />
-                                    <div className='absolute right-3 top-9 bg-orange-500 text-white text-xs px-1 rounded'>
-                                        {streetCharCount}
-                                    </div>
-                                    {errors.street && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.street.message}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className='space-y-2 relative'>
-                                    <Label htmlFor='city' className='flex'>
-                                        City{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>
-                                    </Label>
-                                    <Input
-                                        id='city'
-                                        placeholder='Enter city'
-                                        {...register('city')}
-                                        onChange={(e) => {
-                                            setValue('city', e.target.value);
-                                            setCityCharCount(
-                                                835 - e.target.value.length,
-                                            );
-                                        }}
-                                    />
-                                    <div className='absolute right-3 top-9 bg-orange-500 text-white text-xs px-1 rounded'>
-                                        {cityCharCount}
-                                    </div>
-                                    {errors.city && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.city.message}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className='space-y-2'>
-                                    <Label htmlFor='state' className='flex'>
-                                        State{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>
-                                    </Label>
-                                    <Select
-                                        defaultValue={
-                                            user?.personalData?.address
-                                                ?.state || ''
-                                        }
-                                        onValueChange={(value) =>
-                                            setValue('state', value)
-                                        }
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder='Select state' />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value='ca'>
-                                                California
-                                            </SelectItem>
-                                            <SelectItem value='ny'>
-                                                New York
-                                            </SelectItem>
-                                            <SelectItem value='tx'>
-                                                Texas
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.state && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.state.message}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className='space-y-2'>
-                                    <Label htmlFor='country' className='flex'>
-                                        Country{' '}
-                                        <span className='text-red-500 ml-1'>
-                                            *
-                                        </span>
-                                    </Label>
-                                    <Select
-                                        defaultValue={
-                                            user?.personalData?.address
-                                                ?.country || ''
-                                        }
-                                        onValueChange={(value) =>
-                                            setValue('country', value)
-                                        }
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder='Select country' />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value='us'>
-                                                United States
-                                            </SelectItem>
-                                            <SelectItem value='ca'>
-                                                Canada
-                                            </SelectItem>
-                                            <SelectItem value='uk'>
-                                                United Kingdom
-                                            </SelectItem>
-                                            <SelectItem value='in'>
-                                                India
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.country && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.country.message}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* About */}
-                    <Card className='mb-3 shadow-none overflow-hidden rounded-lg border-none'>
-                        <CardContent className='p-2 bg-foreground'>
-                            <div className='flex items-center mb-3 border-b'>
-                                <Info className='h-4 w-4 mr-2' />
-                                <h3 className='text-lg font-medium'>About</h3>
-                                <Info className='h-4 w-4 ml-2 text-gray-400' />
-                            </div>
-
-                            <div className='space-y-4'>
-                                <div className='flex flex-wrap gap-2 border-b pb-2'>
-                                    <Button
-                                        type='button'
-                                        variant='outline'
-                                        size='sm'
-                                        className='h-8'
-                                    >
-                                        <span className='font-bold'>B</span>
-                                    </Button>
-                                    <Button
-                                        type='button'
-                                        variant='outline'
-                                        size='sm'
-                                        className='h-8 italic'
-                                    >
-                                        <span>I</span>
-                                    </Button>
-                                    <Button
-                                        type='button'
-                                        variant='outline'
-                                        size='sm'
-                                        className='h-8 underline'
-                                    >
-                                        <span>U</span>
-                                    </Button>
-                                    <Button
-                                        type='button'
-                                        variant='outline'
-                                        size='sm'
-                                        className='h-8'
-                                    >
-                                        <span>S</span>
-                                    </Button>
-                                    <Separator
-                                        orientation='vertical'
-                                        className='h-8'
-                                    />
-                                    <Button
-                                        type='button'
-                                        variant='outline'
-                                        size='sm'
-                                        className='h-8'
-                                    >
-                                        <span>1</span>
-                                    </Button>
-                                    <Button
-                                        type='button'
-                                        variant='outline'
-                                        size='sm'
-                                        className='h-8'
-                                    >
-                                        <span>•</span>
-                                    </Button>
-                                    <Button
-                                        type='button'
-                                        variant='outline'
-                                        size='sm'
-                                        className='h-8'
-                                    >
-                                        <span>≡</span>
-                                    </Button>
-                                    <Button
-                                        type='button'
-                                        variant='outline'
-                                        size='sm'
-                                        className='h-8'
-                                    >
-                                        <span>⟶</span>
-                                    </Button>
-                                    <Button
-                                        type='button'
-                                        variant='outline'
-                                        size='sm'
-                                        className='h-8'
-                                    >
-                                        <span>@</span>
-                                    </Button>
-                                </div>
-
-                                <div className='relative'>
-                                    <Textarea
-                                        className='min-h-[150px] bg-background'
-                                        placeholder='Write about yourself'
-                                        {...register('about')}
-                                        onChange={(e) => {
-                                            setValue('about', e.target.value);
-                                            setAboutCharCount(
-                                                834 - e.target.value.length,
-                                            );
-                                        }}
-                                    />
-                                    <div className='absolute right-3 bottom-3 bg-orange-500 text-white text-xs px-1 rounded'>
-                                        {aboutCharCount}
-                                    </div>
-                                    {errors.about && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.about.message}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Social Links */}
-                    <Card className='mb-3 shadow-none overflow-hidden rounded-lg border-none'>
-                        <CardContent className='p-2 bg-foreground'>
-                            <div className='flex items-center mb-3 border-b'>
-                                <ExternalLink className='h-4 w-4 mr-2' />
-                                <h3 className='text-lg font-medium'>
-                                    Social Links
-                                </h3>
-                                <Info className='h-4 w-4 ml-2 text-gray-400' />
-                            </div>
-
-                            <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
-                                <div className='space-y-2'>
-                                    <Label htmlFor='facebook'>Facebook</Label>
-                                    <div className='flex items-center'>
-                                        <Facebook className='h-5 w-5 mr-2 text-gray-500' />
-                                        <Input
-                                            id='facebook'
-                                            placeholder='https://www.facebook.com'
-                                            {...register('facebook')}
+                                    <div className='space-y-2'>
+                                        <Label htmlFor='dob' className='flex'>
+                                            Date of Birth{' '}
+                                            <span className='text-red-500 ml-1'>
+                                                *
+                                            </span>
+                                        </Label>
+                                        <DatePicker
+                                            className='bg-background'
+                                            yearSelection
+                                            value={dayjs(date)}
+                                            onChange={(day) =>
+                                                day && setDate(day.toDate())
+                                            }
                                         />
                                     </div>
-                                    {errors.facebook && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.facebook.message}
-                                        </p>
-                                    )}
-                                </div>
 
-                                <div className='space-y-2'>
-                                    <Label htmlFor='linkedin'>LinkedIn</Label>
-                                    <div className='flex items-center'>
-                                        <Linkedin className='h-5 w-5 mr-2 text-gray-500' />
-                                        <Input
-                                            id='linkedin'
-                                            placeholder='https://www.linkedin.com'
-                                            {...register('linkedin')}
-                                        />
-                                    </div>
-                                    {errors.linkedin && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.linkedin.message}
-                                        </p>
-                                    )}
-                                </div>
+                                    <FormField
+                                        control={form.control}
+                                        name='gender'
+                                        render={({ field }) => (
+                                            <FormItem className=''>
+                                                <FormLabel className='flex'>
+                                                    Gender{' '}
+                                                    <span className='text-red-500 ml-1'>
+                                                        *
+                                                    </span>
+                                                </FormLabel>
+                                                <Select
+                                                    defaultValue={field.value}
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder='Select gender' />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value='male'>
+                                                            Male
+                                                        </SelectItem>
+                                                        <SelectItem value='female'>
+                                                            Female
+                                                        </SelectItem>
+                                                        <SelectItem value='other'>
+                                                            Other
+                                                        </SelectItem>
+                                                        <SelectItem value='prefer-not-to-say'>
+                                                            Prefer not to say
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
 
-                                <div className='space-y-2'>
-                                    <Label htmlFor='instagram'>Instagram</Label>
-                                    <div className='flex items-center'>
-                                        <Instagram className='h-5 w-5 mr-2 text-gray-500' />
-                                        <Input
-                                            id='instagram'
-                                            placeholder='https://www.instagram.com'
-                                            {...register('instagram')}
-                                        />
-                                    </div>
-                                    {errors.instagram && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.instagram.message}
-                                        </p>
-                                    )}
-                                </div>
+                                    <FormField
+                                        control={form.control}
+                                        name='education'
+                                        render={({ field }) => (
+                                            <FormItem className=''>
+                                                <FormLabel className='flex'>
+                                                    Education{' '}
+                                                    <span className='text-red-500 ml-1'>
+                                                        *
+                                                    </span>
+                                                </FormLabel>
+                                                <Select
+                                                    defaultValue={field.value}
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder='Select education' />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value='highschool'>
+                                                            High School
+                                                        </SelectItem>
+                                                        <SelectItem value='bachelors'>
+                                                            {`Bachelor's`}
+                                                        </SelectItem>
+                                                        <SelectItem value='masters'>
+                                                            {`Master's`}
+                                                        </SelectItem>
+                                                        <SelectItem value='phd'>
+                                                            PhD
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
 
-                                <div className='space-y-2'>
-                                    <Label htmlFor='x'>X.com</Label>
-                                    <div className='flex items-center'>
-                                        <svg
-                                            className='h-5 w-5 mr-2 text-gray-500'
-                                            viewBox='0 0 24 24'
-                                            fill='currentColor'
+                                    <FormField
+                                        control={form.control}
+                                        name='email'
+                                        render={({ field }) => (
+                                            <FormItem className=''>
+                                                <FormLabel className='flex'>
+                                                    Email Address{' '}
+                                                    <span className='text-red-500 ml-1'>
+                                                        *
+                                                    </span>{' '}
+                                                    <span className='text-red-500 ml-1 text-xs md:hidden lg:block'>
+                                                        (Not Verified)
+                                                    </span>
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder='Enter email'
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name='phone'
+                                        render={({ field }) => (
+                                            <FormItem className=''>
+                                                <FormLabel className='flex'>
+                                                    Phone Number{' '}
+                                                    <span className='text-red-500 ml-1'>
+                                                        *
+                                                    </span>{' '}
+                                                    <span className='text-green-500 ml-1 text-xs md:hidden lg:block'>
+                                                        (Verified)
+                                                    </span>
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <div className='relative'>
+                                                        <PhoneInput
+                                                            country={'in'}
+                                                            value={
+                                                                phoneNumber as string
+                                                            }
+                                                            onChange={(
+                                                                phone,
+                                                            ) => {
+                                                                setPhoneNumber(
+                                                                    phone,
+                                                                );
+                                                                form.setValue(
+                                                                    'phone',
+                                                                    phone,
+                                                                );
+                                                            }}
+                                                            inputProps={{
+                                                                id: 'phone',
+                                                                name: 'phone',
+                                                                required: true,
+                                                            }}
+                                                            searchPlaceholder='Search country...'
+                                                            inputStyle={{
+                                                                background:
+                                                                    'hsl(var(--background))',
+                                                            }}
+                                                            buttonStyle={{
+                                                                background:
+                                                                    'transparent',
+                                                            }}
+                                                        />
+                                                        <div className='absolute right-3 top-1/2 transform -translate-y-1/2 z-10'>
+                                                            <Check className='h-5 w-5 text-green-500' />
+                                                        </div>
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <div className='space-y-2'>
+                                        <Label
+                                            htmlFor='resume'
+                                            className='flex'
                                         >
-                                            <path d='M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z' />
-                                        </svg>
-                                        <Input
-                                            id='x'
-                                            placeholder='https://www.x.com'
-                                            {...register('x')}
-                                        />
+                                            Resume{' '}
+                                            <span className='text-red-500 ml-1'>
+                                                *
+                                            </span>
+                                        </Label>
+                                        <div className='border bg-background h-10 rounded-md p-2 relative'>
+                                            <input
+                                                disabled={uploadingFiles}
+                                                type='file'
+                                                id='resume'
+                                                className='opacity-0 absolute inset-0 w-full cursor-pointer'
+                                                onChange={(e) =>
+                                                    handleUpload(e.target.files)
+                                                }
+                                                accept='.pdf,.doc,.docx'
+                                            />
+                                            <div className='flex items-center'>
+                                                <div className=' p-0 rounded mr-2'>
+                                                    <FileText className='h-5 w-5 text-dark-gray' />
+                                                </div>
+                                                <div className='flex-1 truncate'>
+                                                    <span className='text-sm'>
+                                                        {resumeFiledText ||
+                                                            'Click to upload resume'}
+                                                    </span>
+                                                </div>
+                                                <div
+                                                    className={`ml-2 ${uploadError ? 'text-red-500' : ''}`}
+                                                >
+                                                    {uploadingFiles ? (
+                                                        <Loader
+                                                            size={18}
+                                                            className='animate-spin'
+                                                        />
+                                                    ) : uploadError ? (
+                                                        <X className='h-5 w-5' />
+                                                    ) : resumeFiledText ? (
+                                                        <Check className='h-5 w-5 text-green-500' />
+                                                    ) : (
+                                                        <CloudUpload className='h-5 w-5' />
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    {errors.x && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.x.message}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
 
-                    {/* Others Links */}
-                    <Card className='mb-3 shadow-none overflow-hidden rounded-lg border-none'>
-                        <CardContent className='p-2 bg-foreground'>
-                            <div className='flex items-center mb-3 border-b'>
-                                <ExternalLink className='h-5 w-5 mr-2' />
-                                <h3 className='text-lg font-medium'>
-                                    Others Links
-                                </h3>
-                                <Info className='h-4 w-4 ml-2 text-gray-400' />
-                            </div>
-
-                            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                                <div className='space-y-2'>
-                                    <Label htmlFor='website'>
-                                        Website Link
-                                    </Label>
-                                    <div className='flex items-center'>
-                                        <Globe className='h-5 w-5 mr-2 text-gray-500' />
-                                        <Input
-                                            id='website'
-                                            placeholder='https://www.johndoe.com'
-                                            {...register('website')}
-                                        />
+                                    <div className='space-y-2'>
+                                        <Label
+                                            htmlFor='memberSince'
+                                            className='flex'
+                                        >
+                                            Member Since{' '}
+                                            <span className='text-red-500 ml-1'>
+                                                *
+                                            </span>
+                                        </Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    type='button'
+                                                    variant='outline'
+                                                    className={cn(
+                                                        'w-full justify-start text-left font-normal cursor-not-allowed',
+                                                        !memberSince &&
+                                                            'text-muted-foreground',
+                                                    )}
+                                                    disabled
+                                                >
+                                                    <CalendarIcon className='mr-2 h-4 w-4' />
+                                                    {memberSince ? (
+                                                        format(
+                                                            memberSince,
+                                                            'MMM dd, yyyy',
+                                                        )
+                                                    ) : (
+                                                        <span>Pick a date</span>
+                                                    )}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className='w-auto p-0'>
+                                                <Calendar
+                                                    mode='single'
+                                                    selected={memberSince}
+                                                    onSelect={(day) =>
+                                                        day &&
+                                                        setMemberSince(day)
+                                                    }
+                                                    initialFocus
+                                                    disabled
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
                                     </div>
-                                    {errors.website && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.website.message}
-                                        </p>
-                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Address */}
+                        <Card className='mb-3 shadow-none overflow-hidden rounded-lg border-none'>
+                            <CardContent className='md:p-4 p-2 bg-foreground'>
+                                <div className='flex items-center mb-3 border-b'>
+                                    <Globe className='h-4 w-4 mr-2' />
+                                    <h3 className='text-lg font-medium'>
+                                        Address
+                                    </h3>
+                                    <Info className='h-4 w-4 ml-2 text-gray-400' />
                                 </div>
 
-                                <div className='space-y-2'>
-                                    <Label htmlFor='github'>GitHub</Label>
-                                    <div className='flex items-center'>
-                                        <Github className='h-5 w-5 mr-2 text-gray-500' />
-                                        <Input
-                                            id='github'
-                                            placeholder='https://www.github.com'
-                                            {...register('github')}
+                                <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+                                    <FormField
+                                        control={form.control}
+                                        name='street'
+                                        render={({ field }) => (
+                                            <FormItem className=' relative'>
+                                                <FormLabel className='flex'>
+                                                    Street{' '}
+                                                    <span className='text-red-500 ml-1'>
+                                                        *
+                                                    </span>
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder='Enter street address'
+                                                        {...field}
+                                                        onChange={(e) => {
+                                                            field.onChange(e);
+                                                            setStreetCharCount(
+                                                                640 -
+                                                                    e.target
+                                                                        .value
+                                                                        .length,
+                                                            );
+                                                        }}
+                                                    />
+                                                </FormControl>
+                                                <div className='absolute right-3 top-9 bg-orange-500 text-white text-xs px-1 rounded'>
+                                                    {streetCharCount}
+                                                </div>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name='city'
+                                        render={({ field }) => (
+                                            <FormItem className=' relative'>
+                                                <FormLabel className='flex'>
+                                                    City{' '}
+                                                    <span className='text-red-500 ml-1'>
+                                                        *
+                                                    </span>
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder='Enter city'
+                                                        {...field}
+                                                        onChange={(e) => {
+                                                            field.onChange(e);
+                                                            setCityCharCount(
+                                                                835 -
+                                                                    e.target
+                                                                        .value
+                                                                        .length,
+                                                            );
+                                                        }}
+                                                    />
+                                                </FormControl>
+                                                <div className='absolute right-3 top-9 bg-orange-500 text-white text-xs px-1 rounded'>
+                                                    {cityCharCount}
+                                                </div>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name='state'
+                                        render={({ field }) => (
+                                            <FormItem className=''>
+                                                <FormLabel className='flex'>
+                                                    State{' '}
+                                                    <span className='text-red-500 ml-1'>
+                                                        *
+                                                    </span>
+                                                </FormLabel>
+                                                <Select
+                                                    defaultValue={field.value}
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder='Select state' />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value='ca'>
+                                                            California
+                                                        </SelectItem>
+                                                        <SelectItem value='ny'>
+                                                            New York
+                                                        </SelectItem>
+                                                        <SelectItem value='tx'>
+                                                            Texas
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name='country'
+                                        render={({ field }) => (
+                                            <FormItem className=''>
+                                                <FormLabel className='flex'>
+                                                    Country{' '}
+                                                    <span className='text-red-500 ml-1'>
+                                                        *
+                                                    </span>
+                                                </FormLabel>
+                                                <Select
+                                                    defaultValue={field.value}
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder='Select country' />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value='us'>
+                                                            United States
+                                                        </SelectItem>
+                                                        <SelectItem value='ca'>
+                                                            Canada
+                                                        </SelectItem>
+                                                        <SelectItem value='uk'>
+                                                            United Kingdom
+                                                        </SelectItem>
+                                                        <SelectItem value='in'>
+                                                            India
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* About */}
+                        <Card className='mb-3 shadow-none overflow-hidden rounded-lg border-none'>
+                            <CardContent className='p-2 md:p-4 bg-foreground'>
+                                <div className='flex items-center mb-3 border-b'>
+                                    <Info className='h-4 w-4 mr-2' />
+                                    <h3 className='text-lg font-medium'>
+                                        About
+                                    </h3>
+                                    <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                </div>
+
+                                <div className='space-y-4'>
+                                    <div className='flex flex-wrap gap-2 border-b pb-2'>
+                                        <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            className='h-8'
+                                        >
+                                            <span className='font-bold'>B</span>
+                                        </Button>
+                                        <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            className='h-8 italic'
+                                        >
+                                            <span>I</span>
+                                        </Button>
+                                        <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            className='h-8 underline'
+                                        >
+                                            <span>U</span>
+                                        </Button>
+                                        <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            className='h-8'
+                                        >
+                                            <span>S</span>
+                                        </Button>
+                                        <Separator
+                                            orientation='vertical'
+                                            className='h-8'
                                         />
+                                        <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            className='h-8'
+                                        >
+                                            <span>1</span>
+                                        </Button>
+                                        <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            className='h-8'
+                                        >
+                                            <span>•</span>
+                                        </Button>
+                                        <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            className='h-8'
+                                        >
+                                            <span>≡</span>
+                                        </Button>
+                                        <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            className='h-8'
+                                        >
+                                            <span>⟶</span>
+                                        </Button>
+                                        <Button
+                                            type='button'
+                                            variant='outline'
+                                            size='sm'
+                                            className='h-8'
+                                        >
+                                            <span>@</span>
+                                        </Button>
                                     </div>
-                                    {errors.github && (
-                                        <p className='text-red-500 text-xs mt-1'>
-                                            {errors.github.message}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
 
-                    {/* Action Buttons */}
-                    <div className='flex justify-center items-center mb-5 space-x-3'>
-                        <Button
-                            variant='outline'
-                            type='button'
-                            onClick={() => reset()}
-                        >
-                            <CircleX className='h-4 w-4 mr-2' />
-                            Cancel
-                        </Button>
-                        <Button type='submit'>
-                            <CircleCheckBig className='h-4 w-4 mr-2' />
-                            Save Changes
-                        </Button>
-                    </div>
-                </form>
+                                    <FormField
+                                        control={form.control}
+                                        name='about'
+                                        render={({ field }) => (
+                                            <FormItem className='relative'>
+                                                <FormControl>
+                                                    <Textarea
+                                                        className='min-h-[150px] bg-background'
+                                                        placeholder='Write about yourself'
+                                                        {...field}
+                                                        onChange={(e) => {
+                                                            field.onChange(e);
+                                                            setAboutCharCount(
+                                                                834 -
+                                                                    e.target
+                                                                        .value
+                                                                        .length,
+                                                            );
+                                                        }}
+                                                    />
+                                                </FormControl>
+                                                <div className='absolute right-3 bottom-3 bg-orange-500 text-white text-xs px-1 rounded'>
+                                                    {aboutCharCount}
+                                                </div>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Social Links */}
+                        <Card className='mb-3 shadow-none overflow-hidden rounded-lg border-none'>
+                            <CardContent className='md:p-4 p-2 bg-foreground'>
+                                <div className='flex items-center mb-3 border-b'>
+                                    <ExternalLink className='h-4 w-4 mr-2' />
+                                    <h3 className='text-lg font-medium'>
+                                        Social Links
+                                    </h3>
+                                    <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                </div>
+
+                                <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+                                    <FormField
+                                        control={form.control}
+                                        name='facebook'
+                                        render={({ field }) => (
+                                            <FormItem className=''>
+                                                <FormLabel>Facebook</FormLabel>
+                                                <FormControl>
+                                                    <div className='flex items-center'>
+                                                        <Facebook className='h-5 w-5 mr-2 text-gray-500' />
+                                                        <Input
+                                                            placeholder='https://www.facebook.com'
+                                                            {...field}
+                                                        />
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name='linkedin'
+                                        render={({ field }) => (
+                                            <FormItem className='space-y-2'>
+                                                <FormLabel>LinkedIn</FormLabel>
+                                                <FormControl>
+                                                    <div className='flex items-center'>
+                                                        <Linkedin className='h-5 w-5 mr-2 text-gray-500' />
+                                                        <Input
+                                                            placeholder='https://www.linkedin.com'
+                                                            {...field}
+                                                        />
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name='instagram'
+                                        render={({ field }) => (
+                                            <FormItem className='space-y-2'>
+                                                <FormLabel>Instagram</FormLabel>
+                                                <FormControl>
+                                                    <div className='flex items-center'>
+                                                        <Instagram className='h-5 w-5 mr-2 text-gray-500' />
+                                                        <Input
+                                                            placeholder='https://www.instagram.com'
+                                                            {...field}
+                                                        />
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name='twitter'
+                                        render={({ field }) => (
+                                            <FormItem className='space-y-2'>
+                                                <FormLabel>X.com</FormLabel>
+                                                <FormControl>
+                                                    <div className='flex items-center'>
+                                                        <svg
+                                                            className='h-5 w-5 mr-2 text-gray-500'
+                                                            viewBox='0 0 24 24'
+                                                            fill='currentColor'
+                                                        >
+                                                            <path d='M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z' />
+                                                        </svg>
+                                                        <Input
+                                                            placeholder='https://www.x.com'
+                                                            {...field}
+                                                        />
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Others Links */}
+                        <Card className='mb-3 shadow-none overflow-hidden rounded-lg border-none'>
+                            <CardContent className='p-2 md:p-4 bg-foreground'>
+                                <div className='flex items-center mb-3 border-b'>
+                                    <ExternalLink className='h-5 w-5 mr-2' />
+                                    <h3 className='text-lg font-medium'>
+                                        Others Links
+                                    </h3>
+                                    <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                </div>
+
+                                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                                    <FormField
+                                        control={form.control}
+                                        name='website'
+                                        render={({ field }) => (
+                                            <FormItem className='space-y-2'>
+                                                <FormLabel>
+                                                    Website Link
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <div className='flex items-center'>
+                                                        <Globe className='h-5 w-5 mr-2 text-gray-500' />
+                                                        <Input
+                                                            placeholder='https://www.johndoe.com'
+                                                            {...field}
+                                                        />
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name='github'
+                                        render={({ field }) => (
+                                            <FormItem className='space-y-2'>
+                                                <FormLabel>GitHub</FormLabel>
+                                                <FormControl>
+                                                    <div className='flex items-center'>
+                                                        <Github className='h-5 w-5 mr-2 text-gray-500' />
+                                                        <Input
+                                                            placeholder='https://www.github.com'
+                                                            {...field}
+                                                        />
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Action Buttons */}
+                        <div className='flex justify-center items-center mb-5 space-x-3'>
+                            <Button
+                                variant='outline'
+                                type='button'
+                                onClick={() => form.reset()}
+                            >
+                                <CircleX className='h-4 w-4 mr-2' />
+                                Cancel
+                            </Button>
+                            <Button type='submit'>
+                                <CircleCheckBig className='h-4 w-4 mr-2' />
+                                Save Changes
+                            </Button>
+                        </div>
+                    </form>
+                </Form>
             </div>
         </div>
     );
