@@ -319,7 +319,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                     className={`rounded-lg p-2 ${
                                         !hideAlign &&
                                         message?.sender?._id === user?._id
-                                            ? 'bg-primary text-primary-white'
+                                            ? 'bg-primary text-pure-white'
                                             : 'bg-primary-light border border-blue-600/20'
                                     }`}
                                 >
@@ -332,7 +332,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             }
                                             className='font-medium text-sm cursor-pointer mb-1 w-full flex flex-row gap-1 items-center'
                                         >
-                                            <p className='truncate dark:text-pure-white'>
+                                            <p className='truncate'>
                                                 {message.sender?.fullName ||
                                                     'Bootcamps Hub user'}{' '}
                                             </p>

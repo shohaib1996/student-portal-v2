@@ -45,12 +45,14 @@ export default function UploadDocumentComponent() {
         if (documentId && mode === 'view') {
             setIsDetailsModalOpen(true);
         }
-        if (documentId && mode === 'edit') {
-            setIsUploadModalOpen(true);
-        }
+        // if (documentId && mode === 'edit') {
+        //     setIsUploadModalOpen(true);
+        // }
     }, [documentId, mode]);
     const allDocuments = data?.documents || [];
-    console.log({ allDocuments });
+    const total = data?.count || 0;
+
+    console.log({ AllDocuments: data });
     // Filter documents based on filter values
     const filteredDocuments = useMemo(() => {
         return allDocuments.filter((doc) => {
@@ -122,6 +124,7 @@ export default function UploadDocumentComponent() {
 
     const handleCloseUploadModal = () => {
         setIsUploadModalOpen(false);
+        router.push('/upload-documents');
     };
 
     const handlePageChange = (page: number, newLimit?: number) => {
@@ -287,7 +290,7 @@ export default function UploadDocumentComponent() {
 
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
                 {isGridView ? (
-                    <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
+                    <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
                         {paginatedDocuments.map((doc) => (
                             <GlobalDocumentCard
                                 key={doc._id}
@@ -312,7 +315,7 @@ export default function UploadDocumentComponent() {
 
                 <GlobalPagination
                     currentPage={currentPage}
-                    totalItems={filteredDocuments.length}
+                    totalItems={total}
                     itemsPerPage={limit}
                     onPageChange={handlePageChange}
                 />

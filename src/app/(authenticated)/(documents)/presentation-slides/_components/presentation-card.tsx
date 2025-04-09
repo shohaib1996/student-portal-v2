@@ -53,11 +53,11 @@ const PresentationCard = ({
                     </span>
                 </div>
 
-                {(index === 3 || index === 6) && (
+                {/* {(index === 3 || index === 6) && (
                     <div className='absolute inset-0 bg-slate-900/30 flex items-center justify-center'>
-                        <Lock className='text-foreground dark:text-gray-300 h-12 w-12' />
+                        <Lock className='text-foreground dark:text-gray-300 h-12 w-12' />``
                     </div>
-                )}
+                )} */}
             </div>
             <div className='p-4'>
                 <h3 className='font-semibold text-lg mb-1 line-clamp-1'>
@@ -104,7 +104,7 @@ const PresentationCard = ({
                 </div>
                 <div className='flex items-center justify-center'>
                     <Button
-                        disabled={index === 3 || index === 6}
+                        // disabled={index === 3 || index === 6}
                         variant='default'
                         size='sm'
                         className='text-xs px-3 w-full'

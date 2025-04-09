@@ -702,7 +702,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                             }
                                             onClick={sendMessage}
                                         >
-                                            <Send className='h-5 w-5 text-primary-foreground' />
+                                            <Send className='h-5 w-5 text-pure-white' />
                                         </button>
                                     )}
                                 </div>

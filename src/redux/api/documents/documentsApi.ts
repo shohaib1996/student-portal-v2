@@ -3,8 +3,15 @@ import { tagTypes } from '../tagType/tagTypes';
 
 export interface LabContent {
     _id: string;
-    title: string;
-    description: string;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+    groups: string[];
+    isFree: boolean;
+    isLocked: boolean;
+    name: string;
+    thumbnail: string;
+    description?: string;
+    createdBy?: { _id: string; fullName: string; profilePicture: string };
 }
 
 export interface LabContentResponse {
@@ -125,6 +132,12 @@ const documentsApi = baseApi.injectEndpoints({
                 url: '/template/mytemplates',
             }),
         }),
+        getTemplateDetails: build.query<
+            { success: boolean; template: any },
+            string
+        >({
+            query: (id) => ({ url: `/template/get/${id}` }),
+        }),
         getContentDetails: build.query<
             { success: boolean; content: any },
             string
@@ -176,13 +189,24 @@ const documentsApi = baseApi.injectEndpoints({
             query: (id) => ({
                 url: `/document/userdocument/get/${id}`,
             }),
+            providesTags: (result, error, id) => [
+                { type: tagTypes.documents, id },
+            ],
         }),
-        updateUserDocument: build.mutation<{ success: boolean }, string>({
-            query: (id) => ({
+        updateUserDocument: build.mutation<
+            { success: boolean },
+            { id: string; data: any }
+        >({
+            query: ({ id, data }) => ({
                 url: `/document/userdocument/update/${id}`,
                 method: 'PATCH',
+                data: data,
             }),
-            invalidatesTags: [tagTypes.documents],
+            invalidatesTags: (result, error, { id }) => [
+                { type: tagTypes.documents, id },
+                tagTypes.documents,
+                { type: tagTypes.documents, id },
+            ],
         }),
         deleteUserDocument: build.mutation<{ success: boolean }, string>({
             query: (id) => ({
@@ -217,6 +241,7 @@ export const {
     useGetContentDetailsQuery,
     useGetDocumentCommentsQuery,
     useGetMyTemplatesQuery,
+    useGetTemplateDetailsQuery,
     useGetUploadDocumentsQuery,
     useAddUserDocumentMutation,
     useUploadUserDocumentFileMutation,

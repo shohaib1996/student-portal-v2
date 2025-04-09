@@ -1,6 +1,12 @@
 'use client';
 
-import { ArrowLeft, ArrowRight, LoaderCircle } from 'lucide-react';
+import {
+    ArrowLeft,
+    ArrowRight,
+    LoaderCircle,
+    PencilIcon,
+    PencilLine,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GlobalDocumentDetailsModal } from '@/components/global/documents/GlobalDocumentDetailsModal';
 import DownloadIcon from '@/components/svgs/common/DownloadIcon';
@@ -17,6 +23,7 @@ import {
 import { DocumentContentArea } from '@/components/global/documents/DocumentContentArea';
 import { DocumentSidebar } from '@/components/global/documents/DocumentSider';
 import { toast } from 'sonner';
+import GlobalDeleteModal from '@/components/global/GlobalDeleteModal';
 
 export interface DocumentContent {
     title: string;
@@ -33,7 +40,7 @@ export interface DocumentDetailsProps {
     isOpen: boolean;
     onClose: () => void;
     documentId: string | null;
-    documentData?: any;
+    // documentData?: any;
     mode?: 'view' | 'edit' | 'add';
 }
 
@@ -41,7 +48,7 @@ export function DocumentDetailsModal({
     isOpen,
     onClose,
     documentId,
-    documentData,
+    // documentData,
     mode = 'view',
 }: DocumentDetailsProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -66,14 +73,14 @@ export function DocumentDetailsModal({
     const { data: uploadDocumentData, isLoading: isUploadDocLoading } =
         pathName === '/upload-documents'
             ? useGetSingleUploadDocumentQuery(id || '', {
-                  skip: !id || !!documentData,
+                  skip: !id,
               })
             : { data: null, isLoading: false };
 
     const { data: contentDetailsData, isLoading: isContentLoading } =
         pathName !== '/upload-documents'
             ? useGetSingleUpdatedDocumentByIdQuery(id || '', {
-                  skip: !id || !!documentData,
+                  skip: !id,
               })
             : { data: null, isLoading: false };
 
@@ -86,57 +93,13 @@ export function DocumentDetailsModal({
 
     // Open edit modal automatically if mode is 'edit'
     useEffect(() => {
-        if (urlMode === 'edit' && isOpen && (documentData || apiData)) {
+        if (urlMode === 'edit' && documentId && apiData) {
             setIsEditModalOpen(true);
         }
-    }, [urlMode, isOpen, documentData, apiData]);
+    }, [urlMode, documentId, apiData]);
 
     // Format the document data based on its structure
     const formatDocumentData = () => {
-        // If documentData is provided from props, use that
-        if (documentData) {
-            return {
-                title: documentData.title || documentData.name || 'Untitled',
-                author:
-                    documentData.author ||
-                    documentData.createdBy?.fullName ||
-                    'Unknown Author',
-                uploadDate:
-                    documentData.uploadDate ||
-                    documentData.createdAt ||
-                    new Date().toISOString(),
-                lastUpdate:
-                    documentData.lastUpdate ||
-                    documentData.updatedAt ||
-                    new Date().toISOString(),
-                tags: Array.isArray(documentData.tags)
-                    ? documentData.tags
-                    : Array.isArray(documentData.category)
-                      ? documentData.category
-                      : [],
-                content: documentData.content || documentData.description || '',
-                imageUrl:
-                    documentData.imageUrl ||
-                    documentData.thumbnail ||
-                    '/images/documents-and-labs-thumbnail.png',
-                attachedFiles:
-                    documentData.attachedFiles ||
-                    (Array.isArray(documentData.attachment)
-                        ? documentData.attachment.map(
-                              (file: any, index: number) => ({
-                                  id: `file-${index}`,
-                                  name:
-                                      typeof file === 'string'
-                                          ? file
-                                          : file.name || `File ${index}`,
-                                  type: 'document',
-                                  size: '1.0 MB',
-                              }),
-                          )
-                        : []),
-            };
-        }
-
         // If on upload-documents page, format data accordingly
         if (pathName === '/upload-documents' && uploadDocumentData) {
             const document = uploadDocumentData.document;
@@ -342,13 +305,13 @@ export function DocumentDetailsModal({
                                     </Button>
                                     Document Details
                                 </h1>
-                                <p className='text-sm text-muted-foreground'>
+                                <p className='text-sm text-gray'>
                                     View your documents with ease
                                 </p>
                             </div>
                         </div>
                         <div className='flex items-center gap-2'>
-                            <Button
+                            {/* <Button
                                 variant='default'
                                 size='sm'
                                 className='gap-1'
@@ -363,29 +326,26 @@ export function DocumentDetailsModal({
                             >
                                 <span>Next</span>
                                 <ArrowRight className='h-4 w-4' />
-                            </Button>
-                            <Button variant='outline' size='sm'>
+                            </Button> */}
+                            {/* <Button variant='outline' size='sm'>
                                 <DownloadIcon className='h-4 w-4' />
-                            </Button>
+                            </Button> */}
                             <Button
-                                variant='outline'
-                                size='sm'
+                                size='icon'
+                                className='text-pure-white'
                                 onClick={handleEditClick}
                             >
-                                <EditPenIcon className='h-4 w-4' />
+                                <PencilLine className='h-4 w-4' />
                             </Button>
-                            <Button
-                                variant='outline'
-                                size='sm'
-                                onClick={handleDelete}
-                                disabled={isDeleting || !id}
-                            >
-                                {isDeleting ? (
-                                    <LoaderCircle className='h-4 w-4 animate-spin' />
-                                ) : (
-                                    <DeleteTrashIcon className='h-4 w-4' />
-                                )}
-                            </Button>
+                            <GlobalDeleteModal
+                                deleteFun={deleteUserDocument}
+                                _id={id || ''}
+                                itemTitle='Document'
+                                loading={isDeleting}
+                                modalTitle='Delete Document?'
+                                modalSubTitle='This action cannot be undone. This will permanently delete your document and remove your data from our servers.'
+                                isButton={true}
+                            />
                         </div>
                     </div>
 

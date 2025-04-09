@@ -97,13 +97,13 @@ export function UniversitySelectModal({
             title='Select Company/University'
             subTitle='Select a university or organization to continue your journey'
             allowFullScreen={true}
-            className='bg-white'
+            className='bg-background'
         >
             <div className='space-y-6 py-3'>
                 <div className='relative'>
                     <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                         <svg
-                            className='w-4 h-4 text-gray-500'
+                            className='w-4 h-4 text-gray'
                             aria-hidden='true'
                             xmlns='http://www.w3.org/2000/svg'
                             fill='none'
@@ -119,7 +119,7 @@ export function UniversitySelectModal({
                         </svg>
                     </div>
                     <Input
-                        className='pl-10'
+                        className='pl-10 bg-foreground'
                         placeholder='Search companies...'
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -131,9 +131,9 @@ export function UniversitySelectModal({
                         <div
                             key={company._id}
                             className={cn(
-                                'border rounded-lg p-3 flex gap-3',
+                                'border rounded-lg p-3 flex gap-3 bg-foreground',
                                 selectedCompanyId === company._id &&
-                                    'border-[#0736d1]',
+                                    'border-primary',
                             )}
                         >
                             <div className='flex-shrink-0'>
