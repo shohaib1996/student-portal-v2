@@ -35,7 +35,10 @@ export default [
       //     { argsIgnorePattern: '^_' },
       // ],
       'react/no-children-prop': 'off',
-      '@typescript-eslint/no-unnecessary-type-constraint': 'off'
-    },
+      '@typescript-eslint/no-unnecessary-type-constraint': 'off',
+      "@typescript-eslint/ban-ts-comment": "off",
+      "eqeqeq": "off",
+      "@typescript-eslint/no-empty-object-type": "off"
+    }
   },
 ];

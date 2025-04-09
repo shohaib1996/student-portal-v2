@@ -50,10 +50,10 @@ const MyProfileComponent = () => {
                 <UserProfileForm />
             ) : (
                 <PasswordChangeForm
-                    username='John Doe'
-                    date={new Date(2024, 1, 12)}
-                    onCancel={() => console.log('Cancelled')}
-                    onSubmit={async (currentPassword, newPassword) => {}}
+                // username='John Doe'
+                // date={new Date(2024, 1, 12)}
+                // onCancel={() => console.log('Cancelled')}
+                // onSubmit={async (currentPassword, newPassword) => {}}
                 />
             )}
         </div>
