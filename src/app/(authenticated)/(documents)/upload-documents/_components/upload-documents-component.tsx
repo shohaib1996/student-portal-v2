@@ -127,16 +127,9 @@ export default function UploadDocumentComponent() {
         router.push('/upload-documents');
     };
 
-    const handlePageChange = (page: number, newLimit?: number) => {
-        const validPage = Math.max(1, Math.min(page, totalPages));
-        setCurrentPage(validPage);
-
-        if (newLimit) {
-            setLimit(newLimit);
-            const newStartIndex = (validPage - 1) * newLimit;
-            const newCurrentPage = Math.floor(newStartIndex / newLimit) + 1;
-            setCurrentPage(newCurrentPage);
-        }
+    const handlePageChange = (page: number, newLimit: number) => {
+        setCurrentPage(page);
+        setLimit(newLimit);
     };
 
     const defaultColumns: TCustomColumnDef<(typeof allDocuments)[0]>[] = [
@@ -291,7 +284,7 @@ export default function UploadDocumentComponent() {
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
                 {isGridView ? (
                     <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
-                        {paginatedDocuments.map((doc) => (
+                        {allDocuments.map((doc) => (
                             <GlobalDocumentCard
                                 key={doc._id}
                                 id={doc._id}
@@ -306,7 +299,7 @@ export default function UploadDocumentComponent() {
                         <GlobalTable
                             isLoading={false}
                             limit={limit}
-                            data={paginatedDocuments}
+                            data={allDocuments}
                             defaultColumns={defaultColumns}
                             tableName='upload-documents-table'
                         />

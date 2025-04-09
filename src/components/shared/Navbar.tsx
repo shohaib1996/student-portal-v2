@@ -75,7 +75,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/profile'
-                    className='flex gap-2 text-dark-gray items-center hover:underline'
+                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
                 >
                     <UserRound size={18} />
                     My Profile
@@ -87,7 +87,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/change-password'
-                    className='flex gap-2 text-dark-gray items-center hover:underline'
+                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
                 >
                     <BookOpenText size={18} />
                     Change Password
@@ -99,7 +99,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/payment-history'
-                    className='flex gap-2 text-dark-gray items-center hover:underline'
+                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
                 >
                     <CircleDollarSign size={18} />
                     Payments
@@ -111,7 +111,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/aggrements'
-                    className='flex gap-2 text-dark-gray items-center hover:underline'
+                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
                 >
                     <ScrollText size={18} />
                     Aggrements
@@ -123,7 +123,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/docs'
-                    className='flex gap-2 text-dark-gray items-center hover:underline'
+                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
                 >
                     <Bell size={18} />
                     User Manual
@@ -135,7 +135,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/notification-preferences'
-                    className='flex gap-2 text-dark-gray items-center hover:underline'
+                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
                 >
                     <BellDot size={18} />
                     Notification Preferences

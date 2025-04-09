@@ -53,7 +53,7 @@ export default function MyDocumentsPage() {
     }, [documentId, mode]);
 
     const allDocuments = data?.documents || [];
-    console.log({ allDocuments });
+
     const { data: singleDocument, isLoading: isSingleDocLoading } =
         useGetSingleUploadDocumentQuery(documentId || '', {
             skip:
@@ -95,14 +95,6 @@ export default function MyDocumentsPage() {
         });
     }, [allDocuments, filters]);
 
-    const paginatedDocuments = useMemo(() => {
-        const startIndex = (currentPage - 1) * limit;
-        const endIndex = startIndex + limit;
-        return filteredDocuments.slice(startIndex, endIndex);
-    }, [filteredDocuments, currentPage, limit]);
-
-    const totalPages = Math.ceil(filteredDocuments.length / limit);
-
     if (isLoading) {
         return <div>Loading...</div>;
     }
@@ -137,16 +129,9 @@ export default function MyDocumentsPage() {
         setIsUploadModalOpen(false);
     };
 
-    const handlePageChange = (page: number, newLimit?: number) => {
-        const validPage = Math.max(1, Math.min(page, totalPages));
-        setCurrentPage(validPage);
-
-        if (newLimit) {
-            setLimit(newLimit);
-            const newStartIndex = (validPage - 1) * newLimit;
-            const newCurrentPage = Math.floor(newStartIndex / newLimit) + 1;
-            setCurrentPage(newCurrentPage);
-        }
+    const handlePageChange = (page: number, newLimit: number) => {
+        setCurrentPage(page);
+        setLimit(newLimit);
     };
 
     const defaultColumns: TCustomColumnDef<(typeof allDocuments)[0]>[] = [
@@ -298,8 +283,8 @@ export default function MyDocumentsPage() {
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
                 {isGridView ? (
                     <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
-                        {paginatedDocuments.length > 0 ? (
-                            paginatedDocuments.map((doc) => (
+                        {allDocuments.length > 0 ? (
+                            allDocuments.map((doc) => (
                                 <GlobalDocumentCard
                                     key={doc._id}
                                     id={doc._id}
@@ -354,7 +339,7 @@ export default function MyDocumentsPage() {
                         <GlobalTable
                             isLoading={false}
                             limit={limit}
-                            data={paginatedDocuments}
+                            data={allDocuments}
                             defaultColumns={defaultColumns}
                             tableName='my-documents-table'
                         />
@@ -364,7 +349,7 @@ export default function MyDocumentsPage() {
                 {allDocuments.length > 0 && (
                     <GlobalPagination
                         currentPage={currentPage}
-                        totalItems={filteredDocuments.length}
+                        totalItems={data?.count || 0}
                         itemsPerPage={limit}
                         onPageChange={handlePageChange}
                     />

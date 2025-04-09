@@ -76,7 +76,7 @@ const ChangePassword = () => {
         <>
             <div className='bg-foreground max-w-[1200px] rounded-lg mt-3 mx-auto'>
                 <div className='p-4'>
-                    <div className='flex justify-center flex-col gap-5 items-center'>
+                    <div className='flex justify-center flex-col gap-4 items-center'>
                         <h2 className='font-semibold text-lg text-black title'>
                             Change Your Password
                         </h2>
