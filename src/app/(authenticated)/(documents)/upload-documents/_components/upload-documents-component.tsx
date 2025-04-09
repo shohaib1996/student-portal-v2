@@ -45,9 +45,9 @@ export default function UploadDocumentComponent() {
         if (documentId && mode === 'view') {
             setIsDetailsModalOpen(true);
         }
-        if (documentId && mode === 'edit') {
-            setIsUploadModalOpen(true);
-        }
+        // if (documentId && mode === 'edit') {
+        //     setIsUploadModalOpen(true);
+        // }
     }, [documentId, mode]);
     const allDocuments = data?.documents || [];
     console.log({ allDocuments });
@@ -122,6 +122,7 @@ export default function UploadDocumentComponent() {
 
     const handleCloseUploadModal = () => {
         setIsUploadModalOpen(false);
+        router.push('/upload-documents');
     };
 
     const handlePageChange = (page: number, newLimit?: number) => {

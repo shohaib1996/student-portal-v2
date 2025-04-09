@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetMySingleDocumentQuery } from '@/redux/api/documents/documentsApi';
 
 export interface GlobalDocumentCardProps {
-    id?: string;
+    id: string;
     title?: string;
     name?: string;
     author?: string;
@@ -58,17 +58,10 @@ export function GlobalDocumentCard({
         }
         onClick?.();
     };
-    const handleEdit: (e: React.MouseEvent) => void = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (id) {
-            router.push(`/${redirect}?documentId=${id}&mode=edit`);
-        }
-        onClick?.();
-    };
 
     return (
         <Card className='overflow-hidden'>
-            <div className='cursor-pointer'>
+            <div className='cursor-pointer' onClick={handleReadMore}>
                 <div className='relative'>
                     <div className='absolute left-2 top-2 z-10 flex flex-wrap gap-1 w-full'>
                         <div className='flex flex-row items-center justify-between gap-4 w-[calc(100%-16px)]'>
@@ -81,7 +74,7 @@ export function GlobalDocumentCard({
                                     {category}
                                 </Badge>
                             ))}
-                            <div className='flex flex-row items-center gap-2'>
+                            {/* <div className='flex flex-row items-center gap-2'>
                                 <Button
                                     onClick={handleEdit}
                                     className='h-6 w-6 rounded-full bg-primary-light hover:bg-primary'
@@ -91,7 +84,7 @@ export function GlobalDocumentCard({
                                 <Button className='h-6 w-6 rounded-full bg-red-500/70 hover:bg-red-500'>
                                     <Trash size={14} />
                                 </Button>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                     <Image

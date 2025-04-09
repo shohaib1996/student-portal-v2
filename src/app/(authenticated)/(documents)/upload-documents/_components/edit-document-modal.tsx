@@ -26,6 +26,8 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
+import { useUpdateUserDocumentMutation } from '@/redux/api/documents/documentsApi';
 
 export interface EditDocumentModalProps {
     isOpen: boolean;
@@ -100,7 +102,12 @@ export function EditDocumentModal({
         setThumbnailFile(null);
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    // Add this inside your component
+    const [updateUserDocument, { isLoading: isSubmitting }] =
+        useUpdateUserDocumentMutation();
+
+    // Fix the handleSubmit function
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const form = e.currentTarget;
@@ -110,28 +117,40 @@ export function EditDocumentModal({
         const documentName = formData.get('document-name') as string;
         const tags = formData.get('tags') as string;
 
-        const submissionData = {
-            description,
-            documentName,
-            categories: [category1, category2].filter(Boolean),
-            tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
-            thumbnail: thumbnailFile
-                ? {
-                      name: thumbnailFile.name,
-                      size: thumbnailFile.size,
-                      type: thumbnailFile.type,
-                  }
-                : { url: thumbnailPreview }, // Use preview URL if no new file
-            attachedFiles:
-                attachedFiles.length > 0
-                    ? attachedFiles.map((file) => ({
-                          name: file.name,
-                          size: file.size,
-                          type: file.type,
-                      }))
-                    : attachedFileUrls.map((url) => ({ url })), // Use URLs if no new files
-        };
-        onClose();
+        try {
+            const searchParams = new URLSearchParams(window.location.search);
+            const documentId = searchParams.get('documentId');
+
+            if (!documentId) {
+                console.error('Document ID not found');
+                return;
+            }
+
+            // Prepare the data structure for the API
+            const data = {
+                name: documentName,
+                description: description,
+                category: [category1, category2].filter(Boolean),
+                tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
+                attachment: attachedFileUrls,
+                ...(thumbnailPreview && { thumbnail: thumbnailPreview }),
+            };
+
+            // Call the RTK mutation - make sure to pass the ID as a string
+            // Correct way to call the mutation
+            const result = await updateUserDocument({
+                id: documentId,
+                data,
+            }).unwrap();
+
+            if (result.success) {
+                toast.success('Document updated successfully!');
+                onClose();
+            }
+        } catch (error) {
+            console.error('Error updating document:', error);
+            toast.error('Failed to update document. Please try again.');
+        }
     };
 
     return (
@@ -370,7 +389,7 @@ export function EditDocumentModal({
                                             htmlFor='category-2'
                                             className='mb-2 flex items-center gap-1'
                                         >
-                                            Category{' '}
+                                            Sub Category{' '}
                                             <span className='text-red-500'>
                                                 *
                                             </span>

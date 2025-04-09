@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ArrowLeft, ArrowRight, FileText, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +9,7 @@ import { GlobalDocumentDetailsModal } from '@/components/global/documents/Global
 import { useGetContentDetailsQuery } from '@/redux/api/documents/documentsApi';
 import { DocumentContentArea } from '@/components/global/documents/DocumentContentArea';
 import { DocumentSidebar } from '@/components/global/documents/DocumentSider';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
 export interface DocumentContent {
     title: string;
@@ -27,6 +29,7 @@ export interface DocumentDetailsProps {
     onClose: () => void;
     documentId: string | null;
     documentData?: DocumentContent;
+    mode?: 'view' | 'edit' | 'add';
 }
 
 export function DocumentDetailsModal({
@@ -34,21 +37,86 @@ export function DocumentDetailsModal({
     onClose,
     documentId,
     documentData,
+    mode = 'view',
 }: DocumentDetailsProps) {
-    // Only fetch data if documentData is not provided and documentId exists
-    const { data, error, isLoading } = documentData
-        ? { data: null, error: null, isLoading: false }
-        : useGetContentDetailsQuery(documentId || '');
+    // Add router and search params hooks at the top to maintain hooks order
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const pathName = usePathname();
+
+    // Get document ID from URL if present, otherwise use the prop
+    const id = searchParams.get('documentId') || documentId;
+    const urlMode = searchParams.get('mode') || mode;
+
+    // Always call hooks at the top level, with skip logic to avoid unnecessary fetching
+    const { data, error, isLoading } = useGetContentDetailsQuery(id || '', {
+        skip: !id || !!documentData,
+    });
+
+    // Handle URL-based modal opening
+    useEffect(() => {
+        if (urlMode === 'edit' && id) {
+            // Handle edit mode logic here if needed
+            console.log('Edit mode detected in URL');
+        }
+    }, [urlMode, id]);
 
     // Handle loading and error states
-    if (!documentData && isLoading) {
-        return <div>Loading...</div>;
+    if (!documentData && isLoading && isOpen) {
+        return (
+            <GlobalDocumentDetailsModal isOpen={isOpen} onClose={onClose}>
+                <div className='flex items-center justify-center h-full'>
+                    <div className='text-center'>
+                        <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4'></div>
+                        <p>Loading document...</p>
+                    </div>
+                </div>
+            </GlobalDocumentDetailsModal>
+        );
     }
 
-    if (!documentData && error) {
-        return <div>Something went wrong!</div>;
+    // If neither documentData nor fetched data is available and not loading
+    if (!documentData && !data && !isLoading && isOpen) {
+        return (
+            <GlobalDocumentDetailsModal isOpen={isOpen} onClose={onClose}>
+                <div className='flex items-center justify-center h-full'>
+                    <div className='text-center'>
+                        <div className='text-red-500 mb-4'>
+                            <svg
+                                xmlns='http://www.w3.org/2000/svg'
+                                width='64'
+                                height='64'
+                                viewBox='0 0 24 24'
+                                fill='none'
+                                stroke='currentColor'
+                                strokeWidth='2'
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                            >
+                                <circle cx='12' cy='12' r='10'></circle>
+                                <line x1='12' y1='8' x2='12' y2='12'></line>
+                                <line x1='12' y1='16' x2='12.01' y2='16'></line>
+                            </svg>
+                        </div>
+                        <h3 className='text-xl font-semibold mb-2'>
+                            Document Not Found
+                        </h3>
+                        <p className='text-gray mb-4'>
+                            {`The document you're looking for doesn't exist or has
+                            been removed.`}
+                        </p>
+                        <Button onClick={onClose}>Go Back</Button>
+                    </div>
+                </div>
+            </GlobalDocumentDetailsModal>
+        );
     }
 
+    if (!isOpen) {
+        return null;
+    }
+
+    // Process data after all hooks and early returns
     // Use provided documentData if available, otherwise use fetched data
     const content = documentData || {
         title: data?.content?.name || 'Untitled',
@@ -64,15 +132,10 @@ export function DocumentDetailsModal({
     // All available tags
     const allTags = [
         'development',
-        'development',
-        'development',
-        'devops',
         'technical test',
         'web development',
         'resources',
         'devops',
-        'technical test',
-        'web development',
     ];
 
     // Related documents
@@ -90,11 +153,6 @@ export function DocumentDetailsModal({
         console.log('New comment:', content);
     };
 
-    // If neither documentData nor fetched data is available
-    if (!documentData && !data && !isLoading) {
-        return 'not found';
-    }
-
     return (
         <GlobalDocumentDetailsModal onClose={onClose} isOpen={isOpen}>
             <div className='flex h-full flex-col'>
@@ -110,31 +168,26 @@ export function DocumentDetailsModal({
                                 <ArrowLeft className='h-4 w-4' />
                                 <span className='sr-only'>Back</span>
                             </Button>
-                            Document Details
+                            Document & Labs Details
                         </h1>
                         <p className='text-sm text-muted-foreground'>
-                            View your documents with ease
+                            View your documents & labs with ease
                         </p>
                     </div>
                     <div className='flex items-center gap-2'>
-                        <Button variant='outline' size='sm' className='gap-1'>
+                        {/* <Button variant='outline' size='sm' className='gap-1'>
                             <ArrowLeft className='h-4 w-4' />
                             <span>Previous</span>
                         </Button>
                         <Button variant='outline' size='sm' className='gap-1'>
                             <span>Next</span>
                             <ArrowRight className='h-4 w-4' />
-                        </Button>
-                        <Button
-                            variant='outline'
-                            size='sm'
-                            className='gap-1'
-                            onClick={onClose}
-                        >
+                        </Button> */}
+                        <Button size='sm' className='gap-1' onClick={onClose}>
                             <span>Back to Docs</span>
                             <ArrowRight className='h-4 w-4' />
                         </Button>
-                        <Button
+                        {/* <Button
                             variant='ghost'
                             size='icon'
                             onClick={onClose}
@@ -142,7 +195,7 @@ export function DocumentDetailsModal({
                         >
                             <X className='h-4 w-4' />
                             <span className='sr-only'>Close</span>
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
 
@@ -151,8 +204,9 @@ export function DocumentDetailsModal({
                     <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
                         <DocumentContentArea
                             document={content}
-                            documentId={documentId}
+                            documentId={id}
                             onCommentSubmit={handleCommentSubmit}
+                            isLab={true}
                         />
 
                         <DocumentSidebar

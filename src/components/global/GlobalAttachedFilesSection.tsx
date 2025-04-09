@@ -75,10 +75,10 @@ export function GlobalAttachedFilesSection({
                         )}
                         <div className=''>
                             <p className='text-xs font-medium truncate max-w-32'>
-                                {file.name}
+                                {file.name || 'undefined'}
                             </p>
                             <p className='text-xs text-muted-foreground'>
-                                {file.size}
+                                {file.size || 'undefined'}
                             </p>
                         </div>
                     </a>

@@ -5,9 +5,14 @@ import { ArrowLeft, ArrowRight, FileText, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { GlobalDocumentDetailsModal } from '@/components/global/documents/GlobalDocumentDetailsModal';
-import { useGetContentDetailsQuery } from '@/redux/api/documents/documentsApi';
+import {
+    useGetContentDetailsQuery,
+    useGetMyTemplatesQuery,
+    useGetTemplateDetailsQuery,
+} from '@/redux/api/documents/documentsApi';
 import { DocumentContentArea } from '@/components/global/documents/DocumentContentArea';
 import { DocumentSidebar } from '@/components/global/documents/DocumentSider';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export interface DocumentContent {
     title: string;
@@ -35,10 +40,19 @@ export function DocumentDetailsModal({
     documentData,
 }: DocumentDetailsProps) {
     // Only fetch data if documentData is not provided and documentId exists
-    const { data, error, isLoading } = documentData
-        ? { data: null, error: null, isLoading: false }
-        : useGetContentDetailsQuery(documentId || '');
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
+    // Get document ID from URL if present, otherwise use the prop
+    const id = searchParams.get('documentId') || documentId;
+    const mode = searchParams.get('mode') || 'view';
+
+    // Fetch document from API if we have an ID and it's not provided in props
+    const { data, isLoading, error } = useGetTemplateDetailsQuery(id || '', {
+        skip: !id,
+    });
+
+    console.log({ TemplateDetails: data });
     // Handle loading and error states
     if (!documentData && isLoading) {
         return <div>Loading...</div>;
@@ -50,14 +64,20 @@ export function DocumentDetailsModal({
 
     // Use provided documentData if available, otherwise use fetched data
     const content = documentData || {
-        title: data?.content?.name || 'Untitled',
-        author: data?.content?.createdBy || 'Unknown Author',
-        uploadDate: data?.content?.createdAt || new Date().toISOString(),
-        lastUpdate: data?.content?.updatedAt || new Date().toISOString(),
-        tags: data?.content?.tags || [],
-        content: data?.content?.description || '',
-        imageUrl: data?.content?.thumbnail || '/placeholder.svg',
-        attachedFiles: data?.content?.attachedFiles || [],
+        title: data?.template?.title || 'Untitled',
+        author: data?.template?.createdBy || 'Unknown Author',
+        uploadDate: data?.template?.createdAt || '',
+        lastUpdate: data?.template?.updatedAt || '',
+        tags: data?.template?.tags || [],
+        content: data?.template?.description || '',
+        imageUrl: data?.template?.thumbnail || '/placeholder.svg',
+        attachedFiles: data?.template?.attachments || [],
+        category: data?.template?.category || '',
+        createdBy: data?.template?.createdBy || '',
+        isActive: data?.template?.isActive || false,
+        programs: data?.template?.programs || [],
+        sessions: data?.template?.sessions || [],
+        users: data?.template?.users || [],
     };
 
     // All available tags
@@ -109,23 +129,23 @@ export function DocumentDetailsModal({
                                 <ArrowLeft className='h-4 w-4' />
                                 <span className='sr-only'>Back</span>
                             </Button>
-                            Document Details
+                            Template Document Details
                         </h1>
                         <p className='text-sm text-muted-foreground'>
-                            View your documents with ease
+                            View your template documents with ease
                         </p>
                     </div>
                     <div className='flex items-center gap-2'>
-                        <Button variant='outline' size='sm' className='gap-1'>
+                        {/* <Button variant='outline' size='sm' className='gap-1'>
                             <ArrowLeft className='h-4 w-4' />
                             <span>Previous</span>
                         </Button>
                         <Button variant='outline' size='sm' className='gap-1'>
                             <span>Next</span>
                             <ArrowRight className='h-4 w-4' />
-                        </Button>
+                        </Button> */}
                         <Button
-                            variant='outline'
+                            variant='secondary'
                             size='sm'
                             className='gap-1'
                             onClick={onClose}
@@ -133,7 +153,7 @@ export function DocumentDetailsModal({
                             <span>Back to Docs</span>
                             <ArrowRight className='h-4 w-4' />
                         </Button>
-                        <Button
+                        {/* <Button
                             variant='ghost'
                             size='icon'
                             onClick={onClose}
@@ -141,7 +161,7 @@ export function DocumentDetailsModal({
                         >
                             <X className='h-4 w-4' />
                             <span className='sr-only'>Close</span>
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
 

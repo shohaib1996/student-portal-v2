@@ -32,7 +32,7 @@ export default function MyTemplateComponent() {
 
     const router = useRouter();
     const { data, error, isLoading } = useGetMyTemplatesQuery();
-
+    console.log({ AllTemplates: data });
     const allTemplates = data?.templates || [];
     const totalItems = data?.count || 0;
 
@@ -171,6 +171,7 @@ export default function MyTemplateComponent() {
                         <GlobalDocumentCard
                             redirect='my-templates'
                             key={content._id}
+                            id={content._id}
                             {...content}
                             onClick={() => handleDocumentClick(content._id)}
                         />
