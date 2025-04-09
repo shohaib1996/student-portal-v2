@@ -288,7 +288,7 @@ export default function UploadDocumentComponent() {
 
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
                 {isGridView ? (
-                    <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
+                    <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
                         {paginatedDocuments.map((doc) => (
                             <GlobalDocumentCard
                                 key={doc._id}

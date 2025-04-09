@@ -22,6 +22,8 @@ export interface DocumentContent {
     thumbnail?: string;
     user?: string;
     attachedFiles: { id: string; name: string; type: string; size: string }[];
+    programs?: { _id: string; title: string }[];
+    sessions?: string[] | { _id: string; name: string }[];
 }
 
 export interface DocumentDetailsProps {

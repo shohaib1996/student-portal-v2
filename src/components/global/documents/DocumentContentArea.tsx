@@ -6,7 +6,7 @@ import { GlobalDetailsBanner } from '@/components/global/documents/GlobalDetails
 import { GlobalAttachedFilesSection } from '@/components/global/GlobalAttachedFilesSection';
 import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
 import { DocumentContent } from '@/app/(authenticated)/(documents)/documents-and-labs/_components/document-details-modal';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { instance } from '@/lib/axios/axiosInstance';
@@ -26,6 +26,7 @@ export function DocumentContentArea({
     isLab = false,
 }: DocumentContentAreaProps) {
     const router = useRouter();
+    const pathName = usePathname();
     const [content, setContent] = useState<{
         _id: string;
         slide: { _id: string; slides: any };
@@ -79,6 +80,7 @@ export function DocumentContentArea({
         }
     };
     console.log({ LabContent: content });
+    console.log({ document: document });
     return (
         <div className='lg:col-span-2'>
             <GlobalDetailsBanner
@@ -115,8 +117,46 @@ export function DocumentContentArea({
                         )}
                     </TabsList>
                     <TabsContent value='documents' className='p-0'>
+                        {pathName === '/my-templates' && (
+                            <div className='flex flex-row items-center gap-2 w-full'>
+                                Programs:{' '}
+                                <div className='flex flex-row items-center flex-wrap gap-2 w-full'>
+                                    {(document?.programs ?? []).map(
+                                        (program, i) => (
+                                            <p
+                                                key={i}
+                                                className='bg-background text-xs p-1 px-2 rounded-xl'
+                                            >
+                                                {program?.title}
+                                            </p>
+                                        ),
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                        {pathName === '/my-templates' && (
+                            <div className='flex flex-row items-center gap-2 w-full mt-2'>
+                                Sessions:{' '}
+                                <div className='flex flex-row items-center flex-wrap gap-2 w-full'>
+                                    {document?.sessions?.map((session, i) => (
+                                        <p
+                                            key={i}
+                                            className='bg-background text-xs p-1 px-2 rounded-xl'
+                                        >
+                                            {typeof session === 'object' &&
+                                            'name' in session
+                                                ? session.name
+                                                : String(session)}
+                                        </p>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                         <div className='pt-2'>
-                            {document.content || 'No description found'}
+                            Description:{' '}
+                            <p className='min-h-[100px] rounded-md bg-background px-2 py-1 max-h-[300px] overflow-y-auto'>
+                                {document.content || 'No description found'}
+                            </p>
                         </div>
 
                         <GlobalAttachedFilesSection

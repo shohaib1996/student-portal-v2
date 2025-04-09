@@ -111,7 +111,7 @@ export function DocumentDetailsModal({
 
     // If neither documentData nor fetched data is available
     if (!documentData && !data && !isLoading) {
-        return 'not found';
+        return '';
     }
 
     return (

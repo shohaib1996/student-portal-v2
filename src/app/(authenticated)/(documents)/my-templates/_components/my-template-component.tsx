@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 import {
     LabContent,
@@ -29,13 +29,23 @@ export default function MyTemplateComponent() {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
     const [filters, setFilters] = useState<FilterValues>({});
-
-    const router = useRouter();
     const { data, error, isLoading } = useGetMyTemplatesQuery();
     console.log({ AllTemplates: data });
     const allTemplates = data?.templates || [];
     const totalItems = data?.count || 0;
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
+    // Get URL parameters
+    const documentId = searchParams.get('documentId');
+    const mode = searchParams.get('mode');
+    // Handle URL-based modal opening
+    useEffect(() => {
+        if (documentId && mode === 'view') {
+            setSelectedDocumentId(documentId);
+            setIsModalOpen(true);
+        }
+    }, [documentId, mode]);
     // Filter templates based on filter values
     const filteredTemplates = useMemo(() => {
         interface Template {
@@ -98,6 +108,7 @@ export default function MyTemplateComponent() {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedDocumentId(null);
+        router.push('/my-templates');
     };
 
     const handleFilter = (
@@ -166,7 +177,7 @@ export default function MyTemplateComponent() {
             />
 
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
-                <div className='my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
+                <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
                     {paginatedTemplates.map((content: LabContent) => (
                         <GlobalDocumentCard
                             redirect='my-templates'
