@@ -225,14 +225,35 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     const handleThreadMessage = () => {
         if (setThreadMessage) {
             setThreadMessage(message);
+
+            // If the message status is "sending", update it to "sent"
+            if (message.status === 'sending') {
+                // Update the message status in the local state
+                instance
+                    .put(`/chat/message/${message._id}`, {
+                        status: 'sent',
+                    })
+                    .then((res) => {
+                        // Dispatch action to update message in Redux store
+                        dispatch(
+                            updateMessage({
+                                message: {
+                                    ...message,
+                                    status: 'sent',
+                                },
+                            }),
+                        );
+                    })
+                    .catch((err) => {
+                        console.error('Failed to update message status', err);
+                    });
+            }
         }
     };
 
     const handlePin = (message: any) => {
         const isPinned = Boolean(message.pinnedBy);
-        const endpoint = isPinned
-            ? `/chat/pin/${message._id}`
-            : `/chat/pin/${message._id}`;
+        const endpoint = `/chat/pin/${message._id}`; // Same endpoint for both pin/unpin
 
         instance
             .patch(endpoint)
@@ -245,6 +266,19 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                 messageId: message._id,
                             }),
                         );
+
+                        // Update the message in Redux to reflect pinnedBy status
+                        dispatch(
+                            updateMessage({
+                                message: {
+                                    ...message,
+                                    _id: message._id,
+                                    chat: message.chat,
+                                    pinnedBy: null, // Set pinnedBy to null when unpinning
+                                },
+                            }),
+                        );
+
                         toast.success('Message unpinned successfully!');
                     } else {
                         dispatch(
@@ -253,6 +287,19 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                 message: res.data.message,
                             }),
                         );
+
+                        // Update the message in Redux to reflect pinnedBy status
+                        dispatch(
+                            updateMessage({
+                                message: {
+                                    ...message,
+                                    _id: message._id,
+                                    chat: message.chat,
+                                    pinnedBy: res.data.message.pinnedBy, // Set pinnedBy when pinning
+                                },
+                            }),
+                        );
+
                         toast.success('Message pinned successfully!');
                     }
                 }
@@ -288,14 +335,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                 >
                     <div className='flex max-w-full lg:max-w-[80%]'>
                         <div className='flex-shrink-0 mr-2'>
-                            <div
-                                className='cursor-pointer'
-                                onClick={() =>
-                                    handleOpenNewChat(
-                                        message?.sender?._id || '',
-                                    )
-                                }
-                            >
+                            <div className='cursor-pointer'>
                                 <Image
                                     src={
                                         message.sender?.type === 'bot'
@@ -325,11 +365,11 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                 >
                                     <div className='flex flex-col'>
                                         <span
-                                            onClick={() =>
-                                                handleOpenNewChat(
-                                                    message?.sender?._id || '',
-                                                )
-                                            }
+                                            // onClick={() =>
+                                            //     handleOpenNewChat(
+                                            //         message?.sender?._id || '',
+                                            //     )
+                                            // }
                                             className='font-medium text-sm cursor-pointer mb-1 w-full flex flex-row gap-1 items-center'
                                         >
                                             <p className='truncate'>
@@ -913,14 +953,14 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 user?._id &&
                                             !isAi && (
                                                 <DropdownMenuItem
-                                                    className='flex items-center gap-2 hover:bg-primary-light text-destructive'
+                                                    className='flex items-center gap-2 hover:bg-primary-light text-red-500'
                                                     onClick={() =>
                                                         handleDeleteMessage(
                                                             message,
                                                         )
                                                     }
                                                 >
-                                                    <Trash className='h-4 w-4 !text-danger' />
+                                                    <Trash className='h-4 w-4 text-red-500' />
                                                     Delete
                                                 </DropdownMenuItem>
                                             )}

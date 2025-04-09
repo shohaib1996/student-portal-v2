@@ -16,6 +16,7 @@ interface User {
     profilePicture?: string;
     email?: string;
     isBlocked?: boolean;
+    isActive?: boolean; // Added isActive property
 }
 
 interface UserCardProps {
@@ -67,7 +68,9 @@ function UserCard({
                             <Clock className='h-6 w-6 text-red-500' />
                         </div>
                     ) : (
-                        <span className='absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white'></span>
+                        <span
+                            className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${user.isActive ? 'bg-green-500' : 'bg-gray-400'}`}
+                        ></span>
                     )}
                 </div>
                 <div>
@@ -80,7 +83,15 @@ function UserCard({
                         ) : source === 'search' ? (
                             user.email
                         ) : (
-                            <span className='text-green-500'>Active Now</span>
+                            <span
+                                className={
+                                    user.isActive
+                                        ? 'text-green-500'
+                                        : 'text-gray-500'
+                                }
+                            >
+                                {user.isActive ? 'Active Now' : 'Offline'}
+                            </span>
                         )}
                     </p>
                 </div>
@@ -88,7 +99,7 @@ function UserCard({
             <Button
                 variant={isSelected ? 'default' : 'primary_light'}
                 size='icon'
-                className='rounded-full h-10 w-10 text-primary'
+                className='rounded-full h-10 w-10 '
                 onClick={(e) => {
                     e.stopPropagation();
                     handleCreateChat();

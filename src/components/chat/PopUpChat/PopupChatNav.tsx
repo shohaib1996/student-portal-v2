@@ -446,9 +446,9 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                         </DropdownMenu>
                     </GlobalTooltip>
 
-                    <Button variant='ghost' size='icon'>
+                    {/* <Button variant='ghost' size='icon'>
                         <MoreVertical className='h-5 w-5 text-gray' />
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
 

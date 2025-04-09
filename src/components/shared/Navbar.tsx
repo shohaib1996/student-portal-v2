@@ -388,7 +388,7 @@ const Navbar = () => {
                         </Link>
                     </Button>
                     <Button
-                        className='rounded-full sm:flex hidden size-9 text-dark-gray'
+                        className='rounded-full  size-9 text-dark-gray'
                         variant={'outline'}
                         onClick={() =>
                             setTheme(theme === 'dark' ? 'light' : 'dark')

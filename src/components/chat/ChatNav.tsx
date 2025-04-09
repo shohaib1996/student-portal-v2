@@ -446,9 +446,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                     </DropdownMenu>
                                 </GlobalTooltip>
 
-                                <Button variant='ghost' size='icon'>
+                                {/* <Button variant='ghost' size='icon'>
                                     <MoreVertical className='h-5 w-5 text-gray-500' />
-                                </Button>
+                                </Button> */}
                             </div>
                         </div>
 

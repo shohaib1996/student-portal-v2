@@ -58,6 +58,42 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
     const [date, setDate] = useState<Date | undefined>();
     const [timeValue, setTimeValue] = useState<Date | null>(null);
 
+    // Check if custom date/time selection is valid
+    const isCustomTimeValid = useCallback(() => {
+        if (selectedOption !== 4) {
+            return true;
+        }
+        return date !== undefined && timeValue !== null && dateUntil !== null;
+    }, [selectedOption, date, timeValue, dateUntil]);
+
+    // Determine if save button should be enabled
+    const isSaveButtonDisabled = useCallback(() => {
+        if (isUpdating) {
+            return true;
+        }
+
+        // For unmuting (option 5), always allow
+        if (selectedOption === 5) {
+            return false;
+        }
+
+        // If notifications are off (muted), check if unmute button should be enabled
+        if (!member?.notification?.isOn) {
+            return false; // Already has a selected mute option
+        }
+
+        // For new mute actions, require a selection and validate custom time if selected
+        return (
+            selectedOption === null ||
+            (selectedOption === 4 && !isCustomTimeValid())
+        );
+    }, [
+        isUpdating,
+        selectedOption,
+        member?.notification?.isOn,
+        isCustomTimeValid,
+    ]);
+
     useEffect(() => {
         setNote('');
         if (!member?.notification?.isOn) {
@@ -96,6 +132,12 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
     }, [member]);
 
     const handleSave = useCallback(() => {
+        // Prevent saving if no option is selected
+        if (isSaveButtonDisabled()) {
+            toast.error('Please select a notification option');
+            return;
+        }
+
         const data = {
             member: member?._id,
             selectedOption,
@@ -129,6 +171,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
         chatId,
         member?.notification?.isOn,
         modalClose,
+        isSaveButtonDisabled,
     ]);
 
     const handleDateTimeChange = useCallback(() => {
@@ -170,7 +213,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
             buttons={
                 <Button
                     onClick={handleSave}
-                    disabled={isUpdating}
+                    disabled={isSaveButtonDisabled()}
                     className='text-lg'
                 >
                     {isUpdating ? (
@@ -333,6 +376,14 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                                     </div>
                                 )}
                             </div>
+
+                            {/* Validation message */}
+                            {selectedOption === null && (
+                                <div className='text-red-500 text-sm mt-2'>
+                                    Please select a notification option to
+                                    continue
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

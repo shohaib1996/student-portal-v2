@@ -273,7 +273,7 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
                     )}
 
                     {/* Search */}
-                    <div className=' px-2'>
+                    <div className='px-2'>
                         <div className='relative'>
                             <Input
                                 ref={searchRef}
@@ -295,62 +295,34 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
                                 <Loader2 className='h-8 w-8 animate-spin text-primary' />
                             </div>
                         ) : (
-                            <>
-                                {/* Alphabetical sections */}
-                                {['A', 'B', 'C'].map((letter) => (
-                                    <div key={letter} className='mb-2'>
-                                        <div className='py-1 font-medium text-sm text-gray-500 border-t border-b'>
-                                            {letter}
+                            <div className='divide-y'>
+                                {users
+                                    .filter(
+                                        (user) =>
+                                            // Filter out users that are already selected
+                                            !selectedUsers.some(
+                                                (selected) =>
+                                                    selected._id === user._id,
+                                            ),
+                                    )
+                                    .map((user) => (
+                                        <div
+                                            key={user?._id}
+                                            className='flex items-center justify-between py-2'
+                                            onClick={() => handleAddUser(user)}
+                                        >
+                                            <div className='flex items-center gap-3'>
+                                                <TdUser user={user} />
+                                            </div>
                                         </div>
-                                        <div className='divide-y'>
-                                            {users
-                                                .filter(
-                                                    (user) =>
-                                                        ((user.firstName || '')
-                                                            .toUpperCase()
-                                                            .startsWith(
-                                                                letter,
-                                                            ) ||
-                                                            (
-                                                                user.lastName ||
-                                                                ''
-                                                            )
-                                                                .toUpperCase()
-                                                                .startsWith(
-                                                                    letter,
-                                                                )) &&
-                                                        // Filter out users that are already selected
-                                                        !selectedUsers.some(
-                                                            (selected) =>
-                                                                selected._id ===
-                                                                user._id,
-                                                        ),
-                                                )
-                                                .map((user) => (
-                                                    <div
-                                                        key={user?._id}
-                                                        className='flex items-center justify-between py-2'
-                                                        onClick={() =>
-                                                            handleAddUser(user)
-                                                        }
-                                                    >
-                                                        <div className='flex items-center gap-3'>
-                                                            <TdUser
-                                                                user={user}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))}
 
                                 {users.length === 0 && (
                                     <div className='text-center py-10 text-gray-500'>
                                         No users found
                                     </div>
                                 )}
-                            </>
+                            </div>
                         )}
                     </div>
 

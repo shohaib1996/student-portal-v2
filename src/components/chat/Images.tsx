@@ -35,6 +35,7 @@ interface ImagesProps {
         membersCount?: number;
         name?: string;
     };
+    setMediaCount: (count: number) => void;
 }
 
 // Mock users for demonstration until createdBy is available in the media data
@@ -105,7 +106,7 @@ const mockUsers: User[] = [
     },
 ];
 
-const Images: React.FC<ImagesProps> = ({ chat }) => {
+const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
     const [medias, setMedias] = useState<Media[]>([]);
     const [filteredMedias, setFilteredMedias] = useState<Media[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -125,6 +126,8 @@ const Images: React.FC<ImagesProps> = ({ chat }) => {
                 .then((res) => {
                     const mediaData = res.data?.medias || [];
 
+                    console.log('mediaData', mediaData);
+
                     // Assign random mock users to each media for demonstration
                     const mediasWithUser = mediaData.map((media: Media) => {
                         const randomUserIndex = Math.floor(
@@ -140,6 +143,7 @@ const Images: React.FC<ImagesProps> = ({ chat }) => {
                     setFilteredMedias(mediasWithUser);
                     setHasMore(mediaData.length === options.limit);
                     setIsLoading(false);
+                    setMediaCount(mediaData.length);
                 })
                 .catch((err) => {
                     setIsLoading(false);

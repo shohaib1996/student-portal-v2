@@ -159,13 +159,13 @@ function OnlineSidebar() {
                 <TabsList className='grid grid-cols-2 bg-transparent '>
                     <TabsTrigger
                         value='recent'
-                        className={`${activeTab === 'recent' ? 'border-b-[2px] border-b-primary !text-primary' : 'border-b-[2px] border-b-border'} bg-transparent rounded-none text-gray`}
+                        className={`${activeTab === 'recent' ? 'border-b-[2px] border-b-primary ' : 'border-b-[2px] border-b-border'} bg-transparent rounded-none text-gray`}
                     >
                         Recent Chats
                     </TabsTrigger>
                     <TabsTrigger
                         value='online'
-                        className={`${activeTab === 'online' ? 'border-b-[2px] border-b-primary !text-primary' : 'border-b-[2px] border-b-border'} bg-transparent rounded-none text-gray`}
+                        className={`${activeTab === 'online' ? 'border-b-[2px] border-b-primary ' : 'border-b-[2px] border-b-border'} bg-transparent rounded-none text-gray`}
                     >
                         Online Now
                     </TabsTrigger>
@@ -237,7 +237,7 @@ function OnlineSidebar() {
                                                                     )}
                                                                 </AvatarFallback>
                                                             </Avatar>
-                                                            <span className='absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white'></span>
+                                                            <span className='absolute bottom-0 right-0 h-3 w-3 rounded-full  border-2 border-white'></span>
                                                         </div>
                                                         <div>
                                                             <h3 className='font-medium'>
@@ -270,7 +270,7 @@ function OnlineSidebar() {
                                             ),
                                     )}
 
-                                    {records.length > 0 && (
+                                    {/* {records.length > 0 && (
                                         <div className='p-2 text-center flex flex-row items-center gap-1'>
                                             <div className='w-full h-[2px] bg-border'></div>
                                             <Button
@@ -286,7 +286,7 @@ function OnlineSidebar() {
                                             </Button>
                                             <div className='w-full h-[2px] bg-border'></div>
                                         </div>
-                                    )}
+                                    )} */}
                                 </div>
                             )}
                         </Suspense>

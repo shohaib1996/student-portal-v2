@@ -95,7 +95,7 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
                             />
                         ) : (
                             <div className='h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center'>
-                                <span className='text-gray-600 font-medium'>
+                                <span className='text-black font-medium'>
                                     {selectedMessage?.sender?.firstName?.[0] ||
                                         'U'}
                                 </span>
@@ -103,17 +103,17 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
                         )}
                         <div className='flex flex-col bg-primary-light rounded-xl border border-blue-500/20 p-2 w-full'>
                             <div className='flex items-center gap-1'>
-                                <span className='font-semibold text-gray-800'>
+                                <span className='font-semibold text-black'>
                                     {selectedMessage?.sender?.fullName ||
                                         'User'}
                                 </span>
-                                <span className='text-xs text-gray-500'>
+                                <span className='text-xs text-primary-white'>
                                     {formatTime(
                                         selectedMessage?.createdAt || '',
                                     )}
                                 </span>
                             </div>
-                            <p className='text-gray-700'>
+                            <p className='textb-black'>
                                 {selectedMessage?.text || ''}
                             </p>
                         </div>
@@ -125,7 +125,7 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
                     <h2 className='text-2xl font-bold text-center mb-2'>
                         Do you want to remove?
                     </h2>
-                    <p className='text-gray-600 text-center mb-2'>
+                    <p className='text-black text-center mb-2'>
                         Are you sure you want to delete this message?
                         <br />
                         This action cannot be undone.

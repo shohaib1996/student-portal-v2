@@ -269,6 +269,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     });
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [mediaCount, setMediaCount] = useState(0);
 
     const handleReport = async (reason: string, details?: string) => {
         setIsSubmitting(true);
@@ -323,7 +324,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     }, [chat]);
 
     useEffect(() => {
-        if (chat?._id && (!chat.imagesCount || !chat.voiceCount)) {
+        if (chat?._id) {
             instance
                 .get(`/chat/media-counts/${chat?._id}`)
                 .then((res) => {
@@ -333,13 +334,13 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                         voiceCount: res.data.voiceCount || 0,
                     }));
                 })
-                .catch((err: any) => {
-                    console.error(err);
+                .catch((err) => {
+                    console.error('Error fetching media counts:', err);
                     // Set default values if the API fails
                     setChat((prev: any) => ({
                         ...prev,
-                        imagesCount: 0,
-                        voiceCount: 0,
+                        imagesCount: prev?.imagesCount || 0,
+                        voiceCount: prev?.voiceCount || 0,
                     }));
                 });
         }
@@ -798,7 +799,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                         className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
                                     >
                                         <FileImage size={16} className='mr-1' />
-                                        Images ({chat?.imagesCount || 0})
+                                        Images ({mediaCount || 0})
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value='voice'
@@ -986,7 +987,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                                 </Button>
                                             </div>
                                         </div>
-                                        <div className='admin_Date w-full type_readonly grid grid-cols-2 gap-2 w-full'>
+                                        <div className='admin_Date w-full type_readonly grid grid-cols-2 gap-2 '>
                                             <div className='user flex flex-row items-center gap-1'>
                                                 {loadingMembers ? (
                                                     <div className='h-9 w-9 rounded-full bg-gray-200 animate-pulse'></div>
@@ -1356,7 +1357,10 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                 )}
 
                                 <TabsContent value='images' className='mt-4'>
-                                    <Images chat={chat} />
+                                    <Images
+                                        chat={chat}
+                                        setMediaCount={setMediaCount}
+                                    />
                                 </TabsContent>
 
                                 <TabsContent value='voice' className='mt-4'>

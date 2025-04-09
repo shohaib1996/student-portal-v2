@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import { HexColorPicker } from 'react-colorful';
-
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
@@ -39,7 +37,7 @@ export default function ColorPicker({
                 </Button>
             </PopoverTrigger>
             <PopoverContent className='w-[200px] p-0'>
-                <HexColorPicker
+                <ColorPicker
                     color={color}
                     onChange={(color) => onChange?.(color, false)}
                 />

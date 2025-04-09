@@ -488,7 +488,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                             }
                                         </span>
 
-                                        <span className='text-xs text-gray w-[50px]'>
+                                        <span className='text-xs text-gray w-[80px]'>
                                             {dayjs(
                                                 messages
                                                     .filter(
@@ -508,8 +508,8 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                         </span>
 
                                         <div className='flex-1 truncate text-sm text-gray ml-2 max-w-[calc(100%-200px)]'>
-                                            {
-                                                messages
+                                            {(() => {
+                                                const pinnedMessage = messages
                                                     .filter(
                                                         (message) =>
                                                             message.pinnedBy,
@@ -522,8 +522,15 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                                             new Date(
                                                                 a.createdAt as string,
                                                             ).getTime(),
-                                                    )[0]?.text
-                                            }
+                                                    )[0];
+
+                                                // Check if text exists
+                                                if (pinnedMessage?.text) {
+                                                    return pinnedMessage.text;
+                                                } else {
+                                                    return '📎 Pinned Media';
+                                                }
+                                            })()}
                                         </div>
 
                                         <Pin className='h-4 w-4 text-dark-gray rotate-45 ml-2 flex-shrink-0' />
@@ -686,7 +693,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                                     {!sameDate && (
                                                         <div className='flex justify-center flex-row items-center gap-1 my-2'>
                                                             <div className='h-[2px] w-full bg-border'></div>
-                                                            <span className='text-primary text-xs bg-primary-light text-nowrap px-2 py-1 rounded-full'>
+                                                            <span className='text-primary-white text-xs bg-primary-light text-nowrap px-2 py-1 rounded-full'>
                                                                 {messageDate.isSame(
                                                                     now,
                                                                     'day',

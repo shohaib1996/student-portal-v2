@@ -269,6 +269,7 @@ const Inbox: React.FC<InboxProps> = ({
                                 size='icon'
                                 className='border'
                                 onClick={toggleSearch}
+                                tooltip='Search messages'
                             >
                                 <Search className='h-5 w-5' />
                             </Button>
@@ -277,7 +278,7 @@ const Inbox: React.FC<InboxProps> = ({
                                 <>
                                     <EventPopoverTrigger>
                                         <Button
-                                            tooltip='Create Event'
+                                            tooltip='Calendar'
                                             variant='primary_light'
                                             size='icon'
                                             className='border cursor-pointer'
@@ -307,6 +308,7 @@ const Inbox: React.FC<InboxProps> = ({
                                 size='icon'
                                 className='border'
                                 onClick={() => handleNoti()}
+                                tooltip='Notifications'
                             >
                                 {chat?.myData?.notification?.isOn ? (
                                     <Bell className='h-5 w-5' />
@@ -319,6 +321,7 @@ const Inbox: React.FC<InboxProps> = ({
                                 variant='primary_light'
                                 size='icon'
                                 className='border'
+                                tooltip='Pin/Unpin chat'
                                 onClick={() =>
                                     handleFavourite(!chat?.myData?.isFavourite)
                                 }
@@ -485,12 +488,23 @@ const Inbox: React.FC<InboxProps> = ({
                     )}
                 </div>
 
-                <NotificationOptionModal
-                    chatId={chat?._id}
-                    opened={notificationOption.isVisible}
-                    close={closeNotificationModal}
-                    member={chat?.myData}
-                />
+                {/* Notification Modal - Positioned in the center of the chatbox */}
+                {notificationOption.isVisible && (
+                    <div className='fixed inset-0 flex items-center justify-center z-50'>
+                        <div
+                            className='absolute inset-0 bg-black opacity-65'
+                            onClick={closeNotificationModal}
+                        ></div>
+                        <div className='relative z-10 bg-background rounded-md shadow-lg max-w-md w-full mx-auto'>
+                            <NotificationOptionModal
+                                chatId={chat?._id}
+                                opened={notificationOption.isVisible}
+                                close={closeNotificationModal}
+                                member={chat?.myData}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         </>
     );

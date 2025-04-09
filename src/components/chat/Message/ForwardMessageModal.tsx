@@ -396,7 +396,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                                                     ? chat.name
                                                     : chat.otherUser?.fullName}
                                                 {chat.isChannel && (
-                                                    <span className='text-xs bg-gray-100 px-1 rounded'>
+                                                    <span className='text-xs bg-background px-1 rounded'>
                                                         Channel
                                                     </span>
                                                 )}
@@ -421,6 +421,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                                             e.stopPropagation();
                                             handleSelectChat(chat);
                                         }}
+                                        className={`${chat.isChannel && isSelected ? 'data-[state=checked]:text-pure-white data-[state=checked]:bg-primary data-[state=checked]:border-primary' : ''}`}
                                     />
                                 </div>
                             );
