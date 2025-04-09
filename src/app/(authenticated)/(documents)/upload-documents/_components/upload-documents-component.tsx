@@ -50,7 +50,9 @@ export default function UploadDocumentComponent() {
         // }
     }, [documentId, mode]);
     const allDocuments = data?.documents || [];
-    console.log({ allDocuments });
+    const total = data?.count || 0;
+
+    console.log({ AllDocuments: data });
     // Filter documents based on filter values
     const filteredDocuments = useMemo(() => {
         return allDocuments.filter((doc) => {
@@ -313,7 +315,7 @@ export default function UploadDocumentComponent() {
 
                 <GlobalPagination
                     currentPage={currentPage}
-                    totalItems={filteredDocuments.length}
+                    totalItems={total}
                     itemsPerPage={limit}
                     onPageChange={handlePageChange}
                 />

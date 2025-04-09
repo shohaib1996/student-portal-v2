@@ -16,57 +16,59 @@ import { TdUser } from '@/components/global/TdUser';
 import GlobalHeader from '@/components/global/GlobalHeader';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
+import { toast } from 'sonner';
 
 interface FilterValues {
     query?: string;
     status?: string;
     date?: string;
+    creationDate?: string;
+    updateDate?: string;
 }
 
 const PresentationComponents = () => {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
-    const [filters, setFilters] = useState<FilterValues>({});
+    const [filters, setFilters] = useState<FilterValues>({
+        query: '',
+        creationDate: '',
+        updateDate: '',
+    });
 
     const router = useRouter();
     const pathName = usePathname();
 
-    const { data, error, isLoading } = useGetMySlidesQuery({
-        page: currentPage,
-        limit: limit,
-    });
+    const { data, error, isLoading } = useGetMySlidesQuery(
+        {
+            page: currentPage,
+            limit: limit,
+        },
+        {
+            refetchOnMountOrArgChange: true,
+            refetchOnReconnect: true,
+        },
+    );
 
     const allSlides = (data?.slides as TSlide[]) || [];
-    // const totalItems = data?.count || 0;
+    const totalItems = data?.count || 0;
+    console.log({ currentPage, limit });
+    const handlePageChange = (page: number, newLimit: number) => {
+        setCurrentPage(page);
+        setLimit(newLimit);
+    };
 
-    // Filter slides based on filter values
-    const filteredSlides = useMemo(() => {
-        return allSlides.filter((slide) => {
-            const matchesQuery = filters.query
-                ? slide.title
-                      ?.toLowerCase()
-                      .includes(filters.query.toLowerCase())
-                : true;
-
-            const matchesStatus = filters.status ? false : true;
-
-            const matchesDate = filters.date
-                ? new Date(slide.createdAt).toDateString() ===
-                  new Date(filters.date).toDateString()
-                : true;
-
-            return matchesQuery && matchesStatus && matchesDate;
+    const handleFilter = (
+        conditions: any[],
+        queryObj: Record<string, string>,
+    ) => {
+        setFilters({
+            query: queryObj.query,
+            creationDate: queryObj.creationDate,
+            updateDate: queryObj.updateDate,
         });
-    }, [allSlides, filters]);
-
-    const paginatedSlides = useMemo(() => {
-        const startIndex = (currentPage - 1) * limit;
-        const endIndex = startIndex + limit;
-        return filteredSlides.slice(startIndex, endIndex);
-    }, [filteredSlides, currentPage, limit]);
-
-    const totalPages = Math.ceil(filteredSlides.length / limit);
+        setCurrentPage(1); // Reset to first page when filtering
+    };
 
     if (isLoading) {
         return 'Please wait...';
@@ -75,30 +77,6 @@ const PresentationComponents = () => {
     if (error) {
         return 'Something went wrong';
     }
-
-    const handleFilter = (
-        conditions: any[],
-        queryObj: Record<string, string>,
-    ) => {
-        setFilters({
-            query: queryObj.query,
-            status: queryObj.status,
-            date: queryObj.date,
-        });
-        setCurrentPage(1); // Reset to first page when filtering
-    };
-
-    const handlePageChange = (page: number, newLimit?: number) => {
-        const validPage = Math.max(1, Math.min(page, totalPages));
-        setCurrentPage(validPage);
-
-        if (newLimit) {
-            setLimit(newLimit);
-            const newStartIndex = (validPage - 1) * newLimit;
-            const newCurrentPage = Math.floor(newStartIndex / newLimit) + 1;
-            setCurrentPage(newCurrentPage);
-        }
-    };
 
     const columns: TCustomColumnDef<TSlide>[] = [
         {
@@ -128,19 +106,6 @@ const PresentationComponents = () => {
             ),
             footer: (data) => data.column.id,
             id: 'title',
-            visible: true,
-            canHide: false,
-        },
-        {
-            accessorKey: 'status',
-            header: 'Status',
-            cell: ({ row }) => (
-                <span className='text-primary-white text-xs font-medium p-1 bg-primary-light bg-opacity-10 rounded-full py-1 px-2'>
-                    {'N/A'}
-                </span>
-            ),
-            footer: (data) => data.column.id,
-            id: 'status',
             visible: true,
             canHide: false,
         },
@@ -199,11 +164,7 @@ const PresentationComponents = () => {
                     <Button
                         variant='default'
                         tooltip='View'
-                        onClick={() =>
-                            router.push(
-                                `${pathName}/subslide?id=${row.original._id}`,
-                            )
-                        }
+                        onClick={() => toast.info('New slide is coming soon!')}
                         icon={<Eye size={18} />}
                     >
                         View
@@ -260,11 +221,11 @@ const PresentationComponents = () => {
                                         value: 'query',
                                     },
                                     {
-                                        label: 'Status',
-                                        value: 'status',
+                                        label: 'Creation Date',
+                                        value: 'creationDate',
                                     },
                                     {
-                                        label: 'Uploaded Date',
+                                        label: 'Update Date',
                                         value: 'date',
                                     },
                                 ]}
@@ -283,14 +244,12 @@ const PresentationComponents = () => {
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
                 {viewMode === 'grid' && (
                     <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
-                        {paginatedSlides.map((presentation, index) => (
+                        {allSlides.map((presentation, index) => (
                             <PresentationCard
                                 key={presentation._id}
                                 presentation={presentation}
                                 onClick={() =>
-                                    router.push(
-                                        `${pathName}/subslide?id=${presentation._id}`,
-                                    )
+                                    toast.info('New slide is coming soon!')
                                 }
                                 index={index}
                             />
@@ -303,13 +262,13 @@ const PresentationComponents = () => {
                         tableName='slides-table'
                         defaultColumns={columns}
                         limit={limit}
-                        data={paginatedSlides}
+                        data={allSlides}
                     />
                 )}
 
                 <GlobalPagination
                     currentPage={currentPage}
-                    totalItems={filteredSlides.length}
+                    totalItems={totalItems}
                     itemsPerPage={limit}
                     onPageChange={handlePageChange}
                 />
