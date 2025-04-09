@@ -9,6 +9,7 @@ import {
     FolderOpen,
     GalleryVerticalEnd,
     HelpCircle,
+    ListChecks,
     MessageSquare,
     MessageSquareMore,
     Users,
@@ -248,10 +249,10 @@ export function AppSidebar() {
                                                                             asChild
                                                                             isActive={
                                                                                 pathname ===
-                                                                                '/dashboard/program'
+                                                                                '/program'
                                                                             }
                                                                         >
-                                                                            <Link href='/dashboard/program'>
+                                                                            <Link href='/program'>
                                                                                 Programs
                                                                             </Link>
                                                                         </SidebarMenuButton>
@@ -628,6 +629,21 @@ export function AppSidebar() {
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             {/* )} */}
+
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    tooltip={'My Notes'}
+                                    isActive={pathname === '/my-notes'}
+                                >
+                                    <ListChecks size={20} />
+                                    <Link
+                                        className='whitespace-nowrap truncate w-full'
+                                        href='/my-notes'
+                                    >
+                                        My Notes
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
 
                             {/* Supports */}
                             {supportOpen && (

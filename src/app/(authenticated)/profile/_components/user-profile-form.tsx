@@ -67,6 +67,7 @@ import { DatePicker } from '@/components/global/DatePicket';
 import dayjs from 'dayjs';
 import { instance } from '@/lib/axios/axiosInstance';
 import { setUser } from '@/redux/features/auth/authReducer';
+import { useUpdateUserInfoMutation } from '@/redux/api/user/userApi';
 
 // Form validation schema
 const FormSchema = z.object({
@@ -200,8 +201,8 @@ const FormSchema = z.object({
 export default function UserProfileForm() {
     const dispatch = useDispatch();
     const { user } = useAppSelector((state) => state.auth);
-    // const [updateUserInfo, { isLoading: isUpdating }] =
-    //     useUpdateUserInfoMutation();
+    const [updateUserInfo, { isLoading: isUpdating }] =
+        useUpdateUserInfoMutation();
 
     // Form state
     const [date, setDate] = useState(new Date(2000, 0, 1));

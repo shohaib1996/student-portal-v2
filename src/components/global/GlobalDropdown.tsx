@@ -13,6 +13,7 @@ type TProps = {
     onOpenChange?: (_: boolean) => void;
     side?: 'top' | 'right' | 'bottom' | 'left';
     align?: 'start' | 'center' | 'end'; // Added align prop
+    asChild?: boolean;
 };
 
 export type DropdownItems = {
@@ -30,10 +31,11 @@ const GlobalDropdown = ({
     open,
     side = 'bottom',
     align = 'start',
+    asChild = false,
 }: TProps) => {
     return (
         <Popover open={open} onOpenChange={onOpenChange}>
-            <PopoverTrigger asChild>{children}</PopoverTrigger>
+            <PopoverTrigger asChild={asChild}>{children}</PopoverTrigger>
             <PopoverContent
                 side={side}
                 align={align}

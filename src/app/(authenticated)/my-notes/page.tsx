@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Grid2X2, List, ListChecks, Plus } from 'lucide-react';
 import React, { useState } from 'react';
 import staticData from '../../../components/my-notes/staticNotes.json';
+import { AddNoteModal } from '@/components/my-notes/AddNoteModal';
 
 export type TNote = {
     id: number;
@@ -20,6 +21,7 @@ export type TNote = {
 
 const MyNotesPage = () => {
     const [view, setView] = useState<'list' | 'grid'>('grid');
+    const [isOpen, setIsOpen] = useState(false);
 
     return (
         <div className='py-2'>
@@ -31,18 +33,20 @@ const MyNotesPage = () => {
                         <Button
                             tooltip='Grid View'
                             size={'icon'}
-                            variant={'secondary'}
+                            variant={view === 'grid' ? 'default' : 'secondary'}
+                            onClick={() => setView('grid')}
                         >
                             <Grid2X2 size={18} />
                         </Button>
                         <Button
+                            onClick={() => setView('list')}
                             tooltip='List View'
                             size={'icon'}
-                            variant={'secondary'}
+                            variant={view === 'list' ? 'default' : 'secondary'}
                         >
                             <ListChecks size={18} />
                         </Button>
-                        <Button>
+                        <Button onClick={() => setIsOpen(true)}>
                             <Plus size={18} />
                             Add Note
                         </Button>
@@ -57,6 +61,12 @@ const MyNotesPage = () => {
                     <NotesListView data={staticData as TNote[]}></NotesListView>
                 )}
             </div>
+
+            <AddNoteModal
+                documentId=''
+                isOpen={isOpen}
+                onClose={() => setIsOpen(false)}
+            />
         </div>
     );
 };

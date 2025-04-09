@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Input } from '../ui/input';
 import {
     Bell,
@@ -184,41 +184,174 @@ const Navbar = () => {
 
     const [searchOpen, setSearchOpen] = useState(false);
 
-    const programOpen =
-        navigations.myProgram ||
-        navigations.myE2eProgramAgenda ||
-        navigations.myPurchasedItem ||
-        navigations.myMedia ||
-        navigations.showTell ||
-        navigations.leaderboard ||
-        navigations.technicalTest;
+    const permissions: { route: string; id: string; label: string }[] = [];
 
-    const documentOpen =
-        navigations.myDocument ||
-        navigations.myUploadedDocument ||
-        navigations.template;
+    if (navigations.myProgram) {
+        permissions.push({
+            route: '/program',
+            label: 'My Program',
+            id: 'myProgram',
+        });
+    }
+    if (navigations.myE2eProgramAgenda) {
+        permissions.push({
+            route: '/e2e-program-agenda',
+            label: 'E2E Program Agenda',
+            id: 'myE2eProgramAgenda',
+        });
+    }
+    if (navigations.myPurchasedItem) {
+        permissions.push({
+            route: '/program/online-courses',
+            label: 'Online Courses',
+            id: 'myPurchasedItem',
+        });
+    }
+    if (navigations.myMedia) {
+        permissions.push({
+            route: '/audio-video',
+            label: 'Audios/Videos',
+            id: 'myMedia',
+        });
+    }
+    if (navigations.showTell) {
+        permissions.push({
+            route: '/show-n-tell',
+            label: 'Show & Tell',
+            id: 'showTell',
+        });
+    }
 
-    const interviewOpen =
-        navigations.myMockInterview || navigations.reviewMockInterview;
+    if (navigations.technicalTest) {
+        permissions.push({
+            route: '/dashboard/technical-tests',
+            label: 'Technical Test',
+            id: 'technicalTest',
+        });
+    }
+    if (navigations.myDocument) {
+        permissions.push({
+            route: '/my-documents',
+            label: 'My Documents',
+            id: 'myDocument',
+        });
+    }
+    if (navigations.myUploadedDocument) {
+        permissions.push({
+            route: '/upload-documents',
+            label: 'Uploaded Documents',
+            id: 'myUploadedDocument',
+        });
+    }
+    if (navigations.template) {
+        permissions.push({
+            route: '/my-templates',
+            label: 'Templates',
+            id: 'template',
+        });
+    }
+    if (navigations.myCalendar) {
+        permissions.push({
+            route: '/calendar',
+            label: 'Calendar',
+            id: 'calendar',
+        });
+        permissions.push({
+            route: '/calendar/events',
+            label: 'Events',
+            id: 'Events',
+        });
+        permissions.push({
+            route: '/calendar/to-do',
+            label: 'To-Do',
+            id: 'To-Do',
+        });
+    }
+    if (navigations.myMockInterview) {
+        permissions.push({
+            route: '/mock-interviews',
+            label: 'Mock Interview',
+            id: 'myMockInterview',
+        });
+    }
 
-    const resourcesOpen = navigations.myJobSupport || navigations.family;
+    if (navigations.myJobSupport) {
+        permissions.push({
+            route: '/my-job-support',
+            label: 'Job Support',
+            id: 'myJobSupport',
+        });
+    }
+    if (navigations.family) {
+        permissions.push({
+            route: '/my-family',
+            label: 'Family',
+            id: 'family',
+        });
+    }
+    if (navigations.myIssue) {
+        permissions.push({
+            route: '/my-issues',
+            label: 'My Issues',
+            id: 'myIssue',
+        });
+    }
 
-    const supportOpen =
-        navigations.myJobSupport ||
-        navigations.family ||
-        navigations.helpCenter ||
-        navigations.myIssue;
+    const [filteredData, setFilteredData] = useState<
+        { route: string; id: string; label: string }[]
+    >([]);
+    const [wordEntered, setWordEntered] = useState('');
+
+    const handleFilter = (event: ChangeEvent<HTMLInputElement>) => {
+        const searchWord = event.target.value;
+        setWordEntered(searchWord);
+        const newFilter = permissions.filter((value) =>
+            value?.label?.toLowerCase().includes(searchWord.toLowerCase()),
+        );
+
+        if (searchWord === '') {
+            setFilteredData([]);
+        } else {
+            setFilteredData(newFilter);
+        }
+    };
+
+    const searchRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            if (searchRef.current && filteredData.length > 0) {
+                if (!searchRef.current.contains(e.target as Node)) {
+                    setFilteredData([]);
+                }
+            }
+        };
+        document.addEventListener('click', handleClick);
+
+        return () => document.removeEventListener('click', handleClick);
+    }, []);
 
     return (
         <div className='sticky top-0 z-20 flex flex-shrink-0 w-full h-[55px] box-border bg-foreground border-b border-forground-border shadow-sm'>
             <div className='flex gap-2 relative justify-between w-full h-full items-center px-2'>
-                <GlobalDropdown dropdownRender={<div>hello</div>}>
+                <div className='relative' ref={searchRef}>
                     <Input
-                        className='h-9 rounded-full md:w-[390px] hidden w-9 text-dark-gray'
+                        className='h-9 rounded-full md:w-[390px] md:inline-flex hidden w-9 text-dark-gray'
                         placeholder='Search here'
                         prefix={<Search size={18} />}
+                        value={wordEntered}
+                        onChange={handleFilter}
                     />
-                </GlobalDropdown>
+                    {filteredData.length > 0 && (
+                        <div className='absolute flex flex-col gap-2 bg-foreground border border-forground-border shadow-md w-full rounded-md top-10 z-40 p-2'>
+                            {filteredData?.map((item) => (
+                                <Link key={item.id} href={item.route}>
+                                    {item.label}
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                </div>
                 <div className='flex aspect-square md:hidden items-center justify-center'>
                     <Image
                         src={theme === 'dark' ? '/logo.png' : '/logo-blue.png'}
