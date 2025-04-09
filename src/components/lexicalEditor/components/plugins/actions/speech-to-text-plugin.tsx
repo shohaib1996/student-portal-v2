@@ -47,7 +47,13 @@ const VOICE_COMMANDS: Readonly<
         editor.dispatchCommand(UNDO_COMMAND, undefined);
     },
 };
-
+// Add type definitions for the Web Speech API
+declare global {
+    interface Window {
+        SpeechRecognition?: any;
+        webkitSpeechRecognition?: any;
+    }
+}
 export const SUPPORT_SPEECH_RECOGNITION: boolean =
     CAN_USE_DOM &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
