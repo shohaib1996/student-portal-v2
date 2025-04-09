@@ -41,7 +41,6 @@ const AllNoficiationsPage = () => {
         entityId: string,
         text: string,
     ) => {
-        console.log(type);
         let url = '';
         switch (type) {
             case 'enrollmentApprove':

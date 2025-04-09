@@ -13,6 +13,7 @@ import {
     Paperclip,
     Underline,
     X,
+    AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -26,6 +27,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import instance from '@/utils/storage';
 
 export interface UploadDocumentModalProps {
     isOpen: boolean;
@@ -46,13 +48,20 @@ export function UploadDocumentModal({
     const [category2, setCategory2] = useState<string>('');
     const [isUploading, setIsUploading] = useState(false); // Track upload status
 
+    // New states for form validation
+    const [documentNameError, setDocumentNameError] = useState<string | null>(
+        null,
+    );
+    const [category1Error, setCategory1Error] = useState<string | null>(null);
+    const [category2Error, setCategory2Error] = useState<string | null>(null);
+
     // Upload a single file and return its URL
     const uploadFile = async (file: File): Promise<string> => {
         const formData = new FormData();
         formData.append('file', file);
 
         try {
-            const response = await fetch('/api/upload', {
+            const response = await instance('/upload', {
                 method: 'POST',
                 body: formData,
             });
@@ -129,33 +138,93 @@ export function UploadDocumentModal({
         setThumbnailUrl(null);
     };
 
+    // Validate a single field and return whether it passed validation
+    const validateField = (fieldName: string, value: string): boolean => {
+        switch (fieldName) {
+            case 'document-name':
+                if (!value || value.trim() === '') {
+                    setDocumentNameError('Document name is required');
+                    return false;
+                }
+                setDocumentNameError(null);
+                return true;
+
+            case 'category1':
+                if (!value) {
+                    setCategory1Error('Primary category is required');
+                    return false;
+                }
+                setCategory1Error(null);
+                return true;
+
+            case 'category2':
+                if (!value) {
+                    setCategory2Error('Secondary category is required');
+                    return false;
+                }
+                setCategory2Error(null);
+                return true;
+
+            default:
+                return true;
+        }
+    };
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const form = e.currentTarget;
         const formData = new FormData(form);
 
-        const description = formData.get('description') as string;
         const documentName = formData.get('document-name') as string;
+        const description = formData.get('description') as string;
         const tags = formData.get('tags') as string;
 
-        const submissionData = {
-            description,
+        // Validate all required fields
+        const isDocumentNameValid = validateField(
+            'document-name',
             documentName,
-            categories: [category1, category2].filter(Boolean),
-            tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
-            thumbnail: thumbnailUrl, // Use the uploaded URL
-            attachedFiles: attachedFileUrls, // Use the uploaded URLs
-        };
+        );
+        const isCategory1Valid = validateField('category1', category1);
+        const isCategory2Valid = validateField('category2', category2);
 
-        console.log('Document Submission Data:', submissionData);
+        // Only proceed if all validations pass
+        if (isDocumentNameValid && isCategory1Valid && isCategory2Valid) {
+            const submissionData = {
+                documentName,
+                description,
+                categories: [category1, category2].filter(Boolean),
+                tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
+                thumbnail: thumbnailUrl,
+                attachedFiles: attachedFileUrls,
+            };
 
-        // Uncomment the following line if you want to close the modal after submission
-        // onClose();
+            console.log('Submitting data:', submissionData);
+            // Here you would typically send this data to your backend
+
+            onClose();
+        } else {
+            // Focus on the first invalid input
+            if (!isDocumentNameValid) {
+                document.getElementById('document-name')?.focus();
+            } else if (!isCategory1Valid) {
+                document.getElementById('category-1')?.focus();
+            } else if (!isCategory2Valid) {
+                document.getElementById('category-2')?.focus();
+            }
+        }
+    };
+
+    // Clear all errors when modal is closed
+    const handleClose = () => {
+        setDocumentNameError(null);
+        setCategory1Error(null);
+        setCategory2Error(null);
+        onClose();
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
             <DialogContent className='h-screen min-w-full overflow-y-auto p-0'>
                 <div className='flex h-full flex-col'>
                     {/* Header */}
@@ -164,7 +233,7 @@ export function UploadDocumentModal({
                             <Button
                                 variant='outline'
                                 size='icon'
-                                onClick={onClose}
+                                onClick={handleClose}
                             >
                                 <ArrowLeft className='h-4 w-4' />
                                 <span className='sr-only'>Back</span>
@@ -182,7 +251,7 @@ export function UploadDocumentModal({
                             <Button
                                 variant='outline'
                                 size='sm'
-                                onClick={onClose}
+                                onClick={handleClose}
                             >
                                 Cancel
                             </Button>
@@ -336,8 +405,22 @@ export function UploadDocumentModal({
                                             id='document-name'
                                             name='document-name'
                                             placeholder='Enter document name'
-                                            required
+                                            className={
+                                                documentNameError
+                                                    ? 'border-red-500'
+                                                    : ''
+                                            }
+                                            onChange={() =>
+                                                documentNameError &&
+                                                setDocumentNameError(null)
+                                            }
                                         />
+                                        {documentNameError && (
+                                            <div className='mt-1 flex items-center gap-1 text-sm text-red-500'>
+                                                <AlertCircle className='h-4 w-4' />
+                                                <span>{documentNameError}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div>
@@ -351,11 +434,22 @@ export function UploadDocumentModal({
                                             </span>
                                         </Label>
                                         <Select
-                                            required
-                                            onValueChange={setCategory1}
+                                            onValueChange={(value) => {
+                                                setCategory1(value);
+                                                if (category1Error) {
+                                                    setCategory1Error(null);
+                                                }
+                                            }}
                                             value={category1}
                                         >
-                                            <SelectTrigger id='category-1'>
+                                            <SelectTrigger
+                                                id='category-1'
+                                                className={
+                                                    category1Error
+                                                        ? 'border-red-500'
+                                                        : ''
+                                                }
+                                            >
                                                 <SelectValue placeholder='Select Category' />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -373,6 +467,12 @@ export function UploadDocumentModal({
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
+                                        {category1Error && (
+                                            <div className='mt-1 flex items-center gap-1 text-sm text-red-500'>
+                                                <AlertCircle className='h-4 w-4' />
+                                                <span>{category1Error}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div>
@@ -386,11 +486,22 @@ export function UploadDocumentModal({
                                             </span>
                                         </Label>
                                         <Select
-                                            required
-                                            onValueChange={setCategory2}
+                                            onValueChange={(value) => {
+                                                setCategory2(value);
+                                                if (category2Error) {
+                                                    setCategory2Error(null);
+                                                }
+                                            }}
                                             value={category2}
                                         >
-                                            <SelectTrigger id='category-2'>
+                                            <SelectTrigger
+                                                id='category-2'
+                                                className={
+                                                    category2Error
+                                                        ? 'border-red-500'
+                                                        : ''
+                                                }
+                                            >
                                                 <SelectValue placeholder='Select Category' />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -408,6 +519,12 @@ export function UploadDocumentModal({
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
+                                        {category2Error && (
+                                            <div className='mt-1 flex items-center gap-1 text-sm text-red-500'>
+                                                <AlertCircle className='h-4 w-4' />
+                                                <span>{category2Error}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div>

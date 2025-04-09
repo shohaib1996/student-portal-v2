@@ -5,8 +5,6 @@ import { usePaymentHistoryApiQuery } from '@/redux/api/payment-history/payment-h
 export default function TransactionsStatistics() {
     const { data, isLoading, error } = usePaymentHistoryApiQuery({});
 
-    console.log({ data });
-
     return (
         <div className='flex flex-col md:flex-row gap-4 w-full'>
             {/* Total Amount Card */}

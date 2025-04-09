@@ -26,6 +26,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export interface EditDocumentModalProps {
     isOpen: boolean;
@@ -38,12 +39,14 @@ export interface EditDocumentModalProps {
         thumbnailUrl: string;
         attachedFileUrls: string[];
     };
+    documentId: string;
 }
 
 export function EditDocumentModal({
     isOpen,
     onClose,
     defaultValues,
+    documentId,
 }: EditDocumentModalProps) {
     const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
         null,
@@ -53,6 +56,10 @@ export function EditDocumentModal({
     const [attachedFileUrls, setAttachedFileUrls] = useState<string[]>([]);
     const [category1, setCategory1] = useState<string>('');
     const [category2, setCategory2] = useState<string>('');
+    const [documentName, setDocumentName] = useState<string>(
+        defaultValues?.name || '',
+    );
+    const [nameError, setNameError] = useState<string>('');
 
     // Set default values when the modal opens
     useEffect(() => {
@@ -61,6 +68,7 @@ export function EditDocumentModal({
             setAttachedFileUrls(defaultValues.attachedFileUrls);
             setCategory1(defaultValues.categories[0] || '');
             setCategory2(defaultValues.categories[1] || '');
+            setDocumentName(defaultValues.name || '');
         }
     }, [isOpen, defaultValues]);
 
@@ -100,19 +108,41 @@ export function EditDocumentModal({
         setThumbnailFile(null);
     };
 
+    // Handle document name change with direct state management
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setDocumentName(value);
+
+        // Clear error if valid, set error if not
+        if (value.trim() === '') {
+            setNameError(
+                'Document name cannot be empty or contain only spaces',
+            );
+        } else {
+            setNameError('');
+        }
+    };
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        // Validate document name before proceeding
+        if (documentName.trim() === '') {
+            setNameError(
+                'Document name cannot be empty or contain only spaces',
+            );
+            return; // Prevent form submission
+        }
 
         const form = e.currentTarget;
         const formData = new FormData(form);
 
         const description = formData.get('description') as string;
-        const documentName = formData.get('document-name') as string;
         const tags = formData.get('tags') as string;
 
         const submissionData = {
             description,
-            documentName,
+            documentName: documentName.trim(), // Trim whitespace before submission
             categories: [category1, category2].filter(Boolean),
             tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
             thumbnail: thumbnailFile
@@ -132,7 +162,7 @@ export function EditDocumentModal({
                     : attachedFileUrls.map((url) => ({ url })), // Use URLs if no new files
         };
 
-        console.log('Updated Document Submission Data:', submissionData);
+        console.log('Submitting data:', submissionData);
         onClose();
     };
 
@@ -324,12 +354,21 @@ export function EditDocumentModal({
                                         <Input
                                             id='document-name'
                                             name='document-name'
-                                            defaultValue={
-                                                defaultValues?.name || ''
-                                            }
+                                            value={documentName}
                                             placeholder='Enter document name'
                                             required
+                                            onChange={handleNameChange}
+                                            className={
+                                                nameError
+                                                    ? 'border-red-500'
+                                                    : ''
+                                            }
                                         />
+                                        {nameError && (
+                                            <p className='mt-1 text-xs text-red-500'>
+                                                {nameError}
+                                            </p>
+                                        )}
                                     </div>
 
                                     <div>

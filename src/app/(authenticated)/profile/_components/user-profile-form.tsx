@@ -200,6 +200,8 @@ const FormSchema = z.object({
 export default function UserProfileForm() {
     const dispatch = useDispatch();
     const { user } = useAppSelector((state) => state.auth);
+    // const [updateUserInfo, { isLoading: isUpdating }] =
+    //     useUpdateUserInfoMutation();
 
     // Form state
     const [date, setDate] = useState(new Date(2000, 0, 1));

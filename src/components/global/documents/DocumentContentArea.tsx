@@ -5,17 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GlobalDetailsBanner } from '@/components/global/documents/GlobalDetailsBanner';
 import { GlobalAttachedFilesSection } from '@/components/global/GlobalAttachedFilesSection';
 import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
-
-export interface DocumentContent {
-    title: string;
-    author: string;
-    uploadDate: string;
-    lastUpdate: string;
-    tags: string[];
-    content: string;
-    imageUrl: string;
-    attachedFiles: { id: string; name: string; type: string; size: string }[];
-}
+import { DocumentContent } from '@/app/(authenticated)/(documents)/documents-and-labs/_components/document-details-modal';
 
 interface DocumentContentAreaProps {
     document: DocumentContent;
@@ -32,11 +22,11 @@ export function DocumentContentArea({
         <div className='lg:col-span-2'>
             <GlobalDetailsBanner
                 title={document.title}
-                author={document.author}
+                author={document.author || (document?.user as string)}
                 uploadDate={document.uploadDate}
                 lastUpdate={document.lastUpdate}
                 tags={document.tags}
-                imageUrl={document.imageUrl}
+                imageUrl={document?.thumbnail || '/default_image.png'}
             />
             <div className=''>
                 <Tabs defaultValue='documents'>
@@ -56,7 +46,7 @@ export function DocumentContentArea({
                             Slide
                         </TabsTrigger>
                     </TabsList>
-                    <TabsContent value='documents' className='p-4'>
+                    <TabsContent value='documents' className='p-0'>
                         <div className='pt-2'>{document.content}</div>
 
                         <GlobalAttachedFilesSection

@@ -440,13 +440,6 @@ const chatSlice = createSlice({
             const { message } = action.payload;
             const chatId = message.chat;
             const messagesArray = state.chatMessages[chatId] || [];
-            console.log(
-                'messagesArray',
-                JSON.stringify(messagesArray.length, null, 2),
-            );
-            console.log('message', JSON.stringify(message, null, 2));
-
-            console.log('chatId', JSON.stringify(chatId, null, 2));
 
             if (message.parentMessage) {
                 const messageIndex = messagesArray.findIndex(
@@ -473,10 +466,7 @@ const chatSlice = createSlice({
                 const messageIndex = messagesArray.findIndex(
                     (m) => m._id === message._id,
                 );
-                console.log(
-                    'messageIndex',
-                    JSON.stringify(messageIndex, null, 2),
-                );
+
                 if (messageIndex !== -1) {
                     messagesArray[messageIndex] = {
                         ...messagesArray[messageIndex],
@@ -496,16 +486,10 @@ const chatSlice = createSlice({
             const { message } = action.payload;
             const chatId = message.chat;
             const messagesArray = state.chatMessages[chatId] || [];
-
-            console.log(
-                'chatId in update emoji',
-                JSON.stringify(chatId, null, 2),
-            );
-
             const messageIndex = messagesArray.findIndex(
                 (m) => m._id === message._id,
             );
-            console.log('messageIndex', JSON.stringify(messageIndex, null, 2));
+
             if (messageIndex !== -1) {
                 messagesArray[messageIndex] = {
                     ...messagesArray[messageIndex],
@@ -526,11 +510,6 @@ const chatSlice = createSlice({
             const { message, trackingId } = action.payload;
             const chatId = message.chat;
             const messagesArray = state.chatMessages[chatId] || [];
-            console.log(
-                'messagesArray',
-                JSON.stringify(messagesArray, null, 2),
-            );
-
             if (message.parentMessage) {
                 const messageIndex = messagesArray.findIndex(
                     (m) => m._id === message.parentMessage,

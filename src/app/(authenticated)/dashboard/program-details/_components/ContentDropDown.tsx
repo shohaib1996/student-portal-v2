@@ -365,7 +365,7 @@ const ContentDropDown = ({
             return null;
         });
     };
-    console.log(fetchedData);
+
     return (
         <div
             className={cn(

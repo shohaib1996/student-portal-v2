@@ -104,7 +104,6 @@ const ProgressComp = () => {
             }
         >,
     );
-    console.log(processedData);
 
     return (
         <>

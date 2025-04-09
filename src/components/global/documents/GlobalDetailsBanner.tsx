@@ -22,19 +22,19 @@ export function GlobalDetailsBanner({
     uploadDate,
     lastUpdate,
     tags,
-    imageUrl = '/images/documents-and-labs-thumbnail.png', // Default fallback
-    avatarUrl = '/placeholder.svg?height=20&width=20', // Default avatar fallback
+    imageUrl,
+    avatarUrl = '/avatar.png?height=20&width=20', // Default avatar fallback
 }: GlobalDetailsBannerProps) {
     return (
         <div className='relative mb-4 overflow-hidden rounded-lg border'>
             <Image
-                src={imageUrl}
+                src={imageUrl as string}
                 alt={title}
                 width={800}
                 height={400}
                 className='h-auto w-full object-cover'
             />
-            <div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-800/80 to-transparent p-4 text-white'>
+            <div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-pure-black to-transparent p-4 text-white'>
                 <h2 className='text-2xl font-bold'>{title}</h2>
                 <div className='mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm'>
                     <div className='flex items-center gap-1'>

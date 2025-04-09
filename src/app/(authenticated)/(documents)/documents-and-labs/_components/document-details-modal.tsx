@@ -17,6 +17,8 @@ export interface DocumentContent {
     tags: string[];
     content: string;
     imageUrl: string;
+    thumbnail?: string;
+    user?: string;
     attachedFiles: { id: string; name: string; type: string; size: string }[];
 }
 

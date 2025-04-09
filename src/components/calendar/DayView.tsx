@@ -37,7 +37,6 @@ export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
     const { openPopover } = useEventPopover();
 
     const handleHourClick = (e: MouseEvent<HTMLDivElement>, hour: number) => {
-        console.log('Hour clicked:', hour);
         // You can implement custom logic here, like opening a modal to add an event
         const date = dayjs(currentDate);
         const updatedDate = date.hour(hour).minute(0).second(0).millisecond(0);

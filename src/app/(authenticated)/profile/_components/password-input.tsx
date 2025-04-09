@@ -10,6 +10,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 interface PasswordInputProps {
     id: string;
@@ -35,20 +36,18 @@ export default function PasswordInput({
     return (
         <div className='space-y-2'>
             <div className='flex items-center'>
-                <Label htmlFor={id} className='text-base font-medium'>
+                <Label htmlFor={id} className='text-base font-medium mr-1'>
                     {label}{' '}
                     {required && <span className='text-red-500'>*</span>}
                 </Label>
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Info className='h-4 w-4 ml-1 text-gray-400' />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>{tooltipText}</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
+                <GlobalTooltip
+                    className='shadow-md border border-forground-border'
+                    tooltip={tooltipText}
+                >
+                    <h2 className='pt-1 text-dark-gray cursor-pointer'>
+                        <Info size={16} />
+                    </h2>
+                </GlobalTooltip>
             </div>
             <div className='relative'>
                 <Input

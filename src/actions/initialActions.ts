@@ -74,7 +74,6 @@ export const loadNotifications = (): AppThunk => {
         instance
             .get('/notification/mynotifications')
             .then((res) => {
-                // console.log(res.data);
                 dispatch(setNotifications(res.data.notifications));
                 dispatch(setUnReadNotification(res.data.totalUnread));
             })
@@ -184,14 +183,6 @@ export const getCommunityPosts = ({
 }: GetCommunityPostsParams): AppThunk => {
     return (dispatch) => {
         dispatch(setPostLoading(true));
-        // console.log({
-        //   page: activePage,
-        //   limit: limit,
-        //   query: query,
-        //   tags: tags,
-        //   user: "",
-        //   filterBy: filter,
-        // });
         instance
             .post(`/content/community/post/getall`, {
                 page: activePage,
@@ -202,7 +193,6 @@ export const getCommunityPosts = ({
                 filterBy: filter,
             })
             .then((res) => {
-                console.log(res.data);
                 dispatch(setPosts({ posts: res.data.posts, reset: reset }));
                 dispatch(setTotalPosts(res.data.count));
                 dispatch(setPostLoading(false));
@@ -215,23 +205,3 @@ export const getCommunityPosts = ({
             });
     };
 };
-
-// export const getAllCommunityPosts = ({ reset = false }: { reset?: boolean }): AppThunk => {
-//   return (dispatch) => {
-//     dispatch(setPostLoading(true));
-//
-//     axios
-//       .post(`/content/community/post/getall`)
-//       .then((res) => {
-//         console.log(res.data);
-//         dispatch(setPosts({ posts: res.data.posts, reset: reset }));
-//         dispatch(setTotalPosts(res.data.count));
-//         dispatch(setPostLoading(false));
-//       })
-//       .catch((err) => {
-//         console.error(err);
-//         dispatch(setPostLoading(false));
-//         toast.error(err?.response?.data?.error);
-//       });
-//   };
-// };

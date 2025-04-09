@@ -82,7 +82,6 @@ const CreateEventModal = () => {
         if (!event || !updateId) {
             return;
         }
-        console.log(event.recurrence);
         if (event.type === 'event') {
             setTab('event');
             eventForm.reset({
@@ -194,7 +193,7 @@ const CreateEventModal = () => {
 
     useEffect(() => {
         const errors = Object.values(eventForm.formState?.errors);
-        console.log(errors);
+        console.error(errors);
         if (errors.length > 0) {
             if (eventForm.formState.errors.recurrence?.endRecurrence) {
                 toast.error(

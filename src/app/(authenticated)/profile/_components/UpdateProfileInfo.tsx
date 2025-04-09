@@ -237,7 +237,6 @@ const UpdateProfileInfo = ({
                     setFiles((prev) => [...prev, file]);
                     const formData = new FormData();
                     formData.append('file', file);
-                    console.log(formData);
                     try {
                         // const response = await uploadDocument(formData);
                         // setUploadFiles((prev) => [response?.data?.fileUrl]);

@@ -99,6 +99,15 @@ const documentsApi = baseApi.injectEndpoints({
                 params: { page, limit },
             }),
         }),
+        getMyDocumentById: build.query<any, string>({
+            query: (documentId) => ({
+                url: `/document/get/${documentId}`,
+            }),
+            providesTags: (result, error, id) => [
+                { type: tagTypes.documents, id },
+            ],
+        }),
+
         getMySlides: build.query<
             MySlidesResponse,
             { page?: number; limit?: number }
@@ -182,7 +191,17 @@ const documentsApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: [tagTypes.documents],
         }),
+        // getMySingleDocument: build.query<any, any>({
+        //     query: (id) => ({
+        //         url: `/document/userdocument/get/${id}`,
+        //     }),
+        // }),
         getMySingleDocument: build.query<any, any>({
+            query: (id) => ({
+                url: `/document/get/${id}`,
+            }),
+        }),
+        getSingleUpdatedDocumentById: build.query<any, any>({
             query: (id) => ({
                 url: `/document/userdocument/get/${id}`,
             }),
@@ -194,6 +213,7 @@ const documentsApi = baseApi.injectEndpoints({
 export const {
     useGetLabContentQuery,
     useGetMyDocumentQuery,
+    useGetMyDocumentByIdQuery,
     useGetContentDetailsQuery,
     useGetDocumentCommentsQuery,
     useGetMyTemplatesQuery,
@@ -204,6 +224,7 @@ export const {
     useUpdateUserDocumentMutation,
     useGetMySlidesQuery,
     useGetMySingleDocumentQuery,
+    useGetSingleUpdatedDocumentByIdQuery,
     useGetSingleUploadDocumentQuery,
 } = documentsApi;
 

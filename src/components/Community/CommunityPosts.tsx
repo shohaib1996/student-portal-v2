@@ -75,7 +75,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     setRefetch(refetch + 1);
                 }
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         };
 
@@ -88,7 +88,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     setRefetch(refetch + 1);
                 }
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         };
 
@@ -127,7 +127,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     setRefetch(refetch + 1);
                 }
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         };
         const handleUnSave = async (post: ICommunityPost) => {
@@ -147,7 +147,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     setRefetch(refetch + 1);
                 }
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         };
         const handleReport = (post: ICommunityPost) => {
@@ -170,7 +170,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     setRefetch(refetch + 1);
                 }
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         };
 

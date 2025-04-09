@@ -51,7 +51,6 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
         hour: number,
         i: number,
     ) => {
-        console.log('Cell clicked:', format(day, 'yyyy-MM-dd'), hour);
         const dateTime = dayjs(day).hour(hour).minute(0).second(0).toDate();
         dispatch(setCurrentDate(dateTime));
         openPopover(

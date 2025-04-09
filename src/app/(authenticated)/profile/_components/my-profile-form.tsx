@@ -33,7 +33,6 @@ function MyProfileForm() {
     const [isEditing, setIsEditing] = useState(false);
 
     const handleUploadImage = async (image: File) => {
-        console.log(image);
         if (image) {
             const fileExtention = image.name?.split('.').pop();
             if (
@@ -47,7 +46,6 @@ function MyProfileForm() {
         }
         const formData = new FormData();
         formData.append('image', image);
-        console.log(formData);
         try {
             // const response = await uploadImage(formData).unwrap();
             // dispatch(setUser(response?.user));

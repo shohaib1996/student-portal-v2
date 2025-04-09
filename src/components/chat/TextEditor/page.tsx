@@ -121,7 +121,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
     chat,
 }) => {
     const { drafts } = useAppSelector((state) => state.chat);
-    console.log({ drafts });
     const [typing, setTyping] = useState<boolean>(false);
     const mentionsInputRef = useRef<HTMLTextAreaElement>(null);
     const photoVideoInputRef = useRef<HTMLInputElement>(null);
@@ -398,7 +397,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
     };
 
     const sendMessage = () => {
-        console.log('Clicked to the sned button');
         const successFiles = uploadFiles
             .filter((file) => file.url)
             .map((x) => ({

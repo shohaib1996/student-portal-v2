@@ -53,17 +53,7 @@ const MyProfileComponent = () => {
                     username='John Doe'
                     date={new Date(2024, 1, 12)}
                     onCancel={() => console.log('Cancelled')}
-                    onSubmit={async (currentPassword, newPassword) => {
-                        console.log('Changing password', {
-                            currentPassword,
-                            newPassword,
-                        });
-                        // Simulate API call
-                        await new Promise((resolve) =>
-                            setTimeout(resolve, 1000),
-                        );
-                        console.log('Password changed successfully');
-                    }}
+                    onSubmit={async (currentPassword, newPassword) => {}}
                 />
             )}
         </div>
