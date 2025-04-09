@@ -676,7 +676,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                             link: e.target.value,
                                         })
                                     }
-                                    placeholder='Paste your meeting link here...'
+                                    placeholder={`Paste your ${field.value.type === 'call' ? 'phone number here' : 'meeting link'} here...`}
                                 />
                             </div>
                         </div>

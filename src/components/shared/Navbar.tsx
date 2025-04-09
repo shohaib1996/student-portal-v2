@@ -331,6 +331,8 @@ const Navbar = () => {
         return () => document.removeEventListener('click', handleClick);
     }, []);
 
+    const [userOpen, setUserOpen] = useState(false);
+
     return (
         <div className='sticky top-0 z-20 flex flex-shrink-0 w-full h-[55px] box-border bg-foreground border-b border-forground-border shadow-sm'>
             <div className='flex gap-2 relative justify-between w-full h-full items-center px-2'>
@@ -436,7 +438,9 @@ const Navbar = () => {
                         </>
                     )}
                     <GlobalDropdown
+                        open={userOpen}
                         items={dropdownItems}
+                        onOpenChange={(val) => setUserOpen(val)}
                         title={
                             <div className='flex items-center gap-3'>
                                 <Avatar className='h-12 w-12 cursor-pointer'>
@@ -459,7 +463,10 @@ const Navbar = () => {
                             </div>
                         }
                     >
-                        <Avatar className='h-9 w-9 cursor-pointer'>
+                        <Avatar
+                            onClick={() => setUserOpen((prev) => !prev)}
+                            className='h-9 w-9 cursor-pointer'
+                        >
                             <AvatarImage
                                 className='size-9'
                                 src={user?.profilePicture}
