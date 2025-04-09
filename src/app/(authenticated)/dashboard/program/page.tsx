@@ -1,4 +1,4 @@
-import BootcampPage from './_components/new-program-design';
+import BootcampPage from './_components/BootcampPage';
 
 const page = () => {
     return <BootcampPage />;

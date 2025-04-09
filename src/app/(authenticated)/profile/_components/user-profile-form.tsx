@@ -52,6 +52,9 @@ import {
 import { cn } from '@/lib/utils';
 import { useAppSelector } from '@/redux/hooks';
 import Image from 'next/image';
+import { useUpdateUserInfoMutation } from '@/redux/api/user/userApi';
+import { setUser } from '@/redux/features/auth/authReducer';
+import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 // Form validation schema
 const FormSchema = z.object({
@@ -133,6 +136,8 @@ const FormSchema = z.object({
 export default function UserProfileForm() {
     const dispatch = useDispatch();
     const { user } = useAppSelector((state) => state.auth);
+    const [updateUserInfo, { isLoading: isUpdating }] =
+        useUpdateUserInfoMutation();
 
     // Form state
     const [date, setDate] = useState(new Date(2000, 0, 1));
@@ -288,7 +293,7 @@ export default function UserProfileForm() {
     };
 
     // Handle form submission
-    const onSubmit = (data: any) => {
+    const onSubmit = async (data: any) => {
         // Add the date and additional fields to the data
         const formData = {
             ...data,
@@ -315,19 +320,14 @@ export default function UserProfileForm() {
             },
         };
 
-        // In a real application, dispatch the update action
-        /*
-        dispatch(updateUserProfile(formData))
-          .then(() => {
+        try {
+            const res = await updateUserInfo(formData);
+            dispatch(setUser(res?.data?.user));
             toast.success('Profile updated successfully!');
-          })
-          .catch((error) => {
-            toast.error('Failed to update profile');
-          });
-        */
-
-        // For now, just show a toast success message
-        toast.success('Profile updated successfully!');
+        } catch (error) {
+            console.error('Error updating user info:', error);
+            toast.error('Error updating user info');
+        }
     };
     const commingSoon = () => {
         toast.success('Coming Soon...');
@@ -403,10 +403,17 @@ export default function UserProfileForm() {
                         <CardContent className='p-2 bg-foreground'>
                             <div className='flex items-center mb-3 border-b'>
                                 <UserRound className='h-4 w-4 mr-2' />
-                                <h3 className='text-lg font-medium'>
+                                <h3 className='text-lg font-medium mr-2'>
                                     Personal Information
                                 </h3>
-                                <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                <GlobalTooltip
+                                    className='shadow-md border border-forground-border'
+                                    tooltip='View and edit your personal information here'
+                                >
+                                    <h2 className='pt-1 text-dark-gray cursor-pointer'>
+                                        <Info size={16} />
+                                    </h2>
+                                </GlobalTooltip>
                             </div>
 
                             <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
@@ -498,6 +505,7 @@ export default function UserProfileForm() {
                                                 onSelect={(day) =>
                                                     day && setDate(day)
                                                 }
+                                                defaultMonth={date}
                                                 initialFocus
                                             />
                                         </PopoverContent>
@@ -742,8 +750,17 @@ export default function UserProfileForm() {
                         <CardContent className='p-2 bg-foreground'>
                             <div className='flex items-center mb-3 border-b'>
                                 <Globe className='h-4 w-4 mr-2' />
-                                <h3 className='text-lg font-medium'>Address</h3>
-                                <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                <h3 className='text-lg font-medium mr-2'>
+                                    Address
+                                </h3>
+                                <GlobalTooltip
+                                    className='shadow-md border border-forground-border'
+                                    tooltip='View and edit your address information here'
+                                >
+                                    <h2 className='pt-1 text-dark-gray cursor-pointer'>
+                                        <Info size={16} />
+                                    </h2>
+                                </GlobalTooltip>
                             </div>
 
                             <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
@@ -873,6 +890,9 @@ export default function UserProfileForm() {
                                             <SelectItem value='in'>
                                                 India
                                             </SelectItem>
+                                            <SelectItem value='bd'>
+                                                Bangladesh
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                     {errors.country && (
@@ -890,8 +910,17 @@ export default function UserProfileForm() {
                         <CardContent className='p-2 bg-foreground'>
                             <div className='flex items-center mb-3 border-b'>
                                 <Info className='h-4 w-4 mr-2' />
-                                <h3 className='text-lg font-medium'>About</h3>
-                                <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                <h3 className='text-lg font-medium mr-2'>
+                                    About
+                                </h3>
+                                <GlobalTooltip
+                                    className='shadow-md border border-forground-border'
+                                    tooltip='View and edit your about information here'
+                                >
+                                    <h2 className='pt-1 text-dark-gray cursor-pointer'>
+                                        <Info size={16} />
+                                    </h2>
+                                </GlobalTooltip>
                             </div>
 
                             <div className='space-y-4'>
@@ -1004,10 +1033,17 @@ export default function UserProfileForm() {
                         <CardContent className='p-2 bg-foreground'>
                             <div className='flex items-center mb-3 border-b'>
                                 <ExternalLink className='h-4 w-4 mr-2' />
-                                <h3 className='text-lg font-medium'>
+                                <h3 className='text-lg font-medium mr-2'>
                                     Social Links
                                 </h3>
-                                <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                <GlobalTooltip
+                                    className='shadow-md border border-forground-border'
+                                    tooltip='View and edit your social links information here'
+                                >
+                                    <h2 className='pt-1 text-dark-gray cursor-pointer'>
+                                        <Info size={16} />
+                                    </h2>
+                                </GlobalTooltip>
                             </div>
 
                             <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
@@ -1093,10 +1129,17 @@ export default function UserProfileForm() {
                         <CardContent className='p-2 bg-foreground'>
                             <div className='flex items-center mb-3 border-b'>
                                 <ExternalLink className='h-5 w-5 mr-2' />
-                                <h3 className='text-lg font-medium'>
+                                <h3 className='text-lg font-medium mr-2'>
                                     Others Links
                                 </h3>
-                                <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                <GlobalTooltip
+                                    className='shadow-md border border-forground-border'
+                                    tooltip='View and edit your others links here'
+                                >
+                                    <h2 className='pt-1 text-dark-gray cursor-pointer'>
+                                        <Info size={16} />
+                                    </h2>
+                                </GlobalTooltip>
                             </div>
 
                             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>

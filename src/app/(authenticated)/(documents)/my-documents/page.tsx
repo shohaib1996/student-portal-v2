@@ -265,6 +265,7 @@ export default function MyDocumentsPage() {
                             >
                                 <List size={16} />
                             </Button>
+                            {/* Filter modal  */}
                             <FilterModal
                                 value={Object.entries(filters)
                                     .filter(([_, value]) => value)
