@@ -216,7 +216,7 @@ function BlockedUser() {
             <div className='relative flex flex-row items-center gap-2 pb-2 border-b border-b-border'>
                 <div className='relative flex-1'>
                     <Input
-                        className='pl-10 bg-foreground border'
+                        className='pl-8 bg-background'
                         onChange={handleChangeSearch}
                         value={searchQuery}
                         type='search'
@@ -224,9 +224,6 @@ function BlockedUser() {
                     />
                     <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
                 </div>
-                <Button variant='secondary' size='icon'>
-                    <SlidersHorizontal className='h-4 w-4 text-gray' />
-                </Button>
             </div>
 
             {/* Blocked users list */}
@@ -379,8 +376,8 @@ function BlockedUser() {
                         ))}
                     </div>
                 ) : (
-                    <div className='p-8 text-center'>
-                        <Card className='w-full max-w-md mx-auto'>
+                    <div className='p-4 text-center'>
+                        <Card className='w-full max-w-md mx-auto bg-background'>
                             <CardHeader className='text-center'>
                                 <CardTitle>No Blocked Chats</CardTitle>
                                 <CardDescription>

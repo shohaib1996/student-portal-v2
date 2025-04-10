@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Download, Loader2 } from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
+import { Download, Loader2, X } from 'lucide-react';
 import mime from 'mime-types';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
@@ -130,8 +131,10 @@ const formatDate = (dateString?: string) => {
 
 const FileCard = ({ file, index }: FileCardProps) => {
     const [isHovered, setIsHovered] = useState(false);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const iconSrc = determineIconSrc(file?.type, file?.url);
-    const fileType = file?.type?.split('/')[0];
+    const fileType =
+        file?.file?.type?.split('/')[0] || file?.type?.split('/')[0];
 
     const isAudio =
         file?.file?.type === 'audio/mp3' || file?.type === 'audio/mp3';
@@ -141,7 +144,19 @@ const FileCard = ({ file, index }: FileCardProps) => {
 
     const handleDownload = (e: React.MouseEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         downloadFileWithLink(file?.url, file?.name);
+    };
+
+    const openPreview = () => {
+        if (isImage) {
+            setIsPreviewOpen(true);
+        }
+    };
+
+    const closePreview = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsPreviewOpen(false);
     };
 
     // Render audio card for audio files
@@ -156,61 +171,130 @@ const FileCard = ({ file, index }: FileCardProps) => {
     // Special rendering for image files
     if (isImage) {
         return (
-            <div
-                className='file_download_item w-full relative rounded-md overflow-hidden'
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-            >
-                {/* Image */}
-                <div className='w-full relative'>
-                    <img
-                        className='w-full h-full object-contain'
-                        src={file?.url || iconSrc || '/default_image.png'}
-                        alt={file?.name || 'Image'}
-                    />
+            <>
+                <div
+                    className='file_download_item w-full relative rounded-md overflow-hidden cursor-pointer'
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    onClick={openPreview}
+                >
+                    {/* Image */}
+                    <div className='w-full relative'>
+                        <img
+                            className='w-full h-full object-contain'
+                            src={file?.url || iconSrc || '/default_image.png'}
+                            alt={file?.name || 'Image'}
+                        />
 
-                    {/* Gradient overlay */}
-                    <div className='absolute inset-0 bg-gradient-to-b from-pure-black/60 to-transparent pointer-events-none' />
+                        {/* Gradient overlay */}
+                        <div className='absolute inset-0 bg-gradient-to-b from-pure-black/60 to-transparent pointer-events-none' />
 
-                    {/* Top controls */}
-                    <div className='absolute top-0 left-0 right-0 p-1 flex justify-between items-center'>
-                        {/* Download button */}
-                        <Button
-                            variant='primary_light'
-                            size='icon'
-                            className='h-8 w-8 rounded-full'
-                            onClick={handleDownload}
-                            aria-label='Download file'
+                        {/* Top controls */}
+                        <div className='absolute top-0 left-0 right-0 p-1 flex justify-between items-center'>
+                            {/* Download button */}
+                            <Button
+                                variant='primary_light'
+                                size='icon'
+                                className='h-8 w-8 rounded-full'
+                                onClick={handleDownload}
+                                aria-label='Download file'
+                            >
+                                <Download className='h-4 w-4 text-primary' />
+                            </Button>
+
+                            {/* Time */}
+                            {file?.createdAt && (
+                                <span className='text-xs text-white px-2 py-1 rounded-md'>
+                                    {formatDate(file?.createdAt)}
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Bottom info box - shown on hover */}
+                        <div
+                            className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-pure-black to-transparent p-2 transition-transform duration-200 ease-in-out ${
+                                isHovered ? 'translate-y-0' : 'translate-y-full'
+                            }`}
                         >
-                            <Download className='h-4 w-4 text-primary' />
-                        </Button>
-
-                        {/* Time */}
-                        {file?.createdAt && (
-                            <span className='text-xs text-white px-2 py-1 rounded-md'>
-                                {formatDate(file?.createdAt)}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Bottom info box - shown on hover */}
-                    <div
-                        className={`absolute bottom-0 left-0 right-0 bg-white p-2 transition-transform duration-200 ease-in-out ${
-                            isHovered ? 'translate-y-0' : 'translate-y-full'
-                        }`}
-                    >
-                        <p
-                            className='text-sm font-medium truncate text-black'
-                            title={file?.name}
-                        >
-                            {file?.name || 'Unnamed file'}
-                        </p>
-                        <p className='text-xs text-gray-500'>
-                            {bytesToSize(file?.size || file?.file?.size || 0)}
-                        </p>
+                            <p
+                                className='text-sm font-medium truncate text-pure-white mt-4'
+                                title={file?.name}
+                            >
+                                {file?.name || 'Unnamed file'}
+                            </p>
+                            <p className='text-xs text-pure-white/80'>
+                                Size:{' '}
+                                {bytesToSize(
+                                    file?.size || file?.file?.size || 0,
+                                )}
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                {/* Full Screen Preview Modal */}
+                {isPreviewOpen && (
+                    <div
+                        className='fixed inset-0 z-50 flex items-center justify-center bg-pure-black/80'
+                        onClick={closePreview}
+                    >
+                        <div
+                            className='relative max-w-full lg:max-w-[95vw] max-h-full lg:max-h-[95vh] flex flex-col'
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Top controls */}
+                            <div className='absolute top-4 right-4 z-10 flex items-center gap-4'>
+                                <Button
+                                    size='icon'
+                                    className='h-10 w-10 rounded-full'
+                                    onClick={handleDownload}
+                                    aria-label='Download file'
+                                >
+                                    <Download className='h-5 w-5 text-white' />
+                                </Button>
+                                <Button
+                                    variant='destructive'
+                                    size='icon'
+                                    className='h-10 w-10 rounded-full bg-red-600/80 text-pure-white'
+                                    onClick={closePreview}
+                                    aria-label='Close preview'
+                                >
+                                    <X className='h-5 w-5' />
+                                </Button>
+                            </div>
+
+                            {/* Image */}
+                            <div className='flex-1 overflow-auto'>
+                                <img
+                                    className='max-w-full max-h-[80vh] object-contain'
+                                    src={
+                                        file?.url ||
+                                        iconSrc ||
+                                        '/default_image.png'
+                                    }
+                                    alt={file?.name || 'Image'}
+                                />
+                            </div>
+
+                            {/* Bottom info */}
+                            <div className='bg-pure-black/80 p-4 text-white mt-2 rounded-md'>
+                                <p
+                                    className='text-lg font-medium truncate'
+                                    title={file?.name}
+                                >
+                                    {file?.name || 'Unnamed file'}
+                                </p>
+                                <p className='text-sm text-white/80'>
+                                    Size:{' '}
+                                    {bytesToSize(
+                                        file?.size || file?.file?.size || 0,
+                                    )}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </>
         );
     }
 
@@ -235,7 +319,7 @@ const FileCard = ({ file, index }: FileCardProps) => {
                     <div className='overflow-hidden bg-primary-light flex items-center justify-center'>
                         <img
                             className='w-24 h-24 object-contain'
-                            src={iconSrc}
+                            src={iconSrc || '/placeholder.svg'}
                             alt={mime.extension(file?.type || '') || 'File'}
                         />
                     </div>

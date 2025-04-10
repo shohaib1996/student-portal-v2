@@ -464,7 +464,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                     <div className='pb-2 border-b'>
                                         <div className='relative flex flex-row items-center gap-2'>
                                             <Input
-                                                className='pl-10 bg-background'
+                                                className='pl-8 bg-background'
                                                 onChange={handleChangeSearch}
                                                 value={searchQuery}
                                                 type='search'
