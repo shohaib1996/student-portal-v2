@@ -31,11 +31,39 @@ import {
     useUploadUserDocumentFileMutation,
 } from '@/redux/api/documents/documentsApi';
 import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
+import GlobalEditor from '@/components/editor/GlobalEditor';
 
 export interface UploadDocumentModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
+
+// Zod schema for form validation
+const documentSchema = z.object({
+    description: z.string().optional(),
+    documentName: z.string().refine((value) => !value.includes(' '), {
+        message: 'Document name cannot contain spaces',
+    }),
+    category1: z.string({
+        required_error: 'Please select a category',
+    }),
+    category2: z.string({
+        required_error: 'Please select a category',
+    }),
+    tags: z.string().optional(),
+});
 
 export function UploadDocumentModal({
     isOpen,
@@ -47,12 +75,7 @@ export function UploadDocumentModal({
     const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
     const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
     const [attachedFileUrls, setAttachedFileUrls] = useState<string[]>([]);
-    const [category1, setCategory1] = useState<string>('');
-    const [category2, setCategory2] = useState<string>('');
     const [isUploading, setIsUploading] = useState(false);
-    const [documentNameError, setDocumentNameError] = useState<string>('');
-    const [category1Error, setCategory1Error] = useState<string>('');
-    const [category2Error, setCategory2Error] = useState<string>('');
     const [isDraggingThumbnail, setIsDraggingThumbnail] = useState(false);
     const [isDraggingFiles, setIsDraggingFiles] = useState(false);
     const [uploadUserDocumentFile, { isLoading, isError, isSuccess, data }] =
@@ -66,6 +89,18 @@ export function UploadDocumentModal({
             data: submitResponse,
         },
     ] = useAddUserDocumentMutation();
+
+    // Initialize form with react-hook-form and zod resolver
+    const form = useForm<z.infer<typeof documentSchema>>({
+        resolver: zodResolver(documentSchema),
+        defaultValues: {
+            description: '',
+            documentName: '',
+            category1: '',
+            category2: '',
+            tags: '',
+        },
+    });
 
     const uploadFile = async (file: File): Promise<string> => {
         const formData = new FormData();
@@ -227,78 +262,14 @@ export function UploadDocumentModal({
         }
     };
 
-    const validateDocumentName = (name: string) => {
-        if (name.includes(' ')) {
-            setDocumentNameError('Document name cannot contain spaces');
-            return false;
-        }
-        setDocumentNameError('');
-        return true;
-    };
-
-    const validateCategories = () => {
-        let isValid = true;
-
-        if (!category1) {
-            setCategory1Error('Please select a category');
-            isValid = false;
-        } else {
-            setCategory1Error('');
-        }
-
-        if (!category2) {
-            setCategory2Error('Please select a category');
-            isValid = false;
-        } else {
-            setCategory2Error('');
-        }
-
-        return isValid;
-    };
-
-    const handleDocumentNameChange = (
-        e: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        validateDocumentName(e.target.value);
-    };
-
-    const handleCategory1Change = (value: string) => {
-        setCategory1(value);
-        if (value) {
-            setCategory1Error('');
-        }
-    };
-
-    const handleCategory2Change = (value: string) => {
-        setCategory2(value);
-        if (value) {
-            setCategory2Error('');
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        const form = e.currentTarget;
-        const formData = new FormData(form);
-
-        const description = formData.get('description') as string;
-        const documentName = formData.get('document-name') as string;
-        const tags = formData.get('tags') as string;
-
-        // Validate document name and categories before submission
-        const isDocumentNameValid = validateDocumentName(documentName);
-        const areCategoriesValid = validateCategories();
-
-        if (!isDocumentNameValid || !areCategoriesValid) {
-            return;
-        }
-
+    const handleSubmit = async (values: z.infer<typeof documentSchema>) => {
         const submissionData = {
-            description,
-            name: documentName,
-            categories: [category1, category2].filter(Boolean),
-            tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
+            description: values.description,
+            name: values.documentName,
+            categories: [values.category1, values.category2].filter(Boolean),
+            tags: values.tags
+                ? values.tags.split(',').map((tag) => tag.trim())
+                : [],
             thumbnail: thumbnailUrl,
             attachedFiles: attachedFileUrls,
         };
@@ -349,10 +320,7 @@ export function UploadDocumentModal({
                                 type='submit'
                                 form='upload-document-form'
                                 disabled={
-                                    isSubmitting ||
-                                    !!documentNameError ||
-                                    !!category1Error ||
-                                    !!category2Error
+                                    isSubmitting || !form.formState.isValid
                                 }
                             >
                                 {isSubmitting ? 'Saving...' : 'Save & Close'}
@@ -362,520 +330,458 @@ export function UploadDocumentModal({
 
                     {/* Form content */}
                     <div className='flex-1 overflow-y-auto p-4 document-container w-full'>
-                        <form
-                            id='upload-document-form'
-                            onSubmit={handleSubmit}
-                            className='grid grid-cols-1 gap-6 lg:grid-cols-3'
-                        >
-                            {/* Left column - 2/3 width on large screens */}
-                            <div className='lg:col-span-2'>
-                                <div className='space-y-4'>
-                                    <div>
-                                        <Label
-                                            htmlFor='description'
-                                            className='mb-2 flex items-center gap-1'
-                                        >
-                                            Description
-                                            <span className='text-muted-foreground'>
-                                                <svg
-                                                    xmlns='http://www.w3.org/2000/svg'
-                                                    width='16'
-                                                    height='16'
-                                                    viewBox='0 0 24 24'
-                                                    fill='none'
-                                                    stroke='currentColor'
-                                                    strokeWidth='2'
-                                                    strokeLinecap='round'
-                                                    strokeLinejoin='round'
-                                                    className='h-4 w-4'
-                                                >
-                                                    <circle
-                                                        cx='12'
-                                                        cy='12'
-                                                        r='10'
-                                                    />
-                                                    <path d='M12 16v-4' />
-                                                    <path d='M12 8h.01' />
-                                                </svg>
-                                            </span>
-                                        </Label>
-                                        <div className='rounded-md border'>
-                                            <div className='flex flex-wrap items-center gap-0.5 border-b bg-muted/50 px-3 py-1.5'>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                    type='button'
-                                                >
-                                                    <Bold className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                    type='button'
-                                                >
-                                                    <Italic className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                    type='button'
-                                                >
-                                                    <Underline className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                    type='button'
-                                                >
-                                                    <X className='h-4 w-4' />
-                                                </Button>
-                                                <div className='mx-2 h-4 w-px bg-border' />
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                    type='button'
-                                                >
-                                                    <List className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                    type='button'
-                                                >
-                                                    <ListOrdered className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                    type='button'
-                                                >
-                                                    <span className='text-xs'>
-                                                        ⟶
-                                                    </span>
-                                                </Button>
-                                                <div className='mx-2 h-4 w-px bg-border' />
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                    type='button'
-                                                >
-                                                    <Link2 className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                    type='button'
-                                                >
-                                                    <span className='text-xs'>
-                                                        @
-                                                    </span>
-                                                </Button>
-                                            </div>
-                                            <Textarea
-                                                id='description'
-                                                name='description'
-                                                placeholder='Enter description...'
-                                                className='h-[80vh] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0'
-                                            />
-                                        </div>
+                        <Form {...form}>
+                            <form
+                                id='upload-document-form'
+                                onSubmit={form.handleSubmit(handleSubmit)}
+                                className='grid grid-cols-1 gap-6 lg:grid-cols-3'
+                            >
+                                {/* Left column - 2/3 width on large screens */}
+                                <div className='lg:col-span-2'>
+                                    <div className='space-y-4'>
+                                        <FormField
+                                            control={form.control}
+                                            name='description'
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className='mb-2 flex items-center gap-1'>
+                                                        Description
+                                                        <span className='text-muted-foreground'>
+                                                            <svg
+                                                                xmlns='http://www.w3.org/2000/svg'
+                                                                width='16'
+                                                                height='16'
+                                                                viewBox='0 0 24 24'
+                                                                fill='none'
+                                                                stroke='currentColor'
+                                                                strokeWidth='2'
+                                                                strokeLinecap='round'
+                                                                strokeLinejoin='round'
+                                                                className='h-4 w-4'
+                                                            >
+                                                                <circle
+                                                                    cx='12'
+                                                                    cy='12'
+                                                                    r='10'
+                                                                />
+                                                                <path d='M12 16v-4' />
+                                                                <path d='M12 8h.01' />
+                                                            </svg>
+                                                        </span>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        {/* <Textarea
+                                                            placeholder='Enter description...'
+                                                            className='h-[80vh] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0'
+                                                            {...field}
+                                                        /> */}
+                                                        <div className='h-[80vh]'>
+                                                            <GlobalEditor
+                                                                value={
+                                                                    field.value ||
+                                                                    ''
+                                                                }
+                                                                onChange={(
+                                                                    val,
+                                                                ) =>
+                                                                    field.onChange(
+                                                                        val,
+                                                                    )
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Right column - 1/3 width on large screens */}
-                            <div className='space-y-6'>
-                                <div className='space-y-4'>
-                                    <div>
-                                        <Label
-                                            htmlFor='document-name'
-                                            className='mb-2 flex items-center gap-1'
-                                        >
-                                            Document Name
-                                            <span className='text-red-500'>
-                                                *
-                                            </span>
-                                        </Label>
-                                        <Input
-                                            id='document-name'
-                                            name='document-name'
-                                            placeholder='Enter document name (no spaces allowed)'
-                                            required
-                                            onChange={handleDocumentNameChange}
-                                        />
-                                        {documentNameError && (
-                                            <p className='mt-1 text-sm text-red-500'>
-                                                {documentNameError}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <Label
-                                            htmlFor='category-1'
-                                            className='mb-2 flex items-center gap-1'
-                                        >
-                                            Category
-                                            <span className='text-red-500'>
-                                                *
-                                            </span>
-                                        </Label>
-                                        <Select
-                                            required
-                                            onValueChange={
-                                                handleCategory1Change
-                                            }
-                                            value={category1}
-                                        >
-                                            <SelectTrigger
-                                                id='category-1'
-                                                className={
-                                                    category1Error
-                                                        ? 'border-red-500'
-                                                        : ''
-                                                }
-                                            >
-                                                <SelectValue placeholder='Select Category' />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value='development'>
-                                                    Development
-                                                </SelectItem>
-                                                <SelectItem value='technology'>
-                                                    Technology
-                                                </SelectItem>
-                                                <SelectItem value='design'>
-                                                    Design
-                                                </SelectItem>
-                                                <SelectItem value='marketing'>
-                                                    Marketing
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        {category1Error && (
-                                            <p className='mt-1 text-sm text-red-500'>
-                                                {category1Error}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <Label
-                                            htmlFor='category-2'
-                                            className='mb-2 flex items-center gap-1'
-                                        >
-                                            Category
-                                            <span className='text-red-500'>
-                                                *
-                                            </span>
-                                        </Label>
-                                        <Select
-                                            required
-                                            onValueChange={
-                                                handleCategory2Change
-                                            }
-                                            value={category2}
-                                        >
-                                            <SelectTrigger
-                                                id='category-2'
-                                                className={
-                                                    category2Error
-                                                        ? 'border-red-500'
-                                                        : ''
-                                                }
-                                            >
-                                                <SelectValue placeholder='Select Category' />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value='web-development'>
-                                                    Web Development
-                                                </SelectItem>
-                                                <SelectItem value='mobile-development'>
-                                                    Mobile Development
-                                                </SelectItem>
-                                                <SelectItem value='technical-test'>
-                                                    Technical Test
-                                                </SelectItem>
-                                                <SelectItem value='resources'>
-                                                    Resources
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        {category2Error && (
-                                            <p className='mt-1 text-sm text-red-500'>
-                                                {category2Error}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor='tags' className='mb-2'>
-                                            Tags
-                                        </Label>
-                                        <Input
-                                            id='tags'
-                                            name='tags'
-                                            placeholder='Enter tags (Maximum 10 tags)'
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <Label className='mb-2'>
-                                            Upload Thumbnail
-                                        </Label>
-                                        <div
-                                            className={`mt-1 flex justify-center rounded-lg border ${isDraggingThumbnail ? 'border-primary border-2' : 'border-dashed border-border'} px-6 py-10`}
-                                            onDragOver={handleThumbnailDragOver}
-                                            onDragLeave={
-                                                handleThumbnailDragLeave
-                                            }
-                                            onDrop={handleThumbnailDrop}
-                                        >
-                                            <div className='text-center'>
-                                                {thumbnailPreview ? (
-                                                    <div className='relative mx-auto h-32 w-32 overflow-hidden rounded'>
-                                                        <Image
-                                                            src={
-                                                                thumbnailPreview ||
-                                                                '/placeholder.svg'
-                                                            }
-                                                            alt='Thumbnail preview'
-                                                            fill
-                                                            className='object-cover'
+                                {/* Right column - 1/3 width on large screens */}
+                                <div className='space-y-6'>
+                                    <div className='space-y-4'>
+                                        <FormField
+                                            control={form.control}
+                                            name='documentName'
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className='mb-2 flex items-center gap-1'>
+                                                        Document Name
+                                                        <span className='text-red-500'>
+                                                            *
+                                                        </span>
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            placeholder='Enter document name (no spaces allowed)'
+                                                            {...field}
                                                         />
-                                                        <Button
-                                                            type='button'
-                                                            variant='destructive'
-                                                            size='icon'
-                                                            className='absolute right-1 top-1 h-6 w-6'
-                                                            onClick={
-                                                                handleRemoveThumbnail
-                                                            }
-                                                            disabled={
-                                                                isUploading
-                                                            }
-                                                        >
-                                                            <X className='h-3 w-3' />
-                                                        </Button>
-                                                    </div>
-                                                ) : (
-                                                    <>
-                                                        <ImageIcon className='mx-auto h-12 w-12 text-muted-foreground' />
-                                                        <div className='mt-4 flex text-sm text-muted-foreground'>
-                                                            <label
-                                                                htmlFor='thumbnail-upload'
-                                                                className='relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name='category1'
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className='mb-2 flex items-center gap-1'>
+                                                        Category
+                                                        <span className='text-red-500'>
+                                                            *
+                                                        </span>
+                                                    </FormLabel>
+                                                    <Select
+                                                        onValueChange={
+                                                            field.onChange
+                                                        }
+                                                        defaultValue={
+                                                            field.value
+                                                        }
+                                                    >
+                                                        <FormControl>
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder='Select Category' />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            <SelectItem value='development'>
+                                                                Development
+                                                            </SelectItem>
+                                                            <SelectItem value='technology'>
+                                                                Technology
+                                                            </SelectItem>
+                                                            <SelectItem value='design'>
+                                                                Design
+                                                            </SelectItem>
+                                                            <SelectItem value='marketing'>
+                                                                Marketing
+                                                            </SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name='category2'
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className='mb-2 flex items-center gap-1'>
+                                                        Category
+                                                        <span className='text-red-500'>
+                                                            *
+                                                        </span>
+                                                    </FormLabel>
+                                                    <Select
+                                                        onValueChange={
+                                                            field.onChange
+                                                        }
+                                                        defaultValue={
+                                                            field.value
+                                                        }
+                                                    >
+                                                        <FormControl>
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder='Select Category' />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            <SelectItem value='web-development'>
+                                                                Web Development
+                                                            </SelectItem>
+                                                            <SelectItem value='mobile-development'>
+                                                                Mobile
+                                                                Development
+                                                            </SelectItem>
+                                                            <SelectItem value='technical-test'>
+                                                                Technical Test
+                                                            </SelectItem>
+                                                            <SelectItem value='resources'>
+                                                                Resources
+                                                            </SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name='tags'
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Tags</FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            placeholder='Enter tags (Maximum 10 tags)'
+                                                            {...field}
+                                                        />
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <div>
+                                            <Label className='mb-2'>
+                                                Upload Thumbnail
+                                            </Label>
+                                            <div
+                                                className={`mt-1 flex justify-center rounded-lg border ${isDraggingThumbnail ? 'border-primary border-2' : 'border-dashed border-border'} px-6 py-10`}
+                                                onDragOver={
+                                                    handleThumbnailDragOver
+                                                }
+                                                onDragLeave={
+                                                    handleThumbnailDragLeave
+                                                }
+                                                onDrop={handleThumbnailDrop}
+                                            >
+                                                <div className='text-center'>
+                                                    {thumbnailPreview ? (
+                                                        <div className='relative mx-auto h-32 w-32 overflow-hidden rounded'>
+                                                            <Image
+                                                                src={
+                                                                    thumbnailPreview ||
+                                                                    '/placeholder.svg'
+                                                                }
+                                                                alt='Thumbnail preview'
+                                                                fill
+                                                                className='object-cover'
+                                                            />
+                                                            <Button
+                                                                type='button'
+                                                                variant='destructive'
+                                                                size='icon'
+                                                                className='absolute right-1 top-1 h-6 w-6'
+                                                                onClick={
+                                                                    handleRemoveThumbnail
+                                                                }
+                                                                disabled={
+                                                                    isUploading
+                                                                }
                                                             >
-                                                                <span>
-                                                                    Click to
-                                                                    upload a
-                                                                    thumbnail
-                                                                </span>
-                                                                <input
-                                                                    id='thumbnail-upload'
-                                                                    name='thumbnail'
-                                                                    type='file'
-                                                                    accept='image/jpeg,image/png,image/gif'
-                                                                    className='sr-only'
-                                                                    onChange={
-                                                                        handleThumbnailChange
-                                                                    }
-                                                                    disabled={
-                                                                        isUploading
-                                                                    }
-                                                                />
-                                                            </label>
+                                                                <X className='h-3 w-3' />
+                                                            </Button>
                                                         </div>
-                                                    </>
-                                                )}
-                                                <p className='mt-1 text-xs text-muted-foreground'>
-                                                    or drag and drop
-                                                </p>
-                                                <p className='text-xs text-muted-foreground'>
-                                                    JPG, PNG | Max 5MB
-                                                </p>
+                                                    ) : (
+                                                        <>
+                                                            <ImageIcon className='mx-auto h-12 w-12 text-muted-foreground' />
+                                                            <div className='mt-4 flex text-sm text-muted-foreground'>
+                                                                <label
+                                                                    htmlFor='thumbnail-upload'
+                                                                    className='relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
+                                                                >
+                                                                    <span>
+                                                                        Click to
+                                                                        upload a
+                                                                        thumbnail
+                                                                    </span>
+                                                                    <input
+                                                                        id='thumbnail-upload'
+                                                                        name='thumbnail'
+                                                                        type='file'
+                                                                        accept='image/jpeg,image/png,image/gif'
+                                                                        className='sr-only'
+                                                                        onChange={
+                                                                            handleThumbnailChange
+                                                                        }
+                                                                        disabled={
+                                                                            isUploading
+                                                                        }
+                                                                    />
+                                                                </label>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                    <p className='mt-1 text-xs text-muted-foreground'>
+                                                        or drag and drop
+                                                    </p>
+                                                    <p className='text-xs text-muted-foreground'>
+                                                        JPG, PNG | Max 5MB
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div>
-                                        <Label className='mb-2'>
-                                            Attached Files (
-                                            {attachedFiles.length})
-                                        </Label>
-                                        <div
-                                            className={`rounded-lg border ${isDraggingFiles ? 'border-primary border-2' : 'border bg-muted/20'} p-4`}
-                                            onDragOver={handleFilesDragOver}
-                                            onDragLeave={handleFilesDragLeave}
-                                            onDrop={handleFilesDrop}
-                                        >
-                                            {attachedFiles.length > 0 ? (
-                                                <ul className='space-y-2'>
-                                                    {attachedFiles.map(
-                                                        (file, index) => (
-                                                            <li
-                                                                key={index}
-                                                                className='flex items-center justify-between rounded-md border bg-background p-2 text-sm'
-                                                            >
-                                                                <div className='flex items-center gap-2 flex-1 overflow-hidden'>
-                                                                    {file.type.includes(
-                                                                        'image/',
-                                                                    ) ? (
-                                                                        <div className='relative h-10 w-10 overflow-hidden rounded'>
-                                                                            <Image
-                                                                                src={URL.createObjectURL(
-                                                                                    file,
-                                                                                )}
-                                                                                alt={
+                                        <div>
+                                            <Label className='mb-2'>
+                                                Attached Files (
+                                                {attachedFiles.length})
+                                            </Label>
+                                            <div
+                                                className={`rounded-lg border ${isDraggingFiles ? 'border-primary border-2' : 'border bg-muted/20'} p-4`}
+                                                onDragOver={handleFilesDragOver}
+                                                onDragLeave={
+                                                    handleFilesDragLeave
+                                                }
+                                                onDrop={handleFilesDrop}
+                                            >
+                                                {attachedFiles.length > 0 ? (
+                                                    <ul className='space-y-2'>
+                                                        {attachedFiles.map(
+                                                            (file, index) => (
+                                                                <li
+                                                                    key={index}
+                                                                    className='flex items-center justify-between rounded-md border bg-background p-2 text-sm'
+                                                                >
+                                                                    <div className='flex items-center gap-2 flex-1 overflow-hidden'>
+                                                                        {file.type.includes(
+                                                                            'image/',
+                                                                        ) ? (
+                                                                            <div className='relative h-10 w-10 overflow-hidden rounded'>
+                                                                                <Image
+                                                                                    src={URL.createObjectURL(
+                                                                                        file,
+                                                                                    )}
+                                                                                    alt={
+                                                                                        file.name
+                                                                                    }
+                                                                                    fill
+                                                                                    className='object-cover'
+                                                                                />
+                                                                            </div>
+                                                                        ) : file.type.includes(
+                                                                              'pdf',
+                                                                          ) ? (
+                                                                            <div className='flex h-10 w-10 items-center justify-center rounded bg-red-100 text-red-500'>
+                                                                                <svg
+                                                                                    xmlns='http://www.w3.org/2000/svg'
+                                                                                    width='24'
+                                                                                    height='24'
+                                                                                    viewBox='0 0 24 24'
+                                                                                    fill='none'
+                                                                                    stroke='currentColor'
+                                                                                    strokeWidth='2'
+                                                                                    strokeLinecap='round'
+                                                                                    strokeLinejoin='round'
+                                                                                    className='h-5 w-5'
+                                                                                >
+                                                                                    <path d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z' />
+                                                                                    <polyline points='14 2 14 8 20 8' />
+                                                                                </svg>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className='flex h-10 w-10 items-center justify-center rounded bg-blue-100 text-blue-500'>
+                                                                                <svg
+                                                                                    xmlns='http://www.w3.org/2000/svg'
+                                                                                    width='24'
+                                                                                    height='24'
+                                                                                    viewBox='0 0 24 24'
+                                                                                    fill='none'
+                                                                                    stroke='currentColor'
+                                                                                    strokeWidth='2'
+                                                                                    strokeLinecap='round'
+                                                                                    strokeLinejoin='round'
+                                                                                    className='h-5 w-5'
+                                                                                >
+                                                                                    <path d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z' />
+                                                                                    <polyline points='14 2 14 8 20 8' />
+                                                                                </svg>
+                                                                            </div>
+                                                                        )}
+                                                                        <div className='flex-1 overflow-hidden'>
+                                                                            <p className='truncate font-medium'>
+                                                                                {
                                                                                     file.name
                                                                                 }
-                                                                                fill
-                                                                                className='object-cover'
-                                                                            />
+                                                                            </p>
+                                                                            <p className='text-xs text-muted-foreground'>
+                                                                                {(
+                                                                                    file.size /
+                                                                                    1024
+                                                                                ).toFixed(
+                                                                                    2,
+                                                                                )}{' '}
+                                                                                KB
+                                                                            </p>
                                                                         </div>
-                                                                    ) : file.type.includes(
-                                                                          'pdf',
-                                                                      ) ? (
-                                                                        <div className='flex h-10 w-10 items-center justify-center rounded bg-red-100 text-red-500'>
-                                                                            <svg
-                                                                                xmlns='http://www.w3.org/2000/svg'
-                                                                                width='24'
-                                                                                height='24'
-                                                                                viewBox='0 0 24 24'
-                                                                                fill='none'
-                                                                                stroke='currentColor'
-                                                                                strokeWidth='2'
-                                                                                strokeLinecap='round'
-                                                                                strokeLinejoin='round'
-                                                                                className='h-5 w-5'
-                                                                            >
-                                                                                <path d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z' />
-                                                                                <polyline points='14 2 14 8 20 8' />
-                                                                            </svg>
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div className='flex h-10 w-10 items-center justify-center rounded bg-blue-100 text-blue-500'>
-                                                                            <svg
-                                                                                xmlns='http://www.w3.org/2000/svg'
-                                                                                width='24'
-                                                                                height='24'
-                                                                                viewBox='0 0 24 24'
-                                                                                fill='none'
-                                                                                stroke='currentColor'
-                                                                                strokeWidth='2'
-                                                                                strokeLinecap='round'
-                                                                                strokeLinejoin='round'
-                                                                                className='h-5 w-5'
-                                                                            >
-                                                                                <path d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z' />
-                                                                                <polyline points='14 2 14 8 20 8' />
-                                                                            </svg>
-                                                                        </div>
-                                                                    )}
-                                                                    <div className='flex-1 overflow-hidden'>
-                                                                        <p className='truncate font-medium'>
-                                                                            {
-                                                                                file.name
-                                                                            }
-                                                                        </p>
-                                                                        <p className='text-xs text-muted-foreground'>
-                                                                            {(
-                                                                                file.size /
-                                                                                1024
-                                                                            ).toFixed(
-                                                                                2,
-                                                                            )}{' '}
-                                                                            KB
-                                                                        </p>
                                                                     </div>
-                                                                </div>
-                                                                <Button
-                                                                    type='button'
-                                                                    variant='ghost'
-                                                                    size='icon'
-                                                                    className='h-6 w-6 ml-2 flex-shrink-0'
-                                                                    onClick={() =>
-                                                                        handleRemoveFile(
-                                                                            index,
-                                                                        )
-                                                                    }
-                                                                    disabled={
-                                                                        isUploading
-                                                                    }
-                                                                >
-                                                                    <X className='h-3 w-3' />
-                                                                </Button>
-                                                            </li>
-                                                        ),
-                                                    )}
-                                                </ul>
-                                            ) : (
-                                                <div className='flex flex-col items-center justify-center py-4 text-sm text-muted-foreground'>
-                                                    <div className='mb-3'>
-                                                        <svg
-                                                            xmlns='http://www.w3.org/2000/svg'
-                                                            width='40'
-                                                            height='40'
-                                                            viewBox='0 0 24 24'
-                                                            fill='none'
-                                                            stroke='currentColor'
-                                                            strokeWidth='1.5'
-                                                            strokeLinecap='round'
-                                                            strokeLinejoin='round'
-                                                            className='text-muted-foreground opacity-50'
+                                                                    <Button
+                                                                        type='button'
+                                                                        variant='ghost'
+                                                                        size='icon'
+                                                                        className='h-6 w-6 ml-2 flex-shrink-0'
+                                                                        onClick={() =>
+                                                                            handleRemoveFile(
+                                                                                index,
+                                                                            )
+                                                                        }
+                                                                        disabled={
+                                                                            isUploading
+                                                                        }
+                                                                    >
+                                                                        <X className='h-3 w-3' />
+                                                                    </Button>
+                                                                </li>
+                                                            ),
+                                                        )}
+                                                    </ul>
+                                                ) : (
+                                                    <div className='flex flex-col items-center justify-center py-4 text-sm text-muted-foreground'>
+                                                        <div className='mb-3'>
+                                                            <svg
+                                                                xmlns='http://www.w3.org/2000/svg'
+                                                                width='40'
+                                                                height='40'
+                                                                viewBox='0 0 24 24'
+                                                                fill='none'
+                                                                stroke='currentColor'
+                                                                strokeWidth='1.5'
+                                                                strokeLinecap='round'
+                                                                strokeLinejoin='round'
+                                                                className='text-muted-foreground opacity-50'
+                                                            >
+                                                                <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'></path>
+                                                                <polyline points='17 8 12 3 7 8'></polyline>
+                                                                <line
+                                                                    x1='12'
+                                                                    y1='3'
+                                                                    x2='12'
+                                                                    y2='15'
+                                                                ></line>
+                                                            </svg>
+                                                        </div>
+                                                        <p className='mb-1 font-medium text-primary'>
+                                                            Drop files here or
+                                                        </p>
+                                                        <label
+                                                            htmlFor='file-upload'
+                                                            className='relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
                                                         >
-                                                            <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'></path>
-                                                            <polyline points='17 8 12 3 7 8'></polyline>
-                                                            <line
-                                                                x1='12'
-                                                                y1='3'
-                                                                x2='12'
-                                                                y2='15'
-                                                            ></line>
-                                                        </svg>
+                                                            <span>
+                                                                browse files
+                                                            </span>
+                                                            <input
+                                                                id='file-upload'
+                                                                name='files'
+                                                                type='file'
+                                                                multiple
+                                                                className='sr-only'
+                                                                onChange={
+                                                                    handleFileAttachment
+                                                                }
+                                                                disabled={
+                                                                    isUploading
+                                                                }
+                                                            />
+                                                        </label>
                                                     </div>
-                                                    <p className='mb-1 font-medium text-primary'>
-                                                        Drop files here or
-                                                    </p>
-                                                    <label
-                                                        htmlFor='file-upload'
-                                                        className='relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
-                                                    >
-                                                        <span>
-                                                            browse files
-                                                        </span>
-                                                        <input
-                                                            id='file-upload'
-                                                            name='files'
-                                                            type='file'
-                                                            multiple
-                                                            className='sr-only'
-                                                            onChange={
-                                                                handleFileAttachment
-                                                            }
-                                                            disabled={
-                                                                isUploading
-                                                            }
-                                                        />
-                                                    </label>
-                                                </div>
-                                            )}
-                                            <p className='mt-1 text-center text-xs text-muted-foreground'>
-                                                JPG, PNG, PDF, DOCS | Max 5MB
-                                            </p>
+                                                )}
+                                                <p className='mt-1 text-center text-xs text-muted-foreground'>
+                                                    JPG, PNG, PDF, DOCS | Max
+                                                    5MB
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </Form>
                     </div>
                 </div>
             </DialogContent>

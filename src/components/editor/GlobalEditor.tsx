@@ -1,12 +1,19 @@
 'use client';
-import { Editor, PluginOptions } from '@/lexicalEditor/blocks/editor';
+
+import { useEffect, useState } from 'react';
+import { EditorState, SerializedEditorState } from 'lexical';
+import axios from 'axios';
+import { Editor, PluginOptions } from '../lexicalEditor/blocks/editor';
 import {
     MentionMenu,
     MentionMenuItem,
-} from '@/lexicalEditor/components/editor-ui/MentionMenu';
-import instance from '@/utils/storage';
-import { SerializedEditorState } from 'lexical';
-import React, { useState } from 'react';
+} from '../lexicalEditor/components/editor-ui/MentionMenu';
+// import {
+//     MarkdownEditor,
+//     PluginOptions,
+// } from '../lexicalEditor/markdown/editor';
+
+// Default value for the editor
 
 const initialValue = {
     root: {
@@ -40,15 +47,27 @@ const initialValue = {
 
 type TProps = {
     value: string;
-    onChange: (_: string) => void;
+    onChange: (value: string) => void;
+    maxLength?: number;
+    height?: string;
+    className?: string;
+    pluginOptions?: PluginOptions;
 };
 
-const GlobalEditor = ({ value, onChange }: TProps) => {
-    const [editorState, setEditorState] =
-        useState<SerializedEditorState>(initialValue);
+export default function GlobalEditor({
+    value,
+    onChange,
+    maxLength = 5000,
+    height = '100%',
+    className,
+    pluginOptions,
+}: TProps) {
+    const [editorState, setEditorState] = useState<SerializedEditorState>(
+        value ? JSON.parse(value) : initialValue,
+    );
 
     // Define a minimal set of toolbar options
-    const pluginOptions: PluginOptions = {
+    const defaultPluginOptions: PluginOptions = {
         // Enable only essential features
         history: true,
         autoFocus: true,
@@ -150,7 +169,7 @@ const GlobalEditor = ({ value, onChange }: TProps) => {
 
         // Example implementation - replace with your actual API call
         try {
-            const response = await instance.post(
+            const response = await axios.post(
                 'https://staging-api.bootcampshub.ai/api/organization/integration/generate-text',
                 { prompt },
                 {
@@ -206,27 +225,28 @@ const GlobalEditor = ({ value, onChange }: TProps) => {
         );
     };
 
-    return (
-        <div className='flex flex-col h-screen'>
-            <div className='flex-1'>
-                <Editor
-                    onChange={(value) => {
-                        // Handle changes
-                    }}
-                    height='100%'
-                    editorSerializedState={initialValue}
-                    onSerializedChange={(value) => setEditorState(value)}
-                    pluginOptions={pluginOptions}
-                    maxLength={50000}
-                    onImageUpload={handleImageUpload}
-                    onAIGeneration={handleAIGeneration}
-                    onMentionSearch={handleMentionSearch}
-                    mentionMenu={MentionMenu}
-                    mentionMenuItem={MentionMenuItem}
-                />
-            </div>
-        </div>
-    );
-};
+    console.log(value);
 
-export default GlobalEditor;
+    return (
+        <Editor
+            onChange={(value) => {
+                onChange(JSON.stringify(value));
+            }}
+            className={className}
+            height={height}
+            // editorState={editorState}
+            editorSerializedState={editorState}
+            onSerializedChange={(value) => {
+                setEditorState(value);
+                onChange(JSON.stringify(value));
+            }}
+            pluginOptions={defaultPluginOptions}
+            maxLength={maxLength}
+            onImageUpload={handleImageUpload}
+            onAIGeneration={handleAIGeneration}
+            onMentionSearch={handleMentionSearch}
+            mentionMenu={MentionMenu}
+            mentionMenuItem={MentionMenuItem}
+        />
+    );
+}

@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import instance from '@/utils/storage';
+import GlobalEditor from '@/components/editor/GlobalEditor';
 
 export interface UploadDocumentModalProps {
     isOpen: boolean;
@@ -306,77 +307,7 @@ export function UploadDocumentModal({
                                             </span>
                                         </Label>
                                         <div className='rounded-md border'>
-                                            <div className='flex flex-wrap items-center gap-0.5 border-b bg-muted/50 px-3 py-1.5'>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                >
-                                                    <Bold className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                >
-                                                    <Italic className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                >
-                                                    <Underline className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                >
-                                                    <X className='h-4 w-4' />
-                                                </Button>
-                                                <div className='mx-2 h-4 w-px bg-border' />
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                >
-                                                    <List className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                >
-                                                    <ListOrdered className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                >
-                                                    <span className='text-xs'>
-                                                        ⟶
-                                                    </span>
-                                                </Button>
-                                                <div className='mx-2 h-4 w-px bg-border' />
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                >
-                                                    <Link2 className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                >
-                                                    <span className='text-xs'>
-                                                        @
-                                                    </span>
-                                                </Button>
-                                            </div>
+                                            {/* <GlobalEditor value='' /> */}
                                             <Textarea
                                                 id='description'
                                                 name='description'

@@ -80,6 +80,8 @@ import { TEventFormType } from '../validations/eventValidation';
 import MultiSelect from '@/components/global/MultiSelect';
 import { useAppSelector } from '@/redux/hooks';
 import { toast } from 'sonner';
+import SelectPurpose from './SelectPurpose';
+import GlobalEditor from '@/components/editor/GlobalEditor';
 
 type TProps = {
     form: UseFormReturn<TEventFormType>;
@@ -228,21 +230,15 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                     <FormItem className={className}>
                         {isFullScreen && <FormLabel>Purpose</FormLabel>}
                         <FormControl>
-                            <div className='flex items-center border rounded-md h-10 bg-foreground border-forground-border'>
-                                <LinkIcon className='ml-3 h-4 w-4 text-muted-foreground' />
-                                <Input
-                                    onChange={(e) =>
-                                        field.onChange({
-                                            category: '',
-                                            resourceId: e.target.value,
-                                        })
+                            <SelectPurpose
+                                value={
+                                    field.value || {
+                                        category: '',
+                                        resourceId: '',
                                     }
-                                    placeholder='Bootcamps/course link'
-                                    value={field.value?.resourceId}
-                                    className='border-0 h-8 focus-visible:ring-0 bg-foreground'
-                                />
-                                <ChevronDown className='mr-3 h-4 w-4 opacity-50' />
-                            </div>
+                                }
+                                onChange={(val) => field.onChange(val)}
+                            />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -694,13 +690,20 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                     <FormLabel>Meeting Agenda/Follow up/Action Item</FormLabel>
                 )}
                 <div className='mt-2 h-full'>
-                    <MarkdownEditor
+                    {/* <MarkdownEditor
                         ref={agendaRef}
                         placeholder='Enter agenda/follow up/action item...'
                         className='bg-foreground h-full overflow-y-auto'
                         markdown={form.getValues('description') || ''}
                         onChange={() => {
                             const value = agendaRef.current?.getMarkdown();
+                            form.setValue('description', value);
+                        }}
+                    /> */}
+                    <GlobalEditor
+                        className='bg-foreground'
+                        value={form.watch('description') || ''}
+                        onChange={(value) => {
                             form.setValue('description', value);
                         }}
                     />
