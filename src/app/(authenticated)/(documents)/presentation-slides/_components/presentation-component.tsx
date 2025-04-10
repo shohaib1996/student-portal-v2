@@ -248,9 +248,6 @@ const PresentationComponents = () => {
                             <PresentationCard
                                 key={presentation._id}
                                 presentation={presentation}
-                                onClick={() =>
-                                    toast.info('New slide is coming soon!')
-                                }
                                 index={index}
                             />
                         ))}

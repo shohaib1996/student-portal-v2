@@ -1,29 +1,27 @@
 'use client';
 
+import { TdUser } from '@/components/global/TdUser';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
+import { TSlide } from '@/types';
 import { Eye, Layers, Lock } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import React from 'react';
 
 interface PresentationCardProps {
-    presentation: any;
-    onClick?: () => void;
+    presentation: TSlide;
     index?: number;
 }
 
-const PresentationCard = ({
-    presentation,
-    onClick,
-    index,
-}: PresentationCardProps) => {
+const PresentationCard = ({ presentation, index }: PresentationCardProps) => {
     return (
         <div className='border rounded-lg overflow-hidden bg-foreground'>
             <div className='relative'>
-                {presentation?.image ? (
+                {presentation ? (
                     <Image
-                        src={presentation?.image || '/placeholder.svg'}
+                        src={'/program/program-card-image.png'}
                         alt={presentation?.title}
                         width={300}
                         height={200}
@@ -47,11 +45,11 @@ const PresentationCard = ({
                         </svg>
                     </div>
                 )}
-                <div className='absolute top-2 left-2 z-50'>
+                {/* <div className='absolute top-2 left-2 z-50'>
                     <span className='rounded-full px-4 py-1 bg-foreground text-xs'>
-                        {presentation?.type || 'Overview'}
+                        {presentation?. || 'Overview'}
                     </span>
-                </div>
+                </div> */}
 
                 {/* {(index === 3 || index === 6) && (
                     <div className='absolute inset-0 bg-slate-900/30 flex items-center justify-center'>
@@ -70,16 +68,17 @@ const PresentationCard = ({
                             alt={presentation?.createdBy?.fullName}
                         />
                         <AvatarFallback>
-                            {presentation?.createdBy?.fullName.charAt(0)}
+                            {presentation?.createdBy?.fullName?.charAt(0)}
                         </AvatarFallback>
                     </Avatar>
                     <div>
-                        <p className='text-sm font-medium'>
+                        {/* <p className='text-sm font-medium'>
                             {presentation?.createdBy?.fullName || 'Author'}
                         </p>
                         <p className='text-xs text-muted-foreground'>
                             {presentation.role || 'Admin'}
-                        </p>
+                        </p> */}
+                        {/* <TdUser user={presentation?.createdBy} /> */}
                     </div>
                     <div className='flex items-center gap-1 ml-auto'>
                         <Layers className='h-4 w-4' />
@@ -103,15 +102,16 @@ const PresentationCard = ({
                     </div>
                 </div>
                 <div className='flex items-center justify-center'>
-                    <Button
-                        // disabled={index === 3 || index === 6}
-                        variant='default'
-                        size='sm'
-                        className='text-xs px-3 w-full'
-                        onClick={onClick}
-                    >
-                        <Eye className='h-3 w-3' /> View
-                    </Button>
+                    <Link href={`/presentation-slides/${presentation._id}`}>
+                        <Button
+                            // disabled={index === 3 || index === 6}
+                            variant='default'
+                            size='sm'
+                            className='text-xs px-3 w-full'
+                        >
+                            <Eye className='h-3 w-3' /> View
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </div>

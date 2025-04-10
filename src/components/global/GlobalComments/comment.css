@@ -1,0 +1,332 @@
+.comment-wrapper {
+    overflow-y: auto;
+    margin-top: 10px;
+    border-radius: 10px;
+    padding: 24px;
+}
+
+.comment-wrapper::-webkit-scrollbar {
+    width: 5px !important;
+}
+
+.comment-wrapper .title-container {
+    padding-top: 0px;
+}
+
+.comment-wrapper .title-container > h3 {
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.comment-container .titleComment {
+    font-size: 22px;
+    font-weight: 600;
+    color: black; /* Replace $black with actual color */
+}
+
+.comment-container .date {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 10px;
+}
+
+.comment-container .date p {
+    color: blue; /* Replace $primary with actual color */
+    background-color: lightblue; /* Replace $primary_light with actual color */
+    width: fit-content;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+.comment-container .comment-content .level-1 {
+    position: relative;
+}
+
+.comment-container .comment-content .level-1::after {
+    content: '';
+    width: 2px;
+    height: calc(100% - 50px);
+    position: absolute;
+    background-color: lightgray; /* Replace $border_light with actual color */
+    top: 50px;
+    left: 20px;
+    display: none;
+}
+
+.comment-container .comment-content .see-reply {
+    background-color: transparent;
+    color: gray;
+}
+
+.comment-container .comment-content .see-reply::after {
+    top: -23px !important;
+}
+
+.comment-container .comment-content .level-2 {
+    padding-left: 50px;
+    position: relative;
+}
+
+@media screen and (max-width: 480px) {
+    .comment-container .comment-content .level-2 {
+        padding-left: 20px;
+    }
+
+    .comment-container .comment-content .level-2::after {
+        width: 6px !important;
+        left: 14px !important;
+    }
+
+    .comment-container .comment-content .level-2::before {
+        left: 14px !important;
+    }
+}
+
+.comment-container .comment-content .level-2::after {
+    content: '';
+    width: 30px;
+    height: 33px;
+    position: absolute;
+    border-bottom: 2px solid lightgray; /* Replace $border_light */
+    border-left: 2px solid lightgray;
+    border-bottom-left-radius: 5px;
+    border-right: none;
+    border-top: none;
+    top: 0px;
+    left: 20px;
+}
+
+.comment-container .comment-content .level-2::before {
+    content: '';
+    width: 2px;
+    height: 100%;
+    position: absolute;
+    background-color: lightgray; /* Replace $border_light */
+    top: 0px;
+    left: 20px;
+}
+
+.comment-container .comment-content .level-2:last-of-type::before {
+    display: none;
+}
+
+.comment-container .comment-content .comment {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+}
+
+@media screen and (max-width: 1100px) {
+    .comment-container .comment-content .comment {
+        padding-right: 0px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .comment-container .comment-content .comment {
+        gap: 5px;
+    }
+}
+
+.comment-container .comment-content .comment .update-btn button {
+    color: white; /* Replace $whiteColor */
+    font-weight: 500;
+    padding: 10px 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+.comment-container .comment-content .comment .update-btn:first-child {
+    background-color: orange; /* Replace $orange */
+}
+
+.comment-container .comment-content .comment img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.comment-container .comment-content .comment .text {
+    padding: 12px;
+    border-radius: 10px;
+    background-color: white; /* Replace $whiteColor */
+    color: gray;
+    line-height: 22px;
+    outline: none;
+    overflow-wrap: anywhere;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.comment-container .comment-content .comment .bg-white {
+    background-color: white !important; /* Replace $whiteColor */
+}
+
+.comment-container .comment-content .comment .bg-gray {
+    background-color: lightgray !important; /* Replace $bgColor */
+}
+
+.comment-container .comment-content .comment textarea {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    overflow-y: visible;
+}
+
+.comment-container .comment-content .comment button svg circle {
+    fill: black !important; /* Replace $textBlack */
+}
+
+.comment-container .comment {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 25%;
+}
+
+@media screen and (max-width: 740px) {
+    .comment-container .comment {
+        gap: 5px;
+    }
+
+    .comment-container .comment img {
+        width: 30px !important;
+        max-height: 30px !important;
+    }
+}
+
+@media screen and (max-width: 1100px) {
+    .comment-container .comment {
+        padding-right: 0px;
+    }
+}
+
+.comment-container .comment img {
+    width: 40px;
+    max-height: 40px;
+    border-radius: 50%;
+}
+
+.comment-container .comment .text {
+    padding: 12px;
+    border-radius: 10px;
+    background-color: lightgray; /* Replace $bgColor */
+    color: gray;
+    line-height: 22px;
+}
+
+.comment-reply {
+    font-size: 18px;
+    padding: 6px 0px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+    .comment-reply {
+        font-size: 14px;
+    }
+}
+
+.comments-input-wrapper {
+    position: relative;
+}
+
+.comments-input-wrapper::after {
+    content: '';
+    width: 30px;
+    height: 60px;
+    position: absolute;
+    border-bottom: 2px solid lightgray; /* Replace $border_light with actual color */
+    border-left: 2px solid lightgray;
+    border-bottom-left-radius: 5px;
+    border-right: none;
+    border-top: none;
+    top: -36px;
+    left: -30px;
+}
+
+.comments-input-wrapper:last-of-type::before {
+    display: none;
+}
+
+.comment-input {
+    display: flex;
+    gap: 10px;
+    position: relative;
+}
+
+.comment-input .comment-img {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-input .input-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 7px;
+    background-color: white; /* Replace $whiteColor */
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.comment-input .input-container .emoji_drop {
+    height: 20px;
+}
+
+.comment-input .input-container textarea {
+    outline: none;
+    width: 100%;
+    height: 25px;
+    max-height: 110px !important;
+    resize: none;
+    overflow-y: auto; /* Replace @include custom_scrollbar */
+}
+
+/* Scrollbar customization */
+.comment-input .input-container textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+.comment-input .input-container textarea::-webkit-scrollbar-thumb {
+    background: lightgray; /* Replace with actual color */
+    border-radius: 4px;
+}
+
+.comment-input .input-container button {
+    background: transparent;
+}
+
+.comment-input .input-container svg {
+    color: gray !important; /* Replace $gray */
+}
+
+.comment-input .input-container .send-button {
+    color: blue; /* Replace $primary */
+    border-radius: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.comment-input .input-container .send-button svg {
+    color: blue !important; /* Replace $primary */
+}
+
+.comment-input .bg-white {
+    background-color: white !important; /* Replace $whiteColor */
+}
+
+.comment-input .bg-gray {
+    background-color: lightgray !important; /* Replace $bgColor */
+}
