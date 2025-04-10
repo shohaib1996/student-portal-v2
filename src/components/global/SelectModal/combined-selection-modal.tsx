@@ -33,9 +33,9 @@ import storage from '@/utils/storage';
 import { toast } from 'sonner';
 import { TEnrollment } from '@/types/auth';
 
-export function CombinedSelectionModal() {
+export function CombinedSelectionModal({ myEnrollments }: any) {
     const dispatch = useDispatch();
-    const { myEnrollments } = useSelector((state: RootState) => state.auth);
+    // const { myEnrollments } = useSelector((state: RootState) => state.auth);
     const { companies, activeCompany } = useSelector(
         (state: RootState) => state.company,
     );
@@ -55,21 +55,21 @@ export function CombinedSelectionModal() {
             const lowercasedQuery = searchQuery.toLowerCase();
             return {
                 filteredPrograms: myEnrollments.filter(
-                    (enroll) =>
+                    (enroll: any) =>
                         enroll.program.type === 'program' &&
                         enroll.program.title
                             .toLowerCase()
                             .includes(lowercasedQuery),
                 ),
                 filteredCourses: myEnrollments.filter(
-                    (enroll) =>
+                    (enroll: any) =>
                         enroll.program.type === 'course' &&
                         enroll.program.title
                             .toLowerCase()
                             .includes(lowercasedQuery),
                 ),
                 filteredInterviews: myEnrollments.filter(
-                    (enroll) =>
+                    (enroll: any) =>
                         enroll.program.type === 'interview' &&
                         enroll.program.title
                             .toLowerCase()
@@ -83,7 +83,9 @@ export function CombinedSelectionModal() {
     const handleCourseSelect = (id: string) => dispatch(setSelectedCourse(id));
 
     const handleConfirm = async () => {
-        const selected = myEnrollments.find((e) => e._id === selectedCourseId);
+        const selected = myEnrollments.find(
+            (e: any) => e._id === selectedCourseId,
+        );
         if (selected) {
             dispatch(setEnrollment(selected));
             await storage.setItem('active_enrolment', selected);
@@ -146,7 +148,7 @@ export function CombinedSelectionModal() {
         const activeEnrollment = storage.getItem('active_enrolment');
         if (activeEnrollment && activeEnrollment._id) {
             const matchingEnrollment = myEnrollments.find(
-                (enroll) => enroll._id === activeEnrollment._id,
+                (enroll: any) => enroll._id === activeEnrollment._id,
             );
             if (matchingEnrollment) {
                 handleCourseSelect(matchingEnrollment._id);
@@ -373,7 +375,7 @@ export function CombinedSelectionModal() {
 
     // Render enrollments based on tab and data
     const renderTabContent = (enrollments: TEnrollment[]) => (
-        <div className='space-y-4 max-h-[60vh] overflow-y-auto pr-2 mt-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent'>
+        <div className='space-y-4 h-[54vh] overflow-y-auto pr-2 mt-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent'>
             {enrollments.length === 0 ? (
                 <EmptyState />
             ) : (

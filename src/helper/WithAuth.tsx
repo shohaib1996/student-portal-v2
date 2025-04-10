@@ -72,7 +72,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [userData, setUserData] = useState<User>({});
     const dispatch = useDispatch<any>(); // Use useDispatch hook
-
+    const [enrollments, setEnrollments] = useState([]);
     useEffect(() => {
         const fetchData = async (): Promise<void> => {
             const storageModule = await import('../utils/storage');
@@ -106,7 +106,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                         dispatch(setUser(res.data.user));
 
                         dispatch(setMyEnrollments(res.data.enrollments));
-                        // setEnrollments(res.data.enrollments);
+                        setEnrollments(res.data?.enrollments);
                         if (activeCompanyFromCookie) {
                             axios.defaults.headers.common['organization'] =
                                 activeCompanyFromCookie;
@@ -175,9 +175,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                 return child;
             })}
 
-            {/* <CombinedSelectionModal
-                myEnrollments={enrollments}
-            /> */}
+            <CombinedSelectionModal myEnrollments={enrollments} />
         </React.Fragment>
     );
 };

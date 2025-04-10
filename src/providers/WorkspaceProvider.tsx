@@ -44,6 +44,8 @@ interface WorkspaceProviderProps {
 
 function WorkspaceProvider({ children }: WorkspaceProviderProps) {
     const dispatch = useDispatch();
+    const store = useStore();
+    const [enrollments, setEnrollments] = useState([]);
     //  const { data, isLoading, isError, refetch } = useMyProgramQuery({});
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -62,20 +64,16 @@ function WorkspaceProvider({ children }: WorkspaceProviderProps) {
             setActiveCompanyId(activeCompanyFromCookie);
         }
 
-        // const unsubscribe = store.subscribe(async () => {
-        //     const state = store.getState() as RootState;
-        //     const { companySwitcher, activeCompany } = state.company;
-        //     // const { myEnrollments } = state.auth;
+        const unsubscribe = store.subscribe(async () => {
+            // const state = store.getState() as any;
+            // const { setEnrollments } = state.auth;
+            // setEnrollments(setEnrollments)
+            // setIsSwitcherVisible(companySwitcher);
+            // setActiveCompanyId(Cookies.get('activeCompany') || null);
+            // setEnrollment(Cookies.get('active_enrolment') || null);
+        });
 
-        //     // console.log('myEnrollments', myEnrollments);
-
-        //     setIsSwitcherVisible(companySwitcher);
-        //     setActiveCompanyId(Cookies.get('activeCompany') || null);
-        //     setEnrollment(Cookies.get('active_enrolment') || null);
-
-        // });
-
-        // return () => unsubscribe();
+        return () => unsubscribe();
     }, []);
 
     // console.log('activeCompanyId', activeCompanyId);
@@ -139,7 +137,9 @@ function WorkspaceProvider({ children }: WorkspaceProviderProps) {
                 <EmptyState />
             )}
 
-            <CombinedSelectionModal />
+            {/* <CombinedSelectionModal
+            myEnrollments={enrollments}
+             /> */}
         </>
     );
 }

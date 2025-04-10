@@ -168,9 +168,11 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const [localText, setLocalText] = useState<string>('');
     const [isSendingAudio, setIsSendingAudio] = useState<boolean>(false);
 
-    // useEffect(() => {
-    //     store.dispatch(setDraft({ chat: chatId as string, message: localText }));
-    // }, [localText, chatId]);
+    useEffect(() => {
+        store.dispatch(
+            setDraft({ chat: chatId as string, message: localText }),
+        );
+    }, [localText, chatId]);
 
     useEffect(() => {
         setLocalText(text);
@@ -568,7 +570,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                 <div className='flex-1 max-h-45  bg-white'>
                                     <ChatEditor
                                         height='150px'
-                                        initialMarkdown={localText}
+                                        initialMarkdown={text}
                                         onMarkdownChange={handleOnChange}
                                         pluginOptions={pluginOptions}
                                         onMentionSearch={handleMentionSearch}
