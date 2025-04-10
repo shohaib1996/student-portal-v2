@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { instance } from '@/lib/axios/axiosInstance';
 import parse from 'html-react-parser';
+import LexicalJsonRenderer from '@/components/lexicalEditor/renderer/JsonRenderer';
 
 interface DocumentContentAreaProps {
     document: DocumentContent;
@@ -154,9 +155,13 @@ export function DocumentContentArea({
                         )}
                         <div className='pt-2'>
                             Description:{' '}
-                            <p className='min-h-[100px] rounded-md bg-background px-2 py-1 max-h-[300px] overflow-y-auto'>
-                                {document.content || 'No description found'}
-                            </p>
+                            <div className='min-h-[100px] rounded-md bg-background px-2 py-1 max-h-[500px] overflow-y-auto'>
+                                <LexicalJsonRenderer
+                                    lexicalState={JSON.parse(
+                                        document.content || '',
+                                    )}
+                                />
+                            </div>
                         </div>
 
                         <GlobalAttachedFilesSection
