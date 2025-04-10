@@ -190,6 +190,7 @@ const MuteOption: React.FC<MuteOptionProps> = ({
             title={`${member?.user?.firstName || member?.user?.fullName}'s Mute options`}
             subTitle={`Muted members can't send message in this crowd but can read messages`}
             className='sm:max-w-[580px]'
+            bgColor='bg-background'
             allowFullScreen={false}
             buttons={
                 <Button
@@ -207,7 +208,7 @@ const MuteOption: React.FC<MuteOptionProps> = ({
             }
         >
             <div className=''>
-                <div className='bg-card rounded-md'>
+                <div className=' rounded-md'>
                     <p className='bg-orange-500/10 p-2 text-dark-gray leading-tight text-sm border-orange-500/90 rounded-lg'>
                         {`Muted members can't send message in this crowd but
                         he/she can read message`}
@@ -253,7 +254,7 @@ const MuteOption: React.FC<MuteOptionProps> = ({
                             }
                         >
                             <div
-                                className={`flex items-center space-x-2 rounded-lg border p-2 cursor-pointer ${selectedOption === 1 ? 'bg-primary-light' : 'bg-background'}`}
+                                className={`flex items-center space-x-2 rounded-lg border p-2 cursor-pointer ${selectedOption === 1 ? 'bg-primary-light' : 'bg-foreground'}`}
                             >
                                 <RadioGroupItem value='1' id='option1' />
                                 <label
@@ -264,7 +265,7 @@ const MuteOption: React.FC<MuteOptionProps> = ({
                                 </label>
                             </div>
                             <div
-                                className={`flex items-center space-x-2 rounded-lg border p-2 cursor-pointer ${selectedOption === 2 ? 'bg-primary-light' : 'bg-background'}`}
+                                className={`flex items-center space-x-2 rounded-lg border p-2 cursor-pointer ${selectedOption === 2 ? 'bg-primary-light' : 'bg-foreground'}`}
                             >
                                 <RadioGroupItem value='2' id='option2' />
                                 <label
@@ -275,7 +276,7 @@ const MuteOption: React.FC<MuteOptionProps> = ({
                                 </label>
                             </div>
                             <div
-                                className={`flex items-center space-x-2 rounded-lg border p-2 cursor-pointer ${selectedOption === 3 ? 'bg-primary-light' : 'bg-background'}`}
+                                className={`flex items-center space-x-2 rounded-lg border p-2 cursor-pointer ${selectedOption === 3 ? 'bg-primary-light' : 'bg-foreground'}`}
                             >
                                 <RadioGroupItem value='3' id='option3' />
                                 <label
@@ -307,7 +308,7 @@ const MuteOption: React.FC<MuteOptionProps> = ({
                                                     <Button
                                                         variant='outline'
                                                         className={cn(
-                                                            'w-full justify-start text-left font-normal bg-background',
+                                                            'w-full justify-start text-left font-normal bg-foreground',
                                                             !date &&
                                                                 'text-gray',
                                                         )}
@@ -335,7 +336,7 @@ const MuteOption: React.FC<MuteOptionProps> = ({
                                             <TimePicker
                                                 value={timeValue}
                                                 onChange={setTimeValue}
-                                                className='w-full bg-background'
+                                                className='w-full bg-foreground'
                                             />
                                         </div>
                                     )}

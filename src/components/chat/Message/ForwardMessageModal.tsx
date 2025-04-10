@@ -188,7 +188,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
     const renderMessagePreview = () => {
         if (message?.files && message.files.length > 0) {
             return (
-                <div className='flex items-center gap-1 p-2 bg-foreground rounded-md mb-2 shadow-md border'>
+                <div className='flex items-center gap-1 p-2 bg-background rounded-md mb-2 shadow-md border'>
                     <div className='w-12 h-12 bg-foreground rounded-md overflow-hidden flex-shrink-0'>
                         {message.files[0].type.startsWith('image/') ? (
                             <img
@@ -262,7 +262,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                         {selectedChats.map((chat) => (
                             <div
                                 key={chat._id}
-                                className='flex items-center gap-1 bg-foreground rounded-lg pl-1 pr-2 py-1'
+                                className='flex items-center gap-1 bg-background rounded-lg pl-1 pr-2 py-1'
                             >
                                 <Avatar className='h-5 w-5'>
                                     <AvatarImage
@@ -326,7 +326,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                         <Search className='absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
                         <Input
                             placeholder='Search users/crowds...'
-                            className='pl-8 bg-foreground'
+                            className='pl-8 bg-background'
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />

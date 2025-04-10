@@ -106,7 +106,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                 <GlobalTooltip tooltip='All Chats' side='right'>
                     <div
                         onClick={() => setActive('chats')}
-                        className={` hover:bg-primary group text-dark-gray hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('chats')}`}
+                        className={` hover:bg-primary group text-dark-gray hover:text-pure-white cursor-pointer h-10 xl:h-12 w-10 xl:w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('chats')}`}
                     >
                         <User className='h-6 w-6 group-hover:text-pure-white' />
                     </div>
@@ -115,7 +115,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                 <GlobalTooltip tooltip='Crowds' side='right'>
                     <div
                         onClick={() => setActive('crowds')}
-                        className={` hover:bg-primary group text-dark-gray hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('crowds')}`}
+                        className={` hover:bg-primary group text-dark-gray hover:text-pure-white cursor-pointer h-10 xl:h-12 w-10 xl:w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('crowds')}`}
                     >
                         <Users className='h-6 w-6 group-hover:text-pure-white' />
                     </div>
@@ -124,7 +124,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                 <GlobalTooltip tooltip='Unread' side='right'>
                     <div
                         onClick={() => setActive('unread')}
-                        className={` hover:bg-primary group text-dark-gray hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('unread')}`}
+                        className={` hover:bg-primary group text-dark-gray hover:text-pure-white cursor-pointer h-10 xl:h-12 w-10 xl:w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('unread')}`}
                     >
                         <div className='relative'>
                             <MessageSquareMore className='h-6 w-6 group-hover:text-pure-white' />
@@ -141,7 +141,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                 <GlobalTooltip tooltip='Pinned' side='right'>
                     <div
                         onClick={() => setActive('favourites')}
-                        className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('favourites')}`}
+                        className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-10 xl:h-12 w-10 xl:w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('favourites')}`}
                     >
                         <Pin className='h-6 w-6 group-hover:text-pure-white' />
                     </div>
@@ -150,7 +150,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                 <GlobalTooltip tooltip='Online Users' side='right'>
                     <div
                         onClick={() => setActive('onlines')}
-                        className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('onlines')}`}
+                        className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-10 xl:h-12 w-10 xl:w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('onlines')}`}
                     >
                         <UserCheck className='h-6 w-6 group-hover:text-pure-white' />
                     </div>
@@ -159,7 +159,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                 <GlobalTooltip tooltip='Archived' side='right'>
                     <div
                         onClick={() => setActive('archived')}
-                        className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('archived')}`}
+                        className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-10 xl:h-12 w-10 xl:w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('archived')}`}
                     >
                         <Archive className='h-6 w-6 group-hover:text-pure-white' />
                     </div>
@@ -168,7 +168,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                 <GlobalTooltip tooltip='Search' side='right'>
                     <div
                         onClick={() => setActive('search')}
-                        className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('search')}`}
+                        className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-10 xl:h-12 w-10 xl:w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('search')}`}
                     >
                         <Search className='h-6 w-6 group-hover:text-pure-white' />
                     </div>
@@ -189,7 +189,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                                             .NEXT_PUBLIC_AI_BOT_ID as string,
                                     );
                                 }}
-                                className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('ai')}`}
+                                className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-10 xl:h-12 w-10 xl:w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('ai')}`}
                             >
                                 <Bot className='h-6 w-6 group-hover:text-pure-white' />
                             </div>
@@ -200,7 +200,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
                 <GlobalTooltip tooltip='Blocked Users' side='right'>
                     <div
                         onClick={() => setActive('blocked')}
-                        className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-12 w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('blocked')}`}
+                        className={` hover:bg-primary text-dark-gray group hover:text-pure-white cursor-pointer h-10 xl:h-12 w-10 xl:w-12 flex items-center justify-center rounded-md duration-200 ${getButtonClass('blocked')}`}
                     >
                         <UserMinus className='h-6 w-6 group-hover:text-pure-white' />
                     </div>

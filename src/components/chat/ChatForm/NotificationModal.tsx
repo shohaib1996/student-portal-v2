@@ -1,23 +1,17 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Calendar } from '@/components/ui/calendar';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Loader2, CalendarIcon, SaveIcon } from 'lucide-react';
+import { Loader2, CalendarIcon, Clock, SaveIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import axios from 'axios';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
-import { TimePicker } from '@/components/global/TimePicker';
+import CustomTimePicker from '@/components/global/CustomTimePicker'; // Update path as needed
 import { instance } from '@/lib/axios/axiosInstance';
 
 dayjs.extend(customParseFormat);
@@ -53,49 +47,21 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     const [dateUntil, setDateUntil] = useState<string | null>(null);
     const [isUpdating, setIsUpdating] = useState<boolean>(false);
-    const [note, setNote] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [date, setDate] = useState<Date | undefined>();
     const [timeValue, setTimeValue] = useState<Date | null>(null);
+    const [showDateTimePicker, setShowDateTimePicker] =
+        useState<boolean>(false);
 
-    // Check if custom date/time selection is valid
-    const isCustomTimeValid = useCallback(() => {
-        if (selectedOption !== 4) {
-            return true;
+    // Check if the form is valid for submission
+    const isFormValid = useMemo(() => {
+        if (selectedOption === 4) {
+            return date !== undefined && timeValue !== null;
         }
-        return date !== undefined && timeValue !== null && dateUntil !== null;
-    }, [selectedOption, date, timeValue, dateUntil]);
-
-    // Determine if save button should be enabled
-    const isSaveButtonDisabled = useCallback(() => {
-        if (isUpdating) {
-            return true;
-        }
-
-        // For unmuting (option 5), always allow
-        if (selectedOption === 5) {
-            return false;
-        }
-
-        // If notifications are off (muted), check if unmute button should be enabled
-        if (!member?.notification?.isOn) {
-            return false; // Already has a selected mute option
-        }
-
-        // For new mute actions, require a selection and validate custom time if selected
-        return (
-            selectedOption === null ||
-            (selectedOption === 4 && !isCustomTimeValid())
-        );
-    }, [
-        isUpdating,
-        selectedOption,
-        member?.notification?.isOn,
-        isCustomTimeValid,
-    ]);
+        return selectedOption !== null;
+    }, [selectedOption, date, timeValue]);
 
     useEffect(() => {
-        setNote('');
         if (!member?.notification?.isOn) {
             if (member) {
                 const muteDate = dayjs(member?.notification?.dateUntil);
@@ -128,12 +94,25 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
             }
         } else {
             setSelectedOption(null);
+            setIsLoading(false);
         }
     }, [member]);
 
+    // Update dateUntil when date or timeValue changes
+    useEffect(() => {
+        if (selectedOption === 4 && date && timeValue) {
+            const newDate = new Date(date);
+            newDate.setHours(timeValue.getHours(), timeValue.getMinutes());
+            setDateUntil(dayjs(newDate).toISOString());
+        }
+    }, [date, timeValue, selectedOption]);
+
     const handleSave = useCallback(() => {
-        // Prevent saving if no option is selected
-        if (isSaveButtonDisabled()) {
+        if (!isFormValid) {
+            if (selectedOption === 4) {
+                toast.error('Please select both date and time');
+                return;
+            }
             toast.error('Please select a notification option');
             return;
         }
@@ -151,9 +130,6 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
         instance
             .post('/chat/member/update', data)
             .then((res) => {
-                // Using RTK would replace this dispatch
-                // dispatch(updateMyData({ _id: chatId, field: "notification", value: res.data?.member?.notification }))
-
                 setIsUpdating(false);
                 toast.success('Updated successfully');
                 setSelectedOption(null);
@@ -165,29 +141,78 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                 toast.error(err?.response?.data?.error || 'An error occurred');
             });
     }, [
+        isFormValid,
         member?._id,
         selectedOption,
         dateUntil,
         chatId,
         member?.notification?.isOn,
         modalClose,
-        isSaveButtonDisabled,
     ]);
 
-    const handleDateTimeChange = useCallback(() => {
-        if (date && timeValue) {
-            const newDate = new Date(date);
-            newDate.setHours(timeValue.getHours(), timeValue.getMinutes());
-            setDateUntil(dayjs(newDate).toISOString());
+    const handleUnmute = useCallback(() => {
+        if (isUpdating) {
+            return;
         }
-    }, [date, timeValue]);
 
-    useEffect(() => {
-        handleDateTimeChange();
-    }, [date, timeValue, handleDateTimeChange]);
+        setSelectedOption(5);
+
+        const data = {
+            member: member?._id,
+            selectedOption: 5,
+            dateUntil: null,
+            chat: chatId,
+            actionType: 'unmutenoti',
+        };
+
+        setIsUpdating(true);
+
+        instance
+            .post('/chat/member/update', data)
+            .then((res) => {
+                setIsUpdating(false);
+                toast.success('Notifications unmuted successfully');
+                modalClose();
+            })
+            .catch((err) => {
+                setIsUpdating(false);
+                toast.error(err?.response?.data?.error || 'An error occurred');
+            });
+    }, [chatId, member?._id, modalClose, isUpdating]);
 
     const disabledDate = useCallback((date: Date) => {
         return date < new Date(new Date().setHours(0, 0, 0, 0));
+    }, []);
+
+    // Toggle datetime picker visibility
+    const toggleDateTimePicker = useCallback(() => {
+        // If not showing yet, initialize values if needed
+        if (!showDateTimePicker) {
+            // Initialize date if not already set
+            if (!date) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                setDate(tomorrow);
+            }
+
+            // Initialize time if not already set
+            if (!timeValue) {
+                const now = new Date();
+                setTimeValue(now);
+            }
+        }
+
+        setShowDateTimePicker(!showDateTimePicker);
+    }, [showDateTimePicker, date, timeValue]);
+
+    // Handle date selection
+    const handleDateSelect = useCallback((newDate: Date | undefined) => {
+        setDate(newDate);
+    }, []);
+
+    // Handle time selection
+    const handleTimeSelect = useCallback((newTime: Date | null) => {
+        setTimeValue(newTime);
     }, []);
 
     // Custom radio component
@@ -209,12 +234,14 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
             title='Mute Notifications'
             subTitle={`Muted chats are private, and you'll still get mentions`}
             className='sm:max-w-[580px]'
+            bgColor='bg-background'
             allowFullScreen={false}
             buttons={
                 <Button
                     onClick={handleSave}
-                    disabled={isSaveButtonDisabled()}
+                    disabled={isUpdating || !isFormValid}
                     className='text-lg'
+                    type='button'
                 >
                     {isUpdating ? (
                         <Loader2 className='h-4 w-4 animate-spin mr-2' />
@@ -226,8 +253,8 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
             }
         >
             <div className=''>
-                <div className='bg-card rounded-md'>
-                    <p className='bg-orange-500/10 p-2 text-dark-gray leading-tight text-sm border-orange-500/30 rounded-lg'>
+                <div className='rounded-md'>
+                    <p className='bg-orange-500/20 p-2 text-orange-600 leading-tight text-sm border-orange-500/30 rounded-lg'>
                         Other members will not see that you muted this chat. You
                         will still be notified if you are mentioned.
                     </p>
@@ -257,13 +284,16 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                                                   ).format('hh:mm A')}`}
                                     </p>
                                     <Button
-                                        onClick={() => {
-                                            setSelectedOption(5);
-                                            handleSave();
-                                        }}
+                                        onClick={handleUnmute}
+                                        disabled={isUpdating}
                                         className=''
+                                        type='button'
                                     >
-                                        Unmute
+                                        {isUpdating ? (
+                                            <Loader2 className='h-4 w-4 animate-spin mr-2' />
+                                        ) : (
+                                            'Unmute'
+                                        )}
                                     </Button>
                                 </div>
                             )}
@@ -273,12 +303,15 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                             {/* Option 1: Mute for 1 hour */}
                             <div
                                 className={cn(
-                                    'flex items-center space-x-3 bg-background rounded-lg border p-2 cursor-pointer',
+                                    'flex items-center space-x-3 bg-foreground rounded-lg border p-2 cursor-pointer',
                                     selectedOption === 1
                                         ? 'border-blue-500/30 bg-primary-light'
                                         : 'hover:border-blue-500/30 hover:bg-primary-light',
                                 )}
-                                onClick={() => setSelectedOption(1)}
+                                onClick={() => {
+                                    setSelectedOption(1);
+                                    setShowDateTimePicker(false);
+                                }}
                             >
                                 <CustomRadio selected={selectedOption === 1} />
                                 <span className='text-gray'>
@@ -289,12 +322,15 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                             {/* Option 2: Mute for 1 day */}
                             <div
                                 className={cn(
-                                    'flex items-center space-x-3 bg-background rounded-lg border p-2 cursor-pointer',
+                                    'flex items-center space-x-3 bg-foreground rounded-lg border p-2 cursor-pointer',
                                     selectedOption === 2
                                         ? 'border-blue-500/30 bg-primary-light'
                                         : 'hover:border-blue-500/30 hover:bg-primary-light',
                                 )}
-                                onClick={() => setSelectedOption(2)}
+                                onClick={() => {
+                                    setSelectedOption(2);
+                                    setShowDateTimePicker(false);
+                                }}
                             >
                                 <CustomRadio selected={selectedOption === 2} />
                                 <span className='text-gray'>
@@ -305,12 +341,15 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                             {/* Option 3: Mute until turned back on */}
                             <div
                                 className={cn(
-                                    'flex items-center space-x-3 bg-background rounded-lg border p-2 cursor-pointer',
+                                    'flex items-center space-x-3 bg-foreground rounded-lg border p-2 cursor-pointer',
                                     selectedOption === 3
                                         ? 'border-blue-500/30 bg-primary-light'
                                         : 'hover:border-blue-500/30 hover:bg-primary-light',
                                 )}
-                                onClick={() => setSelectedOption(3)}
+                                onClick={() => {
+                                    setSelectedOption(3);
+                                    setShowDateTimePicker(false);
+                                }}
                             >
                                 <CustomRadio selected={selectedOption === 3} />
                                 <span className='text-gray'>
@@ -321,7 +360,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                             {/* Option 4: Custom time */}
                             <div
                                 className={cn(
-                                    'bg-background rounded-lg border p-2',
+                                    'bg-foreground rounded-lg border p-2',
                                     selectedOption === 4
                                         ? 'border-blue-500/30 bg-primary-light'
                                         : 'hover:border-blue-500/30 hover:bg-primary-light',
@@ -341,49 +380,86 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
 
                                 {selectedOption === 4 && (
                                     <div className='flex flex-col sm:flex-row gap-2 mt-1 w-full'>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant='outline'
-                                                    className={cn(
-                                                        'w-full justify-start text-left font-normal bg-foreground',
-                                                        !date && 'text-gray',
-                                                    )}
-                                                >
-                                                    <CalendarIcon className='mr-2 h-4 w-4' />
-                                                    {date ? (
-                                                        format(date, 'PPP')
-                                                    ) : (
-                                                        <span>Pick a date</span>
-                                                    )}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className='w-auto p-0'>
+                                        {/* Date selector field */}
+                                        <Button
+                                            variant='outline'
+                                            className={cn(
+                                                'w-full justify-start text-left font-normal bg-foreground',
+                                                !date && 'text-gray',
+                                            )}
+                                            onClick={toggleDateTimePicker}
+                                            type='button'
+                                        >
+                                            <CalendarIcon className='mr-2 h-4 w-4' />
+                                            {date ? (
+                                                format(date, 'PPP')
+                                            ) : (
+                                                <span>Pick a date</span>
+                                            )}
+                                        </Button>
+
+                                        {/* Time selector field */}
+                                        <Button
+                                            variant='outline'
+                                            className={cn(
+                                                'w-full justify-start text-left font-normal bg-foreground',
+                                                !timeValue && 'text-gray',
+                                            )}
+                                            onClick={toggleDateTimePicker}
+                                            type='button'
+                                        >
+                                            <Clock className='mr-2 h-4 w-4' />
+                                            {timeValue ? (
+                                                format(timeValue, 'h:mm a')
+                                            ) : (
+                                                <span>Pick a time</span>
+                                            )}
+                                        </Button>
+                                    </div>
+                                )}
+
+                                {/* Combined Date-Time picker */}
+                                {selectedOption === 4 && showDateTimePicker && (
+                                    <div className='mt-2 bg-foreground border rounded-md shadow-lg overflow-hidden'>
+                                        <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+                                            <div className='p-2 border-b md:border-b-0 md:border-r'>
+                                                <h3 className='text-sm font-medium mb-1 text-center'>
+                                                    Date
+                                                </h3>
                                                 <Calendar
                                                     mode='single'
                                                     selected={date}
-                                                    onSelect={setDate}
+                                                    onSelect={handleDateSelect}
                                                     disabled={disabledDate}
                                                     initialFocus
                                                 />
-                                            </PopoverContent>
-                                        </Popover>
-                                        <TimePicker
-                                            value={timeValue}
-                                            onChange={setTimeValue}
-                                            className='w-full bg-foreground'
-                                        />
+                                            </div>
+                                            <div className='p-2'>
+                                                <h3 className='text-sm font-medium mb-1 text-center'>
+                                                    Time
+                                                </h3>
+                                                <CustomTimePicker
+                                                    value={timeValue}
+                                                    onChange={handleTimeSelect}
+                                                    className='w-full'
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className='p-2 bg-gray-50 text-right'>
+                                            <Button
+                                                variant='outline'
+                                                size='sm'
+                                                onClick={() =>
+                                                    setShowDateTimePicker(false)
+                                                }
+                                                type='button'
+                                            >
+                                                Done
+                                            </Button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
-
-                            {/* Validation message */}
-                            {selectedOption === null && (
-                                <div className='text-red-500 text-sm mt-2'>
-                                    Please select a notification option to
-                                    continue
-                                </div>
-                            )}
                         </div>
                     )}
                 </div>
