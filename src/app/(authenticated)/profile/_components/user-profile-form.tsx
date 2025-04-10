@@ -76,18 +76,12 @@ const FormSchema = z.object({
         .min(2, { message: 'First name is required' })
         .refine((value) => value.trim().length > 0, {
             message: 'First name cannot be only spaces',
-        })
-        .refine((value) => !/\s\s/.test(value), {
-            message: 'First name cannot contain double spaces',
         }),
     lastName: z
         .string()
-        .min(2, { message: 'Last name is required' })
+        .min(1, { message: 'Last name is required' })
         .refine((value) => value.trim().length > 0, {
             message: 'Last name cannot be only spaces',
-        })
-        .refine((value) => !/\s\s/.test(value), {
-            message: 'Last name cannot contain double spaces',
         }),
     middleInitial: z.string().optional(),
     gender: z.string().min(1, { message: 'Gender is required' }),
@@ -96,21 +90,15 @@ const FormSchema = z.object({
     phone: z.string().min(10, { message: 'Valid phone number is required' }),
     street: z
         .string()
-        .min(3, { message: 'Street is required' })
+        .min(1, { message: 'Street is required' })
         .refine((value) => value.trim().length > 0, {
             message: 'Street cannot be only spaces',
-        })
-        .refine((value) => !/\s\s/.test(value), {
-            message: 'Street cannot contain double spaces',
         }),
     city: z
         .string()
-        .min(2, { message: 'City is required' })
+        .min(1, { message: 'City is required' })
         .refine((value) => value.trim().length > 0, {
             message: 'City cannot be only spaces',
-        })
-        .refine((value) => !/\s\s/.test(value), {
-            message: 'City cannot contain double spaces',
         }),
     state: z.string().min(1, { message: 'State is required' }),
     country: z.string().min(1, { message: 'Country is required' }),
@@ -488,7 +476,7 @@ export default function UserProfileForm() {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}>
                         {/* Personal Information */}
-                        <Card className='mb-3 shadow-none overflow-hidden rounded-lg border-none'>
+                        <Card className='mb-3 shadow-none rounded-lg border-none'>
                             <CardContent className='md:p-4 p-2 bg-foreground'>
                                 <div className='flex items-center mb-3 border-b'>
                                     <UserRound className='h-4 w-4 mr-2' />
@@ -708,7 +696,7 @@ export default function UserProfileForm() {
                                                 <FormControl>
                                                     <div className='relative'>
                                                         <PhoneInput
-                                                            country={'in'}
+                                                            country={'us'}
                                                             value={
                                                                 phoneNumber as string
                                                             }
