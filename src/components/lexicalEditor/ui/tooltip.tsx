@@ -4,11 +4,35 @@ import * as React from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import { cn } from '../lib/utils';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $convertFromMarkdownString } from '@lexical/markdown';
+import { CLEAR_EDITOR_COMMAND } from 'lexical';
 
 function TooltipProvider({
     delayDuration = 0,
+    initialMarkdown,
+    transformers,
     ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
+}: React.ComponentProps<any>) {
+    const [editor] = useLexicalComposerContext();
+    const initializedRef = React.useRef(false);
+
+    React.useEffect(() => {
+        // Only load the markdown content initially or if initialMarkdown is explicitly set to empty
+        // This prevents overwriting the editor during typing
+        if (!initializedRef.current && initialMarkdown && transformers) {
+            editor.update(() => {
+                if (initialMarkdown) {
+                    $convertFromMarkdownString(initialMarkdown, transformers);
+                } else {
+                    editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
+                }
+            });
+            initializedRef.current = true;
+        }
+
+        // console.log(initialMarkdown);
+    }, [initialMarkdown]);
     return (
         <TooltipPrimitive.Provider
             data-slot='tooltip-provider'

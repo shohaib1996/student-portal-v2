@@ -5,9 +5,6 @@ import axios from 'axios';
 import {
     getMyNavigations,
     loadNotifications,
-    getPrograms,
-    getCourses,
-    getServices,
     getCommunityPosts,
     loadChats,
     getOnlines,
@@ -22,7 +19,9 @@ import {
 import { setCompanyFeatures } from '../redux/features/comapnyReducer';
 import { Loader } from 'lucide-react';
 import { toast } from 'sonner';
-import { persistor, store } from '@/redux/store';
+import { AppDispatch, persistor, store } from '@/redux/store';
+import { useDispatch } from 'react-redux'; // Add this import
+import CombinedSelectionModal from '@/components/global/SelectModal/combined-selection-modal';
 
 // Types
 interface Storage {
@@ -56,24 +55,23 @@ const configureAxiosHeader = async (storage: Storage): Promise<void> => {
         };
     }
 
-    const enroll = await storage.getItem('active_enrolment');
-    const enrollId = enroll?._id;
+    const activeCompanyFromCookie = Cookies.get('activeCompany');
+    const activeEnrollmentFromCookie = Cookies.get('activeEnrolment');
 
-    if (enrollId) {
-        axios.defaults.headers.common['enrollment'] = enrollId;
+    if (activeEnrollmentFromCookie) {
+        axios.defaults.headers.common['enrollment'] =
+            activeEnrollmentFromCookie;
     }
-};
 
-// Helper function to safely dispatch thunks
-const dispatchSafely = <T extends unknown>(action: T) => {
-    // This type assertion is needed to help TypeScript understand
-    // that our action can be dispatched by the Redux store
-    store.dispatch(action as any);
+    if (activeCompanyFromCookie) {
+        axios.defaults.headers.common['organization'] = activeCompanyFromCookie;
+    }
 };
 
 const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [userData, setUserData] = useState<User>({});
+    const dispatch = useDispatch<any>(); // Use useDispatch hook
 
     useEffect(() => {
         const fetchData = async (): Promise<void> => {
@@ -86,12 +84,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                 process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,
             );
 
-            // Safely dispatch thunk actions
-            dispatchSafely(getPrograms());
-            dispatchSafely(getCourses());
-            dispatchSafely(getServices());
-
-            const selectedOrganization = Cookies.get('activeCompany');
+            const activeCompanyFromCookie = Cookies.get('activeCompany');
 
             if (token) {
                 setIsLoading(true);
@@ -99,109 +92,38 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                     const res = await axios.post(
                         `${process.env.NEXT_PUBLIC_API_URL}/user/verify`,
                         {
-                            organization: selectedOrganization,
+                            organization: activeCompanyFromCookie,
                         },
                     );
 
                     if (res.status === 200 && res.data.success) {
-                        dispatchSafely(loadNotifications());
-                        dispatchSafely(getMyNavigations());
+                        // Use dispatch directly instead of dispatchSafely
+                        dispatch(loadNotifications());
+                        dispatch(getMyNavigations());
 
                         setUserData(res.data.user);
                         setIsLoading(false);
-                        dispatchSafely(setUser(res.data.user));
+                        dispatch(setUser(res.data.user));
 
-                        if (selectedOrganization) {
+                        dispatch(setMyEnrollments(res.data.enrollments));
+                        // setEnrollments(res.data.enrollments);
+                        if (activeCompanyFromCookie) {
                             axios.defaults.headers.common['organization'] =
-                                selectedOrganization;
+                                activeCompanyFromCookie;
 
-                            dispatchSafely(
+                            dispatch(
                                 setCompanyFeatures(res.data.features || []),
                             );
                             await connectSocket();
-                            dispatchSafely(loadChats());
-                            dispatchSafely(getOnlines());
-                            dispatchSafely(
+                            dispatch(loadChats());
+                            dispatch(getOnlines());
+                            dispatch(
                                 getCommunityPosts({
                                     limit: 10,
                                     activePage: 1,
                                     reset: false,
                                 }),
                             );
-
-                            dispatchSafely(
-                                setMyEnrollments(res.data.enrollments),
-                            );
-
-                            const findActive: Enrollment | null =
-                                await storage.getItem('active_enrolment');
-                            const approved: Enrollment[] =
-                                res.data.enrollments?.filter(
-                                    (x: Enrollment) =>
-                                        x?.status === 'approved' ||
-                                        x?.status === 'trial',
-                                );
-
-                            // Extract the approved IDs for easier checks later
-                            const approvedIds: string[] = approved?.map(
-                                (x: Enrollment) => x?._id,
-                            );
-
-                            // 1. If approved.length is 0
-                            if (!approved?.length) {
-                                await storage.setItem('active_enrolment', {}); // setting in local storage as per previous point
-                                return; // Exit here
-                            }
-
-                            // New condition: If approved.length is 1
-                            if (approved?.length === 1 && !findActive?._id) {
-                                await storage.setItem(
-                                    'active_enrolment',
-                                    approved[0],
-                                );
-                                window.location.pathname = '/dashboard';
-                                return; // Exit here
-                            }
-
-                            // 2. If approved.length > 0 and findActive is found and findActive belongs to approved
-                            if (
-                                findActive?._id &&
-                                approvedIds?.includes(findActive._id)
-                            ) {
-                                const enrollment = approved?.find(
-                                    (x: Enrollment) =>
-                                        x._id === findActive?._id,
-                                );
-                                dispatchSafely(setEnrollment(enrollment));
-                                return; // Exit here
-                            }
-
-                            // 3. If findActive doesn't belong to approved
-                            if (
-                                findActive?._id &&
-                                !approvedIds?.includes(findActive._id)
-                            ) {
-                                await storage.setItem('active_enrolment', {});
-                                if (
-                                    window.location.pathname !==
-                                    '/enrollment-status'
-                                ) {
-                                    window.location.pathname = `/enrollment-status`;
-                                }
-                                return; // Exit here
-                            }
-
-                            // 5. If there are multiple approved and no findActive is found
-                            if (approved?.length > 0 && !findActive?._id) {
-                                if (
-                                    window.location.pathname !==
-                                    '/enrollment-status'
-                                ) {
-                                    window.location.pathname =
-                                        '/enrollment-status';
-                                }
-                                return;
-                            }
                         }
                     }
                 } catch (err: any) {
@@ -213,7 +135,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                     toast.error(
                         err?.response?.data?.error || 'Something went wrong',
                     );
-                    dispatchSafely(logout());
+                    dispatch(logout());
                     window.location.href = `/auth/login`;
                 }
             } else {
@@ -232,7 +154,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
         return () => {
             disconnectSocket();
         };
-    }, []);
+    }, [dispatch]); // Add dispatch to dependency array
 
     // Update loading spinner to use Tailwind instead of inline styles
     if (isLoading) {
@@ -244,7 +166,20 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
     }
 
     // Pass userData as a prop to children using React.cloneElement
-    return React.cloneElement(children as React.ReactElement);
+    return (
+        <React.Fragment>
+            {React.Children.map(children, (child) => {
+                if (React.isValidElement(child)) {
+                    return React.cloneElement(child);
+                }
+                return child;
+            })}
+
+            {/* <CombinedSelectionModal
+                myEnrollments={enrollments}
+            /> */}
+        </React.Fragment>
+    );
 };
 
 export default AuthWrapper;

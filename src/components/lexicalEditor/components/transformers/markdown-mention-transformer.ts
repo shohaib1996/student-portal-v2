@@ -35,7 +35,7 @@ export const MENTION_MARKDOWN_TRANSFORMER: TextMatchTransformer = {
      * Replace: Transform the matched text into a MentionNode
      */
     replace: (textNode, match) => {
-        console.log('Markdown mention transformer replace', textNode, match);
+        // console.log('Markdown mention transformer replace', textNode, match);
 
         const [, label, id] = match;
 

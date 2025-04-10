@@ -47,7 +47,7 @@ export default function MinimalEditor() {
         beautifulMentions: true,
         showToolbar: true,
         showBottomBar: true,
-
+        quote: true,
         // Toolbar-specific options
         toolbar: {
             history: true,
@@ -61,11 +61,9 @@ export default function MinimalEditor() {
             },
             link: true,
             clearFormatting: true,
-            blockInsert: {
-                horizontalRule: true,
-                image: true,
-                table: true,
-            },
+            horizontalRule: true,
+            image: true,
+            table: true,
         },
 
         // Action bar specific options

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
     InitialConfigType,
     LexicalComposer,
@@ -123,18 +123,22 @@ function LoadMarkdownContent({
     transformers: any[];
 }) {
     const [editor] = useLexicalComposerContext();
+    const initializedRef = useRef(false);
 
     useEffect(() => {
-        if (initialMarkdown) {
+        // Only load the markdown content initially or if initialMarkdown is explicitly set to empty
+        // This prevents overwriting the editor during typing
+        if (!initializedRef.current) {
             editor.update(() => {
-                $convertFromMarkdownString(initialMarkdown, transformers);
+                if (initialMarkdown) {
+                    $convertFromMarkdownString(initialMarkdown, transformers);
+                } else {
+                    editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
+                }
             });
-        } else {
-            //clean
-            editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
+            initializedRef.current = true;
         }
-        // We intentionally run only when the editor and initialMarkdown are set.
-    }, [initialMarkdown]);
+    }, []);
 
     return null;
 }
@@ -146,7 +150,7 @@ function LoadMarkdownContent({
  * and uses the OnChangePlugin to trigger updates. The transformer array is memoized
  * to prevent unnecessary re-renders and state resets.
  */
-export function MarkdownEditor({
+export function ChatEditor({
     onChange,
     onSerializedChange,
     pluginOptions = {},
@@ -216,15 +220,18 @@ export function MarkdownEditor({
                         : {}),
                 }}
             >
-                <TooltipProvider>
+                <TooltipProvider
+                    initialMarkdown={initialMarkdown}
+                    transformers={TRANSFORMERS}
+                >
                     <SharedAutocompleteContext>
                         <FloatingLinkContext>
-                            {initialMarkdown && (
+                            {/* {initialMarkdown && (
                                 <LoadMarkdownContent
                                     initialMarkdown={initialMarkdown}
                                     transformers={TRANSFORMERS}
                                 />
-                            )}
+                            )} */}
                             <div className='flex flex-col h-full'>
                                 <Plugins
                                     maxLength={maxLength}

@@ -34,6 +34,16 @@ import FileItem from './FileItem';
 import CaptureAudio from './CaptureAudio';
 import { instance } from '@/lib/axios/axiosInstance';
 import { useAppSelector } from '@/redux/hooks';
+
+import {
+    MentionMenu,
+    MentionMenuItem,
+} from '@/components/lexicalEditor/components/editor-ui/MentionMenu';
+import {
+    ChatEditor,
+    PluginOptions,
+} from '@/components/lexicalEditor/chateditor/editor';
+
 // Dynamically import EmojiPicker to prevent blocking the main bundle
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
     ssr: false,
@@ -68,46 +78,62 @@ interface User {
     profilePicture?: string;
 }
 
-// Styles for react-mentions
-const mentionStyle = {
-    backgroundColor: '#E8F0FE',
-    padding: '2px 4px',
-    borderRadius: '4px',
-    color: '#1E40AF',
-    fontWeight: '500',
-};
+// Plugin options for the markdown editor
+const pluginOptions: PluginOptions = {
+    // Main plugin options
+    history: true,
+    autoFocus: true,
+    richText: true,
+    checkList: true,
+    horizontalRule: true,
+    table: true,
+    list: true,
+    tabIndentation: false,
+    draggableBlock: false,
+    images: true,
+    codeHighlight: true,
+    autoLink: true,
+    link: true,
+    componentPicker: true,
+    contextMenu: true,
+    dragDropPaste: true,
+    emojiPicker: true,
+    floatingLinkEditor: true,
+    floatingTextFormat: false,
+    maxIndentLevel: true,
+    beautifulMentions: true,
+    showToolbar: true,
+    showBottomBar: false,
+    quote: false,
 
-const mentionsInputStyle: MentionsInputStyle = {
-    control: {
-        fontSize: 16,
-        fontWeight: 'normal',
-    },
-    input: {
-        margin: 0,
-        padding: '8px 12px',
-        overflow: 'auto',
-        height: 'auto',
-    },
-    highlighter: {
-        padding: '8px 12px',
-    },
-    suggestions: {
-        list: {
-            backgroundColor: 'white',
-            border: '1px solid rgba(0,0,0,0.15)',
-            fontSize: 16,
-            borderRadius: '5px',
-            padding: '10px',
-            maxHeight: '400px',
-            overflowY: 'auto',
+    // Toolbar-specific options
+    toolbar: {
+        history: false,
+        blockFormat: true,
+        codeLanguage: true,
+        fontFormat: {
+            bold: true,
+            italic: true,
+            underline: true,
+            strikethrough: true,
         },
-        item: {
-            padding: '5px 15px',
-            borderBottom: '1px solid rgba(0,0,0,0.15)',
-            '&focused': {
-                backgroundColor: '#f0f0f0',
-            },
-        },
+        link: true,
+        clearFormatting: true,
+        horizontalRule: true,
+        image: true,
+        table: true,
+        quote: false,
+    },
+
+    // Action bar specific options
+    actionBar: {
+        maxLength: true,
+        characterLimit: true,
+        counter: true,
+        speechToText: true,
+        editModeToggle: true,
+        clearEditor: true,
+        treeView: true,
     },
 };
 
@@ -129,7 +155,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const [pestFiles, setPestFiles] = useState<string[]>([]);
     const params = useParams();
     const [pestFileModal, setPestFileModal] = useState<boolean>(false);
-    // const { drafts } = useAppSelector((state: any) => state.chat);
     const draftsData: any = drafts || [];
     const text =
         (draftsData &&
@@ -140,14 +165,12 @@ const TextEditor: React.FC<TextEditorProps> = ({
             draftsData?.find((item: any) => item.chat === chatId)
                 ?.uploadFiles) ||
         [];
-
     const [localText, setLocalText] = useState<string>('');
+    const [isSendingAudio, setIsSendingAudio] = useState<boolean>(false);
 
-    useEffect(() => {
-        store.dispatch(
-            setDraft({ chat: chatId as string, message: localText }),
-        );
-    }, [localText, chatId]);
+    // useEffect(() => {
+    //     store.dispatch(setDraft({ chat: chatId as string, message: localText }));
+    // }, [localText, chatId]);
 
     useEffect(() => {
         setLocalText(text);
@@ -174,29 +197,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
             el.focus();
         }
     }, [chatId]);
-
-    const renderSuggestion = useCallback(
-        (
-            suggestion: any,
-            search: string,
-            highlightedDisplay: React.ReactNode,
-        ) => {
-            return (
-                <div className='flex items-center gap-2.5 p-2'>
-                    <Avatar className='h-10 w-10 border border-border'>
-                        <img
-                            src={
-                                suggestion?.profilePicture || '/placeholder.svg'
-                            }
-                            alt={suggestion.display}
-                        />
-                    </Avatar>
-                    <span>{suggestion.display}</span>
-                </div>
-            );
-        },
-        [],
-    );
 
     const onTyping = useCallback(
         debounce((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -240,33 +240,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         return res.data?.results || [];
     };
 
-    const fetchUsers = (query: string, callback: (data: any[]) => void) => {
-        fetchMembers({
-            query: query?.toLowerCase(),
-            limit: 15,
-            chat: chatId as string,
-        })
-            .then((userLists) => {
-                if (userLists?.length > 2) {
-                    const users = userLists?.map((u: any) => ({
-                        display: `${u?.user?.firstName} ${u?.user?.lastName}`,
-                        id: u?.user?._id,
-                        profilePicture: u?.user?.profilePicture,
-                    }));
-                    callback([
-                        { id: 'everyone', display: 'everyone' },
-                        ...users,
-                    ]);
-                }
-            })
-            .catch((err) => {
-                toast.error('Something went wrong!');
-            });
-    };
-
-    const [isSendingAudio, setIsSendingAudio] = useState<boolean>(false);
-
-    // Modify the sendRenderedAudio function to track sending state
+    // Modified send rendered audio function
     const sendRenderedAudio = async (audio: File) => {
         const totalCount = uploadFiles?.length + 1;
         if (totalCount > 5) {
@@ -327,7 +301,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                 chat: chatId as string,
                 uploadFiles: undefined,
             }),
-        ); // setting null to the draft reducer
+        );
     };
 
     const handleMenuItemClick = () => {
@@ -356,38 +330,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         }
     };
 
-    const handleSetEmoji = (emojiObject: any) => {
-        if (mentionsInputRef.current) {
-            const cursorPosition = mentionsInputRef.current.selectionStart || 0;
-            const currentText = mentionsInputRef.current.value;
-            const newText =
-                currentText.substring(0, cursorPosition) +
-                emojiObject.emoji +
-                currentText.substring(cursorPosition);
-            store.dispatch(
-                setDraft({ chat: chatId as string, message: newText }),
-            );
-            setLocalText(newText);
-
-            // Need to wait for the state to update before setting selection range
-            setTimeout(() => {
-                if (mentionsInputRef.current) {
-                    mentionsInputRef.current.focus();
-                    mentionsInputRef.current.setSelectionRange(
-                        cursorPosition + emojiObject?.emoji?.length,
-                        cursorPosition + emojiObject?.emoji?.length,
-                    );
-                }
-            }, 0);
-        }
-    };
-
-    const handleOnChange: OnChangeHandlerFunc = (
-        event,
-        newValue,
-        newPlainTextValue,
-        mentions,
-    ) => {
+    const handleOnChange = (newValue: string) => {
         if (chatId) {
             setLocalText(newValue);
         }
@@ -410,7 +353,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
 
         if (!messageText && successFiles.length === 0) {
             store.dispatch(setDraft({ chat: chatId as string, message: '' }));
-            return toast.error('Please write something');
+            return toast.error('Please write something or attach a file');
         }
 
         const data = {
@@ -469,12 +412,11 @@ const TextEditor: React.FC<TextEditorProps> = ({
             instance
                 .put(`/chat/sendmessage/${chatId}`, data)
                 .then((res) => {
-                    // Update the message status to 'sent' in Redux
                     store.dispatch(
                         updateSendingInfo({
                             message: {
                                 ...res.data.message,
-                                status: 'sent', // Ensure status is set to 'sent'
+                                status: 'sent',
                             },
                             trackingId: randomId.toString(),
                         }),
@@ -517,34 +459,46 @@ const TextEditor: React.FC<TextEditorProps> = ({
         }
     };
 
-    const modifiedInputStyle: MentionsInputStyle = {
-        ...mentionsInputStyle,
-        suggestions: {
-            ...mentionsInputStyle.suggestions!,
-            list: {
-                ...mentionsInputStyle.suggestions!.list,
-                backgroundColor: 'var(--background)',
-            },
-            item: {
-                ...mentionsInputStyle.suggestions!.item,
-                backgroundColor: 'var(--background)',
-                '&focused': {
-                    backgroundColor: 'var(--muted)',
-                },
-            },
-        },
+    // Custom mention search handler
+    const handleMentionSearch = async (
+        trigger: string,
+        query?: string | null,
+    ) => {
+        const options = {
+            query: query?.toLowerCase() || '',
+            limit: 15,
+            chat: chatId as string,
+        };
+
+        const res = await instance.post(
+            `/chat/members/${options?.chat}`,
+            options,
+        );
+        const data = res.data?.results;
+
+        return data?.map(
+            (x: { user: any; id: string | number; avatar: string }) => ({
+                value: `${x?.user?.firstName} ${x?.user?.lastName}`,
+                id: String(x?.user?._id),
+                avatar: x?.user?.profilePicture || `https://placehold.co/400`,
+            }),
+        );
     };
 
     return (
         <>
+            {/* Pasted Files Modal */}
             {pestFileModal && (
-                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50'>
-                    <div className='bg-background rounded-lg p-4 max-w-md w-full'>
+                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm'>
+                    <div className='bg-background rounded-lg p-6 max-w-md w-full shadow-lg border border-border'>
+                        <h3 className='text-lg font-medium mb-4'>
+                            Pasted Files
+                        </h3>
                         {pestFiles?.length > 0 && (
-                            <div className='grid grid-cols-2 gap-2 mb-4'>
+                            <div className='grid grid-cols-2 gap-3 mb-4'>
                                 {pestFiles?.map((item, i) => (
                                     <img
-                                        className='w-full h-auto rounded'
+                                        className='w-full h-auto rounded-md object-cover'
                                         src={item || '/placeholder.svg'}
                                         key={i}
                                         alt='Pasted file'
@@ -552,18 +506,18 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                 ))}
                             </div>
                         )}
-                        <div className='flex justify-between'>
+                        <div className='flex justify-between mt-4'>
                             <button
                                 onClick={() => {
                                     setPestFileModal(false);
                                     setPestFiles([]);
                                 }}
-                                className='flex items-center gap-1 text-destructive'
+                                className='flex items-center gap-1.5 text-destructive hover:text-destructive/80 transition-colors px-3 py-1.5 rounded-md hover:bg-destructive/10'
                             >
                                 <Trash2 className='h-4 w-4' />
                                 Remove
                             </button>
-                            <button className='bg-primary text-primary-foreground px-4 py-2 rounded'>
+                            <button className='bg-primary text-primary-foreground px-4 py-1.5 rounded-md hover:bg-primary/90 transition-colors'>
                                 Send
                             </button>
                         </div>
@@ -571,7 +525,8 @@ const TextEditor: React.FC<TextEditorProps> = ({
                 </div>
             )}
 
-            <div>
+            <div className='text-editor-container'>
+                {/* Hidden file input */}
                 <input
                     type='file'
                     multiple
@@ -581,19 +536,22 @@ const TextEditor: React.FC<TextEditorProps> = ({
                     accept='image/*,video/*'
                 />
 
-                <div className=' border-t border-border py-2 px-2'>
-                    {uploadFiles.map((uploadFile, index) => (
-                        <div key={index} className='flex flex-wrap gap-2 pb-1'>
-                            <FileItem
-                                handleRemove={() =>
-                                    handleRemoveItem(uploadFile)
-                                }
-                                file={uploadFile}
-                                index={index}
-                                key={index}
-                            />
+                <div className='border-t border-border py-3 px-4'>
+                    {/* Uploaded files preview */}
+                    {uploadFiles.length > 0 && (
+                        <div className='mb-3 flex flex-wrap gap-2'>
+                            {uploadFiles.map((uploadFile, index) => (
+                                <FileItem
+                                    handleRemove={() =>
+                                        handleRemoveItem(uploadFile)
+                                    }
+                                    file={uploadFile}
+                                    index={index}
+                                    key={index}
+                                />
+                            ))}
                         </div>
-                    ))}
+                    )}
 
                     {isVoiceRecordVisible ? (
                         <CaptureAudio
@@ -604,107 +562,77 @@ const TextEditor: React.FC<TextEditorProps> = ({
                             isSendingAudio={isSendingAudio}
                         />
                     ) : (
-                        // <p>Capture Audio coming soon!</p>
-                        <div className='flex items-center p-1 border rounded-lg bg-background'>
-                            <div className='flex items-center w-full'>
-                                <div className='mt-auto'>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <button className='p-2 rounded-full hover:bg-muted'>
-                                                <Smile className='h-5 w-5 text-muted-foreground' />
-                                            </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent
-                                            side='top'
-                                            align='start'
-                                            className='w-auto'
-                                        >
-                                            <EmojiPicker
-                                                reactionsDefaultOpen={true}
-                                                onReactionClick={handleSetEmoji}
-                                                onEmojiClick={handleSetEmoji}
-                                                // native
-                                            />
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                        <div className='flex items-start border rounded-lg bg-background shadow-sm'>
+                            <div className='w-full'>
+                                {/* Editor area */}
+                                <div className='flex-1 max-h-45  bg-white'>
+                                    <ChatEditor
+                                        height='150px'
+                                        initialMarkdown={localText}
+                                        onMarkdownChange={handleOnChange}
+                                        pluginOptions={pluginOptions}
+                                        onMentionSearch={handleMentionSearch}
+                                        mentionMenu={MentionMenu}
+                                        mentionMenuItem={MentionMenuItem}
+                                        placeholder='Write something...'
+                                    />
                                 </div>
 
-                                <div className='flex-1 mx-2 max-h-32 overflow-y-auto'>
-                                    <MentionsInput
-                                        value={localText}
-                                        onChange={handleOnChange}
-                                        placeholder='Type a message'
-                                        style={mentionsInputStyle}
-                                        allowSuggestionsAboveCursor
-                                        className='text_input_box'
-                                        inputRef={mentionsInputRef}
-                                        onFocus={handleOnFocusEditor}
-                                        onKeyDown={handleKeyDown}
-                                        autoFocus={true}
-                                    >
-                                        <Mention
-                                            trigger={'@'}
-                                            data={fetchUsers}
-                                            displayTransform={(id, display) =>
-                                                `@${display}`
-                                            }
-                                            renderSuggestion={renderSuggestion}
-                                            markup='@[__display__](__id__)'
-                                            className='bg-primary/10 text-primary rounded px-1'
-                                            style={mentionStyle}
-                                            appendSpaceOnAdd
-                                        />
-                                    </MentionsInput>
-                                </div>
-
-                                <div className='flex items-center'>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <button className='p-2 rounded-full hover:bg-muted'>
-                                                <Paperclip className='h-5 w-5 text-muted-foreground' />
-                                            </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent
-                                            side='top'
-                                            align='end'
-                                        >
-                                            <DropdownMenuItem
-                                                className='flex items-center gap-2 cursor-pointer'
-                                                onClick={handleMenuItemClick}
+                                {/* Action buttons */}
+                                <div className='flex items-center justify-between px-2 mt-1'>
+                                    <div className='flex items-center gap-1'>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <button className='p-2 rounded-full hover:bg-muted transition-colors'>
+                                                    <Paperclip className='h-5 w-5 text-muted-foreground' />
+                                                </button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent
+                                                side='top'
+                                                align='start'
                                             >
-                                                <ImageIcon size={16} />
-                                                Photos & Videos
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                                <DropdownMenuItem
+                                                    className='flex items-center gap-2 cursor-pointer'
+                                                    onClick={
+                                                        handleMenuItemClick
+                                                    }
+                                                >
+                                                    <ImageIcon size={16} />
+                                                    Photos & Videos
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
 
-                                    {localText?.length === 0 &&
-                                    uploadFiles?.length === 0 ? (
-                                        <button
-                                            className='p-2 rounded-full hover:bg-muted'
-                                            onClick={() =>
-                                                setIsVoiceRecordVisible(true)
-                                            }
-                                        >
-                                            <Mic className='h-5 w-5 text-muted-foreground' />
-                                        </button>
-                                    ) : (
-                                        <button
-                                            className={`p-2 rounded-full ${
-                                                !localText &&
-                                                uploadFiles?.length === 0
-                                                    ? 'opacity-50 cursor-not-allowed'
-                                                    : 'bg-primary'
-                                            }`}
-                                            disabled={
-                                                !localText &&
-                                                uploadFiles?.length === 0
-                                            }
-                                            onClick={sendMessage}
-                                        >
-                                            <Send className='h-5 w-5 text-pure-white' />
-                                        </button>
-                                    )}
+                                        {localText?.length === 0 &&
+                                        uploadFiles?.length === 0 ? (
+                                            <button
+                                                className='p-2 rounded-full hover:bg-muted transition-colors'
+                                                onClick={() =>
+                                                    setIsVoiceRecordVisible(
+                                                        true,
+                                                    )
+                                                }
+                                            >
+                                                <Mic className='h-5 w-5 text-muted-foreground' />
+                                            </button>
+                                        ) : null}
+                                    </div>
+
+                                    <button
+                                        className={`p-2 rounded-full transition-all ${
+                                            !localText &&
+                                            uploadFiles?.length === 0
+                                                ? 'opacity-50 cursor-not-allowed bg-primary/60'
+                                                : 'bg-primary hover:bg-primary/90'
+                                        }`}
+                                        disabled={
+                                            !localText &&
+                                            uploadFiles?.length === 0
+                                        }
+                                        onClick={sendMessage}
+                                    >
+                                        <Send className='h-5 w-5 text-pure-white' />
+                                    </button>
                                 </div>
                             </div>
                         </div>

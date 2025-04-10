@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 import storage from '@/utils/storage';
 import { setEnrollment } from '@/redux/features/auth/authReducer';
-import SwitchModal from '@/components/shared/SwitchModal';
+// import SwitchModal from '@/components/shared/SwitchModal';
 
 // Define TypeScript interfaces
 interface Enrollment {
@@ -63,7 +63,7 @@ export default function EnrollmentStatus() {
 
     return (
         <div className='min-h-screen bg-background'>
-            <SwitchModal opened={isModalOpen} handleClose={closeModal} />
+            {/* <SwitchModal opened={isModalOpen} handleClose={closeModal} /> */}
         </div>
     );
 }

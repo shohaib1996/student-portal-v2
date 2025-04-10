@@ -43,7 +43,6 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'nextjs-toploader/app';
 import { Button } from '../ui/button';
-import UniversitySectionOpenButton from '../global/SelectModal/buttons/university-section-open-button';
 
 export type TLoookup = {
     data: any;
@@ -115,10 +114,6 @@ export function AppSidebar() {
 
     const { theme } = useTheme();
 
-    if (!isAuthenticated || !isMounted) {
-        return <></>;
-    }
-
     const programOpen =
         navigations.myProgram ||
         navigations.myE2eProgramAgenda ||
@@ -145,6 +140,9 @@ export function AppSidebar() {
         navigations.myIssue;
 
     const { open } = useSidebar();
+    if (!isAuthenticated || !isMounted) {
+        return <></>;
+    }
 
     return (
         <Sidebar collapsible='icon'>
@@ -193,14 +191,14 @@ export function AppSidebar() {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            <SidebarMenuItem className='border rounded-sm'>
+                            {/* <SidebarMenuItem className='border rounded-sm'>
                                 <SidebarMenuButton
                                     className='p-0 m-0 rounded-sm'
                                     tooltip='select your company'
                                 >
                                     <UniversitySectionOpenButton />
                                 </SidebarMenuButton>
-                            </SidebarMenuItem>
+                            </SidebarMenuItem> */}
                             <SidebarMenuItem>
                                 <SidebarMenuButton tooltip={'Dashboard'}>
                                     <FolderOpen size={22} />
@@ -646,7 +644,7 @@ export function AppSidebar() {
                             </SidebarMenuItem>
 
                             {/* Supports */}
-                            {supportOpen && (
+                            {/* {supportOpen && (
                                 <SidebarMenuItem>
                                     <Collapsible className='group/collapsible w-full'>
                                         <CollapsibleTrigger asChild>
@@ -714,7 +712,7 @@ export function AppSidebar() {
                                         </CollapsibleContent>
                                     </Collapsible>
                                 </SidebarMenuItem>
-                            )}
+                            )} */}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>

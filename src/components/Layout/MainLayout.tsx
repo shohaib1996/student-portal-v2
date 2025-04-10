@@ -12,6 +12,7 @@ import { useAppSelector } from '@/redux/hooks';
 import setupSocketListeners from '@/helper/socketHandler';
 import { socket } from '@/helper/socketManager';
 import { EventPopoverProvider } from '../calendar/CreateEvent/EventPopover';
+import CombinedSelectionModal from '../global/SelectModal/combined-selection-modal';
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
     const activeCompany = Cookies.get('activeCompany');

@@ -2,6 +2,7 @@ import { RadialProgress } from '@/components/global/RadialProgress';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TProgram, TProgramMain, TProgressChart } from '@/types';
+import { TEnrollment } from '@/types/auth';
 import {
     ArrowRight,
     Calendar,
@@ -77,15 +78,28 @@ const activeProgram = {
     ],
 };
 
+interface TExtendedEnrollment {
+    branch: {
+        name: string;
+    };
+    organization: {
+        name: string;
+    };
+}
+
 const ActiveProgram = ({
     program,
     myProgram,
     myProgress,
+    enrollment,
 }: {
     program: TProgram;
     myProgram: TProgramMain;
     myProgress: TProgressChart;
+    enrollment: any;
 }) => {
+    console.log({ enrollment });
+
     return (
         <div>
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mt-2 mb-3 py-2 px-3 bg-foreground rounded-xl overflow-hidden border border-border items-center'>
@@ -113,7 +127,7 @@ const ActiveProgram = ({
                                         Company
                                     </span>
                                     <p className='font-medium text-black'>
-                                        Organization
+                                        {enrollment?.organization?.name}
                                     </p>
                                 </div>
                             </div>
@@ -125,7 +139,7 @@ const ActiveProgram = ({
                                         Branch
                                     </span>
                                     <p className='font-medium text-black'>
-                                        TS4U IT Engineer Bootcamps
+                                        {enrollment?.branch?.name}
                                     </p>
                                 </div>
                             </div>

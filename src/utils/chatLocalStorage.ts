@@ -305,7 +305,7 @@ export const updateChatInStorage = async (
         const chats = await instance.getItem<ChatData[]>(CHATS_KEY);
 
         if (chats && Array.isArray(chats)) {
-            const chatExists = chats.some(
+            const chatExists = chats?.some(
                 (chat) => chat?._id === updatedChat?._id,
             );
             let updatedChats: ChatData[];

@@ -12,6 +12,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TProgram, TProgramMain, TProgressChart } from '@/types';
+import { TEnrollment } from '@/types/auth';
 
 const Program = () => {
     const { data, isLoading, isError } = useMyProgramQuery({});
@@ -27,6 +28,9 @@ const Program = () => {
     }>({});
     const myProgram: TProgramMain = data;
     const program: TProgram = myProgram?.program;
+    const enrollment: TEnrollment = myProgram?.enrollment;
+
+    console.log(enrollment);
 
     if (isLoading || isProgressLoading) {
         return (
@@ -142,6 +146,7 @@ const Program = () => {
                 program={program}
                 myProgram={myProgram}
                 myProgress={myProgress}
+                enrollment={enrollment}
             />
         </>
     );

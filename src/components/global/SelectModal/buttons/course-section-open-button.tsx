@@ -8,7 +8,8 @@ import { useMyProgramQuery } from '@/redux/api/myprogram/myprogramApi';
 import { TProgram, TProgramMain } from '@/types';
 import { useRouter } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
-
+import storage from '@/utils/storage';
+import { useEffect, useState } from 'react';
 interface Props {
     title?: string;
     icon?: React.ReactNode;
@@ -17,67 +18,40 @@ interface Props {
 export default function CourseSectionOpenButton({ title, icon }: Props) {
     const dispatch = useDispatch();
     const router = useRouter();
-    const { data, isLoading, isError, refetch } = useMyProgramQuery({});
 
     const handleOpenCourse = () => {
         dispatch(openModal('course'));
-        refetch();
-        router.push('/dashboard/program');
+
+        // router.push('/dashboard/program');
     };
 
-    if (isLoading) {
-        return (
-            <Button
-                variant='outline'
-                onClick={handleOpenCourse}
-                className='rounded-full'
-            >
-                Program Loading
-            </Button>
-        );
-    }
-    if (isError) {
-        return (
-            <Button
-                variant='outline'
-                onClick={handleOpenCourse}
-                className='rounded-full'
-            >
-                Program Failed!
-            </Button>
-        );
-    }
-    const myProgram: TProgramMain = data;
-    const program: TProgram = myProgram?.program;
+    const [enrollment, setEnrollment] = useState<TProgramMain | null>(null);
 
-    if (isLoading || isError) {
-        return (
-            <Button
-                variant='outline'
-                onClick={handleOpenCourse}
-                className='rounded-full'
-            >
-                Loading...
-            </Button>
-        );
-    }
+    useEffect(() => {
+        const fetchEnrollment = async () => {
+            const activeEnrollment = await storage.getItem('active_enrolment');
+            if (activeEnrollment) {
+                setEnrollment(activeEnrollment);
+            }
+        };
+
+        fetchEnrollment();
+    }, [storage]);
 
     return (
         <>
             <Button
-                tooltip={program?.title || 'Select Course'}
+                tooltip={'Select Course'}
                 variant='outline'
                 onClick={handleOpenCourse}
                 className='rounded-full font-semibold text-muted-foreground size-9 md:size-auto '
             >
                 {icon}{' '}
                 <p className='hidden lg:inline truncate w-full max-w-36'>
-                    {program?.title || 'Select Course'}{' '}
+                    {enrollment?.program?.title || 'Select Course'}{' '}
                 </p>
                 <ChevronDown className='lg:block hidden' size={16} />
             </Button>
-
-            <CombinedSelectionModal />
         </>
     );
 }

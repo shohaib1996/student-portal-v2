@@ -335,9 +335,9 @@ const Navbar = () => {
     const [userOpen, setUserOpen] = useState(false);
     const pathName = usePathname();
 
-    useEffect(() => {
-        setUserOpen(false);
-    }, [pathName, router]);
+    // useEffect(() => {
+    //     setUserOpen(false);
+    // }, [pathName, router]);
 
     return (
         <div className='sticky top-0 z-20 flex flex-shrink-0 w-full h-[55px] box-border bg-foreground border-b border-forground-border shadow-sm'>

@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState, ReactNode } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
-import {
-    setActiveCompany,
-    setCompanies,
-    setCompanySwitcher,
-} from '../redux/features/comapnyReducer';
+// import {
+//     setActiveCompany,
+//     setCompanies,
+//     setCompanySwitcher,
+// } from '../redux/features/comapnyReducer';
 import { Check } from 'lucide-react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -16,8 +16,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import GlobalModal from '@/components/global/GlobalModal';
 import { toast } from 'sonner';
 import { instance } from '@/lib/axios/axiosInstance';
-import { UniversitySelectModal } from '@/components/global/SelectModal/university-select-modal';
-import UniversitySectionOpenButton from '@/components/global/SelectModal/buttons/university-section-open-button';
+import CombinedSelectionModal from '@/components/global/SelectModal/combined-selection-modal';
+import { useMyProgramQuery } from '@/redux/api/myprogram/myprogramApi';
+import { openModal } from '@/redux/features/selectionModalSlice';
 
 // Define interfaces for TypeScript
 interface Company {
@@ -43,63 +44,41 @@ interface WorkspaceProviderProps {
 
 function WorkspaceProvider({ children }: WorkspaceProviderProps) {
     const dispatch = useDispatch();
-    const { companies, companySwitcher, loading } = useSelector(
-        (state: RootState) => state.company,
-    );
+    //  const { data, isLoading, isError, refetch } = useMyProgramQuery({});
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     // Set initial state to true to open modal automatically
-    const [isSwitcherVisible, setIsSwitcherVisible] = useState<boolean>(false);
+
     const [activeCompanyId, setActiveCompanyId] = useState<string | null>(null);
-    const store = useStore();
 
     useEffect(() => {
         // Check if there's an active company on mount
         const activeCompanyFromCookie = Cookies.get('activeCompany');
-        setActiveCompanyId(activeCompanyFromCookie || null);
+        const activeEnrollmentFromCookie = Cookies.get('activeEnrolment');
 
-        // Only show switcher if no active company
-        if (!activeCompanyFromCookie) {
-            setIsSwitcherVisible(true);
-            dispatch(setCompanySwitcher(true));
+        if (!activeCompanyFromCookie || !activeEnrollmentFromCookie) {
+            dispatch(openModal('course'));
+        } else {
+            setActiveCompanyId(activeCompanyFromCookie);
         }
 
-        const unsubscribe = store.subscribe(async () => {
-            const state = store.getState() as RootState;
-            const { companySwitcher, activeCompany } = state.company;
-            setIsSwitcherVisible(companySwitcher);
-            setActiveCompanyId(Cookies.get('activeCompany') || null);
-        });
+        // const unsubscribe = store.subscribe(async () => {
+        //     const state = store.getState() as RootState;
+        //     const { companySwitcher, activeCompany } = state.company;
+        //     // const { myEnrollments } = state.auth;
 
-        return () => unsubscribe();
-    }, [store, dispatch]);
+        //     // console.log('myEnrollments', myEnrollments);
 
-    useEffect(() => {
-        if (!activeCompanyId) {
-            setIsLoading(true);
-        }
+        //     setIsSwitcherVisible(companySwitcher);
+        //     setActiveCompanyId(Cookies.get('activeCompany') || null);
+        //     setEnrollment(Cookies.get('active_enrolment') || null);
 
-        instance
-            .get('/organization/user-organizations')
-            .then((res) => {
-                dispatch(setCompanies(res.data.organizations || []));
-                setIsLoading(false);
-            })
-            .catch((err) => {
-                setIsLoading(false);
-                toast.error(
-                    err?.response?.data?.error ||
-                        'Failed to load organizations',
-                );
-            });
-    }, [activeCompanyId, dispatch]);
+        // });
 
-    const handleCompanySelect = async (companyId: string) => {
-        dispatch(setActiveCompany(companyId as any));
-        Cookies.set('activeCompany', companyId);
-        dispatch(setCompanySwitcher(false));
-        setIsSwitcherVisible(false);
-        setTimeout(() => window.location.reload(), 1000);
-    };
+        // return () => unsubscribe();
+    }, []);
+
+    // console.log('activeCompanyId', activeCompanyId);
 
     const EmptyState = () => (
         <div className='flex flex-col items-center justify-center p-8 text-center'>
@@ -127,18 +106,17 @@ function WorkspaceProvider({ children }: WorkspaceProviderProps) {
                     <line x1='9' y1='21' x2='9' y2='9'></line>
                 </svg>
             </div>
-            <h3 className='mb-1 text-lg font-medium'>No Company Selected</h3>
+            <h3 className='mb-1 text-lg font-medium'>No Enrollment found</h3>
             <p className='mb-4 text-sm text-gray-500'>
-                Please select a company/university to continue.
+                Please select a program to get started.
             </p>
             <Button
                 variant='default'
                 onClick={() => {
-                    setIsSwitcherVisible(true);
-                    dispatch(setCompanySwitcher(true));
+                    dispatch(openModal('course'));
                 }}
             >
-                Select Company/University
+                Select Program
             </Button>
         </div>
     );
@@ -161,14 +139,7 @@ function WorkspaceProvider({ children }: WorkspaceProviderProps) {
                 <EmptyState />
             )}
 
-            <UniversitySelectModal
-                open={isSwitcherVisible}
-                onOpenChange={(open) => {
-                    setIsSwitcherVisible(open);
-                    dispatch(setCompanySwitcher(open));
-                }}
-                onSelect={(company) => handleCompanySelect(company._id)}
-            />
+            <CombinedSelectionModal />
         </>
     );
 }
