@@ -456,7 +456,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
             <div className='pb-2 border-b'>
                 <div className='relative flex flex-row items-center gap-1'>
                     <Input
-                        className='pl-10 bg-background h-9'
+                        className='pl-8 bg-background h-9'
                         onChange={handleChangeSearch}
                         value={searchQuery}
                         type='search'

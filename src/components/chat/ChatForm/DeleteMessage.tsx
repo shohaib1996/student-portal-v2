@@ -80,7 +80,7 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
         >
             <div className='flex flex-col my-4'>
                 {/* Message preview */}
-                <div className='bg-foreground border p-2 rounded-xl mb-2 mx-2'>
+                <div className='bg-background border p-2 rounded-xl mb-2 mx-2'>
                     <div className='flex items-start gap-3'>
                         {selectedMessage?.sender?.profilePicture ? (
                             <Image

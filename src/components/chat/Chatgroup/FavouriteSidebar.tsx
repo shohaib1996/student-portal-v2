@@ -133,6 +133,7 @@ function FavouriteSidebar() {
     const [favourites, setFavourites] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const [visibleCount, setVisibleCount] = useState<number>(20);
     const params = useParams();
 
     const handleChangeSearch = useCallback(
@@ -150,12 +151,18 @@ function FavouriteSidebar() {
                                 .includes(value.toLowerCase())),
                 );
                 setRecords(filteredChats);
+                // Reset visible count when searching
+                setVisibleCount(20);
             } else {
                 setRecords(favourites);
             }
         },
         [favourites],
     );
+
+    const handleLoadMore = useCallback(() => {
+        setVisibleCount((prevCount) => prevCount + 20);
+    }, []);
 
     useEffect(() => {
         setIsLoading(true);
@@ -171,22 +178,23 @@ function FavouriteSidebar() {
         }
     }, [chats]);
 
+    // Get only the visible records
+    const visibleRecords = sortByLatestMessage(records).slice(0, visibleCount);
+    const hasMoreToLoad = records.length > visibleRecords.length;
+
     return (
         <>
             {/* Search input - Fixed */}
             <div className='pb-2 border-b'>
                 <div className='relative flex flex-row items-center gap-2'>
                     <Input
-                        className='pl-10 bg-foreground'
+                        className='pl-8 bg-background'
                         onChange={handleChangeSearch}
                         value={searchQuery}
                         type='search'
                         placeholder='Search favourites...'
                     />
                     <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
-                    <Button variant='secondary' size='icon'>
-                        <SlidersHorizontal className='h-4 w-4 text-gray' />
-                    </Button>
                 </div>
             </div>
 
@@ -196,7 +204,7 @@ function FavouriteSidebar() {
                 </div>
             ) : (
                 <div className='divide-y divide-gray-200'>
-                    {sortByLatestMessage(records)?.map((chat, i) => {
+                    {visibleRecords?.map((chat, i) => {
                         const isActive = params?.chatid === chat?._id;
                         const hasUnread = (chat?.unreadCount ?? 0) > 0;
 
@@ -416,13 +424,14 @@ function FavouriteSidebar() {
                         </div>
                     )}
 
-                    {records.length > 0 && (
+                    {records.length > 0 && hasMoreToLoad && (
                         <div className='p-2 text-center flex flex-row items-center gap-1'>
                             <div className='w-full h-[2px] bg-border'></div>
                             <Button
                                 variant='primary_light'
                                 size='sm'
                                 className='text-xs rounded-3xl text-primary'
+                                onClick={handleLoadMore}
                             >
                                 View More{' '}
                                 <ChevronDown size={16} className='text-gray' />

@@ -339,9 +339,9 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                 <Image
                                     src={
                                         message.sender?.type === 'bot'
-                                            ? '/chat/bot.png'
+                                            ? '/ai_bot.png'
                                             : message?.sender?.profilePicture ||
-                                              '/chat/user.png'
+                                              '/avatar.png'
                                     }
                                     alt={
                                         message?.sender?.firstName ||
@@ -541,7 +541,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                         }`}
                                                     >
                                                         {e}
-                                                        <span className='text-primary'>
+                                                        <span className='text-primary-white'>
                                                             {message
                                                                 .reactions?.[
                                                                 e
@@ -848,6 +848,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 ? 'start'
                                                 : 'end'
                                         }
+                                        className='bg-background'
                                     >
                                         <div className='flex flex-wrap gap-1 border-b pb-1'>
                                             {emojies?.map((x, i) => (
@@ -953,14 +954,14 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 user?._id &&
                                             !isAi && (
                                                 <DropdownMenuItem
-                                                    className='flex items-center gap-2 hover:bg-primary-light text-red-500'
+                                                    className='flex items-center gap-2 hover:bg-primary-light !text-red-500'
                                                     onClick={() =>
                                                         handleDeleteMessage(
                                                             message,
                                                         )
                                                     }
                                                 >
-                                                    <Trash className='h-4 w-4 text-red-500' />
+                                                    <Trash className='h-4 w-4 !text-red-500' />
                                                     Delete
                                                 </DropdownMenuItem>
                                             )}

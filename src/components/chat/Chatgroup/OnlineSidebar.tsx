@@ -137,7 +137,7 @@ function OnlineSidebar() {
             <div className='relative flex flex-row items-center gap-2'>
                 <div className='relative flex-1'>
                     <Input
-                        className='pl-10 bg-foreground border'
+                        className='pl-8 bg-background'
                         onChange={handleChangeSearch}
                         value={searchQuery}
                         type='search'
@@ -145,9 +145,6 @@ function OnlineSidebar() {
                     />
                     <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
                 </div>
-                <Button variant='secondary' size='icon'>
-                    <SlidersHorizontal className='h-4 w-4 text-gray' />
-                </Button>
             </div>
 
             {/* Tabs */}

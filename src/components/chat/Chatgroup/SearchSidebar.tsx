@@ -48,10 +48,31 @@ function SearchSidebar() {
     const [isUserLoading, setIsUserLoading] = useState<boolean>(false);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+    const [visibleCount, setVisibleCount] = useState<number>(10);
+
+    // Function to remove duplicate users based on _id
+    const removeDuplicateUsers = (usersList: User[]): User[] => {
+        const uniqueUsers = new Map();
+
+        usersList.forEach((user) => {
+            if (!uniqueUsers.has(user._id)) {
+                uniqueUsers.set(user._id, user);
+            }
+        });
+
+        return Array.from(uniqueUsers.values());
+    };
+
+    // Handle loading more users
+    const handleLoadMore = useCallback(() => {
+        setVisibleCount((prevCount) => prevCount + 10);
+    }, []);
 
     // Using useCallback to memoize the search function
     const handleSearchUser = useCallback((value: string) => {
         setSearchQuery(value);
+        // Reset visible count when performing a new search
+        setVisibleCount(10);
 
         const timeoutId = setTimeout(() => {
             setIsUserLoading(true);
@@ -60,7 +81,9 @@ function SearchSidebar() {
             instance
                 .get(`/chat/searchuser?query=${value?.trim() || ''}`)
                 .then((res) => {
-                    setUsers(res.data.users);
+                    // Remove duplicate users before setting state
+                    const uniqueUsers = removeDuplicateUsers(res.data.users);
+                    setUsers(uniqueUsers);
                     setIsUserLoading(false);
                 })
                 .catch((err) => {
@@ -73,12 +96,16 @@ function SearchSidebar() {
         return () => clearTimeout(timeoutId); // Clean up timeout on component unmount or value change
     }, []);
 
+    // Get visible users for pagination
+    const visibleUsers = users.slice(0, visibleCount);
+    const hasMoreToLoad = users.length > visibleCount;
+
     return (
         <div className='flex flex-col h-full'>
             {/* Search input */}
             <div className='relative flex flex-row items-center gap-2 w-full border-b border-b-border pb-2'>
                 <Input
-                    className='pl-10 bg-foreground border'
+                    className='pl-8 bg-background'
                     value={searchQuery}
                     onFocus={(e: React.FocusEvent<HTMLInputElement>) =>
                         handleSearchUser(e.target.value)
@@ -90,9 +117,6 @@ function SearchSidebar() {
                     placeholder='Search users...'
                 />
                 <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
-                <Button variant='secondary' size='icon' className='w-10 h-10'>
-                    <SlidersHorizontal className='h-4 w-4 text-gray' />
-                </Button>
             </div>
 
             {/* Search results */}
@@ -126,9 +150,9 @@ function SearchSidebar() {
                             </div>
                         ) : (
                             <div className='divide-y divide-border'>
-                                {users?.map((user, i) => (
+                                {visibleUsers.map((user, i) => (
                                     <div
-                                        key={i}
+                                        key={user._id}
                                         className={`flex items-center justify-between p-4 border-l-[2px] transition-colors duration-200 ${
                                             selectedUserId === user._id
                                                 ? 'bg-primary-light border-l-primary'
@@ -151,13 +175,14 @@ function SearchSidebar() {
                                     </div>
                                 ))}
 
-                                {users?.length > 10 && (
+                                {hasMoreToLoad && (
                                     <div className='p-2 text-center flex flex-row items-center gap-1'>
                                         <div className='w-full h-[2px] bg-border'></div>
                                         <Button
                                             variant='primary_light'
                                             size='sm'
                                             className='text-xs rounded-3xl text-primary'
+                                            onClick={handleLoadMore}
                                         >
                                             View More{' '}
                                             <ChevronDown
