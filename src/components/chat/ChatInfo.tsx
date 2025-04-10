@@ -799,7 +799,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                         className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
                                     >
                                         <FileImage size={16} className='mr-1' />
-                                        Images ({mediaCount || 0})
+                                        Images ({chat?.imagesCount || 0})
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value='voice'

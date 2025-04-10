@@ -335,7 +335,14 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                 >
                     <div className='flex max-w-full lg:max-w-[80%]'>
                         <div className='flex-shrink-0 mr-2'>
-                            <div className='cursor-pointer'>
+                            <div
+                                className='cursor-pointer'
+                                onClick={() =>
+                                    handleOpenNewChat(
+                                        message?.sender?._id || '',
+                                    )
+                                }
+                            >
                                 <Image
                                     src={
                                         message.sender?.type === 'bot'

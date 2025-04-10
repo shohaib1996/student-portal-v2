@@ -415,9 +415,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                             <Button
                                                 variant='ghost'
                                                 size='icon'
-                                                className='text-gray-500 hover:bg-blue-50'
+                                                className='text-dark-gray'
                                             >
-                                                <Edit className='h-5 w-5' />
+                                                <Edit className='h-5 w-5 text-dark-gray' />
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align='end'>

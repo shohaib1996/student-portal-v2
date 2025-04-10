@@ -321,7 +321,11 @@ const Inbox: React.FC<InboxProps> = ({
                                 variant='primary_light'
                                 size='icon'
                                 className='border'
-                                tooltip='Pin/Unpin chat'
+                                tooltip={
+                                    !chat?.myData?.isFavourite
+                                        ? 'Pin chat'
+                                        : 'Unpin chat'
+                                }
                                 onClick={() =>
                                     handleFavourite(!chat?.myData?.isFavourite)
                                 }
