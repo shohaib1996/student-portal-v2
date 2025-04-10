@@ -1,0 +1,173 @@
+@tailwind utilities;
+@layer utilities {
+    /* Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+        /* scrollbar-width: none !important; */
+
+        display: none;
+    }
+}
+
+.slid {
+    @apply no-scrollbar !mb-5 h-full w-full overflow-y-auto !border-b-0 bg-background !text-black shadow-none;
+
+    p strong,
+    p > span > strong,
+    p > strong > span,
+    span > strong,
+    li > strong {
+        @apply !text-base;
+    }
+
+    table {
+        @apply !h-full !w-full overflow-y-auto !whitespace-pre-line bg-background !pb-common text-start !text-xs !text-black;
+
+        tbody,
+        tr,
+        th td,
+        td {
+            @apply border border-black;
+        }
+
+        th td {
+            @apply !p-1 text-lg font-semibold capitalize;
+        }
+
+        td {
+            @apply !p-2 text-base;
+        }
+
+        td img {
+            @apply shadow-md;
+        }
+    }
+
+    a {
+        @apply text-xs font-medium text-blue-500 underline;
+    }
+
+    h3 {
+        @apply !font-semibold;
+    }
+
+    h3 span,
+    span {
+        @apply !text-xs;
+    }
+
+    ul {
+        @apply list-disc -space-y-2 !pl-8;
+    }
+
+    ol {
+        @apply !pl-8;
+    }
+
+    div,
+    p {
+        @apply -space-y-3;
+    }
+
+    /* &::-webkit-scrollbar {
+    @apply h-2 w-2 cursor-pointer border border-gray-300;
+  }
+
+  &::-webkit-scrollbar-track {
+    @apply rounded-[20px] shadow-inner;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    @apply bg-[#6c738e];
+  } */
+}
+
+.sideSlide {
+    @apply h-auto w-full overflow-hidden;
+
+    .sideSlideContent {
+        p strong,
+        p span strong,
+        p strong span,
+        span strong,
+        li strong {
+            @apply !text-[5px];
+        }
+
+        table {
+            @apply no-scrollbar h-auto w-full overflow-y-auto !whitespace-pre-line bg-background p-common text-start !text-xs !text-black;
+
+            tbody,
+            tr,
+            th td,
+            td {
+                @apply !max-h-12 border;
+            }
+
+            th td {
+                @apply !p-0 text-lg font-semibold capitalize;
+            }
+
+            td {
+                @apply !p-2 text-base;
+            }
+
+            td img {
+                @apply shadow-md;
+            }
+        }
+
+        a {
+            @apply text-[5px] font-medium text-blue-500 underline;
+        }
+
+        h3 {
+            @apply !font-semibold;
+        }
+
+        h3 span,
+        span {
+            @apply !text-[5px];
+        }
+
+        ul {
+            @apply list-disc -space-y-2 !pl-8;
+        }
+
+        ol {
+            @apply !pl-8;
+        }
+        div,
+        p {
+            @apply !-my-2;
+        }
+        span {
+            @apply !-my-2;
+        }
+        div,
+        p {
+            @apply space-y-5;
+        }
+    }
+}
+
+/* Custom scrollbar */
+/* .slid::-webkit-scrollbar,
+.sideSlide::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.slid::-webkit-scrollbar-track,
+.sideSlide::-webkit-scrollbar-track {
+  @apply rounded-full bg-gray-100;
+}
+
+.slid::-webkit-scrollbar-thumb,
+.sideSlide::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-gray hover:bg-gray-400;
+} */
+
+/* Remove negative spacing */
+.slid div,
+.slid p {
+    @apply -space-y-0;
+}
