@@ -41,6 +41,7 @@ import { copyToClipboard } from '@/utils/common';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ProposeTimeModal from './ProposeTimeModal';
 import EventDetailsSkeleton from './EventDetailSkeleton';
+import LexicalJsonRenderer from '../lexicalEditor/renderer/JsonRenderer';
 
 const EventDetails = () => {
     const { user } = useAppSelector((s) => s.auth);
@@ -463,11 +464,17 @@ const EventDetails = () => {
                             <h3 className='font-medium text-base pb-1'>
                                 Meeting Agenda/Follow up/Action Item
                             </h3>
-                            <ScrollArea className='h-24 bg-background rounded-md border'>
-                                <GlobalMarkDownPreview
+                            <ScrollArea className='min-h-24 max-h-48 overflow-y-auto p-2 bg-background rounded-md border'>
+                                <LexicalJsonRenderer
+                                    lexicalState={
+                                        JSON.parse(event?.description || '') ||
+                                        ''
+                                    }
+                                />
+                                {/* <GlobalMarkDownPreview
                                     text={event?.description || ''}
                                     className='text-sm text-muted-foreground'
-                                ></GlobalMarkDownPreview>
+                                ></GlobalMarkDownPreview> */}
                             </ScrollArea>
                         </div>
 

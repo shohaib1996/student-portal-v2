@@ -214,7 +214,7 @@ export function Plugins({
     };
 
     return (
-        <div className='relative flex flex-col h-full'>
+        <div className='relative flex flex-col h-full min-h-52'>
             {pluginOptions.showToolbar !== false && (
                 <ToolbarPlugin>
                     {({ blockType }) => (

@@ -14,6 +14,7 @@ import { TooltipProvider } from '../ui/tooltip';
 
 import { nodes } from './nodes';
 import { Plugins } from './plugins';
+import { cn } from '@/lib/utils';
 
 // In editor.ts or editor.tsx file
 
@@ -125,6 +126,7 @@ export function Editor({
     onAIGeneration,
     mentionMenu,
     mentionMenuItem,
+    className,
 }: {
     editorState?: EditorState;
     editorSerializedState?: SerializedEditorState;
@@ -145,10 +147,14 @@ export function Editor({
     ) => Promise<{ text: string; success: boolean; error?: string }>;
     mentionMenu?: React.FC<any>;
     mentionMenuItem?: React.FC<any>;
+    className?: string;
 }) {
     return (
         <div
-            className='overflow-hidden rounded-lg border bg-background shadow flex flex-col'
+            className={cn(
+                'overflow-hidden rounded-lg border bg-background shadow flex flex-col',
+                className,
+            )}
             style={{ height }}
         >
             <LexicalComposer

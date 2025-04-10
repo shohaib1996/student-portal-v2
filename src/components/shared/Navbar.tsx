@@ -37,6 +37,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import Image from 'next/image';
 import { SidebarTrigger } from '../ui/sidebar';
 import { persistor } from '@/redux/store';
+import { usePathname } from 'next/navigation';
 
 const Navbar = () => {
     const dispatch = useAppDispatch();
@@ -332,6 +333,11 @@ const Navbar = () => {
     }, []);
 
     const [userOpen, setUserOpen] = useState(false);
+    const pathName = usePathname();
+
+    useEffect(() => {
+        setUserOpen(false);
+    }, [pathName, router]);
 
     return (
         <div className='sticky top-0 z-20 flex flex-shrink-0 w-full h-[55px] box-border bg-foreground border-b border-forground-border shadow-sm'>
