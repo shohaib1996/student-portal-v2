@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { EditorState, SerializedEditorState } from 'lexical';
+
 import axios from 'axios';
 import {
     MarkdownEditor,
@@ -11,36 +11,6 @@ import {
     MentionMenu,
     MentionMenuItem,
 } from '../lexicalEditor/components/editor-ui/MentionMenu';
-
-const initialValue = {
-    root: {
-        children: [
-            {
-                children: [
-                    {
-                        detail: 0,
-                        format: 0,
-                        mode: 'normal',
-                        style: '',
-                        text: 'Hello, welcome to the powerful editor!',
-                        type: 'text',
-                        version: 1,
-                    },
-                ],
-                direction: 'ltr',
-                format: '',
-                indent: 0,
-                type: 'paragraph',
-                version: 1,
-            },
-        ],
-        direction: 'ltr',
-        format: '',
-        indent: 0,
-        type: 'root',
-        version: 1,
-    },
-} as unknown as SerializedEditorState;
 
 type TProps = {
     value: string;
@@ -199,12 +169,13 @@ export default function GlobalEditor({
         );
     };
 
-    console.log(value);
-
     return (
         <MarkdownEditor
             height='100%'
             initialMarkdown={value}
+            onMarkdownChange={(val) => {
+                onChange(val);
+            }}
             className={className}
             pluginOptions={defaultPluginOptions}
             onMentionSearch={handleMentionSearch}

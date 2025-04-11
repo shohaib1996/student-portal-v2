@@ -1,4 +1,3 @@
-import { TNote } from '@/app/(authenticated)/my-notes/page';
 import React, { useState } from 'react';
 import GlobalTable, {
     TCustomColumnDef,
@@ -10,6 +9,7 @@ import GlobalTooltip from '../global/GlobalTooltip';
 import Link from 'next/link';
 import TdDate from '../global/TdDate';
 import { Button } from '../ui/button';
+import { TNote } from '@/types';
 
 const NotesListView = ({ data }: { data: TNote[] }) => {
     const [limit, setLimit] = useState(20);
@@ -68,7 +68,7 @@ const NotesListView = ({ data }: { data: TNote[] }) => {
                     className='font-semibold text-primary-white truncate underline'
                     href={'/my-notes'}
                 >
-                    {row.original.purpose.title}
+                    {row.original?.purpose?.category}
                 </Link>
             ),
             footer: (data) => data.column.id,
@@ -78,7 +78,7 @@ const NotesListView = ({ data }: { data: TNote[] }) => {
         {
             accessorKey: 'date',
             header: 'Date & Time',
-            cell: ({ row }) => <TdDate date={row.original.date} />,
+            cell: ({ row }) => <TdDate date={row.original.createdAt} />,
             footer: (data) => data.column.id,
             id: 'date',
             visible: true,

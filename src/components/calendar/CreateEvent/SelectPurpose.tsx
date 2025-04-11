@@ -42,9 +42,11 @@ import { Button } from '@/components/ui/button';
 const SelectPurpose = ({
     value,
     onChange,
+    className,
 }: {
     value: { category?: string; resourceId?: string };
     onChange: (_: { category: string; resourceId: string }) => void;
+    className?: string;
 }) => {
     const [parentId, setParentId] = useState<string | null>(null);
     const { data: myPrograms, isLoading: isProgramsLoading } =
@@ -413,7 +415,7 @@ const SelectPurpose = ({
 
     return (
         <GlobalDropdown
-            className='w-full p-2 max-w-md'
+            className='w-full p-2 max-w-md z-[99999]'
             dropdownRender={
                 <div className='w-full'>
                     <div className='gap-2 flex overflow-x-auto pb-1'>
@@ -479,7 +481,12 @@ const SelectPurpose = ({
                 </div>
             }
         >
-            <div className='flex w-full gap-1 items-center border rounded-md h-10 bg-foreground text-sm text-dark-gray border-forground-border'>
+            <div
+                className={cn(
+                    'flex w-full gap-1 items-center border rounded-md h-10 bg-foreground text-sm text-dark-gray border-forground-border',
+                    className,
+                )}
+            >
                 <LinkIcon className='ml-3 h-4 w-4' />
                 <p className='truncate max-w-48'>{selectedItem}</p>
                 <ChevronDown className='mr-3 h-4 w-4 ms-auto opacity-50' />

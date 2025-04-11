@@ -15,6 +15,7 @@ type TProps = {
     subTitle?: string | ReactNode;
     buttons?: ReactNode;
     expandedButtons?: ReactNode;
+    className?: string;
 };
 
 const GlobalHeader = ({
@@ -23,13 +24,19 @@ const GlobalHeader = ({
     buttons,
     expandedButtons,
     tooltip,
+    className,
 }: TProps) => {
     const [open, setOpen] = useState(false);
     const toggleOpen = () => setOpen((prev) => !prev);
 
     return (
         <ExpandContext.Provider value={{ open, toggleOpen }}>
-            <div className='flex gap-2 flex-wrap flex-col sm:flex-row sm:items-center justify-between pb-1 border-b border-forground-border'>
+            <div
+                className={cn(
+                    'flex gap-2 flex-wrap flex-col sm:flex-row sm:items-center justify-between pb-1 border-b border-forground-border',
+                    className,
+                )}
+            >
                 <div>
                     <div className='flex items-center gap-1'>
                         <h2 className='text-black text-xl font-semibold'>

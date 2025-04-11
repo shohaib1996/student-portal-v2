@@ -10,6 +10,7 @@ import {
     Link2,
     List,
     ListOrdered,
+    Loader,
     Paperclip,
     Underline,
     X,
@@ -39,28 +40,41 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import GlobalHeader from '../global/GlobalHeader';
 import GlobalEditor from '../editor/GlobalEditor';
+import { useAddNoteMutation } from '@/redux/api/notes/notesApi';
+import { TNote } from '@/types';
+import SelectPurpose from '../calendar/CreateEvent/SelectPurpose';
+import GlobalModal from '../global/GlobalModal';
+import { useUploadUserDocumentFileMutation } from '@/redux/api/documents/documentsApi';
 
 export interface AddNoteModalProps {
     isOpen: boolean;
     onClose: () => void;
-    defaultValues?: {
-        description: string;
-        name: string;
-        tags: string;
-        categories: string[];
-        thumbnailUrl: string;
-        attachedFileUrls: string[];
-    };
+    defaultValues?: TNote;
     documentId: string;
 }
 
 // Zod validation schema
 const noteSchema = z.object({
+    title: z.string().trim().min(1, { message: 'Title is required' }),
     description: z.string().optional(),
-    documentName: z.string().min(1, 'Document name cannot be empty'),
-    tags: z.string().optional(),
-    category1: z.string().optional(),
-    category2: z.string().min(1, 'Category is required'),
+    thumbnail: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    purpose: z
+        .object({
+            category: z.string(),
+            resourceId: z.string(),
+        })
+        .optional(),
+    attachments: z
+        .array(
+            z.object({
+                name: z.string(),
+                type: z.string(),
+                size: z.number(),
+                url: z.string(),
+            }),
+        )
+        .optional(),
 });
 
 export function AddNoteModal({
@@ -75,134 +89,188 @@ export function AddNoteModal({
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
     const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
     const [attachedFileUrls, setAttachedFileUrls] = useState<string[]>([]);
+    const [addNote, { isLoading: isCreating }] = useAddNoteMutation();
+    const [
+        uploadUserDocumentFile,
+        { isLoading: isUploading, isError, isSuccess, data },
+    ] = useUploadUserDocumentFileMutation();
 
     // Initialize form with react-hook-form and zod resolver
     const form = useForm<z.infer<typeof noteSchema>>({
         resolver: zodResolver(noteSchema),
         defaultValues: {
+            attachments: defaultValues?.attachments || [],
             description: defaultValues?.description || '',
-            documentName: defaultValues?.name || '',
-            tags: defaultValues?.tags || '',
-            category1: defaultValues?.categories?.[0] || '',
-            category2: defaultValues?.categories?.[1] || '',
+            title: defaultValues?.title || '',
+            tags: defaultValues?.tags || [],
         },
     });
 
     // Set default values when the modal opens
     useEffect(() => {
         if (isOpen && defaultValues) {
-            setThumbnailPreview(defaultValues.thumbnailUrl);
-            setAttachedFileUrls(defaultValues.attachedFileUrls);
+            setThumbnailPreview(defaultValues?.thumbnail || '');
+            // setAttachedFileUrls(defaultValues?.attachments || []);
             form.reset({
                 description: defaultValues.description,
-                documentName: defaultValues.name,
-                tags: defaultValues.tags,
-                category1: defaultValues.categories[0] || '',
-                category2: defaultValues.categories[1] || '',
+                title: defaultValues.title,
+                tags: defaultValues?.tags,
+                purpose: defaultValues?.purpose,
+                attachments: defaultValues?.attachments || [],
+                thumbnail: defaultValues?.thumbnail || '',
             });
         }
     }, [isOpen, defaultValues, form]);
 
-    const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setThumbnailFile(file);
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                if (event.target?.result) {
-                    setThumbnailPreview(event.target.result as string);
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleFileAttachment = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileAttachment = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
         if (e.target.files) {
             const newFiles = Array.from(e.target.files);
-            setAttachedFiles((prev) => [...prev, ...newFiles]);
-            // For simplicity, we'll just add file names here; in a real app, you'd upload and get URLs
-            setAttachedFileUrls((prev) => [
-                ...prev,
-                ...newFiles.map((file) => file.name),
-            ]);
+
+            try {
+                // Create an array of promises for each file upload
+                const uploadPromises = newFiles.map(async (file) => {
+                    const url = await uploadFile(file);
+                    if (url) {
+                        return {
+                            name: file.name,
+                            size: file.size,
+                            url: url,
+                            type: file.type,
+                        };
+                    }
+                    return null;
+                });
+
+                // Wait for all promises to resolve
+                const results = await Promise.all(uploadPromises);
+
+                // Filter out any null results
+                const newAttachments = results.filter(
+                    (attachment) => attachment !== null,
+                );
+
+                // Now set the form value after all uploads are complete
+                form.setValue('attachments', newAttachments);
+            } catch (error) {
+                console.error('Failed to upload attachments:', error);
+            } finally {
+                console.log('d');
+            }
         }
     };
 
     const handleRemoveFile = (index: number) => {
-        setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
-        setAttachedFileUrls((prev) => prev.filter((_, i) => i !== index));
+        const current = form.watch('attachments');
+
+        const newValues = current?.filter((item) => {
+            const i = current.indexOf(item);
+            if (i !== i) {
+                return item;
+            }
+        });
+
+        form.setValue('attachments', newValues);
     };
 
     const handleRemoveThumbnail = () => {
         setThumbnailPreview(null);
+        form.setValue('thumbnail', '');
         setThumbnailFile(null);
     };
 
-    const onSubmit = (values: z.infer<typeof noteSchema>) => {
-        const submissionData = {
+    const onSubmit = async (values: z.infer<typeof noteSchema>) => {
+        const submissionData: Partial<TNote> = {
             description: values.description,
-            documentName: values.documentName.trim(),
-            categories: [values.category1, values.category2].filter(Boolean),
-            tags: values.tags
-                ? values.tags.split(',').map((tag) => tag.trim())
-                : [],
-            thumbnail: thumbnailFile
-                ? {
-                      name: thumbnailFile.name,
-                      size: thumbnailFile.size,
-                      type: thumbnailFile.type,
-                  }
-                : { url: thumbnailPreview }, // Use preview URL if no new file
-            attachedFiles:
-                attachedFiles.length > 0
-                    ? attachedFiles.map((file) => ({
-                          name: file.name,
-                          size: file.size,
-                          type: file.type,
-                      }))
-                    : attachedFileUrls.map((url) => ({ url })), // Use URLs if no new files
+            title: values.title.trim(),
+            // tags: values.tags
+            //     ? values.tags.split(',').map((tag) => tag.trim())
+            //     : [],
+            thumbnail: values.thumbnail,
+            attachments: values.attachments,
+            purpose: values.purpose,
         };
 
-        console.log('Submitting data:', submissionData);
-        onClose();
+        try {
+            const res = await addNote(submissionData).unwrap();
+            if (res) {
+                console.log(res);
+                onClose();
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    const uploadFile = async (file: File): Promise<string> => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            await uploadUserDocumentFile(formData).unwrap();
+            return data?.fileUrl as string;
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            throw error;
+        }
+    };
+
+    const handleThumbnailChange = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+
+            try {
+                const url = await uploadFile(file);
+                form.setValue('thumbnail', url);
+            } catch (error) {
+                console.error('Failed to upload thumbnail:', error);
+            } finally {
+                console.log('d');
+            }
+        }
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className='h-screen min-w-full bg-foreground overflow-y-auto p-0'>
+        <GlobalModal
+            fullScreen
+            open={isOpen}
+            setOpen={(open) => !open && onClose()}
+            title={
+                <div className='w-full'>
+                    <GlobalHeader
+                        className='border-none'
+                        title={defaultValues ? 'Edit Note' : 'Add Note'}
+                        subTitle={
+                            defaultValues
+                                ? 'Fill out the form, to update note'
+                                : 'Fill out the form, to add new note'
+                        }
+                        buttons={
+                            <div className='flex items-center gap-2'>
+                                <Button
+                                    variant='outline'
+                                    size='sm'
+                                    onClick={onClose}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    size='sm'
+                                    onClick={form.handleSubmit(onSubmit)}
+                                >
+                                    Save & Close
+                                </Button>
+                            </div>
+                        }
+                    />
+                </div>
+            }
+        >
+            <div className='min-w-full bg-foreground overflow-y-auto p-0'>
                 <div className='flex h-full flex-col'>
-                    {/* Header */}
-                    <div className='sticky top-0 z-10 px-4 py-2'>
-                        <GlobalHeader
-                            title={defaultValues ? 'Edit Note' : 'Add Note'}
-                            subTitle={
-                                defaultValues
-                                    ? 'Fill out the form, to update note'
-                                    : 'Fill out the form, to add new note'
-                            }
-                            buttons={
-                                <div className='flex items-center gap-2'>
-                                    <Button
-                                        variant='outline'
-                                        size='sm'
-                                        onClick={onClose}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        size='sm'
-                                        type='submit'
-                                        form='upload-document-form'
-                                    >
-                                        Save & Close
-                                    </Button>
-                                </div>
-                            }
-                        />
-                    </div>
-
-                    {/* Form content */}
                     <div className='flex-1 overflow-y-auto p-4 document-container w-full'>
                         <Form {...form}>
                             <form
@@ -254,8 +322,12 @@ export function AddNoteModal({
                                                                         field.value ||
                                                                         ''
                                                                     }
-                                                                    onChange={
-                                                                        field.onChange
+                                                                    onChange={(
+                                                                        val,
+                                                                    ) =>
+                                                                        field.onChange(
+                                                                            val,
+                                                                        )
                                                                     }
                                                                 />
                                                             </FormControl>
@@ -272,7 +344,7 @@ export function AddNoteModal({
                                     <div className='space-y-4'>
                                         <FormField
                                             control={form.control}
-                                            name='documentName'
+                                            name='title'
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className='mb-2 flex items-center gap-1'>
@@ -294,85 +366,24 @@ export function AddNoteModal({
 
                                         <FormField
                                             control={form.control}
-                                            name='category1'
+                                            name='purpose'
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className='mb-2 flex items-center gap-1'>
                                                         Purpose
                                                     </FormLabel>
-                                                    <Select
-                                                        onValueChange={
-                                                            field.onChange
+                                                    <SelectPurpose
+                                                        className='bg-background text-gray'
+                                                        value={
+                                                            field.value || {
+                                                                category: '',
+                                                                resourceId: '',
+                                                            }
                                                         }
-                                                        defaultValue={
-                                                            field.value
+                                                        onChange={(val) =>
+                                                            field.onChange(val)
                                                         }
-                                                    >
-                                                        <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder='Select Category' />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            <SelectItem value='development'>
-                                                                Development
-                                                            </SelectItem>
-                                                            <SelectItem value='technology'>
-                                                                Technology
-                                                            </SelectItem>
-                                                            <SelectItem value='design'>
-                                                                Design
-                                                            </SelectItem>
-                                                            <SelectItem value='marketing'>
-                                                                Marketing
-                                                            </SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name='category2'
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className='mb-2 flex items-center gap-1'>
-                                                        Category{' '}
-                                                        <span className='text-red-500'>
-                                                            *
-                                                        </span>
-                                                    </FormLabel>
-                                                    <Select
-                                                        onValueChange={
-                                                            field.onChange
-                                                        }
-                                                        defaultValue={
-                                                            field.value
-                                                        }
-                                                    >
-                                                        <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder='Select Category' />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            <SelectItem value='web-development'>
-                                                                Web Development
-                                                            </SelectItem>
-                                                            <SelectItem value='mobile-development'>
-                                                                Mobile
-                                                                Development
-                                                            </SelectItem>
-                                                            <SelectItem value='technical-test'>
-                                                                Technical Test
-                                                            </SelectItem>
-                                                            <SelectItem value='resources'>
-                                                                Resources
-                                                            </SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
+                                                    />
                                                 </FormItem>
                                             )}
                                         />
@@ -393,151 +404,188 @@ export function AddNoteModal({
                                             )}
                                         />
 
-                                        <div>
-                                            <Label className='mb-2'>
-                                                Upload Thumbnail
-                                            </Label>
-                                            <div className='mt-1 flex justify-center bg-background rounded-lg border border-dashed border-border px-6 py-10'>
-                                                <div className='text-center'>
-                                                    {thumbnailPreview ? (
-                                                        <div className='relative mx-auto h-32 w-32 overflow-hidden rounded'>
-                                                            <Image
-                                                                src={
-                                                                    thumbnailPreview ||
-                                                                    '/placeholder.svg'
-                                                                }
-                                                                alt='Thumbnail preview'
-                                                                fill
-                                                                className='object-cover'
-                                                            />
-                                                            <Button
-                                                                type='button'
-                                                                variant='destructive'
-                                                                size='icon'
-                                                                className='absolute right-1 top-1 h-6 w-6'
-                                                                onClick={
-                                                                    handleRemoveThumbnail
-                                                                }
-                                                            >
-                                                                <X className='h-3 w-3' />
-                                                            </Button>
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <ImageIcon className='mx-auto h-12 w-12 text-muted-foreground' />
-                                                            <div className='mt-4 flex text-sm text-muted-foreground'>
-                                                                <label
-                                                                    htmlFor='thumbnail-upload'
-                                                                    className='relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
-                                                                >
-                                                                    <span>
-                                                                        Click to
-                                                                        upload a
-                                                                        thumbnail
-                                                                    </span>
-                                                                    <input
-                                                                        id='thumbnail-upload'
-                                                                        name='thumbnail'
-                                                                        type='file'
-                                                                        accept='image/jpeg,image/png,image/gif'
-                                                                        className='sr-only'
-                                                                        onChange={
-                                                                            handleThumbnailChange
-                                                                        }
-                                                                    />
-                                                                </label>
-                                                            </div>
-                                                        </>
-                                                    )}
-                                                    <p className='mt-1 text-xs text-muted-foreground'>
-                                                        or drag and drop
-                                                    </p>
-                                                    <p className='text-xs text-muted-foreground'>
-                                                        JPG, PNG | Max 5MB
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <Label className='mb-2'>
-                                                Attached Files (
-                                                {attachedFileUrls.length})
-                                            </Label>
-                                            <div className='rounded-lg border bg-background p-4'>
-                                                {attachedFileUrls.length > 0 ? (
-                                                    <ul className='space-y-2'>
-                                                        {attachedFileUrls.map(
-                                                            (url, index) => (
-                                                                <li
-                                                                    key={index}
-                                                                    className='flex items-center justify-between rounded-md border bg-background p-2 text-sm'
-                                                                >
-                                                                    <div className='flex items-center gap-2'>
-                                                                        <Paperclip className='h-4 w-4 text-muted-foreground' />
-                                                                        <span className='truncate'>
-                                                                            {url
-                                                                                .split(
-                                                                                    '/',
-                                                                                )
-                                                                                .pop() ||
-                                                                                url}{' '}
-                                                                            {/* Extract filename */}
-                                                                        </span>
+                                        <FormField
+                                            control={form.control}
+                                            name='thumbnail'
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        {' '}
+                                                        Upload Thumbnail
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <div className='mt-1 flex justify-center bg-background rounded-lg border border-dashed border-border px-6 py-10'>
+                                                            <div className='text-center'>
+                                                                {isUploading ? (
+                                                                    <div className='flex justify-between w-full'>
+                                                                        <Loader className='animate-spin' />
                                                                     </div>
-                                                                    <Button
-                                                                        type='button'
-                                                                        variant='ghost'
-                                                                        size='icon'
-                                                                        className='h-6 w-6'
-                                                                        onClick={() =>
-                                                                            handleRemoveFile(
-                                                                                index,
-                                                                            )
-                                                                        }
+                                                                ) : field.value ? (
+                                                                    <div className='relative mx-auto h-32 w-32 overflow-hidden rounded'>
+                                                                        <Image
+                                                                            src={
+                                                                                field.value ||
+                                                                                '/placeholder.svg'
+                                                                            }
+                                                                            alt='Thumbnail preview'
+                                                                            fill
+                                                                            className='object-cover'
+                                                                        />
+                                                                        <Button
+                                                                            disabled={
+                                                                                isUploading
+                                                                            }
+                                                                            type='button'
+                                                                            variant='destructive'
+                                                                            size='icon'
+                                                                            className='absolute right-1 top-1 h-6 w-6'
+                                                                            onClick={
+                                                                                handleRemoveThumbnail
+                                                                            }
+                                                                        >
+                                                                            <X className='h-3 w-3' />
+                                                                        </Button>
+                                                                    </div>
+                                                                ) : (
+                                                                    <>
+                                                                        <ImageIcon className='mx-auto h-12 w-12 text-muted-foreground' />
+                                                                        <div className='mt-4 flex text-sm text-muted-foreground'>
+                                                                            <label
+                                                                                htmlFor='thumbnail-upload'
+                                                                                className='relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
+                                                                            >
+                                                                                <span>
+                                                                                    Click
+                                                                                    to
+                                                                                    upload
+                                                                                    a
+                                                                                    thumbnail
+                                                                                </span>
+                                                                                <input
+                                                                                    disabled={
+                                                                                        isUploading
+                                                                                    }
+                                                                                    id='thumbnail-upload'
+                                                                                    name='thumbnail'
+                                                                                    type='file'
+                                                                                    accept='image/jpeg,image/png,image/gif'
+                                                                                    className='sr-only'
+                                                                                    onChange={
+                                                                                        handleThumbnailChange
+                                                                                    }
+                                                                                />
+                                                                            </label>
+                                                                        </div>
+                                                                    </>
+                                                                )}
+                                                                <p className='mt-1 text-xs text-muted-foreground'>
+                                                                    or drag and
+                                                                    drop
+                                                                </p>
+                                                                <p className='text-xs text-muted-foreground'>
+                                                                    JPG, PNG |
+                                                                    Max 5MB
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name='attachments'
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        Attached Files (
+                                                        {field.value?.length})
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <div className='rounded-lg border bg-background p-4'>
+                                                            {field.value &&
+                                                            field.value
+                                                                ?.length > 0 ? (
+                                                                <ul className='space-y-2'>
+                                                                    {field.value?.map(
+                                                                        (
+                                                                            url,
+                                                                            index,
+                                                                        ) => (
+                                                                            <li
+                                                                                key={
+                                                                                    index
+                                                                                }
+                                                                                className='flex items-center justify-between rounded-md border bg-background p-2 text-sm'
+                                                                            >
+                                                                                <div className='flex items-center gap-2'>
+                                                                                    <Paperclip className='h-4 w-4 text-muted-foreground' />
+                                                                                    <span className='truncate'>
+                                                                                        {
+                                                                                            url?.name
+                                                                                        }
+                                                                                        {/* Extract filename */}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <Button
+                                                                                    type='button'
+                                                                                    variant='ghost'
+                                                                                    size='icon'
+                                                                                    className='h-6 w-6'
+                                                                                    onClick={() =>
+                                                                                        handleRemoveFile(
+                                                                                            index,
+                                                                                        )
+                                                                                    }
+                                                                                >
+                                                                                    <X className='h-3 w-3' />
+                                                                                </Button>
+                                                                            </li>
+                                                                        ),
+                                                                    )}
+                                                                </ul>
+                                                            ) : (
+                                                                <div className='flex items-center justify-center py-2 text-sm text-muted-foreground'>
+                                                                    <label
+                                                                        htmlFor='file-upload'
+                                                                        className='relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
                                                                     >
-                                                                        <X className='h-3 w-3' />
-                                                                    </Button>
-                                                                </li>
-                                                            ),
-                                                        )}
-                                                    </ul>
-                                                ) : (
-                                                    <div className='flex items-center justify-center py-2 text-sm text-muted-foreground'>
-                                                        <label
-                                                            htmlFor='file-upload'
-                                                            className='relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
-                                                        >
-                                                            <span>Attach</span>
-                                                            <input
-                                                                id='file-upload'
-                                                                name='files'
-                                                                type='file'
-                                                                multiple
-                                                                className='sr-only'
-                                                                onChange={
-                                                                    handleFileAttachment
-                                                                }
-                                                            />
-                                                        </label>
-                                                        <span className='ml-1'>
-                                                            or drag & drop
-                                                        </span>
-                                                    </div>
-                                                )}
-                                                <p className='mt-1 text-center text-xs text-muted-foreground'>
-                                                    JPG, PNG, PDF, DOCS | Max
-                                                    5MB
-                                                </p>
-                                            </div>
-                                        </div>
+                                                                        <span>
+                                                                            Attach
+                                                                        </span>
+                                                                        <input
+                                                                            id='file-upload'
+                                                                            name='files'
+                                                                            type='file'
+                                                                            multiple
+                                                                            className='sr-only'
+                                                                            onChange={
+                                                                                handleFileAttachment
+                                                                            }
+                                                                        />
+                                                                    </label>
+                                                                    <span className='ml-1'>
+                                                                        or drag
+                                                                        & drop
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                            <p className='mt-1 text-center text-xs text-muted-foreground'>
+                                                                JPG, PNG, PDF,
+                                                                DOCS | Max 5MB
+                                                            </p>
+                                                        </div>
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
                                     </div>
                                 </div>
                             </form>
                         </Form>
                     </div>
                 </div>
-            </DialogContent>
-        </Dialog>
+            </div>
+        </GlobalModal>
     );
 }

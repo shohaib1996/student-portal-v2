@@ -40,6 +40,7 @@ import { Separator } from '@/components/ui/separator';
 import dayjs from 'dayjs';
 import WhatWillLearn from './WhatWillLearn';
 import Recognition from './Recognition';
+import BenefitsCourse from './BenefitsCourse';
 
 export default function BootcampPage() {
     const { data, isLoading, isError } = useMyProgramQuery({});
@@ -55,7 +56,25 @@ export default function BootcampPage() {
         isError: boolean;
     }>({});
 
-    console.log(data);
+    const allSections = (index: number) => {
+        return {
+            whatYouLearn: program?.whatLearns?.length > 0 && (
+                <WhatWillLearn bootcamp={program} index={index} />
+            ),
+
+            benefits: program?.benefits?.length > 0 && (
+                <BenefitsCourse
+                    list={program?.benefits}
+                    buttonShow={false}
+                    title={'Benefits of the course'}
+                    index={index}
+                />
+            ),
+            recognition: program?.recognition && (
+                <Recognition data={program?.recognition} index={index} />
+            ),
+        };
+    };
 
     if (isLoading || isProgressLoading) {
         return (
@@ -114,6 +133,8 @@ export default function BootcampPage() {
     }
     const myProgram: TProgramMain = data;
     const program: TProgram = myProgram?.program;
+
+    type SectionKey = 'whatYouLearn' | 'benefits' | 'recognition';
 
     return (
         <TooltipProvider>
@@ -396,269 +417,25 @@ export default function BootcampPage() {
                     </Card>
                 </div>
 
-                {/* Tabs Section */}
-                {/* <Tabs
-                    defaultValue='overview'
-                    className='rounded-md border bg-foreground px-2 py-2.5'
-                >
-                    <TabsList className='bg-transparent border-b w-full flex items-center justify-start flex-wrap rounded-none p-0 h-auto'>
-                        <TabsTrigger
-                            value='overview'
-                            className='rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary-white py-3 px-6'
-                        >
-                            <LayoutDashboard className='h-4 w-4 mr-2' />
-                            Overview
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value='curriculum'
-                            className='rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary-white py-3 px-6'
-                        >
-                            <Book className='h-4 w-4 mr-2' />
-                            Curriculum
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value='resources'
-                            className='rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary-white py-3 px-6'
-                        >
-                            <FileText className='h-4 w-4 mr-2' />
-                            Resources
-                        </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value='overview' className=''>
-                        
-                        <div>
-                            <h3 className='text-lg font-semibold mb-4 flex items-center gap-1.5'>
-                                <ThunderIcon />
-                                What You&apos;ll Learn
-                            </h3>
-                            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'>
-                                <div className='flex items-center gap-3'>
-                                    <div className='bg-primary-light p-1.5 rounded-full mt-0.5'>
-                                        <svg
-                                            xmlns='http://www.w3.org/2000/svg'
-                                            width='16'
-                                            height='16'
-                                            viewBox='0 0 24 24'
-                                            fill='none'
-                                            stroke='currentColor'
-                                            strokeWidth='2'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                            className='text-blue-600'
-                                        >
-                                            <path d='M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5Z' />
-                                            <path d='M8 14v.5' />
-                                            <path d='M16 14v.5' />
-                                            <path d='M11.25 16.25h1.5L12 17l-.75-.75Z' />
-                                        </svg>
-                                    </div>
-                                    <span className='text-sm'>
-                                        Build and deploy CI/CD pipelines using
-                                        industry-standard tools
-                                    </span>
+                {program?.layoutSections?.map(
+                    (
+                        section: { id: string; isVisible: boolean },
+                        index: number,
+                    ) => {
+                        if (section?.isVisible) {
+                            return (
+                                <div key={section.id}>
+                                    {
+                                        allSections(index)?.[
+                                            section.id as SectionKey
+                                        ]
+                                    }
                                 </div>
-                                <div className='flex items-center gap-3'>
-                                    <div className='bg-primary-light p-1.5 rounded-full mt-0.5'>
-                                        <svg
-                                            xmlns='http://www.w3.org/2000/svg'
-                                            width='16'
-                                            height='16'
-                                            viewBox='0 0 24 24'
-                                            fill='none'
-                                            stroke='currentColor'
-                                            strokeWidth='2'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                            className='text-blue-600'
-                                        >
-                                            <rect
-                                                width='18'
-                                                height='18'
-                                                x='3'
-                                                y='3'
-                                                rx='2'
-                                            />
-                                            <path d='M7 7h10' />
-                                            <path d='M7 12h10' />
-                                            <path d='M7 17h10' />
-                                        </svg>
-                                    </div>
-                                    <span className='text-sm'>
-                                        Design scalable and resilient cloud
-                                        infrastructure
-                                    </span>
-                                </div>
-                                <div className='flex items-center gap-3'>
-                                    <div className='bg-primary-light p-1.5 rounded-full mt-0.5'>
-                                        <svg
-                                            xmlns='http://www.w3.org/2000/svg'
-                                            width='16'
-                                            height='16'
-                                            viewBox='0 0 24 24'
-                                            fill='none'
-                                            stroke='currentColor'
-                                            strokeWidth='2'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                            className='text-blue-600'
-                                        >
-                                            <path d='M12 2v4' />
-                                            <path d='m4.93 10.93 2.83-2.83' />
-                                            <path d='M2 18h4' />
-                                            <path d='M19.07 10.93l-2.83-2.83' />
-                                            <path d='M18 18h4' />
-                                            <path d='M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z' />
-                                        </svg>
-                                    </div>
-                                    <span className='text-sm'>
-                                        Monitor and optimize application
-                                        performance
-                                    </span>
-                                </div>
-                                <div className='flex items-center gap-3'>
-                                    <div className='bg-primary-light p-1.5 rounded-full mt-0.5'>
-                                        <Shield className='h-4 w-4 text-blue-600' />
-                                    </div>
-                                    <span className='text-sm'>
-                                        Implement security best practices in
-                                        cloud environments
-                                    </span>
-                                </div>
-                                <div className='flex items-center gap-3'>
-                                    <div className='bg-primary-light p-1.5 rounded-full mt-0.5'>
-                                        <svg
-                                            xmlns='http://www.w3.org/2000/svg'
-                                            width='16'
-                                            height='16'
-                                            viewBox='0 0 24 24'
-                                            fill='none'
-                                            stroke='currentColor'
-                                            strokeWidth='2'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                            className='text-blue-600'
-                                        >
-                                            <path d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z' />
-                                            <polyline points='14 2 14 8 20 8' />
-                                        </svg>
-                                    </div>
-                                    <span className='text-sm'>
-                                        Automate deployment and infrastructure
-                                        management
-                                    </span>
-                                </div>
-                                <div className='flex items-center gap-3'>
-                                    <div className='bg-primary-light p-1.5 rounded-full mt-0.5'>
-                                        <Users className='h-4 w-4 text-blue-600' />
-                                    </div>
-                                    <span className='text-sm'>
-                                        Collaborate effectively in DevOps teams
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </TabsContent>
-                    <TabsContent value='curriculum'>
-                        <div className='p-6'>
-                            <p className='text-gray-500'>
-                                Curriculum content will be displayed here.
-                            </p>
-                        </div>
-                    </TabsContent>
-                    <TabsContent value='resources'>
-                        <div className='p-6'>
-                            <p className='text-gray-500'>
-                                Resources content will be displayed here.
-                            </p>
-                        </div>
-                    </TabsContent>
-                </Tabs> */}
-                {/* Technologies You'll Master */}
-                {/* <div className='my-2 border rounded-md bg-foreground px-2 py-2.5'>
-                    <h3 className='text-lg font-semibold mb-2.5 flex items-center gap-1.5'>
-                        <ThunderIcon /> Technologies You&apos;ll Master
-                    </h3>
-                    <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4'>
-                        {[
-                            {
-                                name: 'HTML',
-                                color: 'border-orange-500',
-                                icon: 'html5',
-                            },
-                            {
-                                name: 'JavaScript',
-                                color: 'border-yellow-500',
-                                icon: 'js',
-                            },
-                            {
-                                name: 'GitHub',
-                                color: 'border-gray-500',
-                                icon: 'github',
-                            },
-                            {
-                                name: 'Swagger',
-                                color: 'border-green-500',
-                                icon: 'swagger',
-                            },
-                            {
-                                name: 'AgileALM',
-                                color: 'border-blue-500',
-                                icon: 'agile',
-                            },
-                            {
-                                name: 'Docker',
-                                color: 'border-blue-500',
-                                icon: 'docker',
-                            },
-                            {
-                                name: 'GitLab',
-                                color: 'border-orange-500',
-                                icon: 'gitlab',
-                            },
-                            {
-                                name: 'MongoDB',
-                                color: 'border-green-500',
-                                icon: 'mongodb',
-                            },
-                            {
-                                name: 'Express',
-                                color: 'border-gray-500',
-                                icon: 'express',
-                            },
-                            {
-                                name: 'React',
-                                color: 'border-blue-500',
-                                icon: 'react',
-                            },
-                            {
-                                name: 'Node.js',
-                                color: 'border-green-500',
-                                icon: 'nodejs',
-                            },
-                            {
-                                name: 'Linux',
-                                color: 'border-black',
-                                icon: 'linux',
-                            },
-                        ].map((tech, index) => (
-                            <div
-                                key={index}
-                                className={`border border-t-8 rounded-lg p-4 flex flex-col items-center justify-center ${tech.color} text-center`}
-                            >
-                                <div className='h-14 w-14 border flex items-center justify-center border-[#E6EBFA] rounded-full mb-2.5'>
-                                    <div className='h-12 w-12 flex items-center justify-center'>
-                                        {renderTechIcon(tech.icon)}
-                                    </div>
-                                </div>
-                                <span className='text-sm font-medium'>
-                                    {tech.name}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                </div> */}
-                <WhatWillLearn index={1} bootcamp={program} />
-                <Recognition data={program?.recognition} index={3} />
+                            );
+                        }
+                        return null;
+                    },
+                )}
             </div>
         </TooltipProvider>
     );

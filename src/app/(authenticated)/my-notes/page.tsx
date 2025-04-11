@@ -5,23 +5,17 @@ import NotesListView from '@/components/my-notes/NotesListView';
 import { Button } from '@/components/ui/button';
 import { Grid2X2, List, ListChecks, Plus } from 'lucide-react';
 import React, { useState } from 'react';
-import staticData from '../../../components/my-notes/staticNotes.json';
 import { AddNoteModal } from '@/components/my-notes/AddNoteModal';
-
-export type TNote = {
-    id: number;
-    title: string;
-    date: string; // Format: YYYY-MM-DD
-    description: string;
-    purpose: {
-        type: 'module' | 'video' | 'document' | 'presentation';
-        title: string;
-    };
-};
+import { useGetNotesQuery } from '@/redux/api/notes/notesApi';
+import { TNote } from '@/types';
 
 const MyNotesPage = () => {
     const [view, setView] = useState<'list' | 'grid'>('grid');
     const [isOpen, setIsOpen] = useState(false);
+
+    const { data, isLoading } = useGetNotesQuery(undefined);
+
+    const notes = data?.notes || [];
 
     return (
         <div className='py-2'>
@@ -56,9 +50,12 @@ const MyNotesPage = () => {
 
             <div className='bg-foreground p-2 mt-2 rounded-lg h-[calc(100vh-132px)]'>
                 {view === 'grid' ? (
-                    <NotesGridView data={staticData as TNote[]}></NotesGridView>
+                    <NotesGridView
+                        isLoading={isLoading}
+                        data={notes as TNote[]}
+                    ></NotesGridView>
                 ) : (
-                    <NotesListView data={staticData as TNote[]}></NotesListView>
+                    <NotesListView data={notes as TNote[]}></NotesListView>
                 )}
             </div>
 

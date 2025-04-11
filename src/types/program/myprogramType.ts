@@ -38,9 +38,14 @@ export interface TProgram {
     createdAt: string;
     updatedAt: string;
     __v: number;
-    benefits: TBenefit[];
     organization: string;
     progress: TProgress[];
+    benefits: {
+        _id: string;
+        title: string;
+        description: string;
+        icon: string;
+    }[];
     faqs: TFaq[];
     layoutSections: TLayoutSection[];
     instructors: any[];

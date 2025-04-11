@@ -1,4 +1,3 @@
-import { TNote } from '@/app/(authenticated)/my-notes/page';
 import { cn } from '@/lib/utils';
 import dayjs from 'dayjs';
 import { BookOpen, CalendarIcon, CircleDot, Pencil, Trash } from 'lucide-react';
@@ -6,13 +5,18 @@ import React, { useState } from 'react';
 import GlobalHeader from '../global/GlobalHeader';
 import MessagePreview from '../chat/Message/MessagePreview';
 import { Button } from '../ui/button';
+import { TNote } from '@/types';
 
 const text = '';
 
-const NotesGridView = ({ data }: { data: TNote[] }) => {
+const NotesGridView = ({
+    data,
+    isLoading,
+}: {
+    data: TNote[];
+    isLoading: boolean;
+}) => {
     const [activeNote, setActiveNote] = useState<TNote>(data[0]);
-
-    console.log(activeNote);
 
     return (
         <div className='flex h-full'>
@@ -21,87 +25,93 @@ const NotesGridView = ({ data }: { data: TNote[] }) => {
                     All Notes ({data.length})
                 </h2>
                 <div className='space-y-2 overflow-y-auto h-[calc(100%-32px)]'>
-                    {data.map((note) => (
-                        <div
-                            key={note.id}
-                            onClick={() => setActiveNote(note)}
-                            className={cn(
-                                'w-full cursor-pointer dark:bg-background dark:border-indigo-300/35 rounded-md p-2 shadow-sm bg-primary-light border border-indigo-300/70',
-                                {
-                                    'bg-primary dark:bg-primary text-white':
-                                        activeNote.id === note.id,
-                                },
-                            )}
-                        >
-                            <div className='flex items-center justify-between'>
-                                <div className='flex items-center gap-1'>
-                                    <div className='flex size-3 items-center justify-center rounded-full bg-[#F99D1C]'>
-                                        <CircleDot
-                                            size={10}
-                                            className='text-white'
-                                        />
-                                    </div>
-                                    <span
-                                        className={cn(
-                                            'text-xs text-dark-gray capitalize font-medium',
-                                            {
-                                                'text-pure-white':
-                                                    activeNote.id === note.id,
-                                            },
-                                        )}
-                                    >
-                                        {note.purpose.type}
-                                    </span>
-                                </div>
-                                <div
-                                    className={cn(
-                                        'flex items-center gap-1 text-xs text-dark-gray font-medium',
-                                        {
-                                            'text-pure-white':
-                                                activeNote.id === note.id,
-                                        },
-                                    )}
-                                >
-                                    <CalendarIcon size={14} />
-                                    <span>
-                                        {dayjs(note.date).format(
-                                            'MMM DD, YYYY | hh:mm A',
-                                        )}
-                                    </span>
-                                </div>
-                            </div>
-                            <h1 className='mt-2 text-sm font-semibold'>
-                                {note.title}
-                            </h1>
-                            <p
-                                className={cn(
-                                    'mt-2 text-xs font-normal text-dark-gray line-clamp-2',
-                                    {
-                                        'text-pure-white':
-                                            activeNote.id === note.id,
-                                    },
-                                )}
-                            >
-                                {note.description}
-                            </p>
+                    {isLoading
+                        ? Array.from({ length: 10 }, (_, i) => (
+                              <div key={i}></div>
+                          ))
+                        : data.map((note) => (
+                              <div
+                                  key={note._id}
+                                  onClick={() => setActiveNote(note)}
+                                  className={cn(
+                                      'w-full cursor-pointer dark:bg-background dark:border-indigo-300/35 rounded-md p-2 shadow-sm bg-primary-light border border-indigo-300/70',
+                                      {
+                                          'bg-primary dark:bg-primary text-white':
+                                              activeNote?._id === note?._id,
+                                      },
+                                  )}
+                              >
+                                  <div className='flex items-center justify-between'>
+                                      <div className='flex items-center gap-1'>
+                                          <div className='flex size-3 items-center justify-center rounded-full bg-[#F99D1C]'>
+                                              <CircleDot
+                                                  size={10}
+                                                  className='text-white'
+                                              />
+                                          </div>
+                                          <span
+                                              className={cn(
+                                                  'text-xs text-dark-gray capitalize font-medium',
+                                                  {
+                                                      'text-pure-white':
+                                                          activeNote?._id ===
+                                                          note?._id,
+                                                  },
+                                              )}
+                                          >
+                                              {note?.purpose?.category}
+                                          </span>
+                                      </div>
+                                      <div
+                                          className={cn(
+                                              'flex items-center gap-1 text-xs text-dark-gray font-medium',
+                                              {
+                                                  'text-pure-white':
+                                                      activeNote?._id ===
+                                                      note?._id,
+                                              },
+                                          )}
+                                      >
+                                          <CalendarIcon size={14} />
+                                          <span>
+                                              {dayjs(note?.createdAt).format(
+                                                  'MMM DD, YYYY | hh:mm A',
+                                              )}
+                                          </span>
+                                      </div>
+                                  </div>
+                                  <h1 className='mt-2 text-sm font-semibold'>
+                                      {note?.title}
+                                  </h1>
+                                  <p
+                                      className={cn(
+                                          'mt-2 text-xs font-normal text-dark-gray line-clamp-2',
+                                          {
+                                              'text-pure-white':
+                                                  activeNote?._id === note?._id,
+                                          },
+                                      )}
+                                  >
+                                      {note?.description}
+                                  </p>
 
-                            <div
-                                className={cn(
-                                    'text-xs pt-2 flex items-center gap-1 font-medium text-black',
-                                    {
-                                        'text-pure-white':
-                                            activeNote.id === note.id,
-                                    },
-                                )}
-                            >
-                                <BookOpen size={14} />
-                                <span className='capitalize'>
-                                    {note.purpose?.type}
-                                </span>
-                                :<span>{note.purpose?.title}</span>
-                            </div>
-                        </div>
-                    ))}
+                                  <div
+                                      className={cn(
+                                          'text-xs pt-2 flex items-center gap-1 font-medium text-black',
+                                          {
+                                              'text-pure-white':
+                                                  activeNote?._id === note?._id,
+                                          },
+                                      )}
+                                  >
+                                      <BookOpen size={14} />
+                                      <span className='capitalize'>
+                                          {note.purpose?.category}
+                                      </span>
+                                      :<span>{note.purpose?.category}</span>
+                                  </div>
+                              </div>
+                          ))}
                 </div>
             </div>
             <div className='w-3/4 ps-2 h-full'>
@@ -121,7 +131,7 @@ const NotesGridView = ({ data }: { data: TNote[] }) => {
                                         'text-xs text-dark-gray capitalize font-medium',
                                     )}
                                 >
-                                    {activeNote?.purpose?.type}
+                                    {activeNote?.purpose?.category}
                                 </span>
                             </div>
                             <div
@@ -131,7 +141,7 @@ const NotesGridView = ({ data }: { data: TNote[] }) => {
                             >
                                 <CalendarIcon size={14} />
                                 <span>
-                                    {dayjs(activeNote?.date).format(
+                                    {dayjs(activeNote?.createdAt).format(
                                         'MMM DD, YYYY | hh:mm A',
                                     )}
                                 </span>
@@ -143,9 +153,9 @@ const NotesGridView = ({ data }: { data: TNote[] }) => {
                             >
                                 <BookOpen size={14} />
                                 <span className='capitalize'>
-                                    {activeNote?.purpose?.type}
+                                    {activeNote?.purpose?.category}
                                 </span>
-                                :<span>{activeNote?.purpose?.title}</span>
+                                :<span>{activeNote?.purpose?.category}</span>
                             </div>
                         </div>
                     }

@@ -21,6 +21,7 @@ type TProps = {
     buttons?: ReactNode;
     subTitle?: string;
     customFooter?: ReactNode;
+    fullScreen?: boolean;
 };
 
 const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
@@ -34,9 +35,11 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
             subTitle,
             customTitle,
             allowFullScreen = true,
+
             buttons,
             customFooter,
             withTitle = true,
+            fullScreen = false,
             ...rest
         },
         ref,
@@ -63,7 +66,7 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
                         >
                             <div
                                 style={
-                                    isFullScreen
+                                    isFullScreen || fullScreen
                                         ? {
                                               width: '100%',
                                               height: '100%',
@@ -74,7 +77,7 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
                                 className={cn(
                                     'bg-foreground rounded-lg w-[90vw] sm:w-[600px] md:w-[700px] lg:w-[800px] max-w-[95%] sm:max-w-[90%] max-h-[90vh] relative flex flex-col',
                                     className,
-                                    isFullScreen &&
+                                    (isFullScreen || fullScreen) &&
                                         'w-full h-full max-h-full max-w-full',
                                 )}
                             >
@@ -83,7 +86,7 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
                                     customTitle
                                 ) : (
                                     <div className='flex items-center flex-wrap justify-between border-b border-forground-border px-5 py-3 pb-2 sticky top-0 rounded-tr-lg rounded-tl-lg'>
-                                        <div>
+                                        <div className='w-full'>
                                             <h3 className='text-black font-medium text-xl'>
                                                 {title}
                                             </h3>
@@ -95,7 +98,7 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
                                         </div>
                                         <div className='flex items-center gap-2'>
                                             {buttons}
-                                            {allowFullScreen && (
+                                            {allowFullScreen && !fullScreen && (
                                                 <Button
                                                     onClick={() =>
                                                         setIsFullScreen(
@@ -131,7 +134,7 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
                                 )}
 
                                 {/* Close Button */}
-                                {!isFullScreen && (
+                                {!isFullScreen && !fullScreen && (
                                     <button
                                         onClick={() => setOpen(false)}
                                         className='absolute rounded-full -right-3 bg-warning size-6 flex items-center justify-center -top-3'
