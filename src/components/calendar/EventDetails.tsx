@@ -465,12 +465,12 @@ const EventDetails = () => {
                                 Meeting Agenda/Follow up/Action Item
                             </h3>
                             <ScrollArea className='min-h-24 max-h-48 overflow-y-auto p-2 bg-background rounded-md border'>
-                                <LexicalJsonRenderer
+                                {/* <LexicalJsonRenderer
                                     lexicalState={
                                         JSON.parse(event?.description || '') ||
                                         ''
                                     }
-                                />
+                                /> */}
                                 {/* <GlobalMarkDownPreview
                                     text={event?.description || ''}
                                     className='text-sm text-muted-foreground'

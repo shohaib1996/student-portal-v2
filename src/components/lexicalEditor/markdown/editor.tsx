@@ -40,6 +40,7 @@ import { TABLE } from '../components/transformers/markdown-table-transformer';
 import { TWEET } from '../components/transformers/markdown-tweet-transformer';
 import { MENTION_MARKDOWN_TRANSFORMER } from '../components/transformers/markdown-mention-transformer';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { cn } from '@/lib/utils';
 
 export interface PluginOptions {
     // Main plugin options
@@ -160,6 +161,7 @@ export function MarkdownEditor({
     onMarkdownChange,
     initialMarkdown,
     placeholder,
+    className,
 }: {
     onChange?: (editorState: EditorState) => void;
     onSerializedChange?: (editorSerializedState: SerializedEditorState) => void;
@@ -181,6 +183,7 @@ export function MarkdownEditor({
     onMarkdownChange?: (markdown: string) => void;
     initialMarkdown?: string;
     placeholder?: string;
+    className?: string;
 }) {
     // Memoize transformers so that their reference does not change on every render.
     const TRANSFORMERS = [
@@ -204,7 +207,10 @@ export function MarkdownEditor({
 
     return (
         <div
-            className='overflow-hidden rounded-lg border flex flex-col'
+            className={cn(
+                'overflow-hidden bg-background rounded-lg border flex flex-col',
+                className,
+            )}
             style={{ height }}
         >
             <LexicalComposer

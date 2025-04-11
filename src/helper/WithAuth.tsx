@@ -8,7 +8,6 @@ import {
     getCommunityPosts,
     loadChats,
     getOnlines,
-    getPrograms,
 } from '../actions/initialActions';
 import { connectSocket, disconnectSocket } from './socketManager';
 import {
@@ -101,7 +100,6 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                         // Use dispatch directly instead of dispatchSafely
                         dispatch(loadNotifications());
                         dispatch(getMyNavigations());
-                        dispatch(getPrograms());
 
                         setUserData(res.data.user);
                         setIsLoading(false);
