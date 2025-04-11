@@ -55,7 +55,7 @@ export function BootcampsSection() {
             portalData?.data?.bootcamp?.results.map((item: BootcampItem) => ({
                 icon: item.category.slug, // Use slug for icon matching
                 title: item.category.name,
-                uploadCount: item.completedItems || 0,
+                uploadCount: item.totalItems || 0,
                 pinnedCount: item.pinnedItems || 0,
                 completionPercentage:
                     item.totalItems > 0
