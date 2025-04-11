@@ -130,19 +130,19 @@ export const myMeetings = (): void => {
     // }
 };
 
-// export const getPrograms = (): AppThunk => {
-//     return (dispatch) => {
-//         instance
-//             .get('/course/get?type=program')
-//             .then((res) => {
-//                 dispatch(setPrograms(res.data.courses));
-//             })
-//             .catch((err) => {
-//                 console.error(err);
-//                 toast.error(err?.response?.data?.error);
-//             });
-//     };
-// };
+export const getPrograms = (): AppThunk => {
+    return (dispatch) => {
+        instance
+            .get('/course/get?type=program')
+            .then((res) => {
+                dispatch(setPrograms(res.data.courses));
+            })
+            .catch((err) => {
+                console.error(err);
+                toast.error(err?.response?.data?.error);
+            });
+    };
+};
 
 // export const getCourses = (): AppThunk => {
 //     return (dispatch) => {

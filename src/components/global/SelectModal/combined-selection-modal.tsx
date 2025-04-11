@@ -49,17 +49,17 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
     const [setAsDefault, setSetAsDefault] = useState(false);
     const [activeTab, setActiveTab] = useState('program');
 
+    console.log(myEnrollments);
+
     // Memoize filtered enrollments to prevent recalculations on every render
     const { filteredPrograms, filteredCourses, filteredInterviews } =
         useMemo(() => {
             const lowercasedQuery = searchQuery.toLowerCase();
             return {
-                filteredPrograms: myEnrollments.filter(
-                    (enroll: any) =>
-                        enroll.program.type === 'program' &&
-                        enroll.program.title
-                            .toLowerCase()
-                            .includes(lowercasedQuery),
+                filteredPrograms: myEnrollments.filter((enroll: any) =>
+                    enroll.program.title
+                        .toLowerCase()
+                        .includes(lowercasedQuery),
                 ),
                 filteredCourses: myEnrollments.filter(
                     (enroll: any) =>
