@@ -315,10 +315,10 @@ export function AppSidebar() {
                                                                             asChild
                                                                             isActive={
                                                                                 pathname ===
-                                                                                '/dashboard/technical-tests'
+                                                                                '/technical-tests'
                                                                             }
                                                                         >
-                                                                            <Link href='/dashboard/technical-tests'>
+                                                                            <Link href='/technical-tests'>
                                                                                 Technical
                                                                                 Tests
                                                                             </Link>

@@ -40,7 +40,7 @@ export function TodoSection() {
             <CardHeader className='flex flex-row items-center justify-between p-2 border-b'>
                 <CardTitle className='text-md font-medium'>To-Do</CardTitle>
                 <div className='flex items-center gap-2'>
-                    <ViewMoreLink href='#' />
+                    <ViewMoreLink href='/calendar/to-do' />
                     <Select defaultValue='monthly'>
                         <SelectTrigger className='w-[140px] h-9'>
                             <SelectValue placeholder='Select period' />

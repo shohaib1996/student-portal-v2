@@ -21,7 +21,7 @@ export function CoursesSection() {
                         Explore all courses overview at a Glance
                     </p>
                 </div>
-                <ViewMoreLink href='#' />
+                <ViewMoreLink href='/program/online-courses' />
             </CardHeader>
             <CardContent className='p-2'>
                 <div className='space-y-2'>

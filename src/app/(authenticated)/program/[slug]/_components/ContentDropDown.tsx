@@ -178,7 +178,7 @@ const ContentDropDown = ({
                                 <Link
                                     href={
                                         item.lesson.url
-                                            ? `/dashboard/slide/${item.lesson.url}`
+                                            ? `/slide/${item.lesson.url}`
                                             : '#'
                                     }
                                     target='_blank'

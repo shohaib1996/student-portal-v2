@@ -44,6 +44,10 @@ export interface TProgram {
     faqs: TFaq[];
     layoutSections: TLayoutSection[];
     instructors: any[];
+    recognition: {
+        title: string;
+        description: string;
+    };
 }
 
 // Price type

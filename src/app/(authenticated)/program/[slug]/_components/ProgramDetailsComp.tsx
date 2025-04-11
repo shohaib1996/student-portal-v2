@@ -200,7 +200,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                 title={
                     <span className='flex items-center justify-center gap-1'>
                         <ArrowLeft
-                            onClick={() => router.push('/dashboard/program')}
+                            onClick={() => router.push('/program')}
                             size={18}
                             className='cursor-pointer'
                         />

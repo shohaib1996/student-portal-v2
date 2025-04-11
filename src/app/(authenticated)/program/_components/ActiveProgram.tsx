@@ -227,7 +227,7 @@ const ActiveProgram = ({
                     </div>
 
                     <Link
-                        href={`/dashboard/program-details/${program?.slug}`}
+                        href={`/program/${program?.slug}`}
                         className='inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-light text-white hover:text-pure-black rounded-md transition-colors font-medium'
                     >
                         Go to Bootcamp <ArrowRight className='w-4 h-4' />

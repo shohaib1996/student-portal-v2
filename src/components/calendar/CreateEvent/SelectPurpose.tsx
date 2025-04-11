@@ -1,4 +1,3 @@
-import LessionActionMenu from '@/app/(authenticated)/dashboard/program-details/_components/LessionActionMenu';
 import {
     Accordion,
     AccordionContent,

@@ -96,7 +96,7 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
 
             toast.success(`Switched to ${selected.program.title}`);
             dispatch(closeModal());
-            window.location.href = '/dashboard/program';
+            window.location.href = '/program';
         }
     };
 

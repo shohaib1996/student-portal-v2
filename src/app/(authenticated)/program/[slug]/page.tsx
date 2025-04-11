@@ -1,4 +1,4 @@
-import ProgramDetailsComp from '../_components/ProgramDetailsComp';
+import ProgramDetailsComp from './_components/ProgramDetailsComp';
 
 const page = async ({ params }: { params: Promise<{ slug: string }> }) => {
     const resolvedParams = await params;

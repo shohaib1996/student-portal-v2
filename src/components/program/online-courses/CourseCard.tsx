@@ -266,7 +266,7 @@ export default function CourseCard({ course }: { course: TCourse }) {
                         <span>Go to Course</span>
                         <ArrowRight className='h-3 w-3' />
                     </Button>
-                    <Link href='/dashboard/payment-history' className='w-full'>
+                    <Link href='/payment-history' className='w-full'>
                         <Button
                             variant='outline'
                             className='col-span-1 text-xs w-full'
