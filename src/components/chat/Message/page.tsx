@@ -150,27 +150,31 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     // handle open new chat
     const handleOpenNewChat = (id: string) => {
         setCreating(true);
-        instance
-            .post(`/chat/findorcreate/${id}`)
-            .then((res) => {
-                const filtered = chats.filter(
-                    (c: any) => c._id === res.data.chat._id,
-                );
+        if (id === user?._id) {
+            router.push('/profile');
+        } else {
+            instance
+                .post(`/chat/findorcreate/${id}`)
+                .then((res) => {
+                    const filtered = chats.filter(
+                        (c: any) => c._id === res.data.chat._id,
+                    );
 
-                if (filtered.length > 0) {
-                    router.push(`/chat/${res.data.chat._id}`);
-                } else {
-                    dispatch(updateChats(res?.data?.chat));
-                    router.push(`/chat/${res.data.chat._id}`);
-                }
-                setCreating(false);
-            })
-            .catch((err) => {
-                setCreating(false);
-                toast.error(
-                    err?.response?.data?.error || 'Something went wrong',
-                );
-            });
+                    if (filtered.length > 0) {
+                        router.push(`/chat/${res.data.chat._id}`);
+                    } else {
+                        dispatch(updateChats(res?.data?.chat));
+                        router.push(`/chat/${res.data.chat._id}`);
+                    }
+                    setCreating(false);
+                })
+                .catch((err) => {
+                    setCreating(false);
+                    toast.error(
+                        err?.response?.data?.error || 'Something went wrong',
+                    );
+                });
+        }
     };
 
     // handle reaction
