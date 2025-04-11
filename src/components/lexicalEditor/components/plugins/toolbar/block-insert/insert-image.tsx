@@ -32,6 +32,7 @@ export function InsertImage({
                             />
                         ));
                     }}
+                    className='bg-foreground text-dark-gray'
                 >
                     <ImageIcon className='size-4' />
                 </Toggle>

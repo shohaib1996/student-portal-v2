@@ -26,20 +26,56 @@ const LinkPreviewCard: React.FC<LinkPreviewCardProps> = ({ url }) => {
     );
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const [cleanUrl, setCleanUrl] = useState('');
+
+    useEffect(() => {
+        // Extract the URL from the malformed string
+        const extractUrl = (inputUrl: string) => {
+            // Handle the specific format 'https://example.com](https://example.com)'
+            if (inputUrl.includes('](')) {
+                // Just take the first part before the ']('
+                const firstPart = inputUrl.split('](')[0];
+
+                // Remove any surrounding quotes
+                const cleanFirstPart = firstPart.replace(/^['"]|['"]$/g, '');
+
+                console.log('Extracted URL:', cleanFirstPart);
+                return cleanFirstPart;
+            }
+
+            // For regular URLs, just return them as is
+            return inputUrl;
+        };
+
+        const processedUrl = extractUrl(url);
+        setCleanUrl(processedUrl);
+
+        console.log({
+            originalUrl: url,
+            cleanUrl: processedUrl,
+        });
+    }, [url]);
 
     useEffect(() => {
         const fetchLinkPreview = async () => {
+            if (!cleanUrl) {
+                return;
+            }
+
             try {
                 setLoading(true);
                 setError(false);
 
-                const data: any = await getLinkPreview(url, {
+                const data: any = await getLinkPreview(cleanUrl, {
                     headers: {
                         'Accept-Language': 'en-US',
+                        'User-Agent':
+                            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                     },
                     timeout: 5000,
                 });
 
+                console.log({ linkData: data });
                 setPreviewData({
                     title: data.title,
                     description: data.description,
@@ -55,20 +91,20 @@ const LinkPreviewCard: React.FC<LinkPreviewCardProps> = ({ url }) => {
             }
         };
 
-        if (url) {
+        if (cleanUrl) {
             fetchLinkPreview();
         }
-    }, [url]);
+    }, [cleanUrl]);
 
     const handleClick = () => {
-        window.open(url, '_blank', 'noopener,noreferrer');
+        window.open(cleanUrl, '_blank', 'noopener,noreferrer');
     };
 
     if (loading) {
         return (
-            <Card className='w-full overflow-hidden border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer'>
-                <CardContent className='p-3 flex items-center justify-center h-24'>
-                    <Loader2 className='h-5 w-5 text-gray-400 animate-spin' />
+            <Card className='w-full overflow-hidden border hover:border-foreground transition-colors cursor-pointer'>
+                <CardContent className='p-3 flex items-center justify-center h-24 bg-background'>
+                    <Loader2 className='h-5 w-5 text-gray animate-spin' />
                 </CardContent>
             </Card>
         );
@@ -77,19 +113,19 @@ const LinkPreviewCard: React.FC<LinkPreviewCardProps> = ({ url }) => {
     if (error || !previewData) {
         return (
             <div
-                className='w-full bg-background rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer'
+                className='w-full bg-background rounded-lg overflow-hidden border hover:border-foreground transition-colors cursor-pointer'
                 onClick={handleClick}
             >
-                <div className='p-3'>
+                <div className='p-3 bg-foreground'>
                     <div className='flex items-center gap-2'>
-                        <ExternalLink className='h-4 w-4 text-blue-600' />
+                        <ExternalLink className='h-4 w-4 text-blue-600 truncate' />
                         <a
-                            href={url}
+                            href={cleanUrl}
                             target='_blank'
                             rel='noopener noreferrer'
                             className='text-blue-600 hover:underline text-sm truncate'
                         >
-                            {url}
+                            {cleanUrl}
                         </a>
                     </div>
                 </div>
@@ -104,7 +140,7 @@ const LinkPreviewCard: React.FC<LinkPreviewCardProps> = ({ url }) => {
         >
             <div className='flex flex-col sm:flex-row'>
                 {previewData.images && previewData.images.length > 0 && (
-                    <div className='relative w-full sm:w-1/3 bg-foreground object-cover'>
+                    <div className='relative w-full sm:w-1/3 h-32 sm:h-auto bg-foreground'>
                         <Image
                             src={previewData.images[0] || '/placeholder.svg'}
                             alt={previewData.title || 'Link preview'}
@@ -137,7 +173,7 @@ const LinkPreviewCard: React.FC<LinkPreviewCardProps> = ({ url }) => {
                     )}
 
                     <h3 className='font-medium text-sm line-clamp-2 mb-1'>
-                        {previewData.title || url}
+                        {previewData.title || cleanUrl}
                     </h3>
 
                     {previewData.description && (

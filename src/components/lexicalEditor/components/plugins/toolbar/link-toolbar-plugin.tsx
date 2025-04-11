@@ -84,6 +84,7 @@ export function LinkToolbarPlugin() {
             size={'sm'}
             variant={'outline'}
             aria-label='Toggle link'
+            className='bg-foreground text-dark-gray'
             onClick={insertLink}
         >
             <LinkIcon className='h-4 w-4' />

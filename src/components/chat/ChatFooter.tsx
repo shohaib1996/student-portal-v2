@@ -35,6 +35,8 @@ interface ChatFooterProps {
     selectedMessage?: any;
     setProfileInfoShow?: (show: boolean) => void;
     profileInfoShow?: boolean;
+    isPopUp?: boolean;
+    isEdit?: boolean;
     className?: string;
     draft?: any;
     sendTypingIndicator?: (isTyping: boolean) => void;
@@ -74,6 +76,8 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
     setProfileInfoShow,
     profileInfoShow,
     className,
+    isPopUp = false,
+    isEdit = false,
     sendTypingIndicator,
 }) => {
     if (chat?.isReadOnly && chat?.myData?.role === 'member') {
@@ -102,6 +106,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
                     <>
                         {reply ? (
                             <TextEditorReply
+                                isEdit={isEdit}
                                 chatId={chat?._id as string}
                                 parentMessage={parentMessage}
                                 onSentCallback={onSentCallback}
@@ -111,8 +116,9 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
                                 chat={chat}
                             />
                         ) : (
-                            // <p>Reply Coming soon!</p>
                             <TextEditor
+                                isEdit={isEdit}
+                                isPopUp={isPopUp}
                                 chatId={chat?._id}
                                 parentMessage={parentMessage}
                                 onSentCallback={onSentCallback}

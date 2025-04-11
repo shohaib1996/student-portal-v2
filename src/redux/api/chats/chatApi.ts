@@ -35,6 +35,41 @@ export interface ChatMessage {
     replies?: ChatMessage[];
 }
 
+// Add these types to your existing interface section
+export interface MediaItem {
+    _id: string;
+    name?: string;
+    type: string;
+    url: string;
+    size?: number;
+    messageId?: string;
+    text?: string;
+    createdAt: string;
+    sender: {
+        _id: string;
+        firstName?: string;
+        lastName?: string;
+        profilePicture?: string;
+    };
+}
+
+export interface MediaResponse {
+    success: boolean;
+    query?: string;
+    medias: MediaItem[];
+    totalCount: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
+export interface MediaParams {
+    chatId: string;
+    type?: 'image' | 'voice' | 'file' | 'link';
+    page?: number;
+    limit?: number;
+    query?: string;
+}
 export interface ChatUser {
     _id: string;
     name?: string;
@@ -764,6 +799,47 @@ export const chatApi = baseApi.injectEndpoints({
             invalidatesTags: [{ type: 'Chats', id: 'LIST' }],
         }),
 
+        // Add this to your chatApi endpoints
+        // Inside the `endpoints: (build) => ({...` block
+        getChatMedia: build.query<MediaResponse, MediaParams>({
+            query: ({ chatId, type, page = 1, limit = 50, query }) => {
+                // Build query parameters
+                let queryParams = `?page=${page}&limit=${limit}`;
+                if (type) {
+                    queryParams += `&type=${type}`;
+                }
+                if (query) {
+                    queryParams += `&query=${encodeURIComponent(query)}`;
+                }
+
+                return {
+                    url: `/chat/media/${chatId}${queryParams}`,
+                    method: 'GET',
+                };
+            },
+            // Keep cached media for 5 minutes
+            keepUnusedDataFor: 300,
+            // Provide tags for cache invalidation
+            providesTags: (result, error, { chatId, type }) =>
+                result
+                    ? [
+                          ...result.medias.map(({ _id }) => ({
+                              type: 'Messages' as const,
+                              id: _id,
+                          })),
+                          {
+                              type: 'Messages' as const,
+                              id: `${chatId}-${type || 'all'}`,
+                          },
+                      ]
+                    : [
+                          {
+                              type: 'Messages' as const,
+                              id: `${chatId}-${type || 'all'}`,
+                          },
+                      ],
+        }),
+
         // Search users
         searchUsers: build.query<ChatUser[], string>({
             query: (query) => ({
@@ -818,6 +894,7 @@ export const chatApi = baseApi.injectEndpoints({
 // Export hooks for usage in components
 export const {
     useSendMessageCustomMutation,
+    useGetChatMediaQuery,
     useUploadFileMutation,
     useUpdateMessageMutation,
     useGetChatsQuery,

@@ -59,6 +59,8 @@ interface TextEditorProps {
     onSentCallback?: (data: any) => void;
     setProfileInfoShow?: (show: boolean) => void;
     profileInfoShow?: boolean;
+    isPopUp?: boolean;
+    isEdit?: boolean;
     chat?: any;
 }
 
@@ -78,65 +80,6 @@ interface User {
     profilePicture?: string;
 }
 
-// Plugin options for the markdown editor
-const pluginOptions: PluginOptions = {
-    // Main plugin options
-    history: true,
-    autoFocus: true,
-    richText: true,
-    checkList: true,
-    horizontalRule: true,
-    table: true,
-    list: true,
-    tabIndentation: false,
-    draggableBlock: false,
-    images: true,
-    codeHighlight: true,
-    autoLink: true,
-    link: true,
-    componentPicker: true,
-    contextMenu: true,
-    dragDropPaste: true,
-    emojiPicker: true,
-    floatingLinkEditor: true,
-    floatingTextFormat: false,
-    maxIndentLevel: true,
-    beautifulMentions: true,
-    showToolbar: true,
-    showBottomBar: false,
-    quote: false,
-
-    // Toolbar-specific options
-    toolbar: {
-        history: false,
-        blockFormat: true,
-        codeLanguage: true,
-        fontFormat: {
-            bold: true,
-            italic: true,
-            underline: true,
-            strikethrough: true,
-        },
-        link: true,
-        clearFormatting: true,
-        horizontalRule: true,
-        image: true,
-        table: true,
-        quote: false,
-    },
-
-    // Action bar specific options
-    actionBar: {
-        maxLength: true,
-        characterLimit: true,
-        counter: true,
-        speechToText: true,
-        editModeToggle: true,
-        clearEditor: true,
-        treeView: true,
-    },
-};
-
 const TextEditor: React.FC<TextEditorProps> = ({
     chatId,
     parentMessage,
@@ -144,6 +87,8 @@ const TextEditor: React.FC<TextEditorProps> = ({
     onSentCallback,
     setProfileInfoShow,
     profileInfoShow,
+    isPopUp = false,
+    isEdit = false,
     chat,
 }) => {
     const { drafts } = useAppSelector((state) => state.chat);
@@ -155,6 +100,64 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const [pestFiles, setPestFiles] = useState<string[]>([]);
     const params = useParams();
     const [pestFileModal, setPestFileModal] = useState<boolean>(false);
+    // Plugin options for the markdown editor
+    const pluginOptions: PluginOptions = {
+        // Main plugin options
+        history: true,
+        autoFocus: true,
+        richText: true,
+        checkList: true,
+        horizontalRule: true,
+        table: isPopUp ? false : true,
+        list: true,
+        tabIndentation: false,
+        draggableBlock: false,
+        images: true,
+        codeHighlight: true,
+        autoLink: true,
+        link: true,
+        componentPicker: true,
+        contextMenu: true,
+        dragDropPaste: true,
+        emojiPicker: true,
+        floatingLinkEditor: true,
+        floatingTextFormat: false,
+        maxIndentLevel: true,
+        beautifulMentions: true,
+        showToolbar: true,
+        showBottomBar: false,
+        quote: false,
+
+        // Toolbar-specific options
+        toolbar: {
+            history: false,
+            blockFormat: isPopUp ? false : true,
+            codeLanguage: true,
+            fontFormat: {
+                bold: true,
+                italic: true,
+                underline: true,
+                strikethrough: true,
+            },
+            link: true,
+            clearFormatting: true,
+            horizontalRule: true,
+            image: true,
+            table: true,
+            quote: false,
+        },
+
+        // Action bar specific options
+        actionBar: {
+            maxLength: true,
+            characterLimit: true,
+            counter: true,
+            speechToText: true,
+            editModeToggle: true,
+            clearEditor: true,
+            treeView: true,
+        },
+    };
     const draftsData: any = drafts || [];
     const text =
         (draftsData &&
@@ -538,7 +541,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                     accept='image/*,video/*'
                 />
 
-                <div className='border-t border-border py-3 px-4'>
+                <div className='border-border'>
                     {/* Uploaded files preview */}
                     {uploadFiles.length > 0 && (
                         <div className='mb-3 flex flex-wrap gap-2'>
@@ -564,24 +567,34 @@ const TextEditor: React.FC<TextEditorProps> = ({
                             isSendingAudio={isSendingAudio}
                         />
                     ) : (
-                        <div className='flex items-start border rounded-lg bg-background shadow-sm'>
-                            <div className='w-full'>
+                        <div
+                            className={`flex items-start bg-background shadow-sm border`}
+                        >
+                            <div className='w-full h-full'>
                                 {/* Editor area */}
-                                <div className='flex-1 max-h-45  bg-white'>
+                                <div className='flex-1 h-full'>
                                     <ChatEditor
-                                        height='150px'
+                                        height={
+                                            isPopUp
+                                                ? '89px'
+                                                : isEdit
+                                                  ? '250px'
+                                                  : '100px'
+                                        }
                                         initialMarkdown={text}
                                         onMarkdownChange={handleOnChange}
                                         pluginOptions={pluginOptions}
                                         onMentionSearch={handleMentionSearch}
                                         mentionMenu={MentionMenu}
                                         mentionMenuItem={MentionMenuItem}
-                                        placeholder='Write something...'
+                                        placeholder='Type a message...'
                                     />
                                 </div>
 
                                 {/* Action buttons */}
-                                <div className='flex items-center justify-between px-2 mt-1'>
+                                <div
+                                    className={`flex items-center justify-between ${isPopUp ? 'px-1' : 'px-2'}`}
+                                >
                                     <div className='flex items-center gap-1'>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -625,7 +638,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                             !localText &&
                                             uploadFiles?.length === 0
                                                 ? 'opacity-50 cursor-not-allowed bg-primary/60'
-                                                : 'bg-primary hover:bg-primary/90'
+                                                : 'bg-primary'
                                         }`}
                                         disabled={
                                             !localText &&
@@ -633,7 +646,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                         }
                                         onClick={sendMessage}
                                     >
-                                        <Send className='h-5 w-5 text-pure-white' />
+                                        <Send className='h-4 w-4 text-pure-white' />
                                     </button>
                                 </div>
                             </div>

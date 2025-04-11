@@ -42,8 +42,9 @@ const EditMessageModal: React.FC<EditMessageModalProps> = ({
             showCloseButton={true}
             allowFullScreen={false}
         >
-            <div className='inbox-container p-3'>
+            <div className='inbox-container'>
                 <ChatFooter
+                    isEdit={true}
                     reply={true}
                     selectedMessage={selectedMessage}
                     onSentCallback={handleCloseEdit}

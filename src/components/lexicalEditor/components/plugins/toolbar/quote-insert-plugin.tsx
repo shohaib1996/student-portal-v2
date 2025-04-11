@@ -40,6 +40,7 @@ export function QuotePluginToolbar() {
             variant={'outline'}
             aria-label='Toggle link'
             onClick={insertQuote}
+            className='bg-foreground text-dark-gray'
         >
             <QuoteIcon className='h-4 w-4' />
         </Toggle>

@@ -207,10 +207,7 @@ export function ChatEditor({
     const editorSerializedState: SerializedEditorState | undefined = undefined;
 
     return (
-        <div
-            className='overflow-hidden rounded-lg border flex flex-col'
-            style={{ height }}
-        >
+        <div className='overflow-hidden flex flex-col' style={{ height }}>
             <LexicalComposer
                 initialConfig={{
                     ...editorConfig,

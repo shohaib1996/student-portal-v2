@@ -26,7 +26,7 @@ export function InsertHorizontalRule({
                             undefined,
                         )
                     }
-                    className='flex items-center gap-1 cursor-pointer'
+                    className='flex items-center gap-1 cursor-pointer bg-foreground text-dark-gray'
                 >
                     <ScissorsIcon className='size-4' />
                 </Toggle>
