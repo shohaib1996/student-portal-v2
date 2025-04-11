@@ -23,9 +23,6 @@ import { instance } from '@/lib/axios/axiosInstance';
 import Thread from './thread';
 import EditMessageModal from './Message/EditMessageModal';
 import ForwardMessageModal from './Message/ForwardMessageModal';
-import Highlighter from 'react-highlight-words';
-import { EventPopoverProvider } from '../calendar/CreateEvent/EventPopover';
-import CreateEventModal from '../calendar/CreateEvent/CreateEventModal';
 interface ChatMessage {
     _id: string;
     sender: {

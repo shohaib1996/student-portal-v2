@@ -53,6 +53,7 @@ export function FontFormatToolbarPlugin({
         <Toggle
             aria-label='Toggle bold'
             variant='outline'
+            className='bg-foreground text-dark-black'
             size='sm'
             defaultPressed={isSelected}
             pressed={isSelected}

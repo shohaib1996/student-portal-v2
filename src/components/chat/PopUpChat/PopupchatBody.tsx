@@ -805,7 +805,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     </div>
                 )}
             <div
-                className={`scrollbar-container ${messages.filter((message) => message.pinnedBy).length > 0 ? 'h-[calc(100%-104px)]' : 'h-[calc(100%-62px)]'} pl-2`}
+                className={`scrollbar-container ${messages.filter((message) => message.pinnedBy).length > 0 ? 'h-[calc(100%-104px)]' : 'h-[calc(100%-127px)]'} pl-2`}
             >
                 <div
                     className='h-full overflow-y-auto'
@@ -1063,6 +1063,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     setProfileInfoShow={setProfileInfoShow}
                     profileInfoShow={profileInfoShow}
                     sendTypingIndicator={sendTypingIndicator}
+                    isPopUp={true}
                 />
             )}
             {showPinnedMessages && (

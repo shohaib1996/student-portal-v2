@@ -17,6 +17,7 @@ export function InsertTable({ outsideSelect }: { outsideSelect?: boolean }) {
                     size={'sm'}
                     variant={'outline'}
                     aria-label='Insert Table'
+                    className='bg-foreground text-dark-gray'
                     onClick={() =>
                         showModal('Insert Table', (onClose) => (
                             <InsertTableDialog

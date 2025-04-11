@@ -270,6 +270,55 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [mediaCount, setMediaCount] = useState(0);
+    const [imagesCount, setImagesCount] = useState(0);
+    const [voiceCount, setVoiceCount] = useState(0);
+    const [fileCount, setFileCount] = useState(0);
+    const [linksCount, setLinksCount] = useState(0);
+
+    // Add this useEffect to fetch all media counts when the component loads
+    useEffect(() => {
+        if (chat?._id) {
+            // Fetch image count
+            instance
+                .get(`/chat/media/${chat._id}?type=image&limit=1`)
+                .then((res) => {
+                    setImagesCount(res.data.totalCount || 0);
+                })
+                .catch((err) =>
+                    console.error('Error fetching image count:', err),
+                );
+
+            // Fetch voice count
+            instance
+                .get(`/chat/media/${chat._id}?type=voice&limit=1`)
+                .then((res) => {
+                    setVoiceCount(res.data.totalCount || 0);
+                })
+                .catch((err) =>
+                    console.error('Error fetching voice count:', err),
+                );
+
+            // Fetch file count
+            instance
+                .get(`/chat/media/${chat._id}?type=file&limit=1`)
+                .then((res) => {
+                    setFileCount(res.data.totalCount || 0);
+                })
+                .catch((err) =>
+                    console.error('Error fetching file count:', err),
+                );
+
+            // Fetch link count
+            instance
+                .get(`/chat/media/${chat._id}?type=link&limit=1`)
+                .then((res) => {
+                    setLinksCount(res.data.totalCount || 0);
+                })
+                .catch((err) =>
+                    console.error('Error fetching link count:', err),
+                );
+        }
+    }, [chat?._id]);
 
     const handleReport = async (reason: string, details?: string) => {
         setIsSubmitting(true);
@@ -792,6 +841,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                         >
                                             <Users size={16} className='mr-1' />
                                             Members ({chat?.membersCount || 0})
+                                            {/* Members */}
                                         </TabsTrigger>
                                     )}
                                     <TabsTrigger
@@ -799,14 +849,15 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                         className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
                                     >
                                         <FileImage size={16} className='mr-1' />
-                                        Images ({chat?.imagesCount || 0})
+                                        Images ({imagesCount || 0})
+                                        {/* Images */}
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value='voice'
                                         className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
                                     >
                                         <Mic size={16} className='mr-1' />
-                                        Voice ({chat?.voiceCount || 0})
+                                        Voice ({voiceCount || 0}){/* Voice */}
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value='file'
@@ -816,7 +867,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                             size={16}
                                             className='mr-1'
                                         />
-                                        Files ({chat?.voiceCount || 0})
+                                        Files ({fileCount || 0}){/* Files */}
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value='link'
@@ -826,7 +877,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                             size={16}
                                             className='mr-1'
                                         />
-                                        Links ({chat?.voiceCount || 0})
+                                        Links ({linksCount || 0}){/* Links */}
                                     </TabsTrigger>
                                 </TabsList>
 

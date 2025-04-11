@@ -1,8 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useRef, useState, useCallback } from 'react';
-import axios from 'axios';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Loader2, Search, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -12,28 +11,10 @@ import { Button } from '@/components/ui/button';
 import FileCard from './FileCard';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
+import { useGetChatMediaQuery } from '@/redux/api/chats/chatApi';
 
 // Initialize dayjs plugins
 dayjs.extend(relativeTime);
-
-interface User {
-    _id: string;
-    firstName?: string;
-    lastName?: string;
-    fullName?: string;
-    profilePicture?: string;
-    type?: string;
-}
-
-interface File {
-    _id: string;
-    url: string;
-    type: string;
-    name?: string;
-    size?: number;
-    createdAt?: string;
-    sender?: User; // For future implementation
-}
 
 interface FilesProps {
     chat: {
@@ -43,163 +24,65 @@ interface FilesProps {
     };
 }
 
-// Mock users for demonstration until sender data is available
-const mockUsers: User[] = [
-    {
-        _id: '1',
-        firstName: 'Jane',
-        lastName: 'Cooper',
-        fullName: 'Jane Cooper',
-        profilePicture:
-            'https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1736416051986-Shuvajit_Maitra',
-        type: 'admin',
-    },
-    {
-        _id: '2',
-        firstName: 'Wade',
-        lastName: 'Warren',
-        fullName: 'Wade Warren',
-        profilePicture: '/avatar/wade-warren.jpg',
-        type: 'user',
-    },
-    {
-        _id: '3',
-        firstName: 'Shuvajit',
-        lastName: 'Maitra',
-        fullName: 'Shuvajit Maitra',
-        profilePicture:
-            'https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1736416051986-Shuvajit_Maitra',
-        type: 'marketing',
-    },
-    {
-        _id: '4',
-        firstName: 'Pilot',
-        lastName: 'Demo',
-        fullName: 'Pilot Demo',
-        profilePicture:
-            'https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1740085425370-Demo.JPEG',
-        type: 'marketing',
-    },
-];
-
 const Files: React.FC<FilesProps> = ({ chat }) => {
-    const [files, setFiles] = useState<File[]>([]);
-    const [filteredFiles, setFilteredFiles] = useState<File[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
-
+    const [debouncedQuery, setDebouncedQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
     const divRef = useRef<HTMLDivElement>(null);
-    const initialLimit = 12; // Show 12 files initially
+    const pageLimit = 12; // Files per page
 
-    // Fetch file items
-    const fetchFiles = useCallback(
-        (options: { limit: number; type: string; lastId?: string }) => {
-            setIsLoading(true);
-            axios
-                .post(`/chat/media/${chat?._id}`, options)
-                .then((res) => {
-                    const fileData = res.data?.medias || [];
+    // Set up debounced search query to prevent excessive API calls
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQuery(searchQuery);
+            setCurrentPage(1); // Reset to first page on new search
+        }, 300);
 
-                    // Enhance file data with mock user data for demonstration
-                    const enhancedFiles = fileData.map((file: File) => {
-                        const randomUserIndex = Math.floor(
-                            Math.random() * mockUsers.length,
-                        );
-                        return {
-                            ...file,
-                            sender: mockUsers[randomUserIndex],
-                        };
-                    });
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
-                    setFiles(enhancedFiles);
-                    setFilteredFiles(enhancedFiles);
-                    setHasMore(fileData.length === options.limit);
-                    setIsLoading(false);
-                })
-                .catch((err) => {
-                    setIsLoading(false);
-                    toast.error(
-                        err?.response?.data?.error || 'Failed to fetch files',
-                    );
-                });
+    // Use RTK Query hook to fetch media data with filename filtering
+    // The API will search by filename using the query parameter
+    const {
+        data: mediaData,
+        isLoading,
+        isFetching,
+        error,
+    } = useGetChatMediaQuery(
+        {
+            chatId: chat._id,
+            type: 'file',
+            page: currentPage,
+            limit: pageLimit,
+            query: debouncedQuery, // This is used for filename filtering
         },
-        [chat],
+        {
+            // Only fetch if chat ID exists
+            skip: !chat._id,
+        },
     );
 
-    // Load more file items
-    const loadMoreFiles = useCallback(() => {
-        if (!hasMore || loadingMore) {
-            return;
+    // Handle search input change
+    const handleSearch = (query: string) => {
+        setSearchQuery(query);
+    };
+
+    // Load more files when clicking "View More"
+    const loadMoreFiles = () => {
+        if (mediaData && currentPage < mediaData.totalPages) {
+            setCurrentPage((prev) => prev + 1);
         }
+    };
 
-        setLoadingMore(true);
-        const lastId = files[files.length - 1]?._id;
+    // Error handling
+    useEffect(() => {
+        if (error) {
+            console.error('Error fetching files:', error);
+            toast.error('Failed to fetch files');
+        }
+    }, [error]);
 
-        axios
-            .post(`/chat/media/${chat?._id}`, {
-                lastId,
-                limit: initialLimit,
-                type: 'file',
-            })
-            .then((res) => {
-                const fileData = res.data?.medias || [];
-
-                // Enhance file data with mock user data for demonstration
-                const enhancedFiles = fileData.map((file: File) => {
-                    const randomUserIndex = Math.floor(
-                        Math.random() * mockUsers.length,
-                    );
-                    return {
-                        ...file,
-                        sender: mockUsers[randomUserIndex],
-                    };
-                });
-
-                const updatedFiles = [...files, ...enhancedFiles];
-                setFiles(updatedFiles);
-
-                // Apply search filter to new results too
-                if (searchQuery) {
-                    handleSearch(searchQuery, updatedFiles);
-                } else {
-                    setFilteredFiles(updatedFiles);
-                }
-
-                setHasMore(fileData.length === initialLimit);
-                setLoadingMore(false);
-            })
-            .catch((err) => {
-                setLoadingMore(false);
-                console.error(err);
-                toast.error(
-                    err?.response?.data?.error || 'Failed to load more files',
-                );
-            });
-    }, [chat, files, hasMore, loadingMore, searchQuery]);
-
-    // Handle search functionality
-    const handleSearch = useCallback(
-        (query: string, fileList?: File[]) => {
-            const dataToSearch = fileList || files;
-            setSearchQuery(query);
-
-            if (!query.trim()) {
-                setFilteredFiles(dataToSearch);
-                return;
-            }
-
-            const filtered = dataToSearch.filter((file) =>
-                file.name?.toLowerCase().includes(query.toLowerCase()),
-            );
-
-            setFilteredFiles(filtered);
-        },
-        [files],
-    );
-
-    // Get user role badge
+    // Get user role badge - can be enabled when role/type data is available
     const getUserRoleBadge = (type?: string) => {
         switch (type) {
             case 'admin':
@@ -250,12 +133,9 @@ const Files: React.FC<FilesProps> = ({ chat }) => {
         }
     };
 
-    // Initial data fetch
-    useEffect(() => {
-        if (chat?._id) {
-            fetchFiles({ limit: initialLimit, type: 'file' });
-        }
-    }, [chat, fetchFiles]);
+    const isLoadingMore = isFetching && !isLoading;
+    const hasMore = mediaData ? currentPage < mediaData.totalPages : false;
+    const files = mediaData?.medias || [];
 
     // Render content conditionally
     const renderContent = () => {
@@ -267,13 +147,13 @@ const Files: React.FC<FilesProps> = ({ chat }) => {
             );
         }
 
-        if (filteredFiles.length === 0) {
+        if (files.length === 0) {
             return (
                 <div className='flex justify-center items-center flex-col py-16'>
-                    <div className='rounded-full bg-gray-100 p-4 mb-4'>
-                        <Search className='h-8 w-8 text-gray-400' />
+                    <div className='rounded-full bg-background p-4 mb-4'>
+                        <Search className='h-8 w-8 text-gray' />
                     </div>
-                    <h4 className='text-center text-gray-500 font-medium'>
+                    <h4 className='text-center text-gray font-medium'>
                         {searchQuery
                             ? `No files found for "${searchQuery}"`
                             : 'No files available'}
@@ -284,7 +164,6 @@ const Files: React.FC<FilesProps> = ({ chat }) => {
                             className='mt-2 text-blue-600 hover:text-blue-700'
                             onClick={() => {
                                 setSearchQuery('');
-                                setFilteredFiles(files);
                             }}
                         >
                             Clear search
@@ -296,23 +175,24 @@ const Files: React.FC<FilesProps> = ({ chat }) => {
 
         return (
             <div className='flex flex-col gap-2'>
-                {filteredFiles.map((file, i) => (
+                {files.map((file, i) => (
                     <div key={file._id || i} className='flex flex-row gap-2'>
                         <Image
                             src={file.sender?.profilePicture || '/avatar.png'}
                             height={60}
                             width={60}
-                            alt={file.sender?.fullName || 'User'}
+                            alt={
+                                `${file.sender?.firstName || ''} ${file.sender?.lastName || ''}`.trim() ||
+                                'User'
+                            }
                             className='w-10 h-10 rounded-full border object-cover'
                         />
                         <div className='bg-foreground p-2 rounded-md flex flex-col w-full'>
                             <div className='flex flex-row items-center gap-2 mb-1'>
                                 <div className='name max-w-200 truncate text-dark-gray text-sm font-medium'>
-                                    {file.sender?.fullName || 'Unknown User'}
+                                    {`${file.sender?.firstName || ''} ${file.sender?.lastName || ''}`.trim() ||
+                                        'Unknown User'}
                                 </div>
-                                {/* <div className='ml-2'>
-                                    {getUserRoleBadge(file.sender?.type)}
-                                </div> */}
                                 <div className='name max-w-200 truncate text-gray text-xs'>
                                     {formatDate(file.createdAt)}
                                 </div>
@@ -327,20 +207,17 @@ const Files: React.FC<FilesProps> = ({ chat }) => {
 
     return (
         <div className='w-full'>
-            {/* Search bar */}
+            {/* Search bar for filename filtering */}
             <div className='pb-2 mb-2'>
                 <div className='relative flex flex-row items-center gap-2'>
-                    <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
+                    <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
                     <Input
                         type='search'
                         placeholder='Search by filename...'
-                        className='pl-10 py-2 pr-4 w-full border bg-foreground rounded-md focus:border-primary-light focus:ring-primary-light'
+                        className='pl-10 py-2 pr-4 w-full border bg-background rounded-md focus:border-primary-light focus:ring-primary-light'
                         value={searchQuery}
                         onChange={(e) => handleSearch(e.target.value)}
                     />
-                    <Button variant='secondary' size='icon' className='h-9 w-9'>
-                        <SlidersHorizontal className='h-4 w-4' />
-                    </Button>
                 </div>
             </div>
 
@@ -348,19 +225,18 @@ const Files: React.FC<FilesProps> = ({ chat }) => {
             <div ref={divRef} className='relative'>
                 {renderContent()}
 
-                {/* Gradient overlay and View More button */}
-                {filteredFiles.length > 0 && hasMore && (
+                {/* View More button */}
+                {files.length > 0 && hasMore && (
                     <div className='relative mt-2'>
-                        <div className='absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-black to-transparent'></div>
                         <div className='flex flex-row items-center gap-1 pb-2 pt-2 relative z-10'>
                             <div className='w-full h-[2px] bg-border'></div>
                             <Button
                                 variant='primary_light'
                                 className='h-7 rounded-full'
                                 onClick={loadMoreFiles}
-                                disabled={loadingMore}
+                                disabled={isLoadingMore}
                             >
-                                {loadingMore ? (
+                                {isLoadingMore ? (
                                     <>
                                         <Loader2 className='h-4 w-4 mr-1 animate-spin' />
                                         Loading...

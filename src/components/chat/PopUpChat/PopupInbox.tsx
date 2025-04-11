@@ -273,12 +273,12 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                     className='min-w-[180px]'
                                 >
                                     {/* Calendar option */}
-                                    <EventPopoverTrigger className='w-full'>
+                                    {/* <EventPopoverTrigger className='w-full'>
                                         <DropdownMenuItem className='flex items-center gap-2 cursor-pointer'>
                                             <Calendar className='h-4 w-4' />
                                             <span>Calendar</span>
                                         </DropdownMenuItem>
-                                    </EventPopoverTrigger>
+                                    </EventPopoverTrigger> */}
 
                                     {/* Notification option */}
                                     <DropdownMenuItem

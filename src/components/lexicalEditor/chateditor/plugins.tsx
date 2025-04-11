@@ -189,12 +189,12 @@ export function Plugins({
                                 isToolbarOptionEnabled('history') && (
                                     <HistoryToolbarPlugin />
                                 )}
-                            {pluginOptions.history && (
+                            {/* {pluginOptions.history && (
                                 <Separator
                                     orientation='vertical'
                                     className='h-8'
                                 />
-                            )}
+                            )} */}
                             {isToolbarOptionEnabled('blockFormat') && (
                                 <BlockFormatDropDown>
                                     <FormatParagraph />

@@ -92,7 +92,7 @@ export function ClearFormattingToolbarPlugin() {
         <Button
             size={'sm'}
             variant={'outline'}
-            className='h-8 w-8'
+            className='h-8 w-8 !bg-foreground text-dark-gray'
             onClick={clearFormatting}
         >
             <EraserIcon className='h-4 w-4' />

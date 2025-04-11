@@ -1,7 +1,8 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
+import { toast } from 'sonner';
 import {
     Loader2,
     Search,
@@ -18,28 +19,11 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import LinkPreviewCard from './LinkPreviewCard';
 import Link from 'next/link';
+import { useGetChatMediaQuery } from '@/redux/api/chats/chatApi';
+import MessagePreview from './Message/MessagePreview';
 
 // Initialize dayjs plugins
 dayjs.extend(relativeTime);
-
-interface User {
-    _id: string;
-    firstName?: string;
-    lastName?: string;
-    fullName?: string;
-    profilePicture?: string;
-    type?: string;
-}
-
-interface Link {
-    _id: string;
-    url: string;
-    type: string;
-    name?: string;
-    size?: number;
-    createdAt?: string;
-    sender?: User;
-}
 
 interface LinksProps {
     chat: {
@@ -49,242 +33,130 @@ interface LinksProps {
     };
 }
 
-// Mock users for demonstration until sender data is available
-const mockUsers: User[] = [
-    {
-        _id: '1',
-        firstName: 'Jane',
-        lastName: 'Cooper',
-        fullName: 'Jane Cooper',
-        profilePicture:
-            'https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1736416051986-Shuvajit_Maitra',
-        type: 'admin',
-    },
-    {
-        _id: '2',
-        firstName: 'Wade',
-        lastName: 'Warren',
-        fullName: 'Wade Warren',
-        profilePicture: '/avatar/wade-warren.jpg',
-        type: 'user',
-    },
-    {
-        _id: '3',
-        firstName: 'Shuvajit',
-        lastName: 'Maitra',
-        fullName: 'Shuvajit Maitra',
-        profilePicture:
-            'https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1736416051986-Shuvajit_Maitra',
-        type: 'marketing',
-    },
-    {
-        _id: '4',
-        firstName: 'Pilot',
-        lastName: 'Demo',
-        fullName: 'Pilot Demo',
-        profilePicture:
-            'https://ts4uportal-all-files-upload.nyc3.digitaloceanspaces.com/1740085425370-Demo.JPEG',
-        type: 'marketing',
-    },
-];
+// URL cleaning utility function
+const cleanUrl = (inputUrl: string) => {
+    // Handle the specific format 'https://example.com](https://example.com)'
+    if (inputUrl.includes('](')) {
+        // Just take the first part before the ']('
+        const firstPart = inputUrl.split('](')[0];
 
-// Mock links for demonstration
-const mockLinks: Link[] = [
-    {
-        _id: '1',
-        url: 'https://nextjs.org',
-        type: 'link',
-        name: 'Next.js - The React Framework',
-        createdAt: new Date().toISOString(),
-        sender: mockUsers[0],
-    },
-    {
-        _id: '2',
-        url: 'https://vercel.com',
-        type: 'link',
-        name: 'Vercel: Develop. Preview. Ship.',
-        createdAt: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-        sender: mockUsers[1],
-    },
-    {
-        _id: '3',
-        url: 'https://tailwindcss.com',
-        type: 'link',
-        name: 'Tailwind CSS - Rapidly build modern websites',
-        createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-        sender: mockUsers[2],
-    },
-    {
-        _id: '4',
-        url: 'https://nextjs.org',
-        type: 'link',
-        name: 'Next.js - The React Framework',
-        createdAt: new Date().toISOString(),
-        sender: mockUsers[0],
-    },
-    {
-        _id: '5',
-        url: 'https://vercel.com',
-        type: 'link',
-        name: 'Vercel: Develop. Preview. Ship.',
-        createdAt: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-        sender: mockUsers[1],
-    },
-    {
-        _id: '6',
-        url: 'https://tailwindcss.com',
-        type: 'link',
-        name: 'Tailwind CSS - Rapidly build modern websites',
-        createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-        sender: mockUsers[2],
-    },
-];
+        // Remove any surrounding quotes
+        const cleanFirstPart = firstPart.replace(/^['"]|['"]$/g, '');
+
+        return cleanFirstPart;
+    }
+
+    // For regular URLs, just return them as is
+    return inputUrl;
+};
 
 const Links: React.FC<LinksProps> = ({ chat }) => {
-    const [links, setLinks] = useState<Link[]>([]);
-    const [filteredLinks, setFilteredLinks] = useState<Link[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [allLinks, setAllLinks] = useState<any[]>([]);
+    const [hasMoreToFetch, setHasMoreToFetch] = useState(true);
     const divRef = useRef<HTMLDivElement>(null);
-    const initialLimit = 12;
+    const pageLimit = 12; // Links per page
 
-    // Fetch link items
-    const fetchLinks = useCallback(
-        (options: { limit: number; type: string; lastId?: string }) => {
-            setIsLoading(true);
-
-            // For demonstration, we'll use mock data
-            // In a real app, you would use the axios call below
-            setTimeout(() => {
-                setLinks(mockLinks);
-                setFilteredLinks(mockLinks);
-                setHasMore(false);
-                setIsLoading(false);
-            }, 1000);
-
-            // Uncomment for real API call
-            /*
-            axios
-                .post(`/chat/media/${chat?._id}`, { ...options, type: 'link' })
-                .then((res) => {
-                    const linkData = res.data?.medias || [];
-
-                    // Enhance link data with mock user data for demonstration
-                    const enhancedLinks = linkData.map((link: Link) => {
-                        const randomUserIndex = Math.floor(
-                            Math.random() * mockUsers.length,
-                        );
-                        return {
-                            ...link,
-                            sender: mockUsers[randomUserIndex],
-                        };
-                    });
-
-                    setLinks(enhancedLinks);
-                    setFilteredLinks(enhancedLinks);
-                    setHasMore(linkData.length === options.limit);
-                    setIsLoading(false);
-                })
-                .catch((err) => {
-                    setIsLoading(false);
-                    console.log(err);
-                    toast.error(
-                        err?.response?.data?.error || 'Failed to fetch links',
-                    );
-                });
-            */
+    // Use RTK Query hook to fetch all media data
+    const {
+        data: mediaData,
+        isLoading,
+        isFetching,
+        error,
+    } = useGetChatMediaQuery(
+        {
+            chatId: chat._id,
+            type: 'link',
+            page: currentPage,
+            limit: pageLimit,
         },
-        [chat],
+        {
+            // Only fetch if chat ID exists
+            skip: !chat._id,
+        },
     );
 
-    // Load more link items
-    const loadMoreLinks = useCallback(() => {
-        if (!hasMore || loadingMore) {
-            return;
-        }
+    // Update all links when new data arrives
+    useEffect(() => {
+        if (mediaData?.medias && !isLoading) {
+            // Process URLs in the incoming data
+            const processedLinks = mediaData.medias.map((link) => ({
+                ...link,
+                cleanedUrl: cleanUrl(link.url),
+            }));
 
-        setLoadingMore(true);
-        const lastId = links[links.length - 1]?._id;
-
-        // For demonstration, we'll use mock data
-        // In a real app, you would use the axios call
-        setTimeout(() => {
-            setLoadingMore(false);
-            setHasMore(false);
-        }, 1000);
-
-        // Uncomment for real API call
-        /*
-        axios
-            .post(`/chat/media/${chat?._id}`, {
-                lastId,
-                limit: initialLimit,
-                type: 'link',
-            })
-            .then((res) => {
-                const linkData = res.data?.medias || [];
-
-                // Enhance link data with mock user data for demonstration
-                const enhancedLinks = linkData.map((link: Link) => {
-                    const randomUserIndex = Math.floor(
-                        Math.random() * mockUsers.length,
-                    );
-                    return {
-                        ...link,
-                        sender: mockUsers[randomUserIndex],
-                    };
-                });
-
-                const updatedLinks = [...links, ...enhancedLinks];
-                setLinks(updatedLinks);
-
-                // Apply search filter to new results too
-                if (searchQuery) {
-                    handleSearch(searchQuery, updatedLinks);
-                } else {
-                    setFilteredLinks(updatedLinks);
-                }
-
-                setHasMore(linkData.length === initialLimit);
-                setLoadingMore(false);
-            })
-            .catch((err) => {
-                setLoadingMore(false);
-                console.log(err);
-                toast.error(
-                    err?.response?.data?.error || 'Failed to load more links',
-                );
-            });
-        */
-    }, [chat, links, hasMore, loadingMore, searchQuery]);
-
-    // Handle search functionality
-    const handleSearch = useCallback(
-        (query: string, linkList?: Link[]) => {
-            const dataToSearch = linkList || links;
-            setSearchQuery(query);
-
-            if (!query.trim()) {
-                setFilteredLinks(dataToSearch);
-                return;
+            // For the first page, replace all; for subsequent pages, append
+            if (currentPage === 1) {
+                setAllLinks(processedLinks);
+            } else {
+                setAllLinks((prev) => [...prev, ...processedLinks]);
             }
 
-            const filtered = dataToSearch.filter(
-                (link) =>
-                    link.url.toLowerCase().includes(query.toLowerCase()) ||
-                    (link.name &&
-                        link.name.toLowerCase().includes(query.toLowerCase())),
+            // Update has more flag
+            setHasMoreToFetch(currentPage < mediaData.totalPages);
+        }
+    }, [mediaData, isLoading, currentPage]);
+
+    // Apply comprehensive filtering for sender name, URL, and text/title
+    const filteredLinks = useMemo(() => {
+        if (!searchQuery.trim()) {
+            return allLinks;
+        }
+
+        const searchLower = searchQuery.toLowerCase();
+        return allLinks.filter((link) => {
+            // Check sender name
+            const firstName = link.sender?.firstName || '';
+            const lastName = link.sender?.lastName || '';
+            const fullName = `${firstName} ${lastName}`.trim().toLowerCase();
+            const hasNameMatch = fullName.includes(searchLower);
+
+            // Check link URL
+            const url = link.cleanedUrl?.toLowerCase() || '';
+            const hasUrlMatch = url.includes(searchLower);
+
+            // Check link title/name
+            const name = link.name?.toLowerCase() || '';
+            const hasNameUrlMatch = name.includes(searchLower);
+
+            // Check message text
+            const text = link.text?.toLowerCase() || '';
+            const hasTextMatch = text.includes(searchLower);
+
+            // Return true if any field matches
+            return (
+                hasNameMatch || hasUrlMatch || hasNameUrlMatch || hasTextMatch
             );
+        });
+    }, [allLinks, searchQuery]);
 
-            setFilteredLinks(filtered);
-        },
-        [links],
-    );
+    // Handle search input change
+    const handleSearch = (query: string) => {
+        setSearchQuery(query);
+    };
 
-    // Get user role badge
+    // Load more links
+    const loadMoreLinks = () => {
+        if (hasMoreToFetch && !isFetching) {
+            setCurrentPage((prev) => prev + 1);
+        }
+    };
+
+    // Error handling
+    useEffect(() => {
+        if (error) {
+            console.error('Error fetching links:', error);
+            toast.error('Failed to fetch links');
+        }
+    }, [error]);
+
+    // Clear search and reset
+    const handleClearSearch = () => {
+        setSearchQuery('');
+    };
+
+    // Get user role badge - can be enabled when role/type data is available
     const getUserRoleBadge = (type?: string) => {
         switch (type) {
             case 'admin':
@@ -335,16 +207,17 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
         }
     };
 
-    // Initial data fetch
-    useEffect(() => {
-        if (chat?._id) {
-            fetchLinks({ limit: initialLimit, type: 'link' });
-        }
-    }, [chat, fetchLinks]);
+    const isLoadingMore = isFetching && !isLoading;
+
+    // Should show "View More" button if there are more items on the server
+    // and either no search is happening, or search has results
+    const showViewMoreButton =
+        hasMoreToFetch &&
+        (!searchQuery || (searchQuery && filteredLinks.length > 0));
 
     // Render content conditionally
     const renderContent = () => {
-        if (isLoading && links.length === 0) {
+        if (isLoading && allLinks.length === 0) {
             return (
                 <div className='flex justify-center items-center py-16'>
                     <Loader2 className='h-8 w-8 text-blue-600 animate-spin' />
@@ -355,10 +228,10 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
         if (filteredLinks.length === 0) {
             return (
                 <div className='flex justify-center items-center flex-col py-16'>
-                    <div className='rounded-full bg-gray-100 p-4 mb-4'>
-                        <LinkIcon className='h-8 w-8 text-gray-400' />
+                    <div className='rounded-full bg-background p-4 mb-4'>
+                        <LinkIcon className='h-8 w-8 text-gray' />
                     </div>
-                    <h4 className='text-center text-gray-500 font-medium'>
+                    <h4 className='text-center text-gray font-medium'>
                         {searchQuery
                             ? `No links found for "${searchQuery}"`
                             : 'No links available'}
@@ -367,10 +240,7 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
                         <Button
                             variant='ghost'
                             className='mt-2 text-blue-600 hover:text-blue-700'
-                            onClick={() => {
-                                setSearchQuery('');
-                                setFilteredLinks(links);
-                            }}
+                            onClick={handleClearSearch}
                         >
                             Clear search
                         </Button>
@@ -387,24 +257,46 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
                             src={link.sender?.profilePicture || '/avatar.png'}
                             height={60}
                             width={60}
-                            alt={link.sender?.fullName || 'User'}
+                            alt={
+                                `${link.sender?.firstName || ''} ${link.sender?.lastName || ''}`.trim() ||
+                                'User'
+                            }
                             className='w-10 h-10 rounded-full border object-cover'
                         />
-                        <div className='flex flex-col w-full bg-foreground hover:bg-primary-light duration-300 border hover:border-blue-500/30 p-2 rounded-lg'>
+                        <div className='flex flex-col w-[calc(100%-50px)] bg-background hover:bg-primary-light duration-300 border hover:border-blue-500/30 p-2 rounded-lg'>
                             <div className='flex flex-row items-center gap-2 mb-1'>
                                 <div className='name max-w-200 truncate text-black text-sm font-medium'>
-                                    {link.sender?.fullName || 'Unknown User'}
+                                    {`${link.sender?.firstName || ''} ${link.sender?.lastName || ''}`.trim() ||
+                                        'Unknown User'}
                                 </div>
+                                {/* User role badge can be uncommented when the data includes role/type */}
+                                {/* <div className='ml-2'>
+                                    {getUserRoleBadge(link.sender?.type)}
+                                </div> */}
                                 <div className='name max-w-200 truncate text-gray text-xs'>
                                     {formatDate(link.createdAt)}
                                 </div>
                             </div>
+
+                            {/* Display message text if available */}
+                            {link.text && (
+                                <p className='text-sm text-gray mb-2'>
+                                    <MessagePreview
+                                        searchQuery={searchQuery}
+                                        text={link?.text || ''}
+                                    />
+                                </p>
+                            )}
+
                             <LinkPreviewCard url={link.url} />
-                            <Link href={link?.url} target='_blank'>
+                            <Link
+                                href={link.cleanedUrl || link.url}
+                                target='_blank'
+                            >
                                 <u className='text-xs text-primary mt-1 flex items-center gap-1 cursor-pointer'>
                                     <ExternalLink className='h-3 w-3 text-primary' />
                                     <span className='text-xs text-primary truncate'>
-                                        {link?.url}
+                                        {link.cleanedUrl || link.url}
                                     </span>
                                 </u>
                             </Link>
@@ -420,17 +312,14 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
             {/* Search bar */}
             <div className='pb-2 mb-2'>
                 <div className='relative flex flex-row items-center gap-2'>
-                    <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
+                    <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
                     <Input
                         type='search'
-                        placeholder='Search by link or title...'
-                        className='pl-8 py-2 pr-4 w-full border bg-foreground rounded-md focus:border-primary-light focus:ring-primary-light'
+                        placeholder='Search by sender, link URL, title, or message...'
+                        className='pl-8 py-2 pr-4 w-full border bg-background rounded-md focus:border-primary-light focus:ring-primary-light'
                         value={searchQuery}
                         onChange={(e) => handleSearch(e.target.value)}
                     />
-                    <Button variant='secondary' size='icon' className='h-9 w-9'>
-                        <SlidersHorizontal className='h-4 w-4' />
-                    </Button>
                 </div>
             </div>
 
@@ -438,19 +327,18 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
             <div ref={divRef} className='relative'>
                 {renderContent()}
 
-                {/* Gradient overlay and View More button */}
-                {filteredLinks.length > 0 && hasMore && (
+                {/* View More button */}
+                {showViewMoreButton && (
                     <div className='relative mt-2'>
-                        <div className='absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-black to-transparent'></div>
                         <div className='flex flex-row items-center gap-1 pb-2 pt-2 relative z-10'>
                             <div className='w-full h-[2px] bg-border'></div>
                             <Button
                                 variant='primary_light'
                                 className='h-7 rounded-full'
                                 onClick={loadMoreLinks}
-                                disabled={loadingMore}
+                                disabled={isLoadingMore}
                             >
-                                {loadingMore ? (
+                                {isLoadingMore ? (
                                     <>
                                         <Loader2 className='h-4 w-4 mr-1 animate-spin' />
                                         Loading...
