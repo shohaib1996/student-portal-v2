@@ -97,7 +97,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
         };
         const handleCopy = async (id: string) => {
             const success = await copyToClipboard(
-                `https://portal.bootcampshub.ai/dashboard/community/post/${id}`,
+                `https://portal.bootcampshub.ai/community/post/${id}`,
             );
             if (success) {
                 toast.success('Link copied to clipboard');
@@ -107,7 +107,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
         const handleShare = (post: ICommunityPost) => {
             setPostTitle(post.title);
             setPostUrl(
-                `https://portal.bootcampshub.ai/dashboard/community/post/${post._id}`,
+                `https://portal.bootcampshub.ai/community/post/${post._id}`,
             );
             setOpen(true);
         };

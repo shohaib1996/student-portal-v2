@@ -184,7 +184,7 @@ export function Plugins({
             {pluginOptions.showToolbar !== false && (
                 <ToolbarPlugin>
                     {({ blockType }) => (
-                        <div className='vertical-align-middle sticky top-0 z-10 flex gap-2 overflow-auto p-1'>
+                        <div className='vertical-align-middle border-b border-forground-border sticky top-0 z-10 flex gap-2 overflow-auto p-1'>
                             {pluginOptions.history !== false &&
                                 isToolbarOptionEnabled('history') && (
                                     <HistoryToolbarPlugin />
@@ -309,7 +309,7 @@ export function Plugins({
                 {pluginOptions.richText !== false && (
                     <RichTextPlugin
                         contentEditable={
-                            <div className='absolute inset-0 overflow-hidden bg-foreground'>
+                            <div className='absolute inset-0 overflow-hidden'>
                                 <div
                                     ref={onRef}
                                     className='h-full w-full overflow-hidden'

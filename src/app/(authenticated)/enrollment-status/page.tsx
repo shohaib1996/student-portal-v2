@@ -54,7 +54,7 @@ export default function EnrollmentStatus() {
         toast.success('Successfully switched enrollment');
 
         // Using Next.js 15 navigation approach
-        router.push('/dashboard/program');
+        router.push('/program');
     };
 
     const closeModal = () => {

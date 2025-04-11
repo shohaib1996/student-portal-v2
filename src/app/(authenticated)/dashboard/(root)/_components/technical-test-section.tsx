@@ -12,6 +12,7 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts';
+import { useGetPortalDataQuery } from '@/redux/api/dashboard/calendarApi';
 
 const data = [
     { name: 'Jan', value: 30 },
@@ -29,6 +30,23 @@ const data = [
 ];
 
 export function TechnicalTestSection() {
+    const {
+        data: testData,
+        isLoading,
+        error,
+    } = useGetPortalDataQuery({
+        assignment: {},
+    });
+
+    const test = testData?.data?.assignment?.results as {
+        acceptedItems: number;
+        pendingItems: number;
+        rejectedItems: number;
+        totalItems: number;
+    };
+
+    console.log(test);
+
     return (
         <Card className='p-2 rounded-lg shadow-none bg-foreground'>
             <CardHeader className='flex flex-row items-center justify-between p-2 border-b'>
@@ -40,14 +58,16 @@ export function TechnicalTestSection() {
                         Track Your Performance in Technical Tests
                     </p>
                 </div>
-                <ViewMoreLink href='/dashboard/technical-test' />
+                <ViewMoreLink href='/technical-tests' />
             </CardHeader>
             <CardContent className='p-2'>
                 <div className='grid grid-cols-2 gap-4 mt-4'>
                     <StatusCard
                         title='Total Accepted'
-                        value={72}
-                        percentage={57}
+                        value={test?.acceptedItems}
+                        percentage={
+                            (test?.acceptedItems / test?.totalItems) * 100
+                        }
                         color='#09c61a'
                         icon={
                             <svg
@@ -69,8 +89,10 @@ export function TechnicalTestSection() {
                     />
                     <StatusCard
                         title='Pending'
-                        value={44}
-                        percentage={34}
+                        value={test?.pendingItems}
+                        percentage={
+                            (test?.pendingItems / test?.totalItems) * 100
+                        }
                         color='#f4a00c'
                         icon={
                             <svg
@@ -92,8 +114,10 @@ export function TechnicalTestSection() {
                     />
                     <StatusCard
                         title='Rejected'
-                        value={15}
-                        percentage={47}
+                        value={test?.rejectedItems}
+                        percentage={
+                            (test?.rejectedItems / test?.totalItems) * 100
+                        }
                         color='#f34141'
                         icon={
                             <svg
@@ -116,8 +140,20 @@ export function TechnicalTestSection() {
                     />
                     <StatusCard
                         title='Unanswered'
-                        value={29}
-                        percentage={57}
+                        value={
+                            test?.totalItems -
+                            (test?.acceptedItems +
+                                test?.pendingItems +
+                                test?.rejectedItems)
+                        }
+                        percentage={
+                            ((test?.totalItems -
+                                (test?.acceptedItems +
+                                    test?.pendingItems +
+                                    test?.rejectedItems)) /
+                                test?.totalItems) *
+                            100
+                        }
                         color='#0736d1'
                         icon={
                             <svg

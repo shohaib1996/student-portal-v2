@@ -1,30 +1,25 @@
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { ViewMoreLink } from './view-more-link';
+import { LabContent, MyDocument } from '@/redux/api/documents/documentsApi';
+import dayjs from 'dayjs';
+import { TSlide } from '@/types';
 
 interface DocumentItemProps {
-    title: string;
-    description: string;
-    date: string;
-    time: string;
-    readTime: number;
-    imageSrc: string;
+    document: MyDocument | LabContent;
+    type: 'lab' | 'doc';
 }
 
-export function DocumentItem({
-    title,
-    description,
-    date,
-    time,
-    readTime,
-    imageSrc,
-}: DocumentItemProps) {
+export function DocumentItem({ document, type }: DocumentItemProps) {
     return (
         <div className='flex items-center gap-3 p-2 border rounded-lg bg-background'>
             <div className='bg-green-500 rounded-md'>
                 <Image
-                    src={imageSrc || '/placeholder.svg'}
-                    alt={title}
+                    src={
+                        (document?.thumbnail as string) ||
+                        '/images/interview-item-thumbnail.png'
+                    }
+                    alt={document?.name}
                     width={60}
                     height={60}
                     className='h-full w-full object-cover'
@@ -32,9 +27,9 @@ export function DocumentItem({
             </div>
             <div className='flex-1'>
                 <div>
-                    <h4 className='font-medium text-sm'>{title}</h4>
+                    <h4 className='font-medium text-sm'>{document?.name}</h4>
                     <p className='text-xs text-muted-foreground line-clamp-2'>
-                        {description}
+                        {document?.description}
                     </p>
                     <div className='flex items-center gap-4 mt-2 text-xs text-muted-foreground'>
                         <div className='flex items-center'>
@@ -62,7 +57,8 @@ export function DocumentItem({
                                 <line x1='8' x2='8' y1='2' y2='6' />
                                 <line x1='3' x2='21' y1='10' y2='10' />
                             </svg>
-                            {date} | {time}
+                            {dayjs(document?.createdAt).format('MMM DD, YYYY')}{' '}
+                            | {dayjs(document?.createdAt).format('hh:mm A')}
                         </div>
                         <div className='flex items-center'>
                             <svg
@@ -80,12 +76,17 @@ export function DocumentItem({
                                 <path d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z' />
                                 <path d='M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z' />
                             </svg>
-                            {readTime} min read
                         </div>
                     </div>
                 </div>
             </div>
-            <ViewMoreLink href='/my-documents' />
+            <ViewMoreLink
+                href={
+                    type === 'doc'
+                        ? `my-documents?documentId=${document?._id}&mode=view`
+                        : `/documents-and-labs?documentId=${document._id}&mode=view`
+                }
+            />
         </div>
     );
 }

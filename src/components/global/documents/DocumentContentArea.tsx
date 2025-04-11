@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { instance } from '@/lib/axios/axiosInstance';
 import parse from 'html-react-parser';
-import LexicalJsonRenderer from '@/components/lexicalEditor/renderer/JsonRenderer';
+import MessagePreview from '@/components/chat/Message/MessagePreview';
 
 interface DocumentContentAreaProps {
     document: DocumentContent;
@@ -156,11 +156,7 @@ export function DocumentContentArea({
                         <div className='pt-2'>
                             Description:{' '}
                             <div className='min-h-[100px] rounded-md bg-background px-2 py-1 max-h-[500px] overflow-y-auto'>
-                                <LexicalJsonRenderer
-                                    lexicalState={JSON.parse(
-                                        document.content || '',
-                                    )}
-                                />
+                                <MessagePreview text={document.content || ''} />
                             </div>
                         </div>
 

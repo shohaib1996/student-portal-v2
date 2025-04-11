@@ -2,7 +2,6 @@
 
 import GlobalHeader from '@/components/global/GlobalHeader';
 import React from 'react';
-import RightButton from './RightButton';
 import ActiveProgram from './ActiveProgram';
 import {
     useGetMyProgressQuery,
@@ -13,6 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TProgram, TProgramMain, TProgressChart } from '@/types';
 import { TEnrollment } from '@/types/auth';
+import RightButton from './RightButton';
 
 const Program = () => {
     const { data, isLoading, isError } = useMyProgramQuery({});

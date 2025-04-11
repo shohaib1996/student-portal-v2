@@ -159,12 +159,12 @@ body {
 
 /* Track */
 ::-webkit-scrollbar-track {
-    @apply bg-foreground;
+    @apply bg-gray-50 dark:bg-gray-900;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    @apply bg-secondary-foreground hover:bg-primary rounded-full;
+    @apply bg-gray-400 dark:bg-gray-700 hover:bg-primary dark:hover:bg-pure-white rounded-full;
 }
 
 .slide-bottom {
@@ -205,8 +205,24 @@ body {
     }
 }
 
+@keyframes skeleton {
+    0% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.7;
+    }
+}
+
 .animated-circle {
     animation: pulse 3s infinite ease-in-out;
+}
+
+.animate-skeleton {
+    animation: skeleton 2s infinite ease-in-out;
 }
 
 @layer base {
@@ -226,7 +242,6 @@ body {
     color: var(--black) !important;
     background-color: var(--background) !important;
 }
-
 
 .clip-custom {
     clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 25% 50%, 0% 0%);
@@ -255,11 +270,11 @@ body {
 }
 
 .react-tel-input .flag-dropdown .selected-flag:hover {
-  background-color: hsl(var(--foreground)) !important;
+    background-color: hsl(var(--foreground)) !important;
 }
 .react-tel-input .flag-dropdown.open .selected-flag {
-  background-color: hsl(var(--background)) !important;
+    background-color: hsl(var(--background)) !important;
 }
 .react-tel-input .country-list {
-  background-color: hsl(var(--background)) !important;
+    background-color: hsl(var(--background)) !important;
 }

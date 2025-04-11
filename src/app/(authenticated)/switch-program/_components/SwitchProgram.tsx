@@ -196,7 +196,7 @@ const SwitchProgram = () => {
                 title={
                     <span className='flex items-center justify-center gap-1'>
                         <ArrowLeft
-                            onClick={() => router.push('/dashboard/program')}
+                            onClick={() => router.push('/program')}
                             size={18}
                             className='cursor-pointer'
                         />
@@ -212,7 +212,7 @@ const SwitchProgram = () => {
                 }
                 buttons={
                     <Button
-                        onClick={() => router.push('/dashboard/program')}
+                        onClick={() => router.push('/program')}
                         variant={'default'}
                         icon={<ArrowLeft size={18} />}
                     >

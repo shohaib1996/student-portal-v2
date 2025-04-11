@@ -37,6 +37,9 @@ import Image from 'next/image';
 import parse from 'html-react-parser';
 import { useRouter } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
+import dayjs from 'dayjs';
+import WhatWillLearn from './WhatWillLearn';
+import Recognition from './Recognition';
 
 export default function BootcampPage() {
     const { data, isLoading, isError } = useMyProgramQuery({});
@@ -52,103 +55,58 @@ export default function BootcampPage() {
         isError: boolean;
     }>({});
 
+    console.log(data);
+
     if (isLoading || isProgressLoading) {
         return (
-            <Card className='overflow-hidden border border-border shadow-sm mb-8'>
-                <CardContent className='p-6 md:p-8'>
-                    <div className='flex flex-col lg:flex-row gap-8'>
-                        {/* Left Column - Program Details Skeleton */}
-                        <div className='flex-1'>
-                            <div className='flex items-center gap-2 mb-4'>
-                                <Skeleton className='h-6 w-28 rounded-full bg-background' />
-                                <Skeleton className='h-6 w-32 rounded-full bg-primary-light' />
+            <div className='overflow-hidden mt-2'>
+                <>
+                    <div className='p-2 md:p-4 bg-foreground grid gap-5 grid-cols-2 border border-forground-border rounded-lg shadow-sm'>
+                        <div className='space-y-3'>
+                            <div className='bg-background animate-skeleton h-8 w-1/2 rounded-lg'></div>
+                            <div className='flex gap-2'>
+                                <div className='bg-background animate-skeleton h-4 w-full rounded-lg'></div>
+                                <div className='bg-background animate-skeleton h-4 w-full rounded-lg'></div>
+                                <div className='bg-background animate-skeleton h-4 w-full rounded-lg'></div>
+                                <div className='bg-background animate-skeleton h-4 w-full rounded-lg'></div>
                             </div>
-
-                            <Skeleton className='h-8 w-3/4 mb-6 bg-foreground' />
-
-                            <div className='grid md:grid-cols-2 gap-6 mb-6'>
-                                <div className='space-y-4'>
-                                    <div className='flex items-center gap-2'>
-                                        <Skeleton className='h-5 w-5 rounded-full bg-foreground' />
-                                        <div className='space-y-1'>
-                                            <Skeleton className='h-3 w-16 bg-foreground' />
-                                            <Skeleton className='h-4 w-28 bg-foreground' />
-                                        </div>
-                                    </div>
-
-                                    <div className='flex items-center gap-2'>
-                                        <Skeleton className='h-5 w-5 rounded-full bg-foreground' />
-                                        <div className='space-y-1'>
-                                            <Skeleton className='h-3 w-16 bg-foreground' />
-                                            <Skeleton className='h-4 w-40 bg-foreground' />
-                                        </div>
-                                    </div>
-
-                                    <div className='flex items-center gap-2'>
-                                        <Skeleton className='h-5 w-5 rounded-full bg-foreground' />
-                                        <div className='space-y-1'>
-                                            <Skeleton className='h-3 w-16 bg-foreground' />
-                                            <Skeleton className='h-4 w-32 bg-foreground' />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div className='flex items-center gap-3 mb-4'>
-                                        <Skeleton className='w-12 h-12 rounded-full bg-foreground' />
-                                        <div className='space-y-2'>
-                                            <Skeleton className='h-4 w-32 bg-foreground' />
-                                            <Skeleton className='h-3 w-24 bg-foreground' />
-                                        </div>
-                                    </div>
-
-                                    <div className='mb-4'>
-                                        <div className='flex items-center justify-between mb-1'>
-                                            <Skeleton className='h-4 w-32 bg-foreground' />
-                                            <Skeleton className='h-4 w-10 bg-foreground' />
-                                        </div>
-                                        <Skeleton className='h-3 w-full rounded-full bg-background' />
-                                    </div>
-
-                                    <div className='grid grid-cols-2 gap-2 mt-4'>
-                                        {[1, 2, 3, 4].map((i) => (
-                                            <div
-                                                key={i}
-                                                className='flex items-center gap-2'
-                                            >
-                                                <Skeleton className='w-8 h-8 rounded-full bg-background' />
-                                                <div>
-                                                    <Skeleton className='h-3 w-16 bg-foreground' />
-                                                    <Skeleton className='h-4 w-8 bg-foreground mt-1' />
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                            <div className='bg-background animate-skeleton h-4 w-full rounded-lg'></div>
+                            <div className='bg-background animate-skeleton h-4 w-2/3 rounded-lg'></div>
+                            <div className='grid rounded-lg p-2 grid-cols-2 gap-3'>
+                                <div className='bg-background animate-skeleton  h-8 w-full rounded-lg'></div>
+                                <div className='bg-background animate-skeleton h-8 w-full rounded-lg'></div>
+                                <div className='bg-background animate-skeleton h-8 w-full rounded-lg'></div>
+                                <div className='bg-background animate-skeleton h-8 w-full rounded-lg'></div>
                             </div>
-
-                            <Skeleton className='h-10 w-36 rounded-md bg-background' />
+                            <div className='grid bg-background animate-skeleton rounded-lg p-2 grid-cols-2 gap-3'>
+                                <div className='bg-foreground animate-skeleton h-14 w-1/2 rounded-lg'></div>
+                                <div className='bg-foreground animate-skeleton h-14 w-1/2 rounded-lg'></div>
+                                <div className='bg-foreground animate-skeleton h-14 w-1/2 rounded-lg'></div>
+                                <div className='bg-foreground animate-skeleton h-14 w-1/2 rounded-lg'></div>
+                            </div>
+                            <div className='flex gap-2'>
+                                <div className='bg-background animate-skeleton h-10 w-52 rounded-lg'></div>
+                                <div className='bg-background animate-skeleton h-10 w-52 rounded-lg'></div>
+                            </div>
                         </div>
-
-                        {/* Right Column - Program Image and Technologies Skeleton */}
-                        <div className='lg:w-2/5'>
-                            <Skeleton className='h-48 md:h-64 w-full rounded-xl bg-foreground mb-4' />
-
-                            <div className='grid grid-cols-6 gap-2'>
-                                {[1, 2, 3, 4, 5, 6].map((i) => (
-                                    <div
-                                        key={i}
-                                        className='flex flex-col items-center'
-                                    >
-                                        <Skeleton className='w-10 h-10 rounded-lg bg-foreground' />
-                                        <Skeleton className='h-2 w-8 bg-foreground mt-1' />
-                                    </div>
-                                ))}
-                            </div>
+                        <div className='h-96 w-full rounded-lg bg-background animate-skeleton'></div>
+                    </div>
+                    <div className='flex p-4 gap-3 animate-skeleton bg-foreground mt-2 border border-forground-border rounded-lg'>
+                        <div className='w-full h-32 animate-skeleton rounded-md flex flex-col justify-center p-3 bg-background'>
+                            <div className='bg-foreground animate-skeleton w-full h-5 rounded-md'></div>
+                            <div className='bg-foreground animate-skeleton w-2/3 mt-3 h-5 rounded-md'></div>
+                        </div>
+                        <div className='w-full h-32 animate-skeleton rounded-md flex flex-col justify-center p-3 bg-background'>
+                            <div className='bg-foreground animate-skeleton w-full h-5 rounded-md'></div>
+                            <div className='bg-foreground animate-skeleton w-2/3 mt-3 h-5 rounded-md'></div>
+                        </div>
+                        <div className='w-full animate-skeleton h-32 rounded-md flex flex-col justify-center p-3 bg-background'>
+                            <div className='bg-foreground animate-skeleton w-full h-5 rounded-md'></div>
+                            <div className='bg-foreground  animate-skeleton w-2/3 mt-3 h-5 rounded-md'></div>
                         </div>
                     </div>
-                </CardContent>
-            </Card>
+                </>
+            </div>
         );
     }
     if (isError || isProgressError) {
@@ -220,7 +178,10 @@ export default function BootcampPage() {
                                 </div>
                                 <div className='flex items-center gap-1 text-sm'>
                                     <Clock className='h-4 w-4 text-green-500' />
-                                    <span>Last updated 2 week ago</span>
+                                    <span>
+                                        Last updated{' '}
+                                        {dayjs(program.updatedAt).fromNow()}
+                                    </span>
                                 </div>
                                 <div className='flex items-center gap-1 text-sm'>
                                     <Layers className='h-4 w-4 text-purple-500' />
@@ -338,7 +299,7 @@ export default function BootcampPage() {
                             </div>
                         </div>
                         <div className='flex items-center gap-4'>
-                            <Link href='/dashboard/program-details/first-program'>
+                            <Link href={`/program/${program?.slug}`}>
                                 <Button className='flex items-center gap-2'>
                                     Go to Bootcamp
                                     <ArrowRight className='h-4 w-4' />
@@ -436,7 +397,7 @@ export default function BootcampPage() {
                 </div>
 
                 {/* Tabs Section */}
-                <Tabs
+                {/* <Tabs
                     defaultValue='overview'
                     className='rounded-md border bg-foreground px-2 py-2.5'
                 >
@@ -464,7 +425,7 @@ export default function BootcampPage() {
                         </TabsTrigger>
                     </TabsList>
                     <TabsContent value='overview' className=''>
-                        {/* What You'll Learn */}
+                        
                         <div>
                             <h3 className='text-lg font-semibold mb-4 flex items-center gap-1.5'>
                                 <ThunderIcon />
@@ -611,9 +572,9 @@ export default function BootcampPage() {
                             </p>
                         </div>
                     </TabsContent>
-                </Tabs>
+                </Tabs> */}
                 {/* Technologies You'll Master */}
-                <div className='my-2 border rounded-md bg-foreground px-2 py-2.5'>
+                {/* <div className='my-2 border rounded-md bg-foreground px-2 py-2.5'>
                     <h3 className='text-lg font-semibold mb-2.5 flex items-center gap-1.5'>
                         <ThunderIcon /> Technologies You&apos;ll Master
                     </h3>
@@ -695,7 +656,9 @@ export default function BootcampPage() {
                             </div>
                         ))}
                     </div>
-                </div>
+                </div> */}
+                <WhatWillLearn index={1} bootcamp={program} />
+                <Recognition data={program?.recognition} index={3} />
             </div>
         </TooltipProvider>
     );

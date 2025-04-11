@@ -21,6 +21,8 @@ export function BootcampsSection() {
         );
     }
 
+    console.log(portalData);
+
     if (error) {
         return (
             <div className='flex justify-center items-center py-4 text-red-500'>
@@ -91,7 +93,7 @@ export function BootcampsSection() {
                         Explore all bootcamps overview at a Glance
                     </p>
                 </div>
-                <ViewMoreLink href='#' />
+                <ViewMoreLink href='/program' />
             </CardHeader>
             <CardContent className='p-2'>
                 <div className='space-y-2'>
