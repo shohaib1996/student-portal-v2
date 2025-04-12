@@ -258,7 +258,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                         <FormControl>
                             <div>
                                 <ColorPicker
-                                    className='h-10 bg-foreground'
+                                    className='h-10 bg-foreground border border-forground-border'
                                     value={field.value || ''}
                                     onChange={field.onChange}
                                 />
