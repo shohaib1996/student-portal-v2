@@ -1,8 +1,14 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Play, TvMinimalPlay, Volume2 } from 'lucide-react';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import {
+    Calendar,
+    Clock,
+    Eye,
+    MonitorPlayIcon as TvMinimalPlay,
+    Volume2,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import MediaModal from './MediaModal';
@@ -21,6 +27,7 @@ type TMediaItem = {
     };
     thumbnail?: string;
     description?: string;
+    duration?: string;
 };
 
 type TAudioVideosCardProps = {
@@ -35,82 +42,133 @@ const AudioVideosCard = ({ media, isAudio }: TAudioVideosCardProps) => {
         setShowModal(true);
     };
 
+    // Format duration or use default
+    const duration = media.duration;
+
     return (
         <>
-            <Card className='overflow-hidden rounded-lg border-0 shadow-md'>
-                <CardContent className='relative p-0'>
-                    {isAudio ? (
-                        <div className='h-[281px] w-full bg-slate-500'></div>
-                    ) : (
-                        <Image
-                            className='h-[281px] w-full object-cover'
-                            src={
-                                media.thumbnail ||
-                                'https://img.freepik.com/premium-photo/inclusive-learning-technologies-accessible-content-all_964851-4137.jpg'
-                            }
-                            alt={media.title}
-                            width={500}
-                            height={270}
-                        />
-                    )}
-
-                    {/* Play button overlay */}
-                    <div className='absolute inset-0 flex justify-center z-50 pt-12'>
-                        <Button
-                            variant='secondary'
-                            size='icon'
-                            className='h-16 w-16 rounded-full bg-white shadow-lg transition-transform hover:scale-105'
-                            onClick={handleMedia}
-                        >
+            <Card className='overflow-hidden rounded-lg border shadow-sm hover:shadow-md transition-shadow'>
+                <CardContent className='p-0'>
+                    {/* Media type badge */}
+                    <div className='absolute top-3 left-3 z-10'>
+                        <div className='flex items-center gap-1 bg-white px-2 py-1 rounded-md shadow-sm'>
                             {isAudio ? (
-                                <Volume2 className='h-7 w-7 text-gray-700' />
+                                <>
+                                    <Volume2 className='h-4 w-4 text-primary' />
+                                    <span className='text-xs font-medium text-primary'>
+                                        Audios
+                                    </span>
+                                </>
                             ) : (
-                                <TvMinimalPlay className='h-7 w-7 text-gray-700' />
+                                <>
+                                    <TvMinimalPlay className='h-4 w-4 text-primary' />
+                                    <span className='text-xs font-medium text-primary'>
+                                        Videos
+                                    </span>
+                                </>
                             )}
-                        </Button>
+                        </div>
                     </div>
 
-                    {/* Bottom info panel */}
-                    <div className='m-2 rounded-lg absolute bottom-0 left-0 right-0 bg-[#1e3a8a]/90 p-4 text-white backdrop-blur-sm'>
-                        <h2 className='mb-2 text-xl font-bold leading-tight line-clamp-1'>
-                            {media.title}
-                        </h2>
+                    {/* Duration badge */}
+                    <div className='absolute top-3 right-3 z-10'>
+                        <div className='flex items-center gap-1 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-md'>
+                            <Clock className='h-3 w-3 text-gray' />
+                            <span className='text-xs font-medium text-gray'>
+                                {duration}
+                            </span>
+                        </div>
+                    </div>
 
-                        <div className=''>
-                            {/* Instructor avatar and name */}
-                            <div className='flex items-center gap-2'>
-                                <div className='relative h-8 w-8'>
-                                    <Image
-                                        src={
-                                            media.createdBy?.profilePicture ||
-                                            '/placeholder.svg?height=32&width=32'
-                                        }
-                                        alt={
-                                            media.createdBy?.fullName ||
-                                            'Instructor'
-                                        }
-                                        className='rounded-full object-cover'
-                                        fill
-                                    />
-                                    <span className='absolute bottom-0 right-0 h-2 w-2 rounded-full bg-green-500 ring-1 ring-white'></span>
-                                </div>
-                                <div>
-                                    <p className='text-sm font-medium leading-tight'>
-                                        {media.createdBy?.fullName}
-                                    </p>
-                                    <p className='text-xs text-gray-300'>
-                                        {media.createdBy?.role || 'Instructor'}
-                                    </p>
-                                </div>
-                            </div>
+                    {/* Media thumbnail */}
+                    <div className='relative h-[180px] w-full bg-background'>
+                        {/* Background image */}
+                        <Image
+                            src={media.thumbnail || '/default_image.png'}
+                            alt={media.title}
+                            fill
+                            className='object-cover'
+                        />
 
-                            {/* Date with calendar icon */}
-                            <div className='flex items-center gap-1 mt-2'>
-                                <Calendar className='h-4 w-4' />
-                                <p className='text-sm'>
+                        {/* Black overlay with 30% opacity */}
+                        <div className='absolute inset-0 bg-pure-black/30'></div>
+
+                        {/* Play button overlay */}
+                        <div className='absolute inset-0 flex items-center justify-center'>
+                            <Button
+                                variant='secondary'
+                                size='icon'
+                                className='h-12 w-12 rounded-full border border-pure-white bg-pure-white/40 shadow-md hover:bg-foreground'
+                                onClick={handleMedia}
+                            >
+                                {isAudio ? (
+                                    <Volume2 className='h-5 w-5 text-pure-white' />
+                                ) : (
+                                    <TvMinimalPlay className='h-5 w-5 text-pure-white' />
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* Content section */}
+                    <div className='p-2'>
+                        {/* Date and time */}
+                        <div className='flex items-center justify-between gap-2 mb-2'>
+                            <div className='flex flex-row items-center gap-1'>
+                                <Calendar className='h-4 w-4 text-gray' />
+                                <p className='text-xs text-gray'>
                                     {formatDateToCustomString(media.createdAt)}
                                 </p>
                             </div>
+                            {duration && (
+                                <div className='flex flex-row items-center gap-1'>
+                                    <Clock className='h-3 w-3 text-gray' />
+                                    <span className='text-xs font-medium text-gray'>
+                                        {duration}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Title */}
+                        <h2 className='text-base font-semibold mb-2 line-clamp-1 truncate capitalize'>
+                            {media.title}
+                        </h2>
+
+                        {/* Author info */}
+                        <div className='flex items-center gap-2'>
+                            <div className='relative h-8 w-8'>
+                                <Image
+                                    src={
+                                        media.createdBy?.profilePicture ||
+                                        '/default_image.png'
+                                    }
+                                    alt={
+                                        media.createdBy?.fullName ||
+                                        'Instructor'
+                                    }
+                                    className='rounded-full object-cover'
+                                    fill
+                                />
+                            </div>
+                            <div>
+                                <p className='text-sm font-medium leading-tight'>
+                                    {media.createdBy?.fullName}
+                                </p>
+                                <p className='text-xs text-gray'>
+                                    {media.createdBy?.role || 'Instructor'}
+                                </p>
+                            </div>
+                        </div>
+                        <div className='mt-2 pt-2 border-t'>
+                            <Button
+                                variant='primary_light'
+                                className='w-full text-primary hover:text-primary/90 hover:bg-primary/5 border-blue-700/50'
+                                onClick={handleMedia}
+                            >
+                                <Eye className='h-4 w-4 mr-2' />
+                                View
+                            </Button>
                         </div>
                     </div>
                 </CardContent>

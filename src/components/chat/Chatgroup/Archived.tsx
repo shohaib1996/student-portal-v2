@@ -182,7 +182,6 @@ function Archived() {
                         const hasUnread = (chat?.unreadCount ?? 0) > 0;
 
                         // For demo purposes - in real app, these would come from the chat data
-                        const hasMention = i % 3 === 0;
                         const isMuted =
                             chat?.myData?.notification?.isOn === false ||
                             i % 4 === 0;
@@ -369,9 +368,9 @@ function Archived() {
                                             {/* Right side indicators */}
                                             <div className='flex items-center gap-1'>
                                                 {/* Mention icon */}
-                                                {hasMention && (
+                                                {/* {hasMention && (
                                                     <AtSign className='h-4 w-4 text-blue-500' />
-                                                )}
+                                                )} */}
 
                                                 {/* Bell icon (muted or not) */}
                                                 {isMuted && (

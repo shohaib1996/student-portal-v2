@@ -369,19 +369,16 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                         <Input
                             type='text'
                             placeholder='Search Members...'
-                            className='pl-7 h-9 bg-foreground'
+                            className='pl-7 h-9 bg-background'
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <Button variant='secondary' size='icon' className='h-9 w-9'>
-                        <SlidersHorizontal className='h-4 w-4' />
-                    </Button>
+
                     <GlobalTooltip tooltip='Add member'>
                         <Button
-                            variant='secondary'
                             size='icon'
-                            className='h-9 w-9 text-primary'
+                            className='h-9 w-9'
                             onClick={() => setOpened(true)}
                         >
                             <Plus className='h-4 w-4' />

@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { instance } from '@/lib/axios/axiosInstance';
 import parse from 'html-react-parser';
 import MessagePreview from '@/components/chat/Message/MessagePreview';
+import MessageRenderer from '@/components/lexicalEditor/renderer/MessageRenderer';
 
 interface DocumentContentAreaProps {
     document: DocumentContent;
@@ -156,7 +157,9 @@ export function DocumentContentArea({
                         <div className='pt-2'>
                             Description:{' '}
                             <div className='min-h-[100px] rounded-md bg-background px-2 py-1 max-h-[500px] overflow-y-auto'>
-                                <MessagePreview text={document.content || ''} />
+                                <MessageRenderer
+                                    text={document.content || ''}
+                                />
                             </div>
                         </div>
 

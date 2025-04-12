@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
     InitialConfigType,
     LexicalComposer,
@@ -42,7 +42,6 @@ import { MENTION_MARKDOWN_TRANSFORMER } from '../components/transformers/markdow
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 export interface PluginOptions {
-    // Main plugin options
     history?: boolean;
     autoFocus?: boolean;
     richText?: boolean;
@@ -68,7 +67,6 @@ export interface PluginOptions {
     showBottomBar?: boolean;
     quote?: boolean;
 
-    // Toolbar-specific options
     toolbar?: {
         history?: boolean;
         blockFormat?: boolean;
@@ -87,7 +85,6 @@ export interface PluginOptions {
         quote?: boolean;
     };
 
-    // Action bar specific options
     actionBar?: {
         maxLength?: boolean;
         characterLimit?: boolean;
@@ -98,7 +95,7 @@ export interface PluginOptions {
         treeView?: boolean;
     };
 
-    [key: string]: any; // To allow for future extensions
+    [key: string]: any;
 }
 
 const editorConfig: InitialConfigType = {
@@ -110,11 +107,6 @@ const editorConfig: InitialConfigType = {
     },
 };
 
-/**
- * LoadMarkdownContent is responsible for converting initial markdown to an editor state.
- * Because this conversion must occur within an active editor update callback,
- * we perform this in a child component that uses the LexicalComposer context.
- */
 function LoadMarkdownContent({
     initialMarkdown,
     transformers,
@@ -126,8 +118,6 @@ function LoadMarkdownContent({
     const initializedRef = useRef(false);
 
     useEffect(() => {
-        // Only load the markdown content initially or if initialMarkdown is explicitly set to empty
-        // This prevents overwriting the editor during typing
         if (!initializedRef.current) {
             editor.update(() => {
                 if (initialMarkdown) {
@@ -143,19 +133,13 @@ function LoadMarkdownContent({
     return null;
 }
 
-/**
- * MarkdownEditor is the main editor component.
- *
- * It initializes the LexicalComposer, loads the initial markdown content (if provided),
- * and uses the OnChangePlugin to trigger updates. The transformer array is memoized
- * to prevent unnecessary re-renders and state resets.
- */
 export function ChatEditor({
     onChange,
     onSerializedChange,
     pluginOptions = {},
     maxLength = 5000,
     height = '70vh',
+    maxHeight = '200px',
     onMentionSearch,
     onImageUpload,
     onAIGeneration,
@@ -170,6 +154,7 @@ export function ChatEditor({
     pluginOptions?: PluginOptions;
     maxLength?: number;
     height?: string;
+    maxHeight?: string;
     showBottomBar?: boolean;
     onMentionSearch?: (
         trigger: string,
@@ -186,7 +171,6 @@ export function ChatEditor({
     initialMarkdown?: string;
     placeholder?: string;
 }) {
-    // Memoize transformers so that their reference does not change on every render.
     const TRANSFORMERS = [
         MENTION_MARKDOWN_TRANSFORMER,
         TABLE,
@@ -202,12 +186,16 @@ export function ChatEditor({
         ...TEXT_MATCH_TRANSFORMERS,
     ];
 
-    // If using an externally provided editor state, add it here.
     const editorState: EditorState | undefined = undefined;
     const editorSerializedState: SerializedEditorState | undefined = undefined;
 
+    const containerStyle = {
+        height,
+        ...(maxHeight ? { maxHeight } : {}),
+    };
+
     return (
-        <div className='overflow-hidden flex flex-col' style={{ height }}>
+        <div className='overflow-hidden flex flex-col' style={containerStyle}>
             <LexicalComposer
                 initialConfig={{
                     ...editorConfig,
@@ -223,12 +211,6 @@ export function ChatEditor({
                 >
                     <SharedAutocompleteContext>
                         <FloatingLinkContext>
-                            {/* {initialMarkdown && (
-                                <LoadMarkdownContent
-                                    initialMarkdown={initialMarkdown}
-                                    transformers={TRANSFORMERS}
-                                />
-                            )} */}
                             <div className='flex flex-col h-full'>
                                 <Plugins
                                     maxLength={maxLength}
@@ -246,7 +228,6 @@ export function ChatEditor({
                                 onChange={(editorState) => {
                                     onChange?.(editorState);
                                     onSerializedChange?.(editorState.toJSON());
-                                    // Convert to Markdown within a read callback.
                                     let markdown = '';
                                     editorState.read(() => {
                                         markdown =
