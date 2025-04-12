@@ -51,6 +51,7 @@ import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
 import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
 import { store } from '@/redux/store';
+import MessageRenderer from '@/components/lexicalEditor/renderer/MessageRenderer';
 
 const emojies = ['👍', '😍', '❤', '😂', '🥰', '😯'];
 
@@ -420,7 +421,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 This message has been deleted
                                             </p>
                                         ) : (
-                                            <MessagePreview
+                                            <MessageRenderer
                                                 searchQuery={searchQuery}
                                                 text={message?.text || ''}
                                                 isUser={
@@ -735,7 +736,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                                                 : ''
                                                                         }`}
                                                                     >
-                                                                        <MessagePreview
+                                                                        <MessageRenderer
                                                                             searchQuery={
                                                                                 searchQuery
                                                                             }

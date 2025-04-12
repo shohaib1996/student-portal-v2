@@ -123,7 +123,9 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
     onClose,
 }) => {
     const { user } = useAppSelector((state) => state.auth);
-    const { chats, onlineUsers } = useAppSelector((state) => state.chat);
+    const { chats, onlineUsers, chatMessages } = useAppSelector(
+        (state) => state.chat,
+    );
     const [searchQuery, setSearchQuery] = useState('');
     const [records, setRecords] = useState<Chat[]>([]);
     const [loading, setLoading] = useState(true);
@@ -573,7 +575,36 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                     records.map((chat, i) => {
                         const hasUnread =
                             chat?.unreadCount && chat.unreadCount > 0;
-                        const hasMention = i % 3 === 0; // Just for demo
+                        const hasMention = (() => {
+                            // If there are no unread messages, return false
+                            if (chat?.unreadCount === 0) {
+                                return false;
+                            }
+
+                            const chatId = chat?._id;
+                            const messages = chatMessages[chatId] || [];
+                            return messages.some((msg) => {
+                                if (!msg.text) {
+                                    return false;
+                                }
+
+                                // Look for mention pattern: @[Name](userId)
+                                const mentionRegex = /@\[.*?\]\((.*?)\)/g;
+                                let match;
+
+                                while (
+                                    (match = mentionRegex.exec(msg.text)) !==
+                                    null
+                                ) {
+                                    // match[1] contains the user ID in parentheses
+                                    if (match[1] === user?._id) {
+                                        return true;
+                                    }
+                                }
+
+                                return false;
+                            });
+                        })();
                         const isMuted =
                             chat?.myData?.notification?.isOn === false ||
                             i % 4 === 0;
