@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
 import {
@@ -12,7 +14,7 @@ import {
     useProvideReactionApiMutation,
     useSavePostApiMutation,
 } from '@/redux/api/community/community';
-import { IAuthUser, ICommunityPost } from '@/types';
+import type { IAuthUser, ICommunityPost } from '@/types';
 import {
     EllipsisVertical,
     MessageCircle,
@@ -35,8 +37,11 @@ import LoadingSpinner from '../global/Community/LoadingSpinner/LoadingSpinner';
 import NewGlobalModal from '../global/Community/modal/GlobalModal';
 import { copyToClipboard } from '@/utils/common';
 import dayjs from 'dayjs';
-import { GlobalCommentsSection } from '../global/GlobalCommentSection';
 import PostImageGrid from './PostImageGrid';
+import { useCreateCommentsMutation } from '@/redux/api/audio-video/audioVideos';
+import GlobalComment from '../global/GlobalComments/GlobalComment';
+import Repost from '../global/Community/Repost/Repost';
+import { Button } from '../ui/button';
 
 interface ICommunityPostProps {
     post: ICommunityPost;
@@ -58,10 +63,16 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
         const [showComments, setShowComments] = useState(false);
         const [open, setOpen] = useState(false);
         const [openEdit, setOpenEdit] = useState(false);
+        const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+        const [postToDelete, setPostToDelete] = useState<string>('');
         const [giveReaction, { isLoading }] = useProvideReactionApiMutation();
         const [deletePost, { isLoading: deleteLoading }] =
             useDeleteCommunityPostsApiMutation();
         const [savePost, { isLoading: saveLoading }] = useSavePostApiMutation();
+        const [createComment, { isLoading: commentLoading }] =
+            useCreateCommentsMutation();
+        const [openRepost, setOpenRepost] = useState(false);
+        const [showSendModal, setShowSendModal] = useState(false);
 
         const onEmojiClick = async (emoji: string, id: string) => {
             const payload = {
@@ -86,9 +97,11 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                 if (response.success) {
                     toast.success('Post deleted successfully', { id: toastId });
                     setRefetch(refetch + 1);
+                    setShowDeleteConfirm(false);
                 }
             } catch (error) {
                 console.error(error);
+                toast.error('Failed to delete post', { id: toastId });
             }
         };
 
@@ -99,9 +112,9 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
             const success = await copyToClipboard(
                 `https://portal.bootcampshub.ai/community/post/${id}`,
             );
-            if (success) {
-                toast.success('Link copied to clipboard');
-            }
+            // if (success) {
+            //     toast.success('Link copied to clipboard');
+            // }
         };
 
         const handleShare = (post: ICommunityPost) => {
@@ -187,8 +200,23 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
             };
         }
 
-        const handleCommentSubmit = (content: string) => {
-            console.log('New comment:', content);
+        const handleCommentSubmit = async (content: string) => {
+            const res = await createComment({
+                contentId: post._id,
+                comment: content,
+            }).unwrap();
+            if (res.success) {
+                toast.success('Comment added successfully');
+                setRefetch(refetch + 1);
+                setShowComments(false);
+            } else {
+                toast.error('Failed to add comment');
+            }
+        };
+
+        const confirmDelete = (id: string) => {
+            setPostToDelete(id);
+            setShowDeleteConfirm(true);
         };
 
         return (
@@ -201,7 +229,9 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                     className='h-10 w-10 rounded-full object-cover'
                                     src={
                                         post.createdBy.profilePicture ||
-                                        'https://static.vecteezy.com/system/resources/thumbnails/002/002/403/small/man-with-beard-avatar-character-isolated-icon-free-vector.jpg'
+                                        (post.createdBy
+                                            ? 'https://static.vecteezy.com/system/resources/thumbnails/002/002/403/small/man-with-beard-avatar-character-isolated-icon-free-vector.jpg'
+                                            : '/placeholder.svg')
                                     }
                                     alt={
                                         post.createdBy.fullName ||
@@ -260,7 +290,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                     <>
                                         <DropdownMenuItem
                                             onClick={() =>
-                                                handlePostDelete(post._id)
+                                                confirmDelete(post._id)
                                             }
                                         >
                                             Delete this post
@@ -305,7 +335,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                 <Image
                                     key={attach._id}
                                     className='my-common w-full'
-                                    src={attach.url}
+                                    src={attach.url || "/placeholder.svg"}
                                     alt={attach.name}
                                     width={500}
                                     height={500}
@@ -470,26 +500,27 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                         <MessageCircle className='h-5 w-5' />
                         <span>Comment</span>
                     </button>
-                    <button className='flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-foreground'>
+                    <button
+                        onClick={() => setOpenRepost(true)}
+                        className='flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-foreground'
+                    >
                         <RefreshCw className='h-5 w-5' />
                         <span>Repost</span>
                     </button>
-                    <button className='flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-foreground'>
+                    <button
+                        onClick={() => setShowSendModal(true)}
+                        className='flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-foreground'
+                    >
                         <Send className='h-5 w-5' />
                         <span>Send</span>
                     </button>
                 </div>
 
-                {showComments && (
-                    <GlobalCommentsSection
-                        documentId={postId || ''}
-                        onCommentSubmit={handleCommentSubmit}
-                    />
-                )}
+                {showComments && <GlobalComment contentId={post._id} />}
                 {/* <div className='flex items-center gap-common-multiplied rounded-xl bg-background p-common'>
                     <Image
                         className='h-12 w-12 rounded-full object-cover'
-                        src={user.profilePicture}
+                        src={user.profilePicture || "/placeholder.svg"}
                         alt={user.fullName}
                         width={50}
                         height={50}
@@ -548,6 +579,94 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                 setRefetch={setRefetch}
                                 setOpenReport={setOpenReport}
                             />
+                        }
+                    />
+                )}
+                {showDeleteConfirm && (
+                    <NewGlobalModal
+                        ngClass='hidden'
+                        modalTitle='Delete Post'
+                        triggerText=''
+                        open={showDeleteConfirm}
+                        setOpen={setShowDeleteConfirm}
+                        modalContent={
+                            <div className='space-y-4 p-2'>
+                                <p className='text-center'>
+                                    Are you sure you want to delete this post?
+                                </p>
+                                <p className='text-center text-sm text-muted-foreground'>
+                                    This action cannot be undone.
+                                </p>
+                                <div className='flex justify-center gap-4 pt-2'>
+                                    <button
+                                        className='rounded-md bg-destructive px-4 py-2 text-white hover:bg-destructive/90'
+                                        onClick={() =>
+                                            handlePostDelete(postToDelete)
+                                        }
+                                        disabled={deleteLoading}
+                                    >
+                                        {deleteLoading ? (
+                                            <LoadingSpinner />
+                                        ) : (
+                                            'Delete'
+                                        )}
+                                    </button>
+                                    <button
+                                        className='rounded-md border border-input bg-background px-4 py-2 hover:bg-accent hover:text-accent-foreground'
+                                        onClick={() =>
+                                            setShowDeleteConfirm(false)
+                                        }
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    />
+                )}
+                {openRepost && (
+                    <NewGlobalModal
+                        ngClass='hidden'
+                        modalTitle='Repost'
+                        triggerText=''
+                        open={openRepost}
+                        setOpen={setOpenRepost}
+                        modalContent={
+                            <Repost
+                                post={post}
+                                setOpen={setOpenRepost}
+                                refetch={refetch}
+                                setRefetch={setRefetch}
+                            />
+                        }
+                    />
+                )}
+                {showSendModal && (
+                    <NewGlobalModal
+                        ngClass='hidden'
+                        modalTitle='Send Feature'
+                        triggerText=''
+                        open={showSendModal}
+                        setOpen={setShowSendModal}
+                        modalContent={
+                            <div className='space-y-4 p-4 text-center'>
+                                <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10'>
+                                    <Send className='h-6 w-6 text-primary' />
+                                </div>
+                                <h3 className='text-lg font-semibold'>
+                                    Coming Soon!
+                                </h3>
+                                <p className='text-muted-foreground'>
+                                    The direct message feature is currently in
+                                    development. Stay tuned for updates!
+                                </p>
+                                <Button
+                                    className='mt-4'
+                                    onClick={() => setShowSendModal(false)}
+                                >
+                                    Close
+                                </Button>
+                            </div>
                         }
                     />
                 )}

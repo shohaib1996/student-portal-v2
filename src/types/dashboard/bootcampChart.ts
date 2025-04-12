@@ -10,3 +10,8 @@ export interface TBootcampResult {
     pinnedItems: number;
     incompletedItems: number;
 }
+// Type for category with optional slug
+interface Category {
+    name: string;
+    slug?: string;
+}

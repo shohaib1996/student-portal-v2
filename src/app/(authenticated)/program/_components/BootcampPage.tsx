@@ -30,7 +30,12 @@ import {
     useGetMyProgressQuery,
     useMyProgramQuery,
 } from '@/redux/api/myprogram/myprogramApi';
-import { TProgram, TProgramMain, TProgressChart } from '@/types';
+import {
+    TBootcampResult,
+    TProgram,
+    TProgramMain,
+    TProgressChart,
+} from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
 import Image from 'next/image';
@@ -41,9 +46,28 @@ import dayjs from 'dayjs';
 import WhatWillLearn from './WhatWillLearn';
 import Recognition from './Recognition';
 import BenefitsCourse from './BenefitsCourse';
+import { useGetPortalDataQuery } from '@/redux/api/dashboard/calendarApi';
 
 export default function BootcampPage() {
     const { data, isLoading, isError } = useMyProgramQuery({});
+    const { data: bootCampData } = useGetPortalDataQuery({
+        bootcamp: {},
+    });
+    const bootcamp: TBootcampResult[] = bootCampData?.data?.bootcamp?.results;
+
+    const totalCompleted = bootcamp?.reduce(
+        (acc, curr) => acc + Number(curr.completedItems),
+        0,
+    );
+
+    const totalIncomplete = bootcamp?.reduce(
+        (acc, curr) => acc + Number(curr.incompletedItems),
+        0,
+    );
+    const inProgress = Math.round(
+        (totalCompleted / (totalCompleted + totalIncomplete)) * 100,
+    );
+
     const router = useRouter();
 
     const {
@@ -56,6 +80,7 @@ export default function BootcampPage() {
         isError: boolean;
     }>({});
 
+    console.log({ myProgress, data, bootcamp });
     const allSections = (index: number) => {
         return {
             whatYouLearn: program?.whatLearns?.length > 0 && (
@@ -270,11 +295,11 @@ export default function BootcampPage() {
                                     Your Progress
                                 </h3>
                                 <span className='text-sm font-medium text-primary-white'>
-                                    56%
+                                    {inProgress}%
                                 </span>
                             </div>
                             <Progress
-                                value={56}
+                                value={inProgress}
                                 className='h-2 mb-2 bg-background'
                             />
                             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
@@ -287,7 +312,7 @@ export default function BootcampPage() {
                                             Completed
                                         </div>
                                         <div className='text-xl font-semibold'>
-                                            20
+                                            {totalCompleted}
                                         </div>
                                     </div>
                                 </div>
@@ -300,7 +325,7 @@ export default function BootcampPage() {
                                             In Progress
                                         </div>
                                         <div className='text-xl font-semibold'>
-                                            2
+                                            {inProgress}%
                                         </div>
                                     </div>
                                 </div>
@@ -313,7 +338,7 @@ export default function BootcampPage() {
                                             Remaining
                                         </div>
                                         <div className='text-xl font-semibold'>
-                                            15
+                                            {totalIncomplete}
                                         </div>
                                     </div>
                                 </div>
@@ -371,9 +396,9 @@ export default function BootcampPage() {
                                 <Clock className='h-6 w-6 text-blue-600' />
                             </div>
                             <div>
-                                <p className='text-sm text-black'>Duration</p>
+                                <p className='text-sm text-black'>Lesson</p>
                                 <h4 className='text-xl font-semibold'>
-                                    12 Weeks
+                                    {totalCompleted + totalIncomplete}
                                 </h4>
                                 <p className='text-xs text-gray'>
                                     Full-time commitment
@@ -410,7 +435,7 @@ export default function BootcampPage() {
                                     Industry Recognized
                                 </h4>
                                 <p className='text-xs text-gray'>
-                                    AWS & DevOps certifications
+                                    {program?.title} certifications
                                 </p>
                             </div>
                         </CardContent>

@@ -1,4 +1,5 @@
 import { baseApi } from '../baseApi';
+import { tagTypes } from '../tagType/tagTypes';
 
 const courseApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
@@ -14,13 +15,19 @@ const courseApi = baseApi.injectEndpoints({
                 method: 'GET',
             }),
         }),
-        courseReview: build.query({
-            query: (data: { programId: string }) => ({
-                url: `course/review/myreview/${data?.programId}`,
+        getCourseReview: build.query({
+            query: (_id: string) => ({
+                url: `/course/review/myreview/${_id}`,
                 method: 'GET',
             }),
-            providesTags: (result) =>
-                result ? [{ type: 'Comments', id: result.programId }] : [], // Ensures the correct tag is provided
+            providesTags: [tagTypes.review], // Ensures the correct tag is provided
+        }),
+        getAllCourseReview: build.query({
+            query: () => ({
+                url: `/course/review/get/6647be35e44f020019e06b65?fields=["categories","reviews"]&category=ssss&page=1&limit=10`,
+                method: 'GET',
+            }),
+            providesTags: [tagTypes.review], // Ensures the correct tag is provided
         }),
         updateReview: build.mutation({
             query: (data: {
@@ -34,9 +41,7 @@ const courseApi = baseApi.injectEndpoints({
                 method: 'PATCH',
                 data: data?.body,
             }),
-            invalidatesTags: (result, error, { reviewId }) => [
-                { type: 'Comments', id: reviewId }, // Invalidate the review specifically
-            ],
+            invalidatesTags: [tagTypes.review],
         }),
         postCoursePrograms: build.mutation({
             query: (data: {
@@ -63,7 +68,7 @@ const courseApi = baseApi.injectEndpoints({
                 method: 'POST',
                 data,
             }),
-            invalidatesTags: ['Comments'],
+            invalidatesTags: [tagTypes.review, 'Comments'],
         }),
         trackChapter: build.mutation({
             query: ({ courseId, action, chapterId }) => ({
@@ -79,8 +84,9 @@ export const {
     useGetAllCoursesQuery,
     useCourseContentQuery,
     usePostCourseProgramsMutation,
-    useCourseReviewQuery,
+    useGetCourseReviewQuery,
     useUpdateReviewMutation,
     useSubmitReviewMutation,
     useTrackChapterMutation,
+    useGetAllCourseReviewQuery,
 } = courseApi;
