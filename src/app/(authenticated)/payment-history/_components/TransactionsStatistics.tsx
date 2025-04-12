@@ -1,9 +1,14 @@
 'use client';
 
-import { usePaymentHistoryApiQuery } from '@/redux/api/payment-history/payment-history';
+import { usePaymentHistoryApiQuery } from '@/redux/api/payment-history/paymentHistory';
 
 export default function TransactionsStatistics() {
     const { data, isLoading, error } = usePaymentHistoryApiQuery({});
+    const paidAmount = data?.transactions
+        ?.filter((t: any) => t.status === 'approved')
+        ?.reduce((a: any, b: any) => a + (b.amount || 0), 0);
+
+    const dueAmount = data?.totalAmount - paidAmount;
 
     return (
         <div className='flex flex-col md:flex-row gap-4 w-full'>
@@ -27,7 +32,9 @@ export default function TransactionsStatistics() {
                     <h3 className='text-white text-sm font-medium mb-1'>
                         Due Amount
                     </h3>
-                    <p className='text-white text-2xl font-bold'>$0</p>
+                    <p className='text-white text-2xl font-bold'>
+                        ${dueAmount || 0}
+                    </p>
                 </div>
             </div>
 
@@ -39,7 +46,7 @@ export default function TransactionsStatistics() {
                         Paid Amount
                     </h3>
                     <p className='text-white text-2xl font-bold'>
-                        ${data?.totalAmount - 0 || 0}
+                        ${paidAmount || 0}
                     </p>
                 </div>
             </div>

@@ -5,9 +5,9 @@ import { ArrowLeft, CreditCard, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlobalHeader from '@/components/global/GlobalHeader';
 import { useState } from 'react';
-import { PaymentModal } from '@/components/program/online-courses/payment-modal';
-import TransactionsStatistics from './_components/transactions-statistics';
-import TransactionTable from './_components/transactions-table';
+import { PaymentModal } from '@/components/program/online-courses/PaymentModal';
+import TransactionsStatistics from './_components/TransactionsStatistics';
+import TransactionTable from './_components/TransactionTable';
 
 export default function PaymentHistoryPage() {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
