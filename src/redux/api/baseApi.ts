@@ -24,6 +24,7 @@ export const baseApi = createApi({
         'Chats',
         'OnlineUsers',
         'Messages',
+        'Review',
         ...tagTypesList,
     ],
     endpoints: () => ({}),

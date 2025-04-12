@@ -7,6 +7,8 @@ import {
     Clock,
     FileText,
     MessageSquareCode,
+    BookmarkCheck,
+    XCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,6 +28,8 @@ import {
 } from '@/types';
 import ProgramContent from './ProgramContent';
 import { toast } from 'sonner';
+import ReviewModal from '@/components/shared/review-modal';
+import GlobalModal from '@/components/global/GlobalModal';
 
 // Types for course data
 interface SubLesson {
@@ -68,6 +72,7 @@ interface Module {
 
 export default function ProgramDetailsComp({ slug }: { slug: string }) {
     const router = useRouter();
+    const [reviewOpen, setReviewOpen] = useState<boolean>(false);
 
     // Fetch program and course data
     const { data: myPrograms, isLoading: isProgramsLoading } =
@@ -213,7 +218,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                         <Button
                             variant='primary_light'
                             className=''
-                            onClick={commingSoon}
+                            onClick={() => setReviewOpen(true)}
                         >
                             <span>
                                 <MessageSquareCode
@@ -351,6 +356,17 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                     />
                 </TabsContent>
             </Tabs>
+
+            <GlobalModal
+                open={reviewOpen}
+                setOpen={setReviewOpen}
+                className='w-[550px] md:w-[550px] lg:w-[550px]'
+                allowFullScreen={false}
+                subTitle='A quick overview of your feedback and rating'
+                title='My Review'
+            >
+                <ReviewModal _id={program?._id as string} />
+            </GlobalModal>
         </div>
     );
 }
