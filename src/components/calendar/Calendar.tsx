@@ -84,7 +84,7 @@ export default function Calendar() {
                 <div className='flex items-center gap-2'>
                     <div className='flex items-center gap-1'>
                         <Button
-                            variant={'plain'}
+                            variant={'secondary'}
                             size='icon'
                             className='h-8 w-8 rounded-full'
                             onClick={navigateToPrevious}
@@ -92,7 +92,7 @@ export default function Calendar() {
                             <ChevronLeft className='h-4 w-4' />
                         </Button>
                         <Button
-                            variant='plain'
+                            variant='secondary'
                             size='icon'
                             className='h-8 w-8 rounded-full'
                             onClick={navigateToNext}
@@ -109,7 +109,7 @@ export default function Calendar() {
                             setView(value as CalendarView)
                         }
                     >
-                        <SelectTrigger className='w-[100px] h-8'>
+                        <SelectTrigger className='w-[100px] bg-foreground h-8'>
                             <SelectValue placeholder='Select view' />
                         </SelectTrigger>
                         <SelectContent>
@@ -119,7 +119,7 @@ export default function Calendar() {
                         </SelectContent>
                     </Select>
                     <Button
-                        variant='outline'
+                        variant='secondary'
                         size='sm'
                         className='h-8'
                         onClick={navigateToToday}
@@ -129,7 +129,7 @@ export default function Calendar() {
                 </div>
                 <SheetTrigger className='min-[1000px]:hidden ms-auto' asChild>
                     <Button
-                        variant='outline'
+                        variant='secondary'
                         className='h-8 text-dark-gray'
                         size='icon'
                     >
@@ -138,7 +138,7 @@ export default function Calendar() {
                     </Button>
                 </SheetTrigger>
                 <div className='flex items-center gap-3'>
-                    <Select value={hoursView} onValueChange={setHoursView}>
+                    {/* <Select value={hoursView} onValueChange={setHoursView}>
                         <SelectTrigger className='w-[150px] h-8'>
                             <SelectValue placeholder='Hours view' />
                         </SelectTrigger>
@@ -150,14 +150,14 @@ export default function Calendar() {
                                 Business hours
                             </SelectItem>
                         </SelectContent>
-                    </Select>
+                    </Select> */}
 
                     <div className='relative'>
                         <Search className='absolute left-2.5 top-2 h-4 w-4 text-muted-foreground' />
                         <Input
                             type='search'
                             placeholder='Search people/events/status...'
-                            className='pl-8 h-8 w-[220px]'
+                            className='pl-8 bg-foreground h-8 w-[220px]'
                         />
                     </div>
                 </div>
@@ -165,7 +165,7 @@ export default function Calendar() {
 
             <div
                 className={cn(
-                    'flex-1 overflow-auto',
+                    'flex-1 overflow-auto bg-foreground',
                     view === 'month' ? 'flex flex-col' : '',
                 )}
             >

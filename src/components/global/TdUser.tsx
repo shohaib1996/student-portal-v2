@@ -62,7 +62,7 @@ export function TdUser({
         } else if (diffWeeks < 4) {
             activityBadge = `${diffWeeks}w`;
         } else if (diffMonths < 12) {
-            activityBadge = `${diffMonths}mo`;
+            activityBadge = `${diffMonths} mo`;
         } else {
             activityBadge = `${diffYears}y`;
         }
@@ -107,15 +107,11 @@ export function TdUser({
                 <span className='text-sm font-medium text-black'>
                     {user?.fullName}
                 </span>
-                <span
-                    className={cn(
-                        'text-xs',
-                        isActive ? 'text-primary-white' : 'text-primary-white',
-                    )}
-                >
-                    {isActive
+                <span className={cn('text-xs text-gray')}>
+                    {/* {isActive
                         ? 'Active Now'
-                        : `Last active ${activityBadge} ago`}
+                        : `Last active ${activityBadge} ago`} */}
+                    {user?.email}
                 </span>
             </div>
         </div>

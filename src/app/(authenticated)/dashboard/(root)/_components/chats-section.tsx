@@ -1,8 +1,63 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+'use client';
+
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ViewMoreLink } from './view-more-link';
 import { Progress } from '@/components/ui/progress';
 
+import { useEffect, useState } from 'react';
+import { useGetAllPortalChartDataMutation } from '@/redux/api/myprogram/myprogramApi';
+
 export function ChatsSection() {
+    const [getAllChats] = useGetAllPortalChartDataMutation();
+    const [chatData, setChatData] = useState({
+        totalChat: 0,
+        totalMessage: 0,
+        totalUnreadChat: 0,
+        totalReadChat: 0,
+        totalPinnedMessages: 0,
+        totalUnreadCrowd: 0,
+        totalUnreadDirect: 0,
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await getAllChats({ message: {} }).unwrap();
+                const results = response.data.message.results;
+                setChatData({
+                    totalChat: results.totalChat,
+                    totalMessage: results.totalMessage,
+                    totalUnreadChat: results.totalUnreadChat,
+                    totalReadChat: results.totalReadChat,
+                    totalPinnedMessages: results.totalPinnedMessages,
+                    totalUnreadCrowd: results.totalUnreadCrowd,
+                    totalUnreadDirect: results.totalUnreadDirect,
+                });
+            } catch (error) {
+                console.error('Error fetching all chats:', error);
+            }
+        };
+
+        fetchData();
+    }, [getAllChats]);
+
+    // Calculate progress percentages
+    const readProgress = chatData.totalChat
+        ? (chatData.totalReadChat / chatData.totalChat) * 100
+        : 0;
+    const unreadProgress = chatData.totalChat
+        ? (chatData.totalUnreadChat / chatData.totalChat) * 100
+        : 0;
+    const unreadCrowdProgress = chatData.totalChat
+        ? (chatData.totalUnreadCrowd / chatData.totalChat) * 100
+        : 0;
+    const unreadDirectProgress = chatData.totalChat
+        ? (chatData.totalUnreadDirect / chatData.totalChat) * 100
+        : 0;
+    const pinnedProgress = chatData.totalChat
+        ? (chatData.totalPinnedMessages / chatData.totalChat) * 100
+        : 0;
+
     return (
         <Card className='p-2 rounded-lg shadow-none bg-foreground'>
             <CardHeader className='flex flex-row items-center justify-between p-2 border-b'>
@@ -12,7 +67,6 @@ export function ChatsSection() {
                         Manage and track all your conversations
                     </p>
                 </div>
-
                 <ViewMoreLink href='/chat' />
             </CardHeader>
             <CardContent className='p-2'>
@@ -30,7 +84,7 @@ export function ChatsSection() {
                                 strokeWidth='2'
                                 strokeLinecap='round'
                                 strokeLinejoin='round'
-                                className='lucide lucide-message-square text-blue-500'
+                                className='lucide lucide-message-square text-primary'
                             >
                                 <path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' />
                             </svg>
@@ -38,7 +92,9 @@ export function ChatsSection() {
                                 <div className='text-sm font-medium text-nowrap'>
                                     Total Chats
                                 </div>
-                                <div className='text-2xl font-bold'>72</div>
+                                <div className='text-2xl font-bold'>
+                                    {chatData.totalChat}
+                                </div>
                             </div>
                         </div>
                         <div className='p-2 flex items-center gap-2'>
@@ -61,7 +117,9 @@ export function ChatsSection() {
                                 <div className='text-sm font-medium text-nowrap'>
                                     One-on-One
                                 </div>
-                                <div className='text-2xl font-bold'>45</div>
+                                <div className='text-2xl font-bold'>
+                                    {chatData.totalUnreadDirect}
+                                </div>
                             </div>
                         </div>
                         <div className='p-2 flex items-center gap-2'>
@@ -86,7 +144,9 @@ export function ChatsSection() {
                                 <div className='text-sm font-medium text-nowrap'>
                                     Crowd Chats
                                 </div>
-                                <div className='text-2xl font-bold'>27</div>
+                                <div className='text-2xl font-bold'>
+                                    {chatData.totalUnreadCrowd}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -98,33 +158,37 @@ export function ChatsSection() {
                         <div className='flex items-center justify-between'>
                             <span className='text-sm'>Read</span>
                             <span className='text-xs text-muted-foreground'>
-                                53 out of 72
+                                {chatData.totalReadChat} out of{' '}
+                                {chatData.totalChat}
                             </span>
                         </div>
-                        <Progress value={73} className='h-2 bg-background' />
+                        <Progress
+                            value={readProgress}
+                            className='h-2 bg-background'
+                        />
 
                         <div className='flex items-center justify-between'>
                             <span className='text-sm'>Unread</span>
                             <span className='text-xs text-muted-foreground'>
-                                15 out of 72
+                                {chatData.totalUnreadChat} out of{' '}
+                                {chatData.totalChat}
                             </span>
                         </div>
                         <Progress
-                            value={21}
+                            value={unreadProgress}
                             className='h-2 bg-background'
-                            // indicatorClassName='bg-warning'
                         />
 
                         <div className='flex items-center justify-between'>
                             <span className='text-sm'>Unread Chat Crowd</span>
                             <span className='text-xs text-muted-foreground'>
-                                12 out of 72
+                                {chatData.totalUnreadCrowd} out of{' '}
+                                {chatData.totalChat}
                             </span>
                         </div>
                         <Progress
-                            value={17}
+                            value={unreadCrowdProgress}
                             className='h-2 bg-background'
-                            // indicatorClassName='bg-success'
                         />
 
                         <div className='flex items-center justify-between'>
@@ -132,25 +196,25 @@ export function ChatsSection() {
                                 Unread Direct Message
                             </span>
                             <span className='text-xs text-muted-foreground'>
-                                5 out of 72
+                                {chatData.totalUnreadDirect} out of{' '}
+                                {chatData.totalChat}
                             </span>
                         </div>
                         <Progress
-                            value={7}
+                            value={unreadDirectProgress}
                             className='h-2 bg-background'
-                            // indicatorClassName='bg-danger'
                         />
 
                         <div className='flex items-center justify-between'>
                             <span className='text-sm'>Pinned Messages</span>
                             <span className='text-xs text-muted-foreground'>
-                                35 out of 72
+                                {chatData.totalPinnedMessages} out of{' '}
+                                {chatData.totalChat}
                             </span>
                         </div>
                         <Progress
-                            value={49}
+                            value={pinnedProgress}
                             className='h-2 bg-background'
-                            // indicatorClassName='bg-warning'
                         />
                     </div>
                 </div>

@@ -48,7 +48,7 @@ const EventButton = memo(({ event }: { event: TEvent }) => {
             }}
             key={event._id}
             className={cn(
-                'flex w-full max-w-48 items-center h-fit gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-foreground justify-start font-normal',
+                'flex w-full max-w-48 items-center h-fit gap-1 text-gray text-sm px-1 rounded-sm py-1 bg-background justify-start font-normal',
             )}
         >
             {}

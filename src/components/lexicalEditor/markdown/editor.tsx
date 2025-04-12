@@ -208,7 +208,7 @@ export function MarkdownEditor({
     return (
         <div
             className={cn(
-                'overflow-hidden bg-background rounded-lg border flex flex-col',
+                'overflow-hidden bg-foreground rounded-lg border flex flex-col',
                 className,
             )}
             style={{ height }}

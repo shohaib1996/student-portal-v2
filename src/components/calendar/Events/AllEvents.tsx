@@ -184,10 +184,10 @@ const AllEvents = () => {
 
                                 <div className='flex justify-between items-start'>
                                     <div className='flex items-start gap-1'>
-                                        <span className='text-dark-gray text-xs font-semibold'>
+                                        <span className=' text-dark-gray  whitespace-break-spaces  text-xs font-semibold'>
                                             Agenda:
                                         </span>
-                                        <div className='text-xs truncate overflow-x-hidden'>
+                                        <div className='text-xs break-all line-clamp-2 overflow-x-hidden'>
                                             {event?.description}
                                         </div>
                                     </div>

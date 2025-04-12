@@ -1,12 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-
+import { EditorState, SerializedEditorState } from 'lexical';
 import axios from 'axios';
-import {
-    MarkdownEditor,
-    PluginOptions,
-} from '../lexicalEditor/markdown/editor';
+import { Editor, PluginOptions } from '../lexicalEditor/blocks/editor';
 import {
     MentionMenu,
     MentionMenuItem,
@@ -22,16 +19,18 @@ type TProps = {
     placeholder?: string;
 };
 
-export default function GlobalEditor({
+export default function GlobalBlockEditor({
     value,
     onChange,
     maxLength = 5000,
     height = '100%',
-    placeholder = 'Enter description',
     className,
     pluginOptions,
+    placeholder = 'Write something',
 }: TProps) {
-    const [editorState, setEditorState] = useState<string>(value);
+    const [editorState, setEditorState] = useState<SerializedEditorState>(
+        value ? JSON.parse(value) : '',
+    );
 
     // Define a minimal set of toolbar options
     const defaultPluginOptions: PluginOptions = {
@@ -58,20 +57,43 @@ export default function GlobalEditor({
 
         // Show toolbar but customize which buttons appear
         showToolbar: true,
-        showBottomBar: false,
-        floatingTextFormat: false,
+        showBottomBar: true,
 
         // Toolbar controls - only show basic formatting
         toolbar: {
             history: true,
             blockFormat: true,
+            fontFamily: true, // Hide font family dropdown
+            fontSize: true, // Hide font size dropdown
+
+            // Only allow basic text formatting
             fontFormat: {
                 bold: true,
                 italic: true,
                 underline: true, // Hide underline button
                 strikethrough: true, // Hide strikethrough button
             },
+
+            // Disable these buttons
+            subSuper: true,
             clearFormatting: true,
+            fontColor: true,
+            fontBackground: true,
+            elementFormat: true,
+
+            // Only allow inserting basic elements
+            blockInsert: {
+                horizontalRule: true,
+                pageBreak: true,
+                image: true, // Allow images
+                inlineImage: true,
+                collapsible: true,
+                excalidraw: true,
+                table: true,
+                poll: true,
+                columnsLayout: true,
+                embeds: true,
+            },
         },
 
         // Minimal bottom bar
@@ -80,8 +102,8 @@ export default function GlobalEditor({
             characterLimit: true,
             counter: true,
             speechToText: true,
-            // shareContent: true,
-            // markdownToggle: true,
+            shareContent: true,
+            markdownToggle: true,
             editModeToggle: true,
             clearEditor: true,
             treeView: true,
@@ -169,19 +191,29 @@ export default function GlobalEditor({
         );
     };
 
+    console.log(value);
+
     return (
-        <MarkdownEditor
-            height='100%'
-            initialMarkdown={value}
-            onMarkdownChange={(val) => {
-                onChange(val);
+        <Editor
+            onChange={(value) => {
+                onChange(JSON.stringify(value));
+                // setEditorState();
             }}
             className={className}
+            height={height}
+            placeholder={placeholder}
+            editorSerializedState={editorState}
+            onSerializedChange={(value) => {
+                setEditorState(value);
+                onChange(JSON.stringify(value));
+            }}
             pluginOptions={defaultPluginOptions}
+            maxLength={maxLength}
+            onImageUpload={handleImageUpload}
+            onAIGeneration={handleAIGeneration}
             onMentionSearch={handleMentionSearch}
             mentionMenu={MentionMenu}
             mentionMenuItem={MentionMenuItem}
-            placeholder={placeholder}
         />
     );
 }

@@ -12,9 +12,11 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts';
-import { useGetPortalDataQuery } from '@/redux/api/dashboard/calendarApi';
+import { useGetAllPortalChartDataMutation } from '@/redux/api/myprogram/myprogramApi';
+import { useEffect, useState } from 'react';
 
-const data = [
+// Placeholder chart data (to be replaced if API provides timeline data)
+const defaultChartData = [
     { name: 'Jan', value: 30 },
     { name: 'Feb', value: 25 },
     { name: 'Mar', value: 35 },
@@ -30,22 +32,58 @@ const data = [
 ];
 
 export function TechnicalTestSection() {
-    const {
-        data: testData,
-        isLoading,
-        error,
-    } = useGetPortalDataQuery({
-        assignment: {},
+    const [getAllPortalChartData] = useGetAllPortalChartDataMutation();
+    const [testData, setTestData] = useState({
+        totalItems: 0,
+        pendingItems: 0,
+        acceptedItems: 0,
+        rejectedItems: 0,
     });
+    const [chartData, setChartData] = useState(defaultChartData);
 
-    const test = testData?.data?.assignment?.results as {
-        acceptedItems: number;
-        pendingItems: number;
-        rejectedItems: number;
-        totalItems: number;
-    };
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await getAllPortalChartData({
+                    assignment: {},
+                }).unwrap();
+                const results = response.data.assignment.results;
+                setTestData({
+                    totalItems: results.totalItems,
+                    pendingItems: results.pendingItems,
+                    acceptedItems: results.acceptedItems,
+                    rejectedItems: results.rejectedItems,
+                });
+                // If API provides chart data, update setChartData here
+                // e.g., setChartData(response.data.chartData || defaultChartData);
+            } catch (error) {
+                console.error('Error fetching all tests:', error);
+            }
+        };
 
-    console.log(test);
+        fetchData();
+    }, [getAllPortalChartData]);
+
+    // Calculate unanswered items
+    const unansweredItems =
+        testData.totalItems -
+        (testData.acceptedItems +
+            testData.pendingItems +
+            testData.rejectedItems);
+
+    // Calculate percentages for StatusCard
+    const acceptedPercentage = testData.totalItems
+        ? (testData.acceptedItems / testData.totalItems) * 100
+        : 0;
+    const pendingPercentage = testData.totalItems
+        ? (testData.pendingItems / testData.totalItems) * 100
+        : 0;
+    const rejectedPercentage = testData.totalItems
+        ? (testData.rejectedItems / testData.totalItems) * 100
+        : 0;
+    const unansweredPercentage = testData.totalItems
+        ? (unansweredItems / testData.totalItems) * 100
+        : 0;
 
     return (
         <Card className='p-2 rounded-lg shadow-none bg-foreground'>
@@ -64,10 +102,8 @@ export function TechnicalTestSection() {
                 <div className='grid grid-cols-2 gap-4 mt-4'>
                     <StatusCard
                         title='Total Accepted'
-                        value={test?.acceptedItems}
-                        percentage={
-                            (test?.acceptedItems / test?.totalItems) * 100
-                        }
+                        value={testData.acceptedItems}
+                        percentage={acceptedPercentage}
                         color='#09c61a'
                         icon={
                             <svg
@@ -89,10 +125,8 @@ export function TechnicalTestSection() {
                     />
                     <StatusCard
                         title='Pending'
-                        value={test?.pendingItems}
-                        percentage={
-                            (test?.pendingItems / test?.totalItems) * 100
-                        }
+                        value={testData.pendingItems}
+                        percentage={pendingPercentage}
                         color='#f4a00c'
                         icon={
                             <svg
@@ -114,10 +148,8 @@ export function TechnicalTestSection() {
                     />
                     <StatusCard
                         title='Rejected'
-                        value={test?.rejectedItems}
-                        percentage={
-                            (test?.rejectedItems / test?.totalItems) * 100
-                        }
+                        value={testData.rejectedItems}
+                        percentage={rejectedPercentage}
                         color='#f34141'
                         icon={
                             <svg
@@ -140,20 +172,8 @@ export function TechnicalTestSection() {
                     />
                     <StatusCard
                         title='Unanswered'
-                        value={
-                            test?.totalItems -
-                            (test?.acceptedItems +
-                                test?.pendingItems +
-                                test?.rejectedItems)
-                        }
-                        percentage={
-                            ((test?.totalItems -
-                                (test?.acceptedItems +
-                                    test?.pendingItems +
-                                    test?.rejectedItems)) /
-                                test?.totalItems) *
-                            100
-                        }
+                        value={unansweredItems}
+                        percentage={unansweredPercentage}
                         color='#0736d1'
                         icon={
                             <svg
@@ -183,7 +203,7 @@ export function TechnicalTestSection() {
                     <div className='h-[200px]'>
                         <ResponsiveContainer width='100%' height='100%'>
                             <BarChart
-                                data={data}
+                                data={chartData}
                                 margin={{
                                     top: 5,
                                     right: 10,

@@ -21,7 +21,7 @@ const TopTags = ({ tags, setTags }: ITopTagsProps) => {
     };
     return (
         <Card className='overflow-hidden border-border shadow-sm mt-2 mr-2'>
-            <CardHeader className='rounded-xl bg-background pb-3 pt-4'>
+            <CardHeader className='rounded-xl pb-3 pt-4'>
                 <CardTitle className='flex font-semibold text-lg items-center gap-2 text-black'>
                     <Hash className='h-5 w-5 text-primary' />
                     Trending Tags

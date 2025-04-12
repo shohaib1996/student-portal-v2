@@ -9,14 +9,11 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { filters } from '@/utils/filterData';
 import { useFilter } from '@/utils/useFilters';
-import { ArrowLeft, FilterIcon, Hash, Menu, Search } from 'lucide-react';
+import { Hash, Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import CommunityPosts from './CommunityPosts';
-import TopTags from './TopTags';
 import TopContributors from './TopContributors';
 import { useGetCommunityPostsApiMutation } from '@/redux/api/community/community';
 import { ICommunityPost } from '@/types';
@@ -26,9 +23,7 @@ import { toast } from 'sonner';
 import CreatePost from './CreatePost';
 import CommunitySidebar from './CommunitySidebar';
 import GlobalHeader from '../global/GlobalHeader';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import UpcomingEvents from './UpcomingEvents';
+import TopTags from './TopTags';
 
 interface ErrorProps {
     status: number;
@@ -47,9 +42,8 @@ const Community = () => {
     const [user, setUser] = useState<string>('');
     const [hasMore, setHasMore] = useState(true);
     const [refetch, setRefetch] = useState<number>(1);
-    const [totalPosts, setTotalPosts] = useState(0); // 🔹 Track total available posts
+    const [totalPosts, setTotalPosts] = useState(0);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const router = useRouter();
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
@@ -65,7 +59,7 @@ const Community = () => {
     const fetchPosts = async () => {
         if (!hasMore) {
             return;
-        } // 🔹 Prevent unnecessary API calls
+        }
 
         const payload = {
             page,
@@ -79,14 +73,13 @@ const Community = () => {
         try {
             const response = await getPosts({ payload }).unwrap();
             if (response.success) {
-                setTotalPosts(response.count || 0); // 🔹 Store total count from response
+                setTotalPosts(response.count || 0);
 
                 if (page === 1) {
-                    setPosts(response.posts || []); // 🔹 Reset posts if new search/filter applied
+                    setPosts(response.posts || []);
                 } else {
                     setPosts((prev) => [...prev, ...response.posts]);
                 }
-                // 🔹 Stop fetching if all posts are loaded
                 setHasMore(page * 10 < response.count);
             }
         } catch (error) {
@@ -127,6 +120,17 @@ const Community = () => {
 
     const handleTagDelete = (selectTag: string) => {
         setTags((prev) => prev.filter((tag) => tag !== selectTag));
+        // Reset pagination when removing a tag
+        setPage(1);
+        setPosts([]);
+        setHasMore(true);
+    };
+
+    // Reset functions to be passed to filter selection
+    const resetFunctions = {
+        setPage,
+        setPosts,
+        setHasMore,
     };
 
     return (
@@ -147,7 +151,12 @@ const Community = () => {
                 setIsOpen={setIsSidebarOpen}
                 tags={tags}
                 setTags={setTags}
-                setUser={setUser}
+                setUser={(userId: string) => {
+                    setUser(userId);
+                    setPage(1);
+                    setPosts([]);
+                    setHasMore(true);
+                }}
             />
             <GlobalHeader
                 title='Community'
@@ -231,7 +240,9 @@ const Community = () => {
                                 {filters.map(({ label, filter }) => (
                                     <DropdownMenuItem
                                         key={filter}
-                                        onClick={() => selectFilter(filter)}
+                                        onClick={() =>
+                                            selectFilter(filter, resetFunctions)
+                                        }
                                         className={
                                             selectedFilter === filter
                                                 ? 'bg-primary text-white'
@@ -315,18 +326,39 @@ const Community = () => {
                         </div>
                     )}
 
-                    {/* 🔹 Show message when no more posts are available */}
-                    {!hasMore && (
+                    {!hasMore && posts.length > 0 && (
                         <p className='mt-4 text-center text-gray'>
                             No more posts to load 🎉
                         </p>
+                    )}
+
+                    {!isLoading && posts.length === 0 && (
+                        <div className='mt-4 text-center p-8 bg-background rounded-xl shadow-sm'>
+                            <p className='text-gray font-medium'>
+                                No posts found with the current filters
+                            </p>
+                            <Button
+                                variant='outline'
+                                className='mt-3'
+                                onClick={handleClear}
+                            >
+                                Clear Filters
+                            </Button>
+                        </div>
                     )}
                 </div>
 
                 <div className='hidden flex-1 flex-col lg:flex'>
                     <div className='no-scrollbar sticky top-0 h-screen overflow-y-auto'>
                         {/* <UpcomingEvents /> */}
-                        <TopContributors setUser={setUser} />
+                        <TopContributors
+                            setUser={setUser}
+                            user={user}
+                            setPage={setPage}
+                            setPosts={setPosts}
+                            setHasMore={setHasMore}
+                        />
+                        <TopTags tags={tags} setTags={setTags} />
                     </div>
                 </div>
             </div>
