@@ -67,7 +67,7 @@ const Navbar = () => {
             domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN,
         });
         persistor.purge();
-        window.location.href = '/auth/login';
+        window.location.href = process.env.NEXT_PUBLIC_REDIRECT_URL as string;
     };
 
     const dropdownItems: DropdownItems[] = [
@@ -342,7 +342,11 @@ const Navbar = () => {
     return (
         <div className='sticky top-0 z-20 flex flex-shrink-0 w-full h-[55px] box-border bg-foreground border-b border-forground-border shadow-sm'>
             <div className='flex gap-2 relative justify-between w-full h-full items-center px-2'>
-                <div className='relative' ref={searchRef}>
+                <div
+                    className='relative flex gap-1 items-center'
+                    ref={searchRef}
+                >
+                    <SidebarTrigger></SidebarTrigger>
                     <Input
                         className='h-9 rounded-full md:w-[390px] md:inline-flex hidden w-9 text-dark-gray'
                         placeholder='Search here'
@@ -482,9 +486,9 @@ const Navbar = () => {
                             </AvatarFallback>
                         </Avatar>
                     </GlobalDropdown>
-                    <SidebarTrigger className='md:hidden text-dark-gray'>
+                    {/* <SidebarTrigger className='md:hidden text-dark-gray'>
                         <Menu size={18} />
-                    </SidebarTrigger>
+                    </SidebarTrigger> */}
                 </div>
 
                 {searchOpen && (

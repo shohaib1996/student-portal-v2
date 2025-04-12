@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import {
     Bell,
     BookmarkCheck,
