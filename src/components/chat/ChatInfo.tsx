@@ -828,7 +828,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                     <div className=''>
                         {chat && (
                             <Tabs defaultValue='about'>
-                                <TabsList className='w-full h-10 bg-transparent overflow-x-auto flex relative'>
+                                <TabsList className='w-full h-10 bg-background overflow-x-auto flex relative'>
                                     <Button
                                         variant='ghost'
                                         size='icon'
