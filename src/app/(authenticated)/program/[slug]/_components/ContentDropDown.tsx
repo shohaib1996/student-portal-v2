@@ -159,6 +159,7 @@ const ContentDropDown = ({
                                             )}
                                         </span>
                                         <LessionActionMenu
+                                            item={item}
                                             lessonId={item?._id}
                                             courseId={item?.myCourse?.course}
                                         />

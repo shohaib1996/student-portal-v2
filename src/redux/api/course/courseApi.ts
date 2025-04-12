@@ -22,6 +22,13 @@ const courseApi = baseApi.injectEndpoints({
             }),
             providesTags: [tagTypes.review], // Ensures the correct tag is provided
         }),
+        getAllCourseReview: build.query({
+            query: () => ({
+                url: `/course/review/get/6647be35e44f020019e06b65?fields=["categories","reviews"]&category=ssss&page=1&limit=10`,
+                method: 'GET',
+            }),
+            providesTags: [tagTypes.review], // Ensures the correct tag is provided
+        }),
         updateReview: build.mutation({
             query: (data: {
                 reviewId: string;
@@ -81,4 +88,5 @@ export const {
     useUpdateReviewMutation,
     useSubmitReviewMutation,
     useTrackChapterMutation,
+    useGetAllCourseReviewQuery,
 } = courseApi;
