@@ -2,24 +2,82 @@
 
 import GlobalHeader from '@/components/global/GlobalHeader';
 import CourseCard from '@/components/program/online-courses/CourseCard';
+// Removed the unused API hook import
+// import { useGetAllCoursesQuery } from '@/redux/api/course/courseApi';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useGetAllCoursesQuery } from '@/redux/api/course/courseApi';
-import { TCourse } from '@/types';
-import { BookOpenText } from 'lucide-react';
+import { useAppSelector } from '@/redux/hooks';
+// import { TCourse } from '@/types';
+import {
+    BookOpen,
+    BookOpenText,
+    GraduationCap,
+    MessageSquare,
+    Search,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
 
-const page = () => {
-    const { data } = useGetAllCoursesQuery(undefined);
-    const courses: TCourse[] = data?.orders || [];
+const OnlineCoursesPage = () => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeTab, setActiveTab] = useState('program');
 
-    const activeCourses = courses.filter((c) => c.status === 'active');
-    const pendingCourses = courses.filter((c) => c.status === 'pending');
-    const inactiveCourses = courses.filter((c) => c.status === 'inactive');
+    // Get user enrollments from Redux state
+    const { myEnrollments } = useAppSelector((state) => state.auth);
 
-    const renderCourses = (courses: TCourse[]) => {
+    // Filter enrollments based on search query and type
+    const { filteredPrograms, filteredCourses, filteredInterviews } =
+        useMemo(() => {
+            const lowercasedQuery = searchQuery.toLowerCase();
+            return {
+                filteredPrograms:
+                    myEnrollments?.filter(
+                        (enroll) =>
+                            enroll.program.type === 'program' &&
+                            enroll.program.title
+                                .toLowerCase()
+                                .includes(lowercasedQuery),
+                    ) || [],
+                filteredCourses:
+                    myEnrollments?.filter(
+                        (enroll) =>
+                            enroll.program.type === 'course' &&
+                            enroll.program.title
+                                .toLowerCase()
+                                .includes(lowercasedQuery),
+                    ) || [],
+                filteredInterviews:
+                    myEnrollments?.filter(
+                        (enroll) =>
+                            enroll.program.type === 'interview' &&
+                            enroll.program.title
+                                .toLowerCase()
+                                .includes(lowercasedQuery),
+                    ) || [],
+            };
+        }, [myEnrollments, searchQuery]);
+
+    // Dummy values for the All Courses section;
+    // Replace these with your actual data/logic if needed.
+    const activeCourses = [];
+    const pendingCourses = [];
+    const inactiveCourses = [];
+
+    // Render courses in a grid layout
+    const renderTabContent = (courses: any) => {
+        if (!courses || courses.length === 0) {
+            return (
+                <div className='text-center py-12'>
+                    <p className='text-muted-foreground'>
+                        No courses available
+                    </p>
+                </div>
+            );
+        }
+
         return (
-            <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2'>
-                {courses.map((course) => (
+            <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-4'>
+                {courses.map((course: any) => (
                     <CourseCard key={course._id} course={course} />
                 ))}
             </div>
@@ -35,54 +93,73 @@ const page = () => {
                     <div>
                         <Button
                             variant={'secondary'}
-                            icon={<BookOpenText size={18} />}
+                            className='flex items-center gap-2'
                         >
+                            <BookOpenText size={18} />
                             My Bootcamps
                         </Button>
                     </div>
                 }
             />
+            <div>
+                <div className='space-y-3 bg-background p-3 rounded-lg'>
+                    <div className='relative'>
+                        <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
+                            <Search className='w-4 h-4 text-gray-500' />
+                        </div>
+                        <Input
+                            className='pl-10 bg-foreground'
+                            placeholder='Search programs...'
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
 
-            <Tabs defaultValue='all'>
-                <TabsList className='bg-transparent'>
+            {/* User Enrollments Section */}
+            <Tabs
+                defaultValue='program'
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className='mb-6'
+            >
+                <TabsList className='flex items-center justify-start gap-3 bg-transparent mt-4'>
                     <TabsTrigger
-                        value='all'
-                        className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
+                        value='program'
+                        className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
                     >
-                        All
+                        <GraduationCap className='w-4 h-4 mr-1' />
+                        Programs ({filteredPrograms.length})
                     </TabsTrigger>
                     <TabsTrigger
-                        value='active'
-                        className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
+                        value='courses'
+                        className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
                     >
-                        Active
+                        <BookOpen className='w-4 h-4 mr-1' />
+                        Courses ({filteredCourses.length})
                     </TabsTrigger>
                     <TabsTrigger
-                        value='pending'
-                        className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
+                        value='interviews'
+                        className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
                     >
-                        Pending
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value='inactive'
-                        className='border-b rounded-none data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-primary data-[state=active]:shadow-none flex items-center gap-1 data-[state=active]:bg-transparent'
-                    >
-                        Inactive
+                        <MessageSquare className='w-4 h-4 mr-1' />
+                        Interviews ({filteredInterviews.length})
                     </TabsTrigger>
                 </TabsList>
-                <TabsContent value='all'>{renderCourses(courses)}</TabsContent>
-                <TabsContent value='active'>
-                    {renderCourses(activeCourses)}
+
+                <TabsContent value='program'>
+                    {renderTabContent(filteredPrograms)}
                 </TabsContent>
-                <TabsContent value='pending'>
-                    {renderCourses(pendingCourses)}
+                <TabsContent value='courses'>
+                    {renderTabContent(filteredCourses)}
                 </TabsContent>
-                <TabsContent value='inactive'>
-                    {renderCourses(inactiveCourses)}
+                <TabsContent value='interviews'>
+                    {renderTabContent(filteredInterviews)}
                 </TabsContent>
             </Tabs>
         </div>
     );
 };
 
-export default page;
+export default OnlineCoursesPage;

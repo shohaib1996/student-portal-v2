@@ -235,7 +235,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                             </span>
                             Leave a Review
                         </Button>
-                        <Button className='' onClick={commingSoon}>
+                        {/* <Button className='' onClick={commingSoon}>
                             <span>
                                 <svg
                                     xmlns='http://www.w3.org/2000/svg'
@@ -275,7 +275,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                                 </svg>
                             </span>
                             Switch Program
-                        </Button>
+                        </Button> */}
                     </div>
                 }
             />

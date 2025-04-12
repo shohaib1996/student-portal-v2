@@ -33,6 +33,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
         (acc, curr) => acc + Number(curr.completedItems),
         0,
     );
+
     const totalIncomplete = bootcamp?.reduce(
         (acc, curr) => acc + Number(curr.incompletedItems),
         0,
@@ -170,7 +171,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         {newData?.totalPinned}
                     </span>
                 </div>
-                <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
+                {/* <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
                     <div className='flex items-center gap-1 text-sm text-dark-gray'>
                         <div>
                             <Image
@@ -184,10 +185,10 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                     </div>
                     <span className='text-sm text-black'>
                         12
-                        {/* {courseData?.priorities?.high} */}
+                        {courseData?.priorities?.high}
                     </span>
-                </div>
-                <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
+                </div> */}
+                {/* <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
                     <div className='flex items-center gap-1 text-sm text-dark-gray'>
                         <div>
                             <Image
@@ -200,11 +201,11 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         <span className=''>Medium Priority</span>
                     </div>
                     <span className='text-sm text-black'>
-                        {/* {courseData?.priorities?.medium} */}
+                        {courseData?.priorities?.medium}
                         10
                     </span>
-                </div>
-                <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
+                </div> */}
+                {/* <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
                     <div className='flex items-center gap-1 text-sm text-dark-gray'>
                         <div>
                             <Image
@@ -217,9 +218,9 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         <span className=''>Low Priority</span>
                     </div>
                     <span className='text-sm text-black'>
-                        {/* {courseData?.priorities?.low} */}3
+                        {courseData?.priorities?.low}3
                     </span>
-                </div>
+                </div> */}
             </div>
 
             <Separator className='my-2 bg-border' />
@@ -254,6 +255,21 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         </div>
                         <span className='text-xs font-medium text-black'>
                             {totalCompleted}
+                        </span>
+                    </div>
+                    <div className='flex items-center justify-between'>
+                        <div className='flex items-center gap-2'>
+                            <Clock className='h-4 w-4 text-amber-500' />
+                            {/* <Check className='h-4 w-4 text-green-500' /> */}
+                            <span className='text-xs text-gray'>Progress</span>
+                        </div>
+                        <span className='text-xs font-medium text-black'>
+                            {Math.round(
+                                (totalCompleted /
+                                    (totalCompleted + totalIncomplete)) *
+                                    100,
+                            )}
+                            %
                         </span>
                     </div>
 
