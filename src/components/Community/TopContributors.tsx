@@ -12,6 +12,8 @@ interface ITopContributorsProps {
     user?: string; // Add user prop to track currently selected user
 }
 
+// TopContributors component
+
 const TopContributors = ({
     setUser,
     setPage,
