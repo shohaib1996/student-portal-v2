@@ -98,7 +98,7 @@ const AudioVideosCard = ({ media, isAudio }: TAudioVideosCardProps) => {
                             <Button
                                 variant='secondary'
                                 size='icon'
-                                className='h-12 w-12 rounded-full bg-pure-white/40 shadow-md hover:bg-foreground'
+                                className='h-12 w-12 rounded-full border border-pure-white bg-pure-white/40 shadow-md hover:bg-foreground'
                                 onClick={handleMedia}
                             >
                                 {isAudio ? (
