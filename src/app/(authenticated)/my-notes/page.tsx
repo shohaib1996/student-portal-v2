@@ -8,6 +8,8 @@ import React, { useState } from 'react';
 import { AddNoteModal } from '@/components/my-notes/AddNoteModal';
 import { useGetNotesQuery } from '@/redux/api/notes/notesApi';
 import { TNote } from '@/types';
+import ViewNoteModal from '@/components/my-notes/ViewNoteModal';
+import EditNoteModal from '@/components/my-notes/EditNoteModal';
 
 const MyNotesPage = () => {
     const [view, setView] = useState<'list' | 'grid'>('grid');
@@ -64,6 +66,8 @@ const MyNotesPage = () => {
                 isOpen={isOpen}
                 onClose={() => setIsOpen(false)}
             />
+            <ViewNoteModal />
+            <EditNoteModal />
         </div>
     );
 };

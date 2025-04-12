@@ -65,22 +65,23 @@ const GlobalDeleteModal = ({
             {/* {open && <div className="fixed inset-0 bg-red-400/50 z-50" aria-hidden="true" />} */}
             <AlertDialog open={open} onOpenChange={setOpen}>
                 <AlertDialogTrigger asChild>
-                    {isButton ? (
-                        <Button size={'icon'} variant={'delete_button'}>
-                            <Trash size={18} />
-                            {children && children}
-                        </Button>
-                    ) : (
-                        <div
-                            className={cn(
-                                ' text-danger flex gap-2 items-center cursor-pointer',
-                                className,
-                            )}
-                        >
-                            <Trash size={18} />
-                            {children && children}
-                        </div>
-                    )}
+                    {isButton
+                        ? (children ?? (
+                              <Button size={'icon'} variant={'delete_button'}>
+                                  <Trash size={18} />
+                              </Button>
+                          ))
+                        : (children ?? (
+                              <div
+                                  className={cn(
+                                      ' text-danger flex gap-2 items-center cursor-pointer',
+                                      className,
+                                  )}
+                              >
+                                  <Trash size={18} />
+                                  Delete
+                              </div>
+                          ))}
                 </AlertDialogTrigger>
                 <AlertDialogContent className='z-[99999]'>
                     <AlertDialogHeader>
