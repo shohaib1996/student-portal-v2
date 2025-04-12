@@ -75,7 +75,7 @@ const Navbar = () => {
             id: 2,
             content: (
                 <Link
-                    href='/profile'
+                    href='/profile?tab=profile-settings'
                     className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
                 >
                     <UserRound size={18} />
@@ -87,7 +87,7 @@ const Navbar = () => {
             id: 743,
             content: (
                 <Link
-                    href='/change-password'
+                    href='/profile?tab=change-password'
                     className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
                 >
                     <BookOpenText size={18} />

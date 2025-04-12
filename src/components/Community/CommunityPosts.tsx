@@ -37,6 +37,7 @@ import { copyToClipboard } from '@/utils/common';
 import dayjs from 'dayjs';
 import { GlobalCommentsSection } from '../global/GlobalCommentSection';
 import PostImageGrid from './PostImageGrid';
+import { useCreateCommentsMutation } from '@/redux/api/audio-video/audioVideos';
 
 interface ICommunityPostProps {
     post: ICommunityPost;
@@ -62,6 +63,8 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
         const [deletePost, { isLoading: deleteLoading }] =
             useDeleteCommunityPostsApiMutation();
         const [savePost, { isLoading: saveLoading }] = useSavePostApiMutation();
+        const [createComment, { isLoading: commentLoading }] =
+            useCreateCommentsMutation();
 
         const onEmojiClick = async (emoji: string, id: string) => {
             const payload = {
@@ -99,9 +102,9 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
             const success = await copyToClipboard(
                 `https://portal.bootcampshub.ai/community/post/${id}`,
             );
-            if (success) {
-                toast.success('Link copied to clipboard');
-            }
+            // if (success) {
+            //     toast.success('Link copied to clipboard');
+            // }
         };
 
         const handleShare = (post: ICommunityPost) => {
@@ -187,8 +190,18 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
             };
         }
 
-        const handleCommentSubmit = (content: string) => {
-            console.log('New comment:', content);
+        const handleCommentSubmit = async (content: string) => {
+            const res = await createComment({
+                contentId: post._id,
+                comment: content,
+            }).unwrap();
+            if (res.success) {
+                toast.success('Comment added successfully');
+                setRefetch(refetch + 1);
+                setShowComments(false);
+            } else {
+                toast.error('Failed to add comment');
+            }
         };
 
         return (
