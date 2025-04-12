@@ -127,6 +127,7 @@ export function Editor({
     mentionMenu,
     mentionMenuItem,
     className,
+    placeholder,
 }: {
     editorState?: EditorState;
     editorSerializedState?: SerializedEditorState;
@@ -148,6 +149,7 @@ export function Editor({
     mentionMenu?: React.FC<any>;
     mentionMenuItem?: React.FC<any>;
     className?: string;
+    placeholder?: string;
 }) {
     return (
         <div
@@ -178,6 +180,7 @@ export function Editor({
                                     onAIGeneration={onAIGeneration}
                                     mentionMenu={mentionMenu}
                                     mentionMenuItem={mentionMenuItem}
+                                    placeholder={placeholder}
                                 />
                             </div>
 

@@ -210,6 +210,7 @@ const SelectPurpose = ({
     };
 
     const [selectedItem, setSelectedItem] = useState('Bootcamps/Course Link');
+    const [open, setOpen] = useState(false);
 
     const handleSelect = (item: TContent) => {
         onChange({
@@ -221,6 +222,7 @@ const SelectPurpose = ({
         } else if (item.type === ChapterType.CHAPTER && 'chapter' in item) {
             setSelectedItem(item.chapter.name);
         }
+        setOpen(false);
     };
 
     const renderContent = (
@@ -415,6 +417,8 @@ const SelectPurpose = ({
 
     return (
         <GlobalDropdown
+            open={open}
+            onOpenChange={setOpen}
             className='w-full p-2 max-w-md z-[99999]'
             dropdownRender={
                 <div className='w-full'>
@@ -482,6 +486,7 @@ const SelectPurpose = ({
             }
         >
             <div
+                onClick={() => setOpen((prev) => !prev)}
                 className={cn(
                     'flex w-full gap-1 items-center border rounded-md h-10 bg-foreground text-sm text-dark-gray border-forground-border',
                     className,

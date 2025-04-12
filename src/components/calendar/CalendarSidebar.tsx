@@ -50,6 +50,7 @@ import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
 import { TEvent } from '@/types/calendar/calendarTypes';
 import dayjs from 'dayjs';
 import { Skeleton } from '../ui/skeleton';
+import Link from 'next/link';
 
 interface CalendarAccordionsProps {
     currentDate: Date;
@@ -247,7 +248,7 @@ export function CalendarSidebar({
     );
 
     return (
-        <div className='w-full border-l flex flex-col h-full overflow-y-auto md:min-w-[270px] xl:min-w-[380px]'>
+        <div className='w-full bg-foreground border-l flex flex-col h-full overflow-y-auto md:min-w-[270px] xl:min-w-[380px]'>
             {/* Month Accordion */}
             <div className='border-b'>
                 <button
@@ -361,57 +362,65 @@ export function CalendarSidebar({
                                                 </div>
                                             ) : (
                                                 dayEvents.map((event) => (
-                                                    <div
+                                                    <Link
                                                         key={event._id}
-                                                        style={{
-                                                            borderColor:
-                                                                event.eventColor,
-                                                        }}
-                                                        className={cn(
-                                                            'p-2 mb-1 rounded flex gap-2 relative border-l-4 bg-foreground text-xs',
-                                                            event.eventColor,
-                                                        )}
+                                                        href={`/calendar?detial=${event._id}`}
                                                     >
                                                         <div
                                                             style={{
-                                                                backgroundColor:
+                                                                borderColor:
                                                                     event.eventColor,
-                                                                opacity: 0.1,
                                                             }}
-                                                            className='absolute size-full top-0 left-0 z-10'
-                                                        ></div>
-                                                        <div className='text-dark-gray text-[10px] whitespace-nowrap'>
-                                                            <p>
-                                                                {dayjs(
-                                                                    event?.startTime,
-                                                                ).format(
-                                                                    'hh:mm A',
-                                                                )}
-                                                            </p>
-                                                            <p>
-                                                                {dayjs(
-                                                                    event.endTime,
-                                                                ).diff(
-                                                                    dayjs(
-                                                                        event.startTime,
-                                                                    ),
-                                                                    'minutes',
-                                                                )}{' '}
-                                                                min
-                                                            </p>
+                                                            className={cn(
+                                                                'p-2 mb-1 cursor-pointer rounded flex gap-2 relative border-l-4 bg-foreground text-xs',
+                                                                event.eventColor,
+                                                            )}
+                                                        >
+                                                            <div
+                                                                style={{
+                                                                    backgroundColor:
+                                                                        event.eventColor,
+                                                                    opacity: 0.1,
+                                                                }}
+                                                                className='absolute size-full top-0 left-0 z-10'
+                                                            ></div>
+                                                            <div className='text-dark-gray text-[10px] whitespace-nowrap'>
+                                                                <p>
+                                                                    {dayjs(
+                                                                        event?.startTime,
+                                                                    ).format(
+                                                                        'hh:mm A',
+                                                                    )}
+                                                                </p>
+                                                                <p>
+                                                                    {dayjs(
+                                                                        event.endTime,
+                                                                    ).diff(
+                                                                        dayjs(
+                                                                            event.startTime,
+                                                                        ),
+                                                                        'minutes',
+                                                                    )}{' '}
+                                                                    min
+                                                                </p>
+                                                            </div>
+                                                            <div className='font-medium truncate'>
+                                                                <p>
+                                                                    {
+                                                                        event.title
+                                                                    }
+                                                                </p>
+                                                                <p>
+                                                                    {
+                                                                        event
+                                                                            .organizer
+                                                                            ?.email
+                                                                    }
+                                                                </p>
+                                                            </div>
+                                                            <div className='text-gray'></div>
                                                         </div>
-                                                        <div className='font-medium truncate'>
-                                                            <p>{event.title}</p>
-                                                            <p>
-                                                                {
-                                                                    event
-                                                                        .organizer
-                                                                        ?.email
-                                                                }
-                                                            </p>
-                                                        </div>
-                                                        <div className='text-gray'></div>
-                                                    </div>
+                                                    </Link>
                                                 ))
                                             )}
                                         </div>

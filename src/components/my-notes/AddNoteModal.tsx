@@ -45,6 +45,7 @@ import { TNote } from '@/types';
 import SelectPurpose from '../calendar/CreateEvent/SelectPurpose';
 import GlobalModal from '../global/GlobalModal';
 import { useUploadUserDocumentFileMutation } from '@/redux/api/documents/documentsApi';
+import GlobalBlockEditor from '../editor/GlobalBlockEditor';
 
 export interface AddNoteModalProps {
     isOpen: boolean;
@@ -87,8 +88,8 @@ export function AddNoteModal({
         null,
     );
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-    const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
-    const [attachedFileUrls, setAttachedFileUrls] = useState<string[]>([]);
+    const [uploadingThumb, setUploadingThumb] = useState(false);
+    const [uploadingAttac, setUploadingAttac] = useState(false);
     const [addNote, { isLoading: isCreating }] = useAddNoteMutation();
     const [
         uploadUserDocumentFile,
@@ -127,7 +128,7 @@ export function AddNoteModal({
     ) => {
         if (e.target.files) {
             const newFiles = Array.from(e.target.files);
-
+            setUploadingAttac(true);
             try {
                 // Create an array of promises for each file upload
                 const uploadPromises = newFiles.map(async (file) => {
@@ -157,6 +158,7 @@ export function AddNoteModal({
                 console.error('Failed to upload attachments:', error);
             } finally {
                 console.log('d');
+                setUploadingAttac(false);
             }
         }
     };
@@ -222,13 +224,18 @@ export function AddNoteModal({
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
 
+            setUploadingThumb(true);
+
             try {
                 const url = await uploadFile(file);
-                form.setValue('thumbnail', url);
+                if (url) {
+                    form.setValue('thumbnail', url);
+                }
             } catch (error) {
                 console.error('Failed to upload thumbnail:', error);
             } finally {
                 console.log('d');
+                setUploadingThumb(false);
             }
         }
     };
@@ -317,7 +324,8 @@ export function AddNoteModal({
                                                     render={({ field }) => (
                                                         <FormItem className='h-[80vh] bg-background'>
                                                             <FormControl>
-                                                                <GlobalEditor
+                                                                <GlobalBlockEditor
+                                                                    placeholder='Add Description'
                                                                     value={
                                                                         field.value ||
                                                                         ''
@@ -416,11 +424,19 @@ export function AddNoteModal({
                                                     <FormControl>
                                                         <div className='mt-1 flex justify-center bg-background rounded-lg border border-dashed border-border px-6 py-10'>
                                                             <div className='text-center'>
-                                                                {isUploading ? (
-                                                                    <div className='flex justify-between w-full'>
+                                                                {uploadingThumb ? (
+                                                                    <div className='flex text-dark-gray items-center flex-col gap-3 justify-between w-full'>
                                                                         <Loader className='animate-spin' />
+                                                                        <p className='text-sm'>
+                                                                            Uploading
+                                                                            thumbnail.
+                                                                            Please
+                                                                            wait...
+                                                                        </p>
                                                                     </div>
-                                                                ) : field.value ? (
+                                                                ) : form.watch(
+                                                                      'thumbnail',
+                                                                  ) ? (
                                                                     <div className='relative mx-auto h-32 w-32 overflow-hidden rounded'>
                                                                         <Image
                                                                             src={
@@ -474,18 +490,23 @@ export function AddNoteModal({
                                                                                         handleThumbnailChange
                                                                                     }
                                                                                 />
+                                                                                <p className='mt-1 text-xs text-muted-foreground'>
+                                                                                    or
+                                                                                    drag
+                                                                                    and
+                                                                                    drop
+                                                                                </p>
+                                                                                <p className='text-xs text-muted-foreground'>
+                                                                                    JPG,
+                                                                                    PNG
+                                                                                    |
+                                                                                    Max
+                                                                                    5MB
+                                                                                </p>
                                                                             </label>
                                                                         </div>
                                                                     </>
                                                                 )}
-                                                                <p className='mt-1 text-xs text-muted-foreground'>
-                                                                    or drag and
-                                                                    drop
-                                                                </p>
-                                                                <p className='text-xs text-muted-foreground'>
-                                                                    JPG, PNG |
-                                                                    Max 5MB
-                                                                </p>
                                                             </div>
                                                         </div>
                                                     </FormControl>
@@ -503,9 +524,23 @@ export function AddNoteModal({
                                                     </FormLabel>
                                                     <FormControl>
                                                         <div className='rounded-lg border bg-background p-4'>
-                                                            {field.value &&
-                                                            field.value
-                                                                ?.length > 0 ? (
+                                                            {uploadingAttac ? (
+                                                                <div className='flex text-dark-gray items-center flex-col gap-3 justify-between w-full'>
+                                                                    <Loader className='animate-spin' />
+                                                                    <p className='text-sm'>
+                                                                        Uploading
+                                                                        attachments.
+                                                                        Please
+                                                                        wait...
+                                                                    </p>
+                                                                </div>
+                                                            ) : form.watch(
+                                                                  'attachments',
+                                                              ) &&
+                                                              field.value &&
+                                                              field.value
+                                                                  ?.length >
+                                                                  0 ? (
                                                                 <ul className='space-y-2'>
                                                                     {field.value?.map(
                                                                         (
@@ -516,7 +551,7 @@ export function AddNoteModal({
                                                                                 key={
                                                                                     index
                                                                                 }
-                                                                                className='flex items-center justify-between rounded-md border bg-background p-2 text-sm'
+                                                                                className='flex items-center justify-between rounded-md border bg-foreground p-2 text-sm'
                                                                             >
                                                                                 <div className='flex items-center gap-2'>
                                                                                     <Paperclip className='h-4 w-4 text-muted-foreground' />
@@ -548,10 +583,14 @@ export function AddNoteModal({
                                                                 <div className='flex items-center justify-center py-2 text-sm text-muted-foreground'>
                                                                     <label
                                                                         htmlFor='file-upload'
-                                                                        className='relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
+                                                                        className='relative text-center cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
                                                                     >
-                                                                        <span>
+                                                                        <span className='text-center'>
                                                                             Attach
+                                                                            or
+                                                                            drag
+                                                                            &
+                                                                            drop
                                                                         </span>
                                                                         <input
                                                                             id='file-upload'
@@ -563,17 +602,19 @@ export function AddNoteModal({
                                                                                 handleFileAttachment
                                                                             }
                                                                         />
+
+                                                                        <p className='mt-1 text-center text-xs text-muted-foreground'>
+                                                                            JPG,
+                                                                            PNG,
+                                                                            PDF,
+                                                                            DOCS
+                                                                            |
+                                                                            Max
+                                                                            5MB
+                                                                        </p>
                                                                     </label>
-                                                                    <span className='ml-1'>
-                                                                        or drag
-                                                                        & drop
-                                                                    </span>
                                                                 </div>
                                                             )}
-                                                            <p className='mt-1 text-center text-xs text-muted-foreground'>
-                                                                JPG, PNG, PDF,
-                                                                DOCS | Max 5MB
-                                                            </p>
                                                         </div>
                                                     </FormControl>
                                                 </FormItem>
