@@ -441,6 +441,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                 <SelectTrigger className='w-fit gap-2 bg-background h-8 flex'>
                                                     <RepeatIcon size={16} />
                                                     <SelectValue placeholder='Repeat'></SelectValue>
+                                                    <X />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value='daily'>
