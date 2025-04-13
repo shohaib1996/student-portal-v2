@@ -782,14 +782,15 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
 
                                     {/* Comments */}
                                     <div>
-                                        <div className='flex items-center gap-2 mb-4'>
+                                        {/* <div className='flex items-center gap-2 mb-4'>
                                             <MessageCircle className='h-5 w-5' />
                                             <h3 className='text-lg font-medium'>
                                                 Comments
                                             </h3>
-                                        </div>
+                                        </div> */}
                                         <GlobalComment
                                             contentId={currentMedia._id || ''}
+                                            bgColor='foreground'
                                         />
                                     </div>
                                 </div>
