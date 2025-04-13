@@ -10,6 +10,7 @@ import {
     Clock,
     GripVertical,
     History,
+    Loader,
     MoreHorizontal,
     Pencil,
     Trash,
@@ -22,7 +23,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import GlobalDropdown from '@/components/global/GlobalDropdown';
 import { TEvent } from '@/types/calendar/calendarTypes';
 import {
@@ -31,10 +32,25 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { useUpdateEventMutation } from '@/redux/api/calendar/calendarApi';
+import {
+    useDeleteEventMutation,
+    useUpdateEventMutation,
+} from '@/redux/api/calendar/calendarApi';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
 import { EventPopoverTrigger } from '../CreateEvent/EventPopover';
+import GlobalDeleteModal from '@/components/global/GlobalDeleteModal';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface TaskCardProps {
     task: TEvent;
@@ -42,6 +58,7 @@ interface TaskCardProps {
 
 const TaskCard = memo(({ task }: TaskCardProps) => {
     const [updateTask, { isLoading: isUpdating }] = useUpdateEventMutation();
+    const [deleteEvent, { isLoading: isDeleting }] = useDeleteEventMutation();
 
     const {
         attributes,
@@ -99,6 +116,23 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
         }
     };
 
+    const [deleteOpen, setDeleteOpen] = useState(false);
+
+    const handleDelete = async () => {
+        try {
+            const res = await deleteEvent({
+                id: task?._id as string,
+                deleteOption: 'thisEvent',
+            }).unwrap();
+            if (res) {
+                toast.success('Event deleted successfully');
+                setDeleteOpen(false);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     return (
         <div
             ref={setNodeRef}
@@ -130,48 +164,62 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
                         className='flex items-center gap-2'
                     >
                         <GlobalDropdown
-                            items={[
-                                {
-                                    id: 1,
-                                    content: (
-                                        <EventPopoverTrigger
-                                            updateId={task?._id}
+                            className='w-40'
+                            dropdownRender={
+                                <div className='flex flex-col p-2 gap-2'>
+                                    <EventPopoverTrigger updateId={task?._id}>
+                                        <Button
+                                            className='w-full h-8'
+                                            variant={'primary_light'}
+                                            icon={<Pencil size={16} />}
                                         >
+                                            Edit
+                                        </Button>
+                                    </EventPopoverTrigger>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
                                             <Button
-                                                className='w-full'
-                                                variant={'plain'}
-                                                icon={<Pencil size={16} />}
+                                                className='w-full h-8'
+                                                variant={'danger_light'}
+                                                icon={<Trash size={18} />}
                                             >
-                                                Edit
+                                                Delete
                                             </Button>
-                                        </EventPopoverTrigger>
-                                    ),
-                                },
-                                {
-                                    id: 2,
-                                    content: (
-                                        <Button
-                                            className='w-full'
-                                            variant={'plain'}
-                                            icon={<History size={16} />}
-                                        >
-                                            History
-                                        </Button>
-                                    ),
-                                },
-                                {
-                                    id: 3,
-                                    content: (
-                                        <Button
-                                            className='w-full'
-                                            variant={'danger_light'}
-                                            icon={<Trash size={16} />}
-                                        >
-                                            Delete
-                                        </Button>
-                                    ),
-                                },
-                            ]}
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className='z-[99999]'>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle className='text-center text-red'>
+                                                    Are you absolutely sure?
+                                                </AlertDialogTitle>
+                                                <AlertDialogDescription className='text-center'>
+                                                    This action cannot be
+                                                    undone. This will
+                                                    permanently delete your item
+                                                    and remove your data from
+                                                    our servers.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <div className='flex w-full justify-center'>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel className='bg-primary text-pure-white hover:bg-primary hover:text-pure-white'>
+                                                        Cancel
+                                                    </AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        className='bg-danger/20 hover:bg-danger/25 text-danger '
+                                                        onClick={handleDelete}
+                                                    >
+                                                        {isDeleting ? (
+                                                            <Loader className='animate-spin' />
+                                                        ) : (
+                                                            'Delete'
+                                                        )}
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </div>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+                            }
                         >
                             <div className='flex'>
                                 <MoreHorizontal className='h-5 w-5 text-muted-foreground' />
