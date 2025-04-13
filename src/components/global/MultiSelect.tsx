@@ -28,7 +28,7 @@ type TProps = {
 };
 
 const MultiSelect = ({
-    value,
+    value = [],
     onChange,
     options,
     placeholder,
@@ -79,7 +79,7 @@ const MultiSelect = ({
 
     const handleRemove = (e: RMouseEvent<HTMLButtonElement>, v: string) => {
         e.stopPropagation();
-        onChange(value.filter((val) => v !== val));
+        onChange(value?.filter((val) => v !== val));
     };
 
     const handleSearchInputClick = (e: React.MouseEvent) => {
@@ -88,13 +88,13 @@ const MultiSelect = ({
 
     const filteredOptions = options.filter((op) => {
         // Filter out already selected options
-        if (value.includes(op.value)) {
+        if (value?.includes(op.value)) {
             return false;
         }
 
         // Filter by search query if there is one
         if (searchQuery) {
-            return op.label.toLowerCase().includes(searchQuery.toLowerCase());
+            return op.label.toLowerCase()?.includes(searchQuery.toLowerCase());
         }
 
         return true;
@@ -119,7 +119,7 @@ const MultiSelect = ({
                     },
                 )}
             >
-                {value.length > 0 ? (
+                {value?.length > 0 ? (
                     value.map((v, i) => (
                         <div
                             className='bg-foreground flex gap-1 items-center shadow-sm rounded-sm px-2 py-1'

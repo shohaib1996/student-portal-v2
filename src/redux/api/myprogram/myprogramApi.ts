@@ -33,6 +33,13 @@ const myProgram = baseApi.injectEndpoints({
                 method: 'GET',
             }),
         }),
+        getAllPortalChartData: build.mutation({
+            query: (data) => ({
+                url: '/dashboard/portal',
+                method: 'POST',
+                data: data,
+            }),
+        }),
     }),
 
     overrideExisting: false,
@@ -44,4 +51,5 @@ export const {
     useGetMyTermQuery,
     useGetMyProgressQuery,
     useGetLeaderboardQuery,
+    useGetAllPortalChartDataMutation,
 } = myProgram;

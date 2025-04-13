@@ -65,6 +65,8 @@ import { useEventPopover } from '../CreateEvent/EventPopover';
 import { TTodoFormType } from '../validations/todoValidation';
 import AddNotification from '../CreateEvent/AddNotification';
 import { renderRecurrence } from '../CreateEvent/EventForm';
+import GlobalEditor from '@/components/editor/GlobalEditor';
+import SelectPurpose from '../CreateEvent/SelectPurpose';
 
 type TProps = {
     form: UseFormReturn<TTodoFormType>;
@@ -189,19 +191,15 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                         {isFullScreen && <FormLabel>Purpose</FormLabel>}
                         <FormControl>
                             <div className='flex items-center border rounded-md h-10 bg-foreground border-forground-border'>
-                                <LinkIcon className='ml-3 h-4 w-4 text-muted-foreground' />
-                                <Input
-                                    onChange={(e) =>
-                                        field.onChange({
+                                <SelectPurpose
+                                    value={
+                                        field.value || {
                                             category: '',
-                                            resourceId: e.target.value,
-                                        })
+                                            resourceId: '',
+                                        }
                                     }
-                                    placeholder='Bootcamps/course link'
-                                    value={field.value?.resourceId}
-                                    className='border-0 h-8 focus-visible:ring-0 bg-foreground'
+                                    onChange={(val) => field.onChange(val)}
                                 />
-                                <ChevronDown className='mr-3 h-4 w-4 opacity-50' />
                             </div>
                         </FormControl>
                         <FormMessage />
@@ -484,13 +482,21 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                     <FormLabel>Meeting Agenda/Follow up/Action Item</FormLabel>
                 )}
                 <div className='mt-2 h-full'>
-                    <MarkdownEditor
+                    {/* <MarkdownEditor
                         ref={agendaRef}
                         placeholder='Enter agenda/follow up/action item...'
                         className='bg-foreground h-full overflow-y-auto'
                         markdown={form.getValues('description') || ''}
                         onChange={() => {
                             const value = agendaRef.current?.getMarkdown();
+                            form.setValue('description', value);
+                        }}
+                    /> */}
+                    <GlobalEditor
+                        className='bg-foreground'
+                        placeholder='Write Agenda/Follow up/Action Item'
+                        value={form.watch('description') || ''}
+                        onChange={(value) => {
                             form.setValue('description', value);
                         }}
                     />

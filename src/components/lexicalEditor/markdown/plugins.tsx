@@ -180,7 +180,7 @@ export function Plugins({
     };
 
     return (
-        <div className='relative flex flex-col h-full bg-background'>
+        <div className='relative flex flex-col h-full'>
             {pluginOptions.showToolbar !== false && (
                 <ToolbarPlugin>
                     {({ blockType }) => (
@@ -292,7 +292,7 @@ export function Plugins({
                 </ToolbarPlugin>
             )}
 
-            <div className='relative flex-1 flex flex-col'>
+            <div className='relative flex-1 flex flex-col min-h-52'>
                 {pluginOptions.beautifulMentions !== false && (
                     <BeautifulMentionsPlugin
                         triggers={['@']}
@@ -316,7 +316,7 @@ export function Plugins({
                                 >
                                     <ContentEditable
                                         placeholder={placeholder}
-                                        className='ContentEditable__root h-full w-full overflow-auto px-8 py-4 focus:outline-none'
+                                        className='ContentEditable__root h-full w-full overflow-auto px-4 py-2 focus:outline-none'
                                     />
                                 </div>
                             </div>

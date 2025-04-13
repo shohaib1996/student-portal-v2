@@ -42,6 +42,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ProposeTimeModal from './ProposeTimeModal';
 import EventDetailsSkeleton from './EventDetailSkeleton';
 import LexicalJsonRenderer from '../lexicalEditor/renderer/JsonRenderer';
+import { renderText } from '@/helper/renderText';
 
 const EventDetails = () => {
     const { user } = useAppSelector((s) => s.auth);
@@ -267,12 +268,17 @@ const EventDetails = () => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <a
-                                        href={`https://${event?.location?.link}`}
-                                        className='text-blue-600 hover:underline text-sm font-medium flex items-center'
-                                    >
-                                        Join with Google Meet
-                                    </a>
+                                    {event?.location?.type !== 'custom' && (
+                                        <a
+                                            target='_blank'
+                                            rel='noreferrer'
+                                            href={`${event?.location?.link}`}
+                                            className='text-blue-600 capitalize hover:underline text-sm font-medium flex items-center'
+                                        >
+                                            Join with Google{' '}
+                                            {event.location?.type}
+                                        </a>
+                                    )}
                                     <span className='text-xs text-muted-foreground'>
                                         {event?.location?.link}
                                     </span>
@@ -465,16 +471,7 @@ const EventDetails = () => {
                                 Meeting Agenda/Follow up/Action Item
                             </h3>
                             <ScrollArea className='min-h-24 max-h-48 overflow-y-auto p-2 bg-background rounded-md border'>
-                                {/* <LexicalJsonRenderer
-                                    lexicalState={
-                                        JSON.parse(event?.description || '') ||
-                                        ''
-                                    }
-                                /> */}
-                                {/* <GlobalMarkDownPreview
-                                    text={event?.description || ''}
-                                    className='text-sm text-muted-foreground'
-                                ></GlobalMarkDownPreview> */}
+                                {renderText(event?.description || '')}
                             </ScrollArea>
                         </div>
 

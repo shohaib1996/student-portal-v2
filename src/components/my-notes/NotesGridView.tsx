@@ -6,6 +6,8 @@ import GlobalHeader from '../global/GlobalHeader';
 import MessagePreview from '../chat/Message/MessagePreview';
 import { Button } from '../ui/button';
 import { TNote } from '@/types';
+import LexicalJsonRenderer from '../lexicalEditor/renderer/JsonRenderer';
+import { renderText } from '@/helper/renderText';
 
 const text = '';
 
@@ -92,7 +94,7 @@ const NotesGridView = ({
                                           },
                                       )}
                                   >
-                                      {note?.description}
+                                      {renderText(note?.description || '')}
                                   </p>
 
                                   <div
@@ -180,7 +182,7 @@ const NotesGridView = ({
                 />
 
                 <div className='pt-2 text-dark-gray h-[calc(100%-60px)] overflow-y-auto'>
-                    <MessagePreview text={activeNote?.description} />
+                    {renderText(activeNote?.description || '')}
                 </div>
             </div>
         </div>

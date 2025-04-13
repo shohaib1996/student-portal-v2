@@ -133,7 +133,6 @@ import { TWEET } from '../components/transformers/markdown-tweet-transformer';
 import { BeautifulMentionsPlugin } from '../components/plugins/beautiful-mention';
 
 import { PluginOptions } from './editor';
-export const placeholder = 'Press / for commands...';
 
 export function Plugins({
     maxLength,
@@ -143,6 +142,7 @@ export function Plugins({
     onAIGeneration,
     mentionMenu,
     mentionMenuItem,
+    placeholder,
 }: {
     maxLength?: number;
     pluginOptions?: PluginOptions;
@@ -157,6 +157,7 @@ export function Plugins({
     ) => Promise<{ text: string; success: boolean; error?: string }>;
     mentionMenu?: React.ComponentType<any>;
     mentionMenuItem?: React.ComponentType<any>;
+    placeholder?: string;
 }) {
     const [floatingAnchorElem, setFloatingAnchorElem] =
         useState<HTMLDivElement | null>(null);
@@ -384,7 +385,7 @@ export function Plugins({
                 </ToolbarPlugin>
             )}
 
-            <div className='relative flex-1 flex flex-col'>
+            <div className='relative flex-1 flex flex-col min-h-52'>
                 {pluginOptions.beautifulMentions !== false && (
                     <BeautifulMentionsPlugin
                         triggers={['@']}
@@ -407,8 +408,10 @@ export function Plugins({
                                     className='h-full w-full overflow-hidden'
                                 >
                                     <ContentEditable
-                                        placeholder={placeholder}
-                                        className='ContentEditable__root h-full w-full overflow-auto px-8 py-4 focus:outline-none'
+                                        placeholder={
+                                            placeholder || 'Write something'
+                                        }
+                                        className='ContentEditable__root h-full w-full overflow-auto px-4 py-2 focus:outline-none'
                                     />
                                 </div>
                             </div>
