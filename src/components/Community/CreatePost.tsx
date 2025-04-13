@@ -21,6 +21,7 @@ import GlobalMarkDownEdit from '../global/Community/MarkDown/GlobalMarkDownEdit'
 import uploadFile from '@/lib/uploadFile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
+import GlobalEditor from '../editor/GlobalEditor';
 
 export interface IAttachments {
     name: string;
@@ -196,10 +197,10 @@ const CreatePost = ({ refetch, setRefetch }: ICreatePostProps) => {
                             placeholder='Enter title for your post'
                             className='font-medium text-dark-gray'
                         />
-                        <GlobalMarkDownEdit
+                        <GlobalEditor
                             value={markDownText}
-                            setValue={setMarkDownText}
-                            label='Description'
+                            onChange={handleMarkdownChange}
+                            placeholder='Write your post here...'
                         />
                         {contentError && (
                             <p className='text-red-500 text-sm mt-1'>
