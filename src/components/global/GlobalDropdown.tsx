@@ -60,7 +60,7 @@ const GlobalDropdown = ({
                         : items?.map((item, i) => (
                               <div
                                   key={i}
-                                  className=' cursor-pointer  rounded-md  border-b  p-2  hover:bg-foreground  md:has-[>.md\:hidden]:py-0 has-[>.hidden]:py-0  lg:has-[>lg\:hidden]:py-0
+                                  className=' cursor-pointer  rounded-md  border-b  p-2  hover:bg-background  md:has-[>.md\:hidden]:py-0 has-[>.hidden]:py-0  lg:has-[>lg\:hidden]:py-0
         '
                                   onClick={() => onOpenChange?.(false)}
                               >

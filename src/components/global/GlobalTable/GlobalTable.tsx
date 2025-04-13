@@ -325,7 +325,8 @@ const GlobalTable = <T,>({
                     {/* When resizing any column we will render this special memoized version of our table body */}
 
                     <>
-                        {!isLoading && table.getRowModel().rows.length === 0 ? (
+                        {!isLoading &&
+                        table.getRowModel().rows?.length === 0 ? (
                             <div className='w-[calc(100%)] py-4 flex justify-center'>
                                 <EmptyData />
                             </div>

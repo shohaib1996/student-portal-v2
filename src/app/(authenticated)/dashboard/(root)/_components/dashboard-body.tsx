@@ -21,8 +21,8 @@ export default function DashboardBody() {
                 <CalendarSection />
                 <TodoSection />
                 <BootcampsSection />
-                <CoursesSection />
-                <MockInterviewSection />
+                {/* <CoursesSection />
+                <MockInterviewSection /> */}
                 <ChatsSection />
                 <DocumentsSection />
                 <TechnicalTestSection />

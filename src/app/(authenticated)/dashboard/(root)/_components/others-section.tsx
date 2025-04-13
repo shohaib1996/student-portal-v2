@@ -16,15 +16,15 @@ export function OthersSection() {
     console.log(data);
 
     return (
-        <Card className='p-2 2xl:col-span-2 rounded-lg shadow-none bg-foreground'>
+        <Card className='p-2 rounded-lg shadow-none bg-foreground'>
             <CardHeader className='flex p-2 border-b'>
                 <CardTitle className='text-md font-medium'>Others</CardTitle>
                 <span className='text-xs text-muted-foreground'>
-                    See all others activities
+                    See all others activitie
                 </span>
             </CardHeader>
             <CardContent className='p-2'>
-                <div className='grid lg:grid-cols-3 gap-3'>
+                <div className='grid lg:grid-cols-2 gap-3'>
                     {/* Community Section */}
                     <div className='border rounded-lg p-4 bg-background'>
                         <div className='flex items-center gap-2 mb-2'>

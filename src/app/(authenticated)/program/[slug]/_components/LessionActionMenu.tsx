@@ -8,6 +8,7 @@ import {
     Calendar,
     MessageSquare,
     MoreVertical,
+    CheckCircle,
 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -19,39 +20,43 @@ import { cn } from '@/lib/utils';
 import { useTrackChapterMutation } from '@/redux/api/course/courseApi';
 import { toast } from 'sonner';
 import { instance } from '@/lib/axios/axiosInstance';
+import { TContent } from '@/types';
 
 const LessionActionMenu = ({
     lessonId,
     courseId,
+    item,
 }: {
     lessonId: string;
     courseId: string;
+    item: TContent;
 }) => {
-    const [focused, setFocused] = useState(false);
-    const [pinned, setPinned] = useState(false);
-    const [trackChapter, { isLoading }] = useTrackChapterMutation();
+    const [isLoading, setIsLoading] = useState(false);
+    const [isPinned, setIsPinned] = useState(item.isPinned || false);
+    const [isCompleted, setIsCompleted] = useState(item.isCompleted || false);
+    const [isFocused, setIsFocused] = useState(item.isFocused || false);
 
     const handleAction = async (action: string) => {
+        setIsLoading(true);
         try {
-            // await trackChapter({
-            //     courseId,
-            //     action,
-            //     chapterId: lessonId,
-            // }).unwrap();
-
             await instance.post(`/course/chapterv2/track/${courseId}`, {
                 action: action,
                 chapterId: lessonId,
             });
 
+            // Update local state based on the action
             if (action === 'focus') {
-                setFocused(true);
+                setIsFocused(true);
             } else if (action === 'unfocus') {
-                setFocused(false);
+                setIsFocused(false);
             } else if (action === 'pin') {
-                setPinned(true);
+                setIsPinned(true);
             } else if (action === 'unpin') {
-                setPinned(false);
+                setIsPinned(false);
+            } else if (action === 'complete') {
+                setIsCompleted(true);
+            } else if (action === 'incomplete') {
+                setIsCompleted(false);
             }
 
             toast.success(
@@ -59,8 +64,11 @@ const LessionActionMenu = ({
             );
         } catch (error) {
             toast.error('Something went wrong. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
+
     const commingSoon = () => {
         toast.success('Coming Soon...');
     };
@@ -80,37 +88,54 @@ const LessionActionMenu = ({
                 side='bottom'
             >
                 <div
-                    className='fixed inset-0 z-40'
+                    className='fixed inset-0 z-40 '
                     onClick={(e) => e.stopPropagation()}
                 ></div>
-                <div className='relative z-50'>
+                <div className='relative z-50 space-y-2'>
                     <DropdownMenuItem
                         onClick={() =>
-                            handleAction(focused ? 'unfocus' : 'focus')
+                            handleAction(isFocused ? 'unfocus' : 'focus')
                         }
                         className={cn(
                             'w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer',
-                            focused
+                            isFocused
                                 ? 'bg-primary-light text-primary-white'
                                 : 'hover:bg-foreground text-dark-gray',
                         )}
                         disabled={isLoading}
                     >
                         <Eye className='h-4 w-4' />
-                        <span>{focused ? 'Unfocus' : 'Focus'}</span>
+                        <span>{isFocused ? 'Unfocus' : 'Focus'}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                        onClick={() => handleAction(pinned ? 'unpin' : 'pin')}
+                        onClick={() => handleAction(isPinned ? 'unpin' : 'pin')}
                         className={cn(
                             'w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer',
-                            pinned
+                            isPinned
                                 ? 'bg-primary-light text-primary-white'
                                 : 'hover:bg-foreground text-dark-gray',
                         )}
                         disabled={isLoading}
                     >
                         <Pin className='h-4 w-4' />
-                        <span>{pinned ? 'Unpin' : 'Pin'}</span>
+                        <span>{isPinned ? 'Unpin' : 'Pin'}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() =>
+                            handleAction(
+                                isCompleted ? 'incomplete' : 'complete',
+                            )
+                        }
+                        className={cn(
+                            'w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer',
+                            isCompleted
+                                ? 'bg-primary-light text-primary-white'
+                                : 'hover:bg-foreground text-dark-gray',
+                        )}
+                        disabled={isLoading}
+                    >
+                        <CheckCircle className='h-4 w-4' />
+                        <span>{isCompleted ? 'Incomplete' : 'Complete'}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         className={cn(

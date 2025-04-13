@@ -702,6 +702,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                     /> */}
                     <GlobalEditor
                         className='bg-foreground'
+                        placeholder='Write Agenda/Follow up/Action Item'
                         value={form.watch('description') || ''}
                         onChange={(value) => {
                             form.setValue('description', value);

@@ -24,7 +24,10 @@ import * as SheetPrimitive from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import EventDetails from '@/components/calendar/EventDetails';
-import { EventPopoverProvider } from '@/components/calendar/CreateEvent/EventPopover';
+import {
+    EventPopoverProvider,
+    EventPopoverTrigger,
+} from '@/components/calendar/CreateEvent/EventPopover';
 import Link from 'next/link';
 import {
     Popover,
@@ -91,7 +94,11 @@ const CalendarPage = () => {
                             variant={'secondary'}
                         ></Button>
                         <CalendarFilter />
-                        <Button icon={<Plus size={18} />}>Create New</Button>
+                        <EventPopoverTrigger>
+                            <Button className='h-9' icon={<Plus size={18} />}>
+                                Create New
+                            </Button>
+                        </EventPopoverTrigger>
                     </div>
                 }
             />

@@ -21,8 +21,6 @@ export function BootcampsSection() {
         );
     }
 
-    console.log(portalData);
-
     if (error) {
         return (
             <div className='flex justify-center items-center py-4 text-red-500'>

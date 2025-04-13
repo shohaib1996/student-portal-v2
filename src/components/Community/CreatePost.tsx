@@ -39,6 +39,7 @@ const CreatePost = ({ refetch, setRefetch }: ICreatePostProps) => {
     const [markDownText, setMarkDownText] = useState<string>('');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [fileUrl, setFileUrl] = useState<string | null>(null);
+    const [contentError, setContentError] = useState<string | null>(null);
     const [getCommunityPosts, { isLoading: isFetchingPosts }] =
         useGetCommunityPostsApiMutation();
     const [uploadDocument, { isLoading: fUploadLoading }] =
@@ -81,7 +82,34 @@ const CreatePost = ({ refetch, setRefetch }: ICreatePostProps) => {
         }
     };
 
+    const validateContent = (content: string): boolean => {
+        // Check if content is empty or contains only whitespace
+        if (!content || content.trim() === '') {
+            setContentError('Post content cannot be empty');
+            return false;
+        }
+        setContentError(null);
+        return true;
+    };
+
+    const handleMarkdownChange = (value: string) => {
+        setMarkDownText(value);
+        // Clear error when user starts typing
+        if (contentError && value.trim() !== '') {
+            setContentError(null);
+        }
+    };
+
     const onSubmit = async (data: any) => {
+        // Validate markdown content before submission
+        if (!data.title || data.title.trim() === '') {
+            toast.error('Title cannot be empty');
+            return;
+        }
+
+        if (!validateContent(markDownText)) {
+            return; // Stop submission if content is invalid
+        }
         // Extract hashtags from the markdown text
         const extractedTags =
             markDownText.match(/#(\w+)/g)?.map((tag) => tag.substring(1)) || [];
@@ -112,14 +140,16 @@ const CreatePost = ({ refetch, setRefetch }: ICreatePostProps) => {
             if (res.success) {
                 toast.success('Post created successfully');
                 setOpenMarkDown(false);
+                setMarkDownText(''); // Reset content after successful submission
+                setFileUrl(null); // Reset file URL
+                setSelectedFile(null); // Reset selected file
                 setRefetch(refetch + 1);
             } else {
                 toast.error('Failed to create post');
             }
-
-            // Here, you can make an API call to create the post
         } catch (error) {
-            console.error('File Upload Error:', error);
+            console.error('Post Creation Error:', error);
+            toast.error('Error creating post. Please try again.');
         }
     };
 
@@ -171,6 +201,11 @@ const CreatePost = ({ refetch, setRefetch }: ICreatePostProps) => {
                             setValue={setMarkDownText}
                             label='Description'
                         />
+                        {contentError && (
+                            <p className='text-red-500 text-sm mt-1'>
+                                {contentError}
+                            </p>
+                        )}
                         {fileUrl && (
                             <div className='relative'>
                                 <Image
@@ -213,7 +248,6 @@ const CreatePost = ({ refetch, setRefetch }: ICreatePostProps) => {
                                 </Button>
                             </div>
                             <Button type='submit'>
-                                {' '}
                                 {isLoading ? (
                                     <>
                                         <LoadingSpinner /> Publishing..{' '}
@@ -229,21 +263,6 @@ const CreatePost = ({ refetch, setRefetch }: ICreatePostProps) => {
                     </PortalForm>
                 </div>
             ) : (
-                // <div className='mb-common-multiplied flex items-center gap-common-multiplied rounded-xl bg-background p-common-multiplied'>
-                //     <Image
-                //         className='h-12 w-12 rounded-full object-cover'
-                //         src={user.profilePicture}
-                //         alt={user.fullName}
-                //         width={50}
-                //         height={50}
-                //     />
-                //     <p
-                //         onClick={() => setOpenMarkDown(true)}
-                //         className='flex-1 cursor-pointer rounded-full bg-foreground text-gray p-common text-xs font-semibold sm:text-base'
-                //     >
-                //         What's on your mind, {user?.fullName}?
-                //     </p>
-                // </div>
                 <Card className='shadow-sm bg-foreground border-border-primary-light mb-2'>
                     <CardContent className='p-2.5'>
                         <div className='flex items-center gap-2'>

@@ -112,35 +112,6 @@ const editorConfig: InitialConfigType = {
 };
 
 /**
- * LoadMarkdownContent is responsible for converting initial markdown to an editor state.
- * Because this conversion must occur within an active editor update callback,
- * we perform this in a child component that uses the LexicalComposer context.
- */
-function LoadMarkdownContent({
-    initialMarkdown,
-    transformers,
-}: {
-    initialMarkdown: string;
-    transformers: any[];
-}) {
-    const [editor] = useLexicalComposerContext();
-
-    useEffect(() => {
-        if (initialMarkdown) {
-            editor.update(() => {
-                $convertFromMarkdownString(initialMarkdown, transformers);
-            });
-        } else {
-            //clean
-            editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
-        }
-        // We intentionally run only when the editor and initialMarkdown are set.
-    }, [initialMarkdown]);
-
-    return null;
-}
-
-/**
  * MarkdownEditor is the main editor component.
  *
  * It initializes the LexicalComposer, loads the initial markdown content (if provided),
@@ -208,7 +179,7 @@ export function MarkdownEditor({
     return (
         <div
             className={cn(
-                'overflow-hidden bg-background rounded-lg border flex flex-col',
+                'overflow-hidden bg-foreground rounded-lg border flex flex-col',
                 className,
             )}
             style={{ height }}
@@ -222,15 +193,18 @@ export function MarkdownEditor({
                         : {}),
                 }}
             >
-                <TooltipProvider>
+                <TooltipProvider
+                    initialMarkdown={initialMarkdown}
+                    transformers={TRANSFORMERS}
+                >
                     <SharedAutocompleteContext>
                         <FloatingLinkContext>
-                            {initialMarkdown && (
+                            {/* {initialMarkdown && (
                                 <LoadMarkdownContent
                                     initialMarkdown={initialMarkdown}
                                     transformers={TRANSFORMERS}
                                 />
-                            )}
+                            )} */}
                             <div className='flex flex-col h-full'>
                                 <Plugins
                                     maxLength={maxLength}
