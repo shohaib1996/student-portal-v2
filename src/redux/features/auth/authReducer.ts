@@ -4,7 +4,18 @@ import { createSlice } from '@reduxjs/toolkit';
 type TInitialState = {
     user: TUser | null;
     isAuthenticated: boolean;
-    enrollment: null | string;
+    enrollment: null | {
+        branch: {
+            data: {
+                branchLogo?: string;
+            };
+        };
+        organization: {
+            data: {
+                companyLogo?: string;
+            };
+        };
+    };
     myEnrollments: any[];
 };
 

@@ -10,13 +10,5 @@ export default async function AuthLayout({
 }: {
     children: ReactNode;
 }) {
-    return (
-        <AllProvider>
-            <WorkspaceProvider>
-                <SidebarProvider>
-                    <MainLayout>{children}</MainLayout>
-                </SidebarProvider>
-            </WorkspaceProvider>
-        </AllProvider>
-    );
+    return <>{children}</>;
 }

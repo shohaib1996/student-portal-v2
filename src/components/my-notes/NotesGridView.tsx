@@ -1,13 +1,16 @@
 import { cn } from '@/lib/utils';
 import dayjs from 'dayjs';
 import { BookOpen, CalendarIcon, CircleDot, Pencil, Trash } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import GlobalHeader from '../global/GlobalHeader';
 import MessagePreview from '../chat/Message/MessagePreview';
 import { Button } from '../ui/button';
 import { TNote } from '@/types';
 import LexicalJsonRenderer from '../lexicalEditor/renderer/JsonRenderer';
 import { renderText } from '@/helper/renderText';
+import GlobalDeleteModal from '../global/GlobalDeleteModal';
+import { useDeleteNoteMutation } from '@/redux/api/notes/notesApi';
+import Link from 'next/link';
 
 const text = '';
 
@@ -19,6 +22,14 @@ const NotesGridView = ({
     isLoading: boolean;
 }) => {
     const [activeNote, setActiveNote] = useState<TNote>(data[0]);
+
+    const [deleteNote, { isLoading: isDeleting }] = useDeleteNoteMutation();
+
+    useEffect(() => {
+        if (data) {
+            setActiveNote(data[0]);
+        }
+    }, [data]);
 
     return (
         <div className='flex h-full'>
@@ -163,20 +174,31 @@ const NotesGridView = ({
                     }
                     buttons={
                         <div className='flex items-center gap-2'>
-                            <Button
-                                className='h-8'
-                                variant={'primary_light'}
-                                icon={<Pencil size={16} />}
+                            <Link
+                                href={`/my-notes?mode=edit&detail=${activeNote?._id}`}
                             >
-                                Edit
-                            </Button>
-                            <Button
-                                className='h-8'
-                                variant={'danger_light'}
-                                icon={<Trash size={16} />}
+                                <Button
+                                    className='h-8'
+                                    variant={'primary_light'}
+                                    icon={<Pencil size={16} />}
+                                >
+                                    Edit
+                                </Button>
+                            </Link>
+                            <GlobalDeleteModal
+                                modalSubTitle='This action cannot be undone. This will permanently delete your note and remove your data from our servers.'
+                                loading={isDeleting}
+                                deleteFun={deleteNote}
+                                _id={activeNote?._id}
                             >
-                                Delete
-                            </Button>
+                                <Button
+                                    className='h-8'
+                                    variant={'danger_light'}
+                                    icon={<Trash size={16} />}
+                                >
+                                    Delete
+                                </Button>
+                            </GlobalDeleteModal>
                         </div>
                     }
                 />

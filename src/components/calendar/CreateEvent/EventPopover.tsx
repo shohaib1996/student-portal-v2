@@ -29,6 +29,8 @@ interface EventPopoverContextType {
     setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
     updateId: string | null;
     setUpdateId: (_: string | null) => void;
+    copyId: string | null;
+    setCopyId: (_: string | null) => void;
     renderPopover: (children: ReactNode) => ReactNode | null;
 }
 
@@ -46,6 +48,7 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [title, setTitle] = useState('');
     const [updateId, setUpdateId] = useState<string | null>(null);
+    const [copyId, setCopyId] = useState<string | null>(null);
     const [popoverContent, setPopoverContent] = useState<ReactNode | null>(
         null,
     );
@@ -115,6 +118,8 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
                 position,
                 renderPopover,
                 updateId,
+                copyId,
+                setCopyId,
                 setUpdateId,
                 isFullScreen,
                 setIsFullScreen,
@@ -139,6 +144,7 @@ interface EventPopoverTriggerProps {
     children: ReactNode;
     side?: Side;
     updateId?: string | null;
+    copyId?: string | null;
     className?: string;
 }
 
@@ -146,11 +152,18 @@ export function EventPopoverTrigger({
     children,
     side = 'bottom',
     updateId,
+    copyId,
     className,
 }: EventPopoverTriggerProps) {
     const triggerRef = useRef<HTMLDivElement>(null);
-    const { openPopover, closePopover, isOpen, setUpdateId, setIsFullScreen } =
-        useEventPopover();
+    const {
+        openPopover,
+        closePopover,
+        isOpen,
+        setUpdateId,
+        setIsFullScreen,
+        setCopyId,
+    } = useEventPopover();
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
@@ -163,6 +176,10 @@ export function EventPopoverTrigger({
         }
         if (updateId) {
             setUpdateId(updateId);
+            setIsFullScreen(true);
+        }
+        if (copyId) {
+            setCopyId(copyId);
             setIsFullScreen(true);
         }
     };

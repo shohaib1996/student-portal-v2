@@ -253,8 +253,12 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const fetchingMore = false;
     const params = useParams();
     const { user } = useAppSelector((state) => state.auth);
+    console.log({ user });
     const router = useRouter();
-    const { chats, onlineUsers } = useAppSelector((state) => state.chat);
+    const { chats, onlineUsers, chatMessages } = useAppSelector(
+        (state) => state.chat,
+    );
+    console.log({ chatMessages });
     // Replace direct API call with RTK mutation
     const [findOrCreateChat, { isLoading: isCreatingChat }] =
         useFindOrCreateChatMutation();
@@ -267,7 +271,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const [createCrowdOpen, setCreateCrowdOpen] = useState<boolean>(false);
 
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-
+    console.log({ records });
     // Update records when chats change - now using RTK Query data
     useEffect(() => {
         if (chats && chats.length > 0) {
@@ -607,7 +611,49 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                     chat?._id;
                                                 const hasUnread =
                                                     chat?.unreadCount > 0;
-                                                const hasMention = i % 3 === 0;
+
+                                                const hasMention = (() => {
+                                                    // If there are no unread messages, return false
+                                                    if (
+                                                        chat?.unreadCount === 0
+                                                    ) {
+                                                        return false;
+                                                    }
+
+                                                    const chatId = chat?._id;
+                                                    const messages =
+                                                        chatMessages[chatId] ||
+                                                        [];
+                                                    return messages.some(
+                                                        (msg) => {
+                                                            if (!msg.text) {
+                                                                return false;
+                                                            }
+
+                                                            // Look for mention pattern: @[Name](userId)
+                                                            const mentionRegex =
+                                                                /@\[.*?\]\((.*?)\)/g;
+                                                            let match;
+
+                                                            while (
+                                                                (match =
+                                                                    mentionRegex.exec(
+                                                                        msg.text,
+                                                                    )) !== null
+                                                            ) {
+                                                                // match[1] contains the user ID in parentheses
+                                                                if (
+                                                                    match[1] ===
+                                                                    user?._id
+                                                                ) {
+                                                                    return true;
+                                                                }
+                                                            }
+
+                                                            return false;
+                                                        },
+                                                    );
+                                                })();
                                                 const isMuted =
                                                     chat?.myData?.notification
                                                         ?.isOn === false ||

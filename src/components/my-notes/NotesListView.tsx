@@ -10,9 +10,13 @@ import Link from 'next/link';
 import TdDate from '../global/TdDate';
 import { Button } from '../ui/button';
 import { TNote } from '@/types';
+import GlobalDeleteModal from '../global/GlobalDeleteModal';
+import { useDeleteNoteMutation } from '@/redux/api/notes/notesApi';
 
 const NotesListView = ({ data }: { data: TNote[] }) => {
     const [limit, setLimit] = useState(20);
+
+    const [deleteNote, { isLoading }] = useDeleteNoteMutation();
 
     const defaultColumns: TCustomColumnDef<TNote>[] = [
         {
@@ -88,27 +92,35 @@ const NotesListView = ({ data }: { data: TNote[] }) => {
             header: 'Actions',
             cell: ({ row }) => (
                 <div className='flex gap-1 items-center'>
-                    <Button
-                        className='size-8'
-                        variant={'primary_light'}
-                        size={'icon'}
+                    <Link
+                        href={`/my-notes?mode=view&detail=${row.original?._id}`}
                     >
-                        <Eye size={16} />
-                    </Button>
-                    <Button
-                        className='size-8'
-                        variant={'primary_light'}
-                        size={'icon'}
+                        <Button
+                            className='size-9'
+                            variant={'primary_light'}
+                            size={'icon'}
+                        >
+                            <Eye size={16} />
+                        </Button>
+                    </Link>
+                    <Link
+                        href={`/my-notes?mode=edit&detail=${row.original?._id}`}
                     >
-                        <Pencil size={16} />
-                    </Button>
-                    <Button
-                        className='size-8'
-                        variant={'danger_light'}
-                        size={'icon'}
-                    >
-                        <Trash size={16} />
-                    </Button>
+                        <Button
+                            className='size-9'
+                            variant={'primary_light'}
+                            size={'icon'}
+                        >
+                            <Pencil size={16} />
+                        </Button>
+                    </Link>
+                    <GlobalDeleteModal
+                        modalSubTitle='This action cannot be undone. This will permanently delete your note and remove your data from our servers.'
+                        isButton
+                        loading={isLoading}
+                        deleteFun={deleteNote}
+                        _id={row.original._id}
+                    />
                 </div>
             ),
             footer: (data) => data.column.id,

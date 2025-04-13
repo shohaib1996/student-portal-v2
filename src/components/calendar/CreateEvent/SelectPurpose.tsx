@@ -77,10 +77,6 @@ const SelectPurpose = ({
         getActive();
     }, [myEnrollments]);
 
-    console.log(active);
-
-    // console.log(selectedProgram);
-
     const [fetchedData, setFetchedData] = useState<TContent[] | null>(null);
 
     const mergeChapters = (
@@ -171,7 +167,7 @@ const SelectPurpose = ({
         if (tabs && tabs?.length > 0 && selectedTab?.value !== 'modules') {
             fetchProgramData(parentId, '', '');
         }
-    }, [parentId, tabs, selectedTab.value, parentId]);
+    }, [parentId, tabs, selectedTab.value]);
 
     function formatSeconds(totalSeconds: number) {
         const minutes = Math.floor(totalSeconds / 60);

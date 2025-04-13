@@ -41,6 +41,8 @@ import {
     SaveIcon,
     Loader2,
     LogOut,
+    ChevronRight,
+    ChevronLeft,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { removeChat, updateChats } from '@/redux/features/chatReducer';
@@ -826,59 +828,110 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                     <div className=''>
                         {chat && (
                             <Tabs defaultValue='about'>
-                                <TabsList className='w-full bg-transparent overflow-x-auto [&::-webkit-scrollbar]:h-[3px] overflow-y-hidden'>
-                                    <TabsTrigger
-                                        value='about'
-                                        className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
+                                <TabsList className='w-full h-10 bg-background overflow-x-auto flex relative'>
+                                    <Button
+                                        variant='ghost'
+                                        size='icon'
+                                        className='absolute left-0 z-10 h-full bg-gradient-to-r from-background to-transparent'
+                                        onClick={() => {
+                                            const tabList =
+                                                document.querySelector(
+                                                    '.tabs-list',
+                                                );
+                                            if (tabList) {
+                                                tabList.scrollBy({
+                                                    left: -100,
+                                                    behavior: 'smooth',
+                                                });
+                                            }
+                                        }}
                                     >
-                                        <Info size={16} className='mr-1' />
-                                        About
-                                    </TabsTrigger>
-                                    {chat?.isChannel && (
+                                        <ChevronLeft className='h-4 w-4' />
+                                    </Button>
+
+                                    <div className='tabs-list overflow-x-auto flex-1 flex items-center no-scrollbar scroll-smooth px-6 scrollbar-hidden'>
                                         <TabsTrigger
-                                            value='members'
+                                            value='about'
                                             className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
                                         >
-                                            <Users size={16} className='mr-1' />
-                                            Members ({chat?.membersCount || 0})
-                                            {/* Members */}
+                                            <Info size={16} className='mr-1' />
+                                            About
                                         </TabsTrigger>
-                                    )}
-                                    <TabsTrigger
-                                        value='images'
-                                        className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
+                                        {chat?.isChannel && (
+                                            <TabsTrigger
+                                                value='members'
+                                                className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
+                                            >
+                                                <Users
+                                                    size={16}
+                                                    className='mr-1'
+                                                />
+                                                Members (
+                                                {chat?.membersCount || 0})
+                                                {/* Members */}
+                                            </TabsTrigger>
+                                        )}
+                                        <TabsTrigger
+                                            value='images'
+                                            className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
+                                        >
+                                            <FileImage
+                                                size={16}
+                                                className='mr-1'
+                                            />
+                                            Images ({imagesCount || 0})
+                                            {/* Images */}
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value='voice'
+                                            className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
+                                        >
+                                            <Mic size={16} className='mr-1' />
+                                            Voice ({voiceCount || 0})
+                                            {/* Voice */}
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value='file'
+                                            className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
+                                        >
+                                            <FolderOpenDot
+                                                size={16}
+                                                className='mr-1'
+                                            />
+                                            Files ({fileCount || 0})
+                                            {/* Files */}
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value='link'
+                                            className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
+                                        >
+                                            <FolderOpenDot
+                                                size={16}
+                                                className='mr-1'
+                                            />
+                                            Links ({linksCount || 0})
+                                            {/* Links */}
+                                        </TabsTrigger>
+                                    </div>
+                                    <Button
+                                        variant='ghost'
+                                        size='icon'
+                                        className='absolute right-0 z-10 h-full bg-gradient-to-l from-background to-transparent'
+                                        onClick={() => {
+                                            const tabList =
+                                                document.querySelector(
+                                                    '.tabs-list',
+                                                );
+                                            if (tabList) {
+                                                tabList.scrollBy({
+                                                    left: 100,
+                                                    behavior: 'smooth',
+                                                });
+                                            }
+                                        }}
                                     >
-                                        <FileImage size={16} className='mr-1' />
-                                        Images ({imagesCount || 0})
-                                        {/* Images */}
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value='voice'
-                                        className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
-                                    >
-                                        <Mic size={16} className='mr-1' />
-                                        Voice ({voiceCount || 0}){/* Voice */}
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value='file'
-                                        className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
-                                    >
-                                        <FolderOpenDot
-                                            size={16}
-                                            className='mr-1'
-                                        />
-                                        Files ({fileCount || 0}){/* Files */}
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value='link'
-                                        className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
-                                    >
-                                        <FolderOpenDot
-                                            size={16}
-                                            className='mr-1'
-                                        />
-                                        Links ({linksCount || 0}){/* Links */}
-                                    </TabsTrigger>
+                                        <ChevronRight className='h-4 w-4' />
+                                    </Button>
                                 </TabsList>
 
                                 {/* About Tab Content */}

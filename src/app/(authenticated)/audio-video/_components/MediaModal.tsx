@@ -1,504 +1,823 @@
-// app/components/MediaModal.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
+import type React from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
     ArrowLeft,
+    ArrowRight,
     Calendar,
-    X,
-    Play,
-    Rewind,
-    FastForward,
-    Volume2,
-    Maximize,
-    Settings,
-    PictureInPicture,
-    Share,
-    Download,
-    Pin,
+    Clock,
+    Eye,
+    FileText,
+    LayoutDashboard,
     MessageCircle,
-    MoreVertical,
-    Star,
+    MonitorPlayIcon as TvMinimalPlay,
+    Pin,
+    Play,
+    Share,
+    Volume2,
+    Gauge,
 } from 'lucide-react';
-import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
+import Image from 'next/image';
+import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
+import { cn } from '@/lib/utils';
+import { useMyAudioVideoQuery } from '@/redux/api/audio-video/audioVideos';
+import GlobalModal from '@/components/global/GlobalModal';
+import GlobalComment from '@/components/global/GlobalComments/GlobalComment';
+import { toast } from 'sonner';
 
-// Define the media item type
+// Define the media item type if not already defined
 type TMediaItem = {
-    id?: string;
+    _id: string;
     title: string;
     url: string;
     createdAt: string;
     createdBy: {
         fullName: string;
         profilePicture: string;
+        role?: string;
     };
+    thumbnail?: string;
+    mediaType?: 'video' | 'audio';
     description?: string;
+    duration?: string;
+    summary?: string;
+    implementation?: string;
+    interview?: string;
+    behavioral?: string;
 };
 
 type TMediaModalProps = {
     showModal: boolean;
     setShowModal: (value: boolean) => void;
-    media: TMediaItem | null;
-    onPrevious?: () => void;
-    onNext?: () => void;
-    onCommentSubmit?: (comment: string) => void;
+    media: TMediaItem;
 };
 
-export default function MediaModal({
-    showModal,
-    setShowModal,
-    media,
-    onPrevious,
-    onNext,
-    onCommentSubmit,
-}: TMediaModalProps) {
-    const [currentSection, setCurrentSection] = useState('overview'); // State to toggle sections
-    const [isClient, setIsClient] = useState(false);
-
-    // Ensure client-side rendering
+const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
+    const [activeTab, setActiveTab] = useState('overview');
+    const [resourceTab, setResourceTab] = useState('Summary');
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(1);
+    const [currentMedia, setCurrentMedia] = useState<TMediaItem>(media);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    console.log({ currentMedia });
+    // Fetch related videos
+    const { data, isLoading } = useMyAudioVideoQuery({});
+    const relatedVideos = data?.medias || [];
+    console.log({ currentMedia });
+    // Update current media when media prop changes
     useEffect(() => {
-        setIsClient(true);
-    }, []);
+        setCurrentMedia(media);
+    }, [media]);
 
-    if (!isClient || !media) {
-        return null;
-    }
+    // Handle video playback
+    const togglePlay = () => {
+        if (videoRef.current) {
+            if (isPlaying) {
+                videoRef.current.pause();
+            } else {
+                videoRef.current.play();
+            }
+            setIsPlaying(!isPlaying);
+        }
+    };
 
-    return (
-        <Dialog open={showModal} onOpenChange={setShowModal}>
-            <DialogContent className='[&>button]:hidden no-scrollbar max-h-[90vh] lg:min-w-[1140px] overflow-y-auto bg-background p-0'>
-                <div className='relative'>
-                    {/* Header */}
-                    <DialogHeader className='p-4'>
-                        <div className='flex items-center justify-between'>
-                            <div className='flex items-center gap-2'>
-                                <Button
-                                    variant='ghost'
-                                    size='icon'
-                                    onClick={() => setShowModal(false)}
-                                >
-                                    <ArrowLeft className='h-5 w-5' />
-                                </Button>
-                                <DialogTitle className='text-lg font-semibold'>
-                                    Video Details
-                                    <p className='text-sm font-normal text-muted-foreground'>
-                                        Explore the details of this video
-                                    </p>
-                                </DialogTitle>
-                            </div>
-                            <div className='flex items-center gap-2'>
-                                <Button
-                                    variant='outline'
-                                    size='sm'
-                                    className='gap-1'
-                                    onClick={onPrevious}
-                                    disabled={!onPrevious}
-                                >
-                                    <ArrowLeft className='h-4 w-4' />
-                                    Previous
-                                </Button>
-                                <Button
-                                    variant='outline'
-                                    size='sm'
-                                    className='gap-1'
-                                    onClick={onNext}
-                                    disabled={!onNext}
-                                >
-                                    Next
-                                    <ArrowLeft className='h-4 w-4 rotate-180' />
-                                </Button>
-                                <Button
-                                    variant='ghost'
-                                    size='icon'
-                                    className='ml-2 text-destructive'
-                                    onClick={() => setShowModal(false)}
-                                >
-                                    <X className='h-5 w-5' />
-                                </Button>
-                            </div>
-                        </div>
-                    </DialogHeader>
+    // Handle time update
+    const handleTimeUpdate = () => {
+        if (videoRef.current) {
+            setCurrentTime(videoRef.current.currentTime);
+        }
+    };
 
-                    {/* Video Player */}
-                    <div className='relative aspect-video bg-black'>
-                        {media.url ? (
-                            <iframe
-                                src={media.url}
-                                title={media.title}
-                                allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-                                allowFullScreen
-                                className='h-full w-full'
-                            />
-                        ) : (
-                            <div
-                                className='absolute inset-0 bg-cover bg-center'
-                                style={{
-                                    backgroundImage:
-                                        "url('/placeholder.svg?height=600&width=1200')",
-                                    filter: 'brightness(0.7)',
-                                }}
-                            />
-                        )}
+    // Handle video loaded metadata
+    const handleLoadedMetadata = () => {
+        if (videoRef.current) {
+            setDuration(videoRef.current.duration);
+        }
+    };
 
-                        <div className='absolute inset-0 flex items-center justify-center'>
-                            <Button
-                                variant='ghost'
-                                size='icon'
-                                className='h-16 w-16 rounded-full bg-primary/80 text-primary-foreground hover:bg-primary/90'
-                            >
-                                <Play className='h-8 w-8 ml-1' />
-                            </Button>
+    // Format time (seconds) to MM:SS
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
 
-                            <Button
-                                variant='ghost'
-                                size='icon'
-                                className='absolute left-1/4 h-12 w-12 rounded-full bg-black/50 text-white hover:bg-black/70'
-                            >
-                                <Rewind className='h-6 w-6' />
-                                <span className='absolute text-xs font-bold'>
-                                    10
-                                </span>
-                            </Button>
+    // Handle seeking
+    const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newTime = Number.parseFloat(e.target.value);
+        setCurrentTime(newTime);
+        if (videoRef.current) {
+            videoRef.current.currentTime = newTime;
+        }
+    };
 
-                            <Button
-                                variant='ghost'
-                                size='icon'
-                                className='absolute right-1/4 h-12 w-12 rounded-full bg-black/50 text-white hover:bg-black/70'
-                            >
-                                <FastForward className='h-6 w-6' />
-                                <span className='absolute text-xs font-bold'>
-                                    10
-                                </span>
-                            </Button>
-                        </div>
+    // Handle volume change
+    const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newVolume = Number.parseFloat(e.target.value);
+        setVolume(newVolume);
+        if (videoRef.current) {
+            videoRef.current.volume = newVolume;
+        }
+    };
 
-                        {/* Video Controls */}
-                        <div className='absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent'>
-                            <div className='flex flex-col gap-2'>
-                                <div className='relative w-full h-1 bg-white/30 rounded-full'>
-                                    <div className='absolute left-0 top-0 h-full w-1/5 bg-primary rounded-full' />
-                                    <div className='absolute left-[20%] top-0 h-3 w-3 -mt-1 bg-primary rounded-full' />
-                                </div>
+    // Handle next/previous video
+    const handleNextVideo = () => {
+        const currentIndex = relatedVideos.findIndex(
+            (v: any) => v._id === currentMedia._id,
+        );
+        if (currentIndex < relatedVideos.length - 1) {
+            setCurrentMedia(relatedVideos[currentIndex + 1]);
+        }
+    };
 
-                                <div className='flex items-center justify-between'>
-                                    <div className='flex items-center gap-2'>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='h-8 w-8 text-white'
-                                        >
-                                            <Play className='h-4 w-4' />
-                                        </Button>
-                                        <span className='text-xs text-white'>
-                                            02:30 / 10:30
+    const handlePreviousVideo = () => {
+        const currentIndex = relatedVideos.findIndex(
+            (v: any) => v._id === currentMedia._id,
+        );
+        if (currentIndex > 0) {
+            setCurrentMedia(relatedVideos[currentIndex - 1]);
+        }
+    };
+
+    // Check if next/previous buttons should be disabled
+    const isNextDisabled =
+        relatedVideos.findIndex((v: any) => v._id === currentMedia._id) ===
+        relatedVideos.length - 1;
+    const isPreviousDisabled =
+        relatedVideos.findIndex((v: any) => v._id === currentMedia._id) === 0;
+
+    // Custom footer with related videos
+    const sideBar = (
+        <div className='p-2 flex flex-col h-full bg-background rounded-lg border'>
+            <h3 className='font-semibold mb-2 pb-2 border-b'>
+                {currentMedia?.mediaType === 'audio'
+                    ? 'Upcoming Audio'
+                    : 'Upcoming Videos'}
+            </h3>
+            <div className='space-y-4 overflow-y-auto max-h-[calc(100vh-300px)]'>
+                {relatedVideos
+                    .filter(
+                        (relatedMedia: any) =>
+                            relatedMedia.mediaType === currentMedia?.mediaType,
+                    )
+                    .map((relatedMedia: any) => (
+                        <div
+                            key={relatedMedia._id}
+                            className={`flex gap-3 cursor-pointer bg-foreground p-2 rounded-md ${
+                                relatedMedia._id === currentMedia._id
+                                    ? 'bg-primary'
+                                    : ''
+                            }`}
+                            onClick={() => setCurrentMedia(relatedMedia)}
+                        >
+                            <div className='relative w-24 h-16 sm:w-32 sm:h-24 rounded-lg flex-shrink-0 bg-background border shadow-md'>
+                                <div className='absolute top-1 left-1 z-10'>
+                                    <div className='flex items-center gap-1 bg-foreground px-1 py-0.5 rounded-md text-[10px] shadow-sm'>
+                                        <TvMinimalPlay className='h-3 w-3 text-primary-white' />
+                                        <span className='text-[10px] font-medium text-primary-white'>
+                                            Videos
                                         </span>
                                     </div>
+                                </div>
+                                <div className='absolute top-1 right-1 z-10'>
+                                    <div className='flex items-center gap-1 bg-black/80 px-1 py-0.5 rounded-md text-[10px]'>
+                                        <Clock className='h-2 w-2 text-white' />
+                                        <span className='text-[10px] font-medium text-white'>
+                                            {relatedMedia.duration || '05:30'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <Image
+                                    src={
+                                        relatedMedia.thumbnail || '/avatar.png'
+                                    }
+                                    alt={relatedMedia.title}
+                                    fill
+                                    className='object-cover rounded-md'
+                                />
+                                <div className='absolute inset-0 flex items-center justify-center'>
+                                    <div className='h-8 w-8 rounded-full bg-foreground/40 flex items-center justify-center'>
+                                        <Play className='h-4 w-4 text-white ml-0.5' />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='flex-1 min-w-0'>
+                                <div
+                                    className={`flex items-center gap-1 text-xs ${
+                                        relatedMedia._id === currentMedia._id
+                                            ? 'text-pure-white/90'
+                                            : 'text-primary-white'
+                                    } mb-1`}
+                                >
+                                    <Calendar className='h-3 w-3' />
+                                    <span>
+                                        {formatDateToCustomString(
+                                            relatedMedia.createdAt,
+                                        )}
+                                    </span>
+                                </div>
+                                <h4
+                                    className={`text-sm font-medium line-clamp-1 truncate capitalize mb-1 ${
+                                        relatedMedia._id === currentMedia._id
+                                            ? 'text-pure-white'
+                                            : 'text-primary-white'
+                                    }`}
+                                >
+                                    {relatedMedia.title}
+                                </h4>
+                                <div className='flex items-center gap-1'>
+                                    <div className='relative h-6 w-6'>
+                                        <Image
+                                            src={
+                                                relatedMedia.createdBy
+                                                    ?.profilePicture ||
+                                                '/avatar.png'
+                                            }
+                                            alt={
+                                                relatedMedia.createdBy
+                                                    ?.fullName || 'Instructor'
+                                            }
+                                            className='rounded-full object-cover'
+                                            fill
+                                        />
+                                    </div>
+                                    <div>
+                                        <p
+                                            className={`text-sm font-medium leading-none ${
+                                                relatedMedia._id ===
+                                                currentMedia._id
+                                                    ? 'text-pure-white'
+                                                    : 'text-primary-white'
+                                            }`}
+                                        >
+                                            {relatedMedia.createdBy?.fullName}
+                                        </p>
+                                        <p
+                                            className={`text-xs leading-none ${
+                                                relatedMedia._id ===
+                                                currentMedia._id
+                                                    ? 'text-pure-white'
+                                                    : 'text-primary-white'
+                                            }`}
+                                        >
+                                            {relatedMedia.createdBy?.role ||
+                                                'Instructor'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className='mt-1 pt-1 border-t'>
+                                    <Button
+                                        variant='primary_light'
+                                        size='sm'
+                                        className='h-6 text-xs px-2 text-primary w-full'
+                                    >
+                                        <Eye className='h-3 w-3 mr-1' />
+                                        View
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+            </div>
+        </div>
+    );
 
-                                    <div className='flex items-center gap-2'>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='h-8 w-8 text-white'
-                                        >
-                                            <Volume2 className='h-4 w-4' />
-                                        </Button>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='h-8 w-8 text-white'
-                                        >
-                                            <PictureInPicture className='h-4 w-4' />
-                                        </Button>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='h-8 w-8 text-white'
-                                        >
-                                            <Settings className='h-4 w-4' />
-                                        </Button>
-                                        <Button
-                                            variant='ghost'
-                                            size='icon'
-                                            className='h-8 w-8 text-white'
-                                        >
-                                            <Maximize className='h-4 w-4' />
-                                        </Button>
+    // Custom title with navigation
+    const customTitle = (
+        <div className='flex items-center justify-between border-b border-forground-border px-5 py-3 pb-2 sticky top-0 rounded-tr-lg rounded-tl-lg'>
+            <div className='flex items-center gap-2'>
+                <Button
+                    variant='ghost'
+                    size='icon'
+                    className='h-8 w-8'
+                    onClick={() => setShowModal(false)}
+                >
+                    <ArrowLeft className='h-5 w-5' />
+                </Button>
+                <div>
+                    <h3 className='text-black font-medium text-lg'>
+                        {currentMedia?.mediaType === 'video'
+                            ? 'Video Details'
+                            : 'Audio Details'}
+                    </h3>
+                    <p className='text-xs text-gray'>
+                        Explore the details of this{' '}
+                        {currentMedia?.mediaType === 'video'
+                            ? 'video'
+                            : 'audio'}
+                    </p>
+                </div>
+            </div>
+            <div className='flex items-center gap-2'>
+                <Button
+                    variant='outline'
+                    size='sm'
+                    className='text-xs h-8 hidden sm:flex'
+                    onClick={handlePreviousVideo}
+                    disabled={isPreviousDisabled}
+                >
+                    <ArrowLeft className='h-3 w-3 mr-1' /> Previous
+                </Button>
+                <Button
+                    variant='outline'
+                    size='sm'
+                    className='text-xs h-8 hidden sm:flex'
+                    onClick={handleNextVideo}
+                    disabled={isNextDisabled}
+                >
+                    Next <ArrowRight className='h-3 w-3 ml-1' />
+                </Button>
+                {/* <Button size='sm' className='text-xs h-8'>
+                    Save & Close
+                </Button> */}
+            </div>
+        </div>
+    );
+    console.log({ mediaType: currentMedia?.mediaType });
+    return (
+        <GlobalModal
+            open={showModal}
+            setOpen={setShowModal}
+            customTitle={customTitle}
+            className='flex flex-col'
+            fullScreen={true}
+            allowFullScreen={true}
+        >
+            <div className='flex flex-col lg:flex-row gap-3 w-full'>
+                <div className='flex flex-col w-full lg:w-3/4 h-full bg-background rounded-lg p-2 mt-2 border'>
+                    {/* Media Player */}
+                    {currentMedia?.mediaType === 'video' ? (
+                        /* Video Player */
+                        <div className='relative aspect-video bg-foreground rounded-lg'>
+                            {currentMedia.url ? (
+                                <video
+                                    ref={videoRef}
+                                    src={currentMedia.url}
+                                    className='w-full h-full rounded-lg'
+                                    onTimeUpdate={handleTimeUpdate}
+                                    onLoadedMetadata={handleLoadedMetadata}
+                                    onClick={togglePlay}
+                                />
+                            ) : (
+                                <div className='w-full h-full flex items-center justify-center bg-gray-900 rounded-lg'>
+                                    <Image
+                                        src={
+                                            currentMedia.thumbnail ||
+                                            '/avatar.png'
+                                        }
+                                        alt={currentMedia.title}
+                                        fill
+                                        className='object-cover opacity-60 rounded-lg'
+                                    />
+                                    <div className='absolute inset-0 bg-black/40' />
+                                </div>
+                            )}
+
+                            {/* Play button overlay */}
+                            <div className='absolute inset-0 flex items-center justify-center'>
+                                <Button
+                                    variant='secondary'
+                                    size='icon'
+                                    className='h-16 w-16 rounded-full border-pure-white bg-pure-white/70 backdrop-blur-lg text-white hover:bg-primary/90'
+                                    onClick={togglePlay}
+                                >
+                                    <div className='rounded-full bg-pure-white h-12 w-12 flex items-center justify-center'>
+                                        {isPlaying ? (
+                                            <div className='h-8 w-8' />
+                                        ) : (
+                                            <Play className='h-8 w-8 ml-1 text-primary' />
+                                        )}
+                                    </div>
+                                </Button>
+                            </div>
+
+                            {/* Video Controls */}
+                            <div className='absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent'>
+                                <div className='flex flex-col gap-2'>
+                                    <div className='relative w-full h-1 bg-foreground/30 rounded-full'>
+                                        <input
+                                            type='range'
+                                            min='0'
+                                            max={duration || 100}
+                                            value={currentTime}
+                                            onChange={handleSeek}
+                                            className='absolute w-full h-1 opacity-0 cursor-pointer z-10'
+                                        />
+                                        <div
+                                            className='absolute left-0 top-0 h-full bg-primary rounded-full'
+                                            style={{
+                                                width: `${(currentTime / (duration || 1)) * 100}%`,
+                                            }}
+                                        />
+                                        <div
+                                            className='absolute top-0 h-3 w-3 -mt-1 bg-primary rounded-full'
+                                            style={{
+                                                left: `${(currentTime / (duration || 1)) * 100}%`,
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div className='flex items-center justify-between'>
+                                        <div className='flex items-center gap-2'>
+                                            <Button
+                                                variant='ghost'
+                                                size='icon'
+                                                className='h-8 w-8 text-white'
+                                                onClick={togglePlay}
+                                            >
+                                                {isPlaying ? (
+                                                    <div className='h-4 w-4 flex items-center justify-center'>
+                                                        <div className='h-3 w-3 bg-foreground' />
+                                                    </div>
+                                                ) : (
+                                                    <Play className='h-4 w-4' />
+                                                )}
+                                            </Button>
+                                            <span className='text-xs text-white'>
+                                                {formatTime(currentTime)} /{' '}
+                                                {formatTime(duration || 0)}
+                                            </span>
+                                        </div>
+
+                                        <div className='flex items-center gap-2'>
+                                            <div className='flex items-center gap-1 w-24'>
+                                                <Volume2 className='h-4 w-4 text-white' />
+                                                <input
+                                                    type='range'
+                                                    min='0'
+                                                    max='1'
+                                                    step='0.01'
+                                                    value={volume}
+                                                    onChange={
+                                                        handleVolumeChange
+                                                    }
+                                                    className='w-full h-1 bg-foreground/30 rounded-full'
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    ) : (
+                        /* Audio Player - styled like the image */
+                        <div className='relative bg-gray-600 rounded-lg p-6'>
+                            <div className='flex flex-col space-y-4'>
+                                {/* Waveform visualization + controls */}
+                                <div className='flex items-center space-x-4'>
+                                    <Button
+                                        variant='ghost'
+                                        size='icon'
+                                        className='h-12 w-12 text-white'
+                                        onClick={togglePlay}
+                                    >
+                                        {isPlaying ? (
+                                            <div className='h-6 w-6 flex items-center justify-center'>
+                                                <div className='h-4 w-4 bg-foreground' />
+                                            </div>
+                                        ) : (
+                                            <Play className='h-6 w-6 ml-1' />
+                                        )}
+                                    </Button>
+
+                                    <div className='relative w-full h-16'>
+                                        {/* Audio waveform visualization */}
+                                        <svg
+                                            className='w-full h-16'
+                                            viewBox='0 0 600 100'
+                                        >
+                                            {/* Dynamically generated waveform bars */}
+                                            {Array.from({ length: 50 }).map(
+                                                (_, i) => {
+                                                    const height =
+                                                        Math.random() * 60 + 20;
+                                                    return (
+                                                        <rect
+                                                            key={i}
+                                                            x={i * 12}
+                                                            y={
+                                                                (100 - height) /
+                                                                2
+                                                            }
+                                                            width={4}
+                                                            height={height}
+                                                            fill='#ffffff'
+                                                        />
+                                                    );
+                                                },
+                                            )}
+                                        </svg>
+
+                                        {/* Playhead indicator */}
+                                        <div
+                                            className='absolute top-0 left-0 h-full w-2 bg-white/30 rounded-full'
+                                            style={{
+                                                left: `${(currentTime / (duration || 1)) * 100}%`,
+                                            }}
+                                        />
+                                    </div>
+                                    <div className='flex flex-col items-center gap-1'>
+                                        <div className='text-pure-white font-medium'>
+                                            {formatTime(duration || 0)}
+                                        </div>
+
+                                        <div className='bg-foreground rounded-full px-2 py-1 flex items-center space-x-1'>
+                                            <Gauge className='h-4 w-4 text-gray' />
+                                            <span className='text-dark-gray font-medium'>
+                                                2x
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Audio element */}
+                            <audio
+                                ref={videoRef}
+                                src={currentMedia.url}
+                                className='hidden'
+                                onTimeUpdate={handleTimeUpdate}
+                                onLoadedMetadata={handleLoadedMetadata}
+                            />
+                        </div>
+                    )}
 
                     {/* Video Info */}
                     <div className='p-4 border-b'>
                         <div className='flex items-center justify-between'>
                             <h2 className='text-xl font-bold'>
-                                {media.title || 'Test Document For CloudOps'}
+                                {currentMedia.title}
                             </h2>
                             <div className='flex items-center gap-2'>
                                 <Button
                                     variant='ghost'
                                     size='sm'
-                                    className='gap-1'
+                                    className='gap-1 text-dark-gray'
+                                    onClick={() => toast.info('Coming soon!')}
                                 >
-                                    <Pin className='h-4 w-4' />
+                                    <Pin className='h-4 w-4 rotate-45' />
                                     Pin
                                 </Button>
                                 <Button
                                     variant='ghost'
                                     size='sm'
-                                    className='gap-1'
+                                    className='gap-1 text-dark-gray'
+                                    onClick={() => toast.info('Coming soon!')}
                                 >
                                     <Share className='h-4 w-4' />
                                     Share
-                                </Button>
-                                <Button variant='ghost' size='icon'>
-                                    <MoreVertical className='h-5 w-5' />
                                 </Button>
                             </div>
                         </div>
 
                         <div className='flex items-center mt-2 gap-4'>
                             <div className='flex items-center gap-2'>
-                                <Avatar className='h-8 w-8'>
-                                    <AvatarImage
+                                <div className='relative h-8 w-8'>
+                                    <Image
                                         src={
-                                            media.createdBy.profilePicture ||
-                                            '/placeholder.svg'
+                                            currentMedia.createdBy
+                                                ?.profilePicture ||
+                                            '/avatar.png'
                                         }
-                                        alt={media.createdBy.fullName || 'User'}
+                                        alt={
+                                            currentMedia.createdBy?.fullName ||
+                                            'User'
+                                        }
+                                        className='rounded-full object-cover'
+                                        fill
                                     />
-                                    <AvatarFallback>
-                                        {media.createdBy.fullName?.charAt(0) ||
-                                            'U'}
-                                    </AvatarFallback>
-                                </Avatar>
+                                </div>
                                 <div>
                                     <p className='text-sm font-medium'>
-                                        {media.createdBy.fullName ||
-                                            'Jane Cooper'}
+                                        {currentMedia.createdBy?.fullName}
                                     </p>
-                                    <p className='text-xs text-muted-foreground'>
-                                        Instructor
+                                    <p className='text-xs text-gray'>
+                                        {currentMedia.createdBy?.role ||
+                                            'Instructor'}
                                     </p>
                                 </div>
                             </div>
-                            <Separator orientation='vertical' className='h-6' />
-                            <div className='flex items-center gap-1 text-sm text-muted-foreground'>
-                                <Calendar className='h-4 w-4' />
+                            <div className='h-6 w-px bg-gray-300' />
+                            <div className='flex items-center gap-1 text-sm text-gray'>
+                                <Clock className='h-4 w-4' />
                                 <span>
-                                    {new Date(
-                                        media.createdAt ||
-                                            '2024-01-30T12:30:00',
-                                    ).toLocaleDateString('en-US', {
-                                        year: 'numeric',
-                                        month: 'short',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                    })}
+                                    {formatDateToCustomString(
+                                        currentMedia.createdAt,
+                                    )}
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className='flex items-center border-b'>
-                        <div className='flex items-center justify-between px-4 w-full h-12'>
-                            <button
-                                onClick={() => setCurrentSection('overview')}
-                                className={`flex items-center gap-2 px-4 py-2 ${
-                                    currentSection === 'overview'
-                                        ? 'border-b-2 border-primary text-foreground'
-                                        : 'text-muted-foreground'
-                                }`}
-                            >
-                                <svg
-                                    xmlns='http://www.w3.org/2000/svg'
-                                    width='16'
-                                    height='16'
-                                    viewBox='0 0 24 24'
-                                    fill='none'
-                                    stroke='currentColor'
-                                    strokeWidth='2'
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
-                                    className='lucide lucide-layout-dashboard'
-                                >
-                                    <rect
-                                        width='7'
-                                        height='9'
-                                        x='3'
-                                        y='3'
-                                        rx='1'
-                                    />
-                                    <rect
-                                        width='7'
-                                        height='5'
-                                        x='14'
-                                        y='3'
-                                        rx='1'
-                                    />
-                                    <rect
-                                        width='7'
-                                        height='9'
-                                        x='14'
-                                        y='12'
-                                        rx='1'
-                                    />
-                                    <rect
-                                        width='7'
-                                        height='5'
-                                        x='3'
-                                        y='16'
-                                        rx='1'
-                                    />
-                                </svg>
-                                Overview
-                            </button>
-
-                            <div className='flex items-center gap-2'>
-                                <Button
-                                    variant='ghost'
-                                    size='sm'
-                                    className='gap-1'
-                                >
-                                    <svg
-                                        xmlns='http://www.w3.org/2000/svg'
-                                        width='16'
-                                        height='16'
-                                        viewBox='0 0 24 24'
-                                        fill='none'
-                                        stroke='currentColor'
-                                        strokeWidth='2'
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                        className='lucide lucide-file-plus'
+                    {/* Tabs */}
+                    <div className='border-b'>
+                        <Tabs
+                            defaultValue='overview'
+                            value={activeTab}
+                            onValueChange={setActiveTab}
+                        >
+                            <div className='flex items-center justify-between px-4'>
+                                <TabsList className='bg-transparent border-b p-0 rounded-none'>
+                                    <TabsTrigger
+                                        value='overview'
+                                        className={cn(
+                                            'data-[state=active]:border-b-2 data-[state=active]:border-primary-white data-[state=active]:shadow-none rounded-none px-4 py-2',
+                                            'data-[state=inactive]:bg-transparent data-[state=active]:bg-transparent data-[state=inactive]:text-gray data-[state=active]:text-primary-white',
+                                        )}
                                     >
-                                        <path d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 2-2V7.5L14.5 2z' />
-                                        <polyline points='14 2 14 8 20 8' />
-                                        <line x1='12' x2='12' y1='18' y2='12' />
-                                        <line x1='9' x2='15' y1='15' y2='15' />
-                                    </svg>
-                                    Add Notes
-                                </Button>
-                                <Button
-                                    variant='ghost'
-                                    size='sm'
-                                    className='gap-1'
-                                >
-                                    <Download className='h-4 w-4' />
-                                    Download
-                                </Button>
-                                <Button
-                                    variant='ghost'
-                                    size='sm'
-                                    className='gap-1'
-                                >
-                                    <Star className='h-4 w-4' />
-                                    Ratings
-                                </Button>
+                                        <LayoutDashboard className='h-4 w-4 mr-2' />
+                                        Overview
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                        value='notes'
+                                        className={cn(
+                                            ' data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none px-4 py-2',
+                                            'data-[state=inactive]:bg-transparent data-[state=inactive]:text-gray',
+                                        )}
+                                    >
+                                        <FileText className='h-4 w-4 mr-2' />
+                                        Add Notes
+                                    </TabsTrigger>
+                                </TabsList>
                             </div>
-                        </div>
-                    </div>
 
-                    {/* Content */}
-                    <div className='p-4'>
-                        {currentSection === 'overview' && (
-                            <div className='space-y-6'>
-                                <div>
-                                    <h3 className='text-lg font-medium mb-2'>
-                                        Description
-                                    </h3>
-                                    <p className='text-sm text-muted-foreground'>
-                                        {media.description ||
-                                            "Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <h3 className='text-lg font-medium mb-2'>
-                                        Resources
-                                    </h3>
-                                    <div className='border rounded-md p-4'>
-                                        <div className='flex items-center gap-1 mb-2'>
-                                            <svg
-                                                xmlns='http://www.w3.org/2000/svg'
-                                                width='16'
-                                                height='16'
-                                                viewBox='0 0 24 24'
-                                                fill='none'
-                                                stroke='currentColor'
-                                                strokeWidth='2'
-                                                strokeLinecap='round'
-                                                strokeLinejoin='round'
-                                                className='lucide lucide-file-text'
-                                            >
-                                                <path d='M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 2-2V7.5L14.5 2z' />
-                                                <polyline points='14 2 14 8 20 8' />
-                                                <line
-                                                    x1='16'
-                                                    x2='8'
-                                                    y1='13'
-                                                    y2='13'
-                                                />
-                                                <line
-                                                    x1='16'
-                                                    x2='8'
-                                                    y1='17'
-                                                    y2='17'
-                                                />
-                                                <line
-                                                    x1='10'
-                                                    x2='8'
-                                                    y1='9'
-                                                    y2='9'
-                                                />
-                                            </svg>
-                                            <h4 className='text-sm font-medium'>
-                                                Summary
-                                            </h4>
-                                        </div>
-                                        <p className='text-sm text-muted-foreground'>
-                                            Lorem ipsum is simply dummy text of
-                                            the printing and typesetting
-                                            industry...
-                                        </p>
-                                        <p className='text-sm text-muted-foreground mt-4'>
-                                            Lorem ipsum is simply dummy text of
-                                            the printing and typesetting
-                                            industry...
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Comments */}
-                                <div>
-                                    <div className='flex items-center gap-2 mb-4'>
-                                        <MessageCircle className='h-5 w-5' />
-                                        <h3 className='text-lg font-medium'>
-                                            Comments
+                            <TabsContent value='overview' className='p-4 mt-0'>
+                                <div className='space-y-4'>
+                                    <div className='bg-foreground rounded-lg p-2'>
+                                        <h3 className='text-lg font-medium mb-2'>
+                                            Description
                                         </h3>
+                                        <p className='text-sm text-gray'>
+                                            {currentMedia.description ||
+                                                'Bootcamp is an all-in-one SaaS platform designed for high-ticket coaches and educators. It empowers you to launch, manage, and scale premium boot camps without relying on fragmented tools like Udemy or Skillshare.'}
+                                        </p>
                                     </div>
-                                    <GlobalCommentsSection
-                                        documentId={media.id || ''}
-                                        onCommentSubmit={onCommentSubmit}
-                                    />
+
+                                    <div className='bg-foreground p-2 rounded-lg'>
+                                        <h3 className='text-lg font-medium mb-2'>
+                                            Resources
+                                        </h3>
+                                        <div className=''>
+                                            {currentMedia.behavioral ||
+                                                currentMedia.interview ||
+                                                currentMedia.implementation ||
+                                                (currentMedia.summary && (
+                                                    <div className='tab-wrapper flex border-b mb-4 overflow-x-auto bg-primary-light rounded-full w-fit p-1'>
+                                                        {currentMedia.summary && (
+                                                            <button
+                                                                onClick={() =>
+                                                                    setResourceTab(
+                                                                        'Summary',
+                                                                    )
+                                                                }
+                                                                className={`tab px-4 py-2 ${
+                                                                    resourceTab ===
+                                                                    'Summary'
+                                                                        ? 'bg-primary rounded-full text-pure-white font-medium'
+                                                                        : 'text-primary-white'
+                                                                }`}
+                                                            >
+                                                                Summary
+                                                            </button>
+                                                        )}
+                                                        {currentMedia.implementation && (
+                                                            <button
+                                                                onClick={() =>
+                                                                    setResourceTab(
+                                                                        'Implementation',
+                                                                    )
+                                                                }
+                                                                className={`tab px-4 py-2 ${
+                                                                    resourceTab ===
+                                                                    'Implementation'
+                                                                        ? 'bg-primary rounded-full text-pure-white font-medium'
+                                                                        : 'text-primary-white'
+                                                                }`}
+                                                            >
+                                                                Implementation
+                                                            </button>
+                                                        )}
+                                                        {currentMedia.interview && (
+                                                            <button
+                                                                onClick={() =>
+                                                                    setResourceTab(
+                                                                        'Interview',
+                                                                    )
+                                                                }
+                                                                className={`tab px-4 py-2 ${
+                                                                    resourceTab ===
+                                                                    'Interview'
+                                                                        ? 'bg-primary rounded-full text-pure-white font-medium'
+                                                                        : 'text-primary-white'
+                                                                }`}
+                                                            >
+                                                                Interview
+                                                            </button>
+                                                        )}
+                                                        {currentMedia.behavioral && (
+                                                            <button
+                                                                onClick={() =>
+                                                                    setResourceTab(
+                                                                        'Behavioral',
+                                                                    )
+                                                                }
+                                                                className={`tab px-4 py-2 ${
+                                                                    resourceTab ===
+                                                                    'Behavioral'
+                                                                        ? 'bg-primary rounded-full text-pure-white font-medium'
+                                                                        : 'text-primary-white'
+                                                                }`}
+                                                            >
+                                                                Behavioral
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ))}
+
+                                            <div className='activeBody'>
+                                                {resourceTab === 'Summary' && (
+                                                    <div>
+                                                        <p className='text-sm text-gray'>
+                                                            {currentMedia.summary ||
+                                                                'No summary available for this content.'}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                                {resourceTab ===
+                                                    'Implementation' && (
+                                                    <div>
+                                                        <p className='text-sm text-gray'>
+                                                            {currentMedia.implementation ||
+                                                                'No implementation details available for this content.'}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                                {resourceTab ===
+                                                    'Interview' && (
+                                                    <div>
+                                                        <p className='text-sm text-gray'>
+                                                            {currentMedia.interview ||
+                                                                'No interview information available for this content.'}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                                {resourceTab ===
+                                                    'Behavioral' && (
+                                                    <div>
+                                                        <p className='text-sm text-gray'>
+                                                            {currentMedia.behavioral ||
+                                                                'No behavioral information available for this content.'}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Comments */}
+                                    <div>
+                                        <div className='flex items-center gap-2 mb-4'>
+                                            <MessageCircle className='h-5 w-5' />
+                                            <h3 className='text-lg font-medium'>
+                                                Comments
+                                            </h3>
+                                        </div>
+                                        <GlobalComment
+                                            contentId={currentMedia._id || ''}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            </TabsContent>
+
+                            <TabsContent value='notes' className='p-4 mt-0'>
+                                <div className='border rounded-md p-4'>
+                                    <h3 className='text-lg font-medium mb-2'>
+                                        Add Notes
+                                    </h3>
+                                    <textarea
+                                        className='w-full border rounded-md p-3 min-h-[200px]'
+                                        placeholder='Write your notes here...'
+                                    />
+                                    <div className='flex justify-end mt-4'>
+                                        <Button>Save Notes</Button>
+                                    </div>
+                                </div>
+                            </TabsContent>
+                        </Tabs>
                     </div>
                 </div>
-            </DialogContent>
-        </Dialog>
+                <div className='sidebar w-full h-full lg:w-1/4 mt-2'>
+                    {sideBar}
+                </div>
+            </div>
+        </GlobalModal>
     );
-}
+};
+
+export default MediaModal;

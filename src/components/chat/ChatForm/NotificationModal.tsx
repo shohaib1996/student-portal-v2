@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
 import CustomTimePicker from '@/components/global/CustomTimePicker'; // Update path as needed
 import { instance } from '@/lib/axios/axiosInstance';
+import { useUpdateNotificationSettingsMutation } from '@/redux/api/chats/chatApi';
 
 dayjs.extend(customParseFormat);
 
@@ -38,6 +39,8 @@ interface MemberNotification {
 const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
     props,
 ) => {
+    const [updateNotificationSettings, { isLoading: isUpdating }] =
+        useUpdateNotificationSettingsMutation();
     const { opened, close, chatId, member, handleUpdateCallback } = props;
     const modalClose = useCallback(() => {
         close();
@@ -46,7 +49,6 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
     // Initial states
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     const [dateUntil, setDateUntil] = useState<string | null>(null);
-    const [isUpdating, setIsUpdating] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [date, setDate] = useState<Date | undefined>();
     const [timeValue, setTimeValue] = useState<Date | null>(null);
@@ -117,41 +119,77 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
             return;
         }
 
+        if (!member?._id) {
+            toast.error('Member ID is required');
+            return;
+        }
+        if (!selectedOption) {
+            toast.error('Please select a option first');
+            return;
+        }
+
         const data = {
-            member: member?._id,
+            member: member._id,
             selectedOption,
             dateUntil: selectedOption === 4 ? dateUntil : null,
             chat: chatId,
-            actionType: member?.notification?.isOn ? 'mutenoti' : 'unmutenoti',
+            actionType: member?.notification?.isOn
+                ? ('mutenoti' as const)
+                : ('unmutenoti' as const),
         };
 
-        setIsUpdating(true);
+        // Use RTK mutation instead of instance API call
+        updateNotificationSettings(data)
+            .unwrap()
+            .then((response) => {
+                // Update toast message based on selected option
+                const duration =
+                    selectedOption === 1
+                        ? '1 hour'
+                        : selectedOption === 2
+                          ? '1 day'
+                          : selectedOption === 3
+                            ? 'indefinitely'
+                            : selectedOption === 4
+                              ? 'until the specified time'
+                              : '';
 
-        instance
-            .post('/chat/member/update', data)
-            .then((res) => {
-                setIsUpdating(false);
-                toast.success('Updated successfully');
+                if (member?.notification?.isOn) {
+                    toast.success(`Notifications muted for ${duration}`);
+                } else {
+                    toast.success('Notification settings updated successfully');
+                }
+
+                // If there's a callback, call it with the updated data
+                if (handleUpdateCallback) {
+                    handleUpdateCallback(response.member);
+                }
+
                 setSelectedOption(null);
                 setDateUntil(null);
                 modalClose();
             })
             .catch((err) => {
-                setIsUpdating(false);
-                toast.error(err?.response?.data?.error || 'An error occurred');
+                toast.error(err?.data?.error || 'An error occurred');
             });
     }, [
         isFormValid,
         member?._id,
+        member?.notification?.isOn,
         selectedOption,
         dateUntil,
         chatId,
-        member?.notification?.isOn,
         modalClose,
+        updateNotificationSettings,
+        handleUpdateCallback,
     ]);
 
     const handleUnmute = useCallback(() => {
         if (isUpdating) {
+            return;
+        }
+        if (!member?._id) {
+            toast.error('Member ID is required');
             return;
         }
 
@@ -162,23 +200,33 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
             selectedOption: 5,
             dateUntil: null,
             chat: chatId,
-            actionType: 'unmutenoti',
+            actionType: 'unmutenoti' as const,
         };
 
-        setIsUpdating(true);
+        // Use RTK mutation instead of instance API call
+        updateNotificationSettings(data)
+            .unwrap()
+            .then((response) => {
+                toast.success('Notifications turned on successfully');
 
-        instance
-            .post('/chat/member/update', data)
-            .then((res) => {
-                setIsUpdating(false);
-                toast.success('Notifications unmuted successfully');
+                // If there's a callback, call it with the updated data
+                if (handleUpdateCallback) {
+                    handleUpdateCallback(response.member);
+                }
+
                 modalClose();
             })
             .catch((err) => {
-                setIsUpdating(false);
-                toast.error(err?.response?.data?.error || 'An error occurred');
+                toast.error(err?.data?.error || 'An error occurred');
             });
-    }, [chatId, member?._id, modalClose, isUpdating]);
+    }, [
+        chatId,
+        member?._id,
+        modalClose,
+        isUpdating,
+        updateNotificationSettings,
+        handleUpdateCallback,
+    ]);
 
     const disabledDate = useCallback((date: Date) => {
         return date < new Date(new Date().setHours(0, 0, 0, 0));
@@ -445,9 +493,8 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                                                 />
                                             </div>
                                         </div>
-                                        <div className='p-2 bg-gray-50 text-right'>
+                                        <div className='p-2 bg-background text-right'>
                                             <Button
-                                                variant='outline'
                                                 size='sm'
                                                 onClick={() =>
                                                     setShowDateTimePicker(false)

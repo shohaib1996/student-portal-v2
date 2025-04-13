@@ -201,7 +201,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                       : '';
 
         return withTooltip ? (
-            <GlobalTooltip tooltip={customTooltip}>{buttonComp}</GlobalTooltip>
+            <GlobalTooltip className='z-[99999]' tooltip={customTooltip}>
+                {buttonComp}
+            </GlobalTooltip>
         ) : (
             buttonComp
         );

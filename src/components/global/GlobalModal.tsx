@@ -85,8 +85,8 @@ const GlobalModal = React.forwardRef<HTMLDivElement, TProps>(
                                 {customTitle ? (
                                     customTitle
                                 ) : (
-                                    <div className='flex items-center flex-wrap justify-between border-b border-forground-border px-5 py-3 pb-2 sticky top-0 rounded-tr-lg rounded-tl-lg'>
-                                        <div className='w-full'>
+                                    <div className='flex items-center flex-row justify-between border-b border-forground-border px-5 py-3 pb-2 sticky top-0 rounded-tr-lg rounded-tl-lg'>
+                                        <div className=''>
                                             <h3 className='text-black font-medium text-xl'>
                                                 {title}
                                             </h3>

@@ -128,6 +128,7 @@ const formatDate = (date: string | Date | undefined): string => {
 function CrowdSidebar() {
     const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
+    const { chatMessages } = useAppSelector((state) => state.chat);
     const { user } = useAppSelector((state: any) => state.auth);
     const [records, setRecords] = useState<any[]>([]);
     const [channels, setChannels] = useState<any[]>([]);
@@ -195,7 +196,35 @@ function CrowdSidebar() {
                     const hasUnread = chat?.unreadCount > 0;
 
                     // For demo purposes - in real app, these would come from the chat data
-                    const hasMention = i % 3 === 0;
+                    const hasMention = (() => {
+                        // If there are no unread messages, return false
+                        if (chat?.unreadCount === 0) {
+                            return false;
+                        }
+
+                        const chatId = chat?._id;
+                        const messages = chatMessages[chatId] || [];
+                        return messages.some((msg) => {
+                            if (!msg.text) {
+                                return false;
+                            }
+
+                            // Look for mention pattern: @[Name](userId)
+                            const mentionRegex = /@\[.*?\]\((.*?)\)/g;
+                            let match;
+
+                            while (
+                                (match = mentionRegex.exec(msg.text)) !== null
+                            ) {
+                                // match[1] contains the user ID in parentheses
+                                if (match[1] === user?._id) {
+                                    return true;
+                                }
+                            }
+
+                            return false;
+                        });
+                    })();
                     const isMuted =
                         chat?.myData?.notification?.isOn === false ||
                         i % 4 === 0;
