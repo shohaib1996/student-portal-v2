@@ -3,9 +3,12 @@ import { z } from 'zod';
 
 export const EventFormSchema = z
     .object({
-        title: z.string().trim().min(2, {
-            message: 'Event name is required.',
-        }),
+        title: z
+            .string({ required_error: 'Event name is required.' })
+            .trim()
+            .min(2, {
+                message: 'Event name has to be at least 2 characters.',
+            }),
         priority: z.enum(['low', 'medium', 'high', 'notdefined']).optional(),
         purpose: z
             .object({
