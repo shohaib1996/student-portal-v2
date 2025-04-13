@@ -344,6 +344,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         } as React.ChangeEvent<HTMLTextAreaElement>);
     };
 
+    console.log({ messageText: localText });
     const sendMessage = () => {
         const successFiles = uploadFiles
             .filter((file) => file.url)
@@ -355,7 +356,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
             }));
 
         const messageText = localText.trim();
-
         if (!messageText && successFiles.length === 0) {
             store.dispatch(setDraft({ chat: chatId as string, message: '' }));
             return toast.error('Please write something or attach a file');
@@ -491,6 +491,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     };
     const handleSendMessage = useCallback(
         (text: string) => {
+            console.log({ text });
             setLocalText(text);
             sendMessage();
         },
