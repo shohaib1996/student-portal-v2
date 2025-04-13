@@ -79,6 +79,7 @@ const AddNotification = ({
                 </label>
                 <MultiSelect
                     disabled={disabled}
+                    max={3}
                     placeholder='Select Methods'
                     onChange={(val) =>
                         setNotification({
@@ -108,6 +109,7 @@ const AddNotification = ({
                         Chat Groups (max:3)
                     </label>
                     <MultiSelect
+                        max={3}
                         placeholder='Select Chat Groups (max:3)'
                         onChange={(val) =>
                             setNotification({

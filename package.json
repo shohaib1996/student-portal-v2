@@ -4,7 +4,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "next dev --turbopack",
+        "dev": "next dev -p 4001 --turbopack",
         "build:staging": "env-cmd -f .env.staging next build",
         "build:prod": "env-cmd -f .env.prod next build",
         "build": "next build",

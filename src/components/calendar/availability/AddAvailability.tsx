@@ -50,7 +50,7 @@ const AddAvailability = ({
             try {
                 const res = await createSchedule(sname).unwrap();
                 if (res) {
-                    toast.success(res.message);
+                    toast.success('Added new availability successfully');
                     setIsCreateOpen(false);
                 }
             } catch (err) {

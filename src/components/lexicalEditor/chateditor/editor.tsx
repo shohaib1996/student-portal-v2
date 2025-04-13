@@ -114,8 +114,8 @@ function LoadMarkdownContent({
     initialMarkdown: string;
     transformers: any[];
 }) {
-    const [editor] = useLexicalComposerContext();
     const initializedRef = useRef(false);
+    const [editor] = useLexicalComposerContext();
 
     useEffect(() => {
         if (!initializedRef.current) {
@@ -148,6 +148,7 @@ export function ChatEditor({
     onMarkdownChange,
     initialMarkdown,
     placeholder,
+    onSendMessage,
 }: {
     onChange?: (editorState: EditorState) => void;
     onSerializedChange?: (editorSerializedState: SerializedEditorState) => void;
@@ -170,6 +171,7 @@ export function ChatEditor({
     onMarkdownChange?: (markdown: string) => void;
     initialMarkdown?: string;
     placeholder?: string;
+    onSendMessage?: (text: string) => void;
 }) {
     const TRANSFORMERS = [
         MENTION_MARKDOWN_TRANSFORMER,
@@ -221,6 +223,7 @@ export function ChatEditor({
                                     mentionMenu={mentionMenu}
                                     mentionMenuItem={mentionMenuItem}
                                     placeholder={placeholder}
+                                    onSendMessage={onSendMessage}
                                 />
                             </div>
                             <OnChangePlugin
@@ -230,10 +233,11 @@ export function ChatEditor({
                                     onSerializedChange?.(editorState.toJSON());
                                     let markdown = '';
                                     editorState.read(() => {
-                                        markdown =
-                                            $convertToMarkdownString(
-                                                TRANSFORMERS,
-                                            );
+                                        markdown = $convertToMarkdownString(
+                                            TRANSFORMERS,
+                                            undefined,
+                                            true,
+                                        );
                                     });
 
                                     onMarkdownChange?.(markdown);

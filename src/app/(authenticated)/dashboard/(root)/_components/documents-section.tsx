@@ -56,7 +56,7 @@ export function DocumentsSection() {
                         Access all your files
                     </p>
                 </div>
-                <ViewMoreLink href='#' />
+                {/* <ViewMoreLink href='#' /> */}
             </CardHeader>
             <CardContent className='p-2'>
                 <Tabs defaultValue='my-documents' className='border-b mt-1'>

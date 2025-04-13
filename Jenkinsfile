@@ -11,7 +11,7 @@ pipeline {
             steps{
                 script{
                      if(BRANCH == 'production'){
-                        //  dockerImage = docker.build("${IMAGE}","-f Dockerfile.prod --no-cache .")
+                        dockerImage = docker.build("${IMAGE}","-f Dockerfile.prod --no-cache .")
                      }else if(BRANCH == 'main'){
                          dockerImage = docker.build("${IMAGE}","-f Dockerfile.staging .")
                      }
@@ -22,7 +22,7 @@ pipeline {
         stage('Push image') {
             steps{
                 script{
-                     if(BRANCH == 'main'){
+                     if(BRANCH == 'main' || BRANCH == 'production'){
                             docker.withRegistry('', 'ts4udocker') {
                             dockerImage.push("${BRANCH}-${VERSION}")
                             dockerImage.push("${BRANCH}-latest")
@@ -54,14 +54,14 @@ pipeline {
 
                         }else if(BRANCH == 'production'){
 
-                            //   withCredentials([string(credentialsId: 'doctl_token', variable: 'DO_API_KEY')]) {
+                              withCredentials([string(credentialsId: 'doctl_token', variable: 'DO_API_KEY')]) {
                            
-                            //     sh '''
-                            //     doctl auth init --access-token $DO_API_KEY && \
-                            //     doctl kubernetes cluster kubeconfig save ts4u-k8s --set-current-context && \
-                            //     helm upgrade --install bh-student-portal-prod ./helm/bh-student-portal -f ./helm/bh-student-portal/values.prod.yaml --set image.tag=${BRANCH}-${VERSION}
-                            //     '''
-                            // }
+                                sh '''
+                                doctl auth init --access-token $DO_API_KEY && \
+                                doctl kubernetes cluster kubeconfig save ts4u-k8s --set-current-context && \
+                                helm upgrade --install bh-student-portal-prod ./helm/bh-student-portal -f ./helm/bh-student-portal/values.prod.yaml --set image.tag=${BRANCH}-${VERSION}
+                                '''
+                            }
 
                         }
                      }

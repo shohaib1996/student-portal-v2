@@ -364,7 +364,7 @@ export function CalendarSidebar({
                                                 dayEvents.map((event) => (
                                                     <Link
                                                         key={event._id}
-                                                        href={`/calendar?detial=${event._id}`}
+                                                        href={`/calendar?detail=${event._id}`}
                                                     >
                                                         <div
                                                             style={{

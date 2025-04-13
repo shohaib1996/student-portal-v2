@@ -53,6 +53,7 @@ const MyNotesPage = () => {
             <div className='bg-foreground p-2 mt-2 rounded-lg h-[calc(100vh-132px)]'>
                 {view === 'grid' ? (
                     <NotesGridView
+                        setIsOpen={setIsOpen}
                         isLoading={isLoading}
                         data={notes as TNote[]}
                     ></NotesGridView>
