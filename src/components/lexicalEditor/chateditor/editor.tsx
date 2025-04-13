@@ -233,10 +233,11 @@ export function ChatEditor({
                                     onSerializedChange?.(editorState.toJSON());
                                     let markdown = '';
                                     editorState.read(() => {
-                                        markdown =
-                                            $convertToMarkdownString(
-                                                TRANSFORMERS,
-                                            );
+                                        markdown = $convertToMarkdownString(
+                                            TRANSFORMERS,
+                                            undefined,
+                                            true,
+                                        );
                                     });
 
                                     onMarkdownChange?.(markdown);

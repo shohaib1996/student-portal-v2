@@ -290,3 +290,6 @@ body {
 .react-tel-input .country-list {
     background-color: hsl(var(--background)) !important;
 }
+body {
+    pointer-events: auto !important;
+  }
