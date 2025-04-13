@@ -455,6 +455,9 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                     <SelectItem value='yearly'>
                                                         Yearly
                                                     </SelectItem>
+                                                    {/* <SelectItem value=''>
+                                                        Never
+                                                    </SelectItem> */}
                                                 </SelectContent>
                                             </Select>
 

@@ -123,19 +123,19 @@ const Navbar = () => {
                 </Link>
             ),
         },
-        {
-            id: 98,
-            content: (
-                <Link
-                    href='#'
-                    onClick={commingSoon}
-                    className='flex gap-2 text-dark-gray items-center cursor-pointer'
-                >
-                    <Bell size={18} />
-                    User Manual
-                </Link>
-            ),
-        },
+        // {
+        //     id: 98,
+        //     content: (
+        //         <Link
+        //             href='#'
+        //             onClick={commingSoon}
+        //             className='flex gap-2 text-dark-gray items-center cursor-pointer'
+        //         >
+        //             <Bell size={18} />
+        //             User Manual
+        //         </Link>
+        //     ),
+        // },
         {
             id: 6,
             content: (
@@ -148,16 +148,16 @@ const Navbar = () => {
                 </Link>
             ),
         },
-        {
-            id: 8,
-            content: (
-                <Button className='md:hidden' variant={'primary_light'}>
-                    <Link href='/docs' target='_blank'>
-                        Manual
-                    </Link>
-                </Button>
-            ),
-        },
+        // {
+        //     id: 8,
+        //     content: (
+        //         <Button className='md:hidden' variant={'primary_light'}>
+        //             <Link href='/docs' target='_blank'>
+        //                 Manual
+        //             </Link>
+        //         </Button>
+        //     ),
+        // },
         {
             id: 121,
             content: (
@@ -394,14 +394,14 @@ const Navbar = () => {
                         }
                     />
 
-                    <Button
+                    {/* <Button
                         className='md:block hidden'
                         variant={'primary_light'}
                     >
                         <Link href='/docs' target='_blank'>
                             Manual
                         </Link>
-                    </Button>
+                    </Button> */}
                     <Button
                         className='rounded-full  size-9 text-dark-gray'
                         variant={'outline'}

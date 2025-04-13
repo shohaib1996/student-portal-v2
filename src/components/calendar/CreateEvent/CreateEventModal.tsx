@@ -159,7 +159,9 @@ const CreateEventModal = () => {
             daysOfWeek: [],
             frequency: undefined,
             interval: 1,
-            endRecurrence: '',
+            endRecurrence: dayjs(clickedDate ?? dayjs())
+                .add(9, 'months')
+                .toISOString(),
         },
         description: '',
         eventColor: '',
