@@ -32,7 +32,7 @@ function TooltipProvider({
         }
 
         // console.log(initialMarkdown);
-    }, [initialMarkdown]);
+    }, []);
     return (
         <TooltipPrimitive.Provider
             data-slot='tooltip-provider'
