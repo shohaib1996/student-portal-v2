@@ -1,3 +1,4 @@
+import React from 'react';
 import MessagePreview from '@/components/chat/Message/MessagePreview';
 import LexicalJsonRenderer from '@/components/lexicalEditor/renderer/JsonRenderer';
 import parse from 'html-react-parser';
@@ -36,10 +37,16 @@ const checkAndRenderHtml = (text: string) => {
 
     if (containsHtml) {
         // Use html-react-parser to render HTML
-        return <div className='html-content'>{parse(text)}</div>;
+        return <>{parse(text)}</>;
     } else {
-        // Render as plain text
-        return <MessagePreview text={text} />;
+        // Render plain text with line breaks
+        const withLineBreaks = text.split('\n').map((line, idx) => (
+            <React.Fragment key={idx}>
+                {line}
+                <br />
+            </React.Fragment>
+        ));
+        return <>{withLineBreaks}</>;
     }
 };
 

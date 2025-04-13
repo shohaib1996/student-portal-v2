@@ -973,7 +973,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                             </div>
                                         )}
 
-                                        {records.length > 0 && (
+                                        {records.length > 0 && hasMore && (
                                             <div className='p-2 text-center flex flex-row items-center gap-1'>
                                                 <div className='w-full h-[2px] bg-border'></div>
                                                 <Button
