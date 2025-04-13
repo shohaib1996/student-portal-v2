@@ -201,11 +201,11 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                                     fill
                                     className='object-cover rounded-md'
                                 />
-                                <div className='absolute inset-0 flex items-center justify-center'>
+                                {/* <div className='absolute inset-0 flex items-center justify-center'>
                                     <div className='h-8 w-8 rounded-full bg-foreground/40 flex items-center justify-center'>
                                         <Play className='h-4 w-4 text-white ml-0.5' />
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                             <div className='flex-1 min-w-0'>
                                 <div
@@ -339,31 +339,35 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
             </div>
         </div>
     );
-    console.log({ mediaType: currentMedia?.mediaType });
+    console.log({ currentMedia });
     return (
         <GlobalModal
             open={showModal}
             setOpen={setShowModal}
             customTitle={customTitle}
-            className='flex flex-col'
+            className='flex flex-col p-0'
             fullScreen={true}
             allowFullScreen={true}
         >
             <div className='flex flex-col lg:flex-row gap-3 w-full'>
-                <div className='flex flex-col w-full lg:w-3/4 h-full bg-background rounded-lg p-2 mt-2 border'>
+                <div className='flex flex-col w-full lg:w-3/4 h-full bg-background rounded-lg border'>
                     {/* Media Player */}
                     {currentMedia?.mediaType === 'video' ? (
                         /* Video Player */
-                        <div className='relative aspect-video bg-foreground rounded-lg'>
+                        <div className=''>
                             {currentMedia.url ? (
-                                <video
-                                    ref={videoRef}
-                                    src={currentMedia.url}
-                                    className='w-full h-full rounded-lg'
-                                    onTimeUpdate={handleTimeUpdate}
-                                    onLoadedMetadata={handleLoadedMetadata}
-                                    onClick={togglePlay}
-                                />
+                                // <video
+                                //     ref={videoRef}
+                                //     src={currentMedia.url}
+                                //     className='w-full h-full rounded-lg'
+                                //     onTimeUpdate={handleTimeUpdate}
+                                //     onLoadedMetadata={handleLoadedMetadata}
+                                //     onClick={togglePlay}
+                                // />
+                                <iframe
+                                    className='aspect-video w-full rounded-lg -mt-5'
+                                    src={currentMedia?.url}
+                                ></iframe>
                             ) : (
                                 <div className='w-full h-full flex items-center justify-center bg-gray-900 rounded-lg'>
                                     <Image
@@ -380,7 +384,7 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                             )}
 
                             {/* Play button overlay */}
-                            <div className='absolute inset-0 flex items-center justify-center'>
+                            {/* <div className='absolute inset-0 flex items-center justify-center'>
                                 <Button
                                     variant='secondary'
                                     size='icon'
@@ -395,10 +399,10 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                                         )}
                                     </div>
                                 </Button>
-                            </div>
+                            </div> */}
 
                             {/* Video Controls */}
-                            <div className='absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent'>
+                            {/* <div className='absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent'>
                                 <div className='flex flex-col gap-2'>
                                     <div className='relative w-full h-1 bg-foreground/30 rounded-full'>
                                         <input
@@ -463,7 +467,7 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     ) : (
                         /* Audio Player - styled like the image */

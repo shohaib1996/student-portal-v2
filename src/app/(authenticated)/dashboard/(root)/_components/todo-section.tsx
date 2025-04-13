@@ -41,7 +41,7 @@ export function TodoSection() {
                 <CardTitle className='text-md font-medium'>To-Do</CardTitle>
                 <div className='flex items-center gap-2'>
                     <ViewMoreLink href='/calendar/to-do' />
-                    <Select defaultValue='monthly'>
+                    {/* <Select defaultValue='monthly'>
                         <SelectTrigger className='w-[140px] h-9'>
                             <SelectValue placeholder='Select period' />
                         </SelectTrigger>
@@ -50,7 +50,7 @@ export function TodoSection() {
                             <SelectItem value='weekly'>Weekly</SelectItem>
                             <SelectItem value='daily'>Daily</SelectItem>
                         </SelectContent>
-                    </Select>
+                    </Select> */}
                 </div>
             </CardHeader>
             <CardContent className='p-2'>
