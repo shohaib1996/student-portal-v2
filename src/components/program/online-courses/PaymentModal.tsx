@@ -3,7 +3,14 @@
 import type React from 'react';
 import { useState, useRef } from 'react';
 import { format } from 'date-fns';
-import { Paperclip, ArrowRight, Trash2, ArrowLeft } from 'lucide-react';
+import {
+    Paperclip,
+    ArrowRight,
+    Trash2,
+    ArrowLeft,
+    Calendar1,
+    CalendarIcon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,6 +27,13 @@ import Image from 'next/image';
 import LoadingSpinner from '@/components/global/Community/LoadingSpinner/LoadingSpinner';
 import { toast } from 'sonner';
 import { useAddPaymentApiMutation } from '@/redux/api/payment-history/paymentHistory';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import dayjs from 'dayjs';
 
 type PaymentMethod = 'paypal' | 'bank' | 'card' | 'custom' | null;
 
@@ -35,9 +49,8 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
     const [uploadFiles, setUploadFiles] = useState<string[]>([]);
     const [uploadingFiles, setUploadingFiles] = useState(false);
     const [note, setNote] = useState('');
+    const [current, setCurrent] = useState<Date | undefined>(new Date());
     const [addPayment, { isLoading }] = useAddPaymentApiMutation();
-
-    const currentDate = format(new Date(), 'MMM do, yyyy');
 
     const paymentMethods = [
         {
@@ -116,7 +129,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                 amount: Number(amount),
                 attachment: uploadFiles[0],
                 note: note,
-                date: new Date().toISOString(),
+                date: current,
             };
             addPayment({ payload: data })
                 .unwrap()
@@ -365,20 +378,15 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
             open={open}
             setOpen={onOpenChange}
             title={
-                <div className='flex items-center justify-between'>
-                    <div>
-                        <Button
-                            variant='ghost'
-                            className='p-0'
-                            onClick={() => onOpenChange(false)}
-                        >
-                            <ArrowLeft className='h-4 w-4' />
-                        </Button>
-                        <span className='ml-1'>Add Payment</span>
-                    </div>
-                    <div className='bg-foreground border rounded-md px-3 py-1 text-sm'>
-                        {currentDate}
-                    </div>
+                <div>
+                    <Button
+                        variant='ghost'
+                        className='p-0'
+                        onClick={() => onOpenChange(false)}
+                    >
+                        <ArrowLeft className='h-4 w-4' />
+                    </Button>
+                    <span className='ml-1'>Add Payment</span>
                 </div>
             }
             subTitle='Fill out the form to add new payment'
@@ -392,6 +400,26 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                         Continue to Payment{' '}
                         <ArrowRight className='ml-2 h-4 w-4' />
                     </Button>
+                </div>
+            }
+            buttons={
+                <div className='bg-foreground border rounded-md px-3 py-1 text-sm flex items-center gap-1'>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <div className='flex items-center gap-2 cursor-pointer'>
+                                <CalendarIcon size={16} />{' '}
+                                {dayjs(current).format('MMM D, YYYY')}
+                            </div>
+                        </PopoverTrigger>
+                        <PopoverContent className='w-auto p-0 z-[999]'>
+                            <Calendar
+                                mode='single'
+                                selected={current}
+                                onSelect={(date) => setCurrent(date)}
+                                initialFocus
+                            />
+                        </PopoverContent>
+                    </Popover>
                 </div>
             }
         >

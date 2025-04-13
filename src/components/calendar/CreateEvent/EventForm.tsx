@@ -755,7 +755,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                             'order-5': isFullScreen,
                                         })}
                                     >
-                                        <FormControl>
+                                        <FormControl className='w-full'>
                                             <div className='w-full'>
                                                 <GlobalDropdown
                                                     className='w-[--radix-popover-trigger-width] '

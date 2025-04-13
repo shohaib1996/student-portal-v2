@@ -131,7 +131,7 @@ export function MonthView({ currentDate }: MonthViewProps) {
                                         className={cn(
                                             'inline-flex h-6 w-6 text-dark-gray font-semibold items-center justify-center rounded-full text-base',
                                             isToday(day) &&
-                                                'bg-primary text-primary-foreground font-medium',
+                                                'bg-primary text-pure-white font-medium',
                                             !isCurrentMonth &&
                                                 'text-gray font-medium',
                                         )}

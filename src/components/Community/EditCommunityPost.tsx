@@ -17,6 +17,7 @@ import PortalForm from '../global/Form/PortalForm';
 import PortalInput from '../global/Form/Inputs/PortalInput';
 import GlobalMarkDownEdit from '../global/Community/MarkDown/GlobalMarkDownEdit';
 import LoadingSpinner from '../global/Community/LoadingSpinner/LoadingSpinner';
+import GlobalEditor from '../editor/GlobalEditor';
 
 interface IEditCommunityPostProps {
     post: ICommunityPost;
@@ -135,10 +136,10 @@ const EditCommunityPost = ({
                 resolver={zodResolver(schema)}
             >
                 <PortalInput type='text' name='title' label='Title' />
-                <GlobalMarkDownEdit
-                    label='Description'
+                <GlobalEditor
                     value={markDownContent}
-                    setValue={setMarkDownContent}
+                    onChange={setMarkDownContent}
+                    placeholder='Write your post here...'
                 />
                 {fileUrl && (
                     <div className='relative'>

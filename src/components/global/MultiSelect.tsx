@@ -124,11 +124,12 @@ const MultiSelect = ({
                 {value?.length > 0 ? (
                     value.map((v, i) => (
                         <div
-                            className='bg-foreground flex gap-1 items-center shadow-sm rounded-sm px-2 py-1'
+                            className='bg-foreground w-full flex gap-1 items-center shadow-sm rounded-sm px-2 py-1'
                             key={i}
                         >
                             {options.find((op) => op.value === v)?.label}
                             <button
+                                className='w-full'
                                 disabled={disabled}
                                 type='button'
                                 onClick={(e) => handleRemove(e, v)}

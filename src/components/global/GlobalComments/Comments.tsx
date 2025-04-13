@@ -5,7 +5,12 @@ import { CommentType } from './GlobalComment';
 import { useAppSelector } from '@/redux/hooks';
 import { Button } from '@/components/ui/button';
 import GlobalDropdown from '@/components/global/GlobalDropdown';
-import { MessageCircleReply, RefreshCcw, Trash } from 'lucide-react';
+import {
+    EllipsisVertical,
+    MessageCircleReply,
+    RefreshCcw,
+    Trash,
+} from 'lucide-react';
 import {
     Popover,
     PopoverContent,
@@ -43,7 +48,7 @@ interface CommentsProps {
     isUpdate: string;
     setUpdate: React.Dispatch<React.SetStateAction<string>>;
     wrapperHight?: string;
-    bgColor?: string;
+    bgColor?: 'foreground' | 'background';
 }
 
 const Comments = ({
@@ -166,7 +171,7 @@ const Comments = ({
                             </div>
                         </div>
                     ) : (
-                        <div className={`text bg-${bgColor}`}>
+                        <div className={`p-3 rounded-md bg-${bgColor}`}>
                             <h4 style={{ display: 'block' }}>
                                 {user?.fullName}
                             </h4>
@@ -179,35 +184,7 @@ const Comments = ({
                                 <button
                                     style={{ backgroundColor: 'transparent' }}
                                 >
-                                    <svg
-                                        width='4'
-                                        height='18'
-                                        viewBox='0 0 4 18'
-                                        fill='none'
-                                        xmlns='http://www.w3.org/2000/svg'
-                                    >
-                                        <circle
-                                            cx='2'
-                                            cy='2'
-                                            r='2'
-                                            fill={'black'}
-                                            fillOpacity='0.6'
-                                        />
-                                        <circle
-                                            cx='2'
-                                            cy='9'
-                                            r='2'
-                                            fill={'black'}
-                                            fillOpacity='0.6'
-                                        />
-                                        <circle
-                                            cx='2'
-                                            cy='16'
-                                            r='2'
-                                            fill={'black'}
-                                            fillOpacity='0.6'
-                                        />
-                                    </svg>
+                                    <EllipsisVertical />
                                 </button>
                             )}
                             {isReply && user._id === authUser?._id && (
@@ -260,7 +237,7 @@ const Comments = ({
                 {commentReplies.length !== 0 &&
                     !openReplies.find((rep) => rep === id) && (
                         <button
-                            className='level-2 see-reply'
+                            className='level-2 see-reply after:border-b-2 after:border-forground-border  after:border-l-2 '
                             onClick={() => {
                                 setOpenReplies((prev) => [...prev, id]);
                                 setLevel2Visible(!level2Visible);
@@ -306,7 +283,7 @@ const Comments = ({
         <div
             className='comment-wrapper'
             style={{
-                padding: `${isModal && '5px'}`,
+                padding: `${isModal && ''}`,
                 maxHeight: wrapperHight,
             }}
         >
@@ -320,8 +297,12 @@ const Comments = ({
 
                     return (
                         <div key={date}>
-                            <div className='date'>
-                                <p>{formattedDate}</p>
+                            <div className='text-center flex flex-row items-center gap-2'>
+                                <div className='h-[1px] bg-forground-border w-full'></div>
+                                <p className='bg-primary-light px-3 py-1 rounded-full  text-xs text-nowrap w-fit'>
+                                    {formattedDate}
+                                </p>
+                                <div className='h-[1px] bg-forground-border w-full'></div>
                             </div>
                             {groupedComments[date].map((d: any, i: number) => {
                                 const {
