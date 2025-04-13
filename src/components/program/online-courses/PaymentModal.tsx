@@ -15,6 +15,11 @@ import {
     Custom,
     Paypal,
 } from '@/components/svgs/payment/payment-modal';
+import { instance } from '@/lib/axios/axiosInstance';
+import Image from 'next/image';
+import LoadingSpinner from '@/components/global/Community/LoadingSpinner/LoadingSpinner';
+import { toast } from 'sonner';
+import { useAddPaymentApiMutation } from '@/redux/api/payment-history/paymentHistory';
 
 type PaymentMethod = 'paypal' | 'bank' | 'card' | 'custom' | null;
 
@@ -26,8 +31,11 @@ interface PaymentModalProps {
 export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
     const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
     const [amount, setAmount] = useState('');
-    const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploadFiles, setUploadFiles] = useState<string[]>([]);
+    const [uploadingFiles, setUploadingFiles] = useState(false);
+    const [note, setNote] = useState('');
+    const [addPayment, { isLoading }] = useAddPaymentApiMutation();
 
     const currentDate = format(new Date(), 'MMM do, yyyy');
 
@@ -66,18 +74,71 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
         setSelectedMethod(method);
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setAttachedFiles([...attachedFiles, ...Array.from(e.target.files)]);
+    const handleUpload = (files: File) => {
+        if (files) {
+            setUploadingFiles(true);
+            const formData = new FormData();
+            formData.append('file', files);
+            instance
+                .post('/settings/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                })
+                .then((res) => {
+                    console.log(res);
+                    setUploadFiles((prev) => [...prev, res.data.url]);
+                    setUploadingFiles(false);
+                })
+                .catch((err) => {
+                    setUploadingFiles(false);
+                });
         }
     };
 
     const handleRemoveFile = (index: number) => {
-        setAttachedFiles(attachedFiles.filter((_, i) => i !== index));
+        setUploadFiles(uploadFiles.filter((_, i) => i !== index));
     };
 
     const triggerFileInput = () => {
         fileInputRef.current?.click();
+    };
+
+    const getFileNameFromUrl = (url: string): string => {
+        const parts = url.split('/');
+        const fileNameWithTimestamp = parts[parts.length - 1];
+        const fileName = fileNameWithTimestamp.split('-')[1];
+        return fileName;
+    };
+
+    const submitPayment = () => {
+        if (selectedMethod) {
+            const data = {
+                method: selectedMethod,
+                amount: Number(amount),
+                attachment: uploadFiles[0],
+                note: note,
+                date: new Date().toISOString(),
+            };
+            addPayment({ payload: data })
+                .unwrap()
+                .then((res) => {
+                    console.log(res);
+                    onOpenChange(false);
+                    toast.success('Payment added successfully!');
+                    setSelectedMethod(null);
+                    setAmount('');
+                    setUploadFiles([]);
+                    setNote('');
+                })
+                .catch((err) => {
+                    console.error(err);
+                    onOpenChange(false);
+                    toast.error(err?.message || 'Something went wrong!');
+                    setSelectedMethod(null);
+                    setAmount('');
+                    setUploadFiles([]);
+                    setNote('');
+                });
+        }
     };
 
     // Content that was previously in DialogContent
@@ -190,7 +251,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                                 $
                             </span>
                             <Input
-                                className='pl-7 bg-foreground'
+                                className='pl-6 text-dark-gray bg-foreground focus:border focus:border-border-primary-light focus:ring-0'
                                 placeholder='0.00'
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
@@ -204,8 +265,10 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                             Note
                         </label>
                         <Textarea
-                            placeholder='Write here...'
-                            className='min-h-[100px] bg-foreground'
+                            placeholder='Write details note here...'
+                            onChange={(e) => setNote(e.target.value)}
+                            value={note}
+                            className='min-h-[100px] bg-foreground text-dark-gray focus:border focus:border-border-primary-light focus:ring-0 focus-visible:ring-0'
                         />
                     </div>
 
@@ -213,42 +276,38 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                     <div>
                         <div className='flex justify-between items-center mb-2'>
                             <span className='text-sm font-medium'>
-                                {attachedFiles.length > 0
-                                    ? `Attached Files (${attachedFiles.length})`
+                                {uploadFiles.length > 0
+                                    ? `Attached Files (${uploadFiles.length})`
                                     : ''}
                             </span>
                         </div>
 
-                        {attachedFiles.length > 0 && (
+                        {uploadFiles.length > 0 && (
                             <div className='space-y-2 mb-4'>
-                                {attachedFiles.map((file, index) => (
+                                {uploadFiles.map((url, index) => (
                                     <div
                                         key={index}
                                         className='flex items-center justify-between border rounded-md p-2'
                                     >
                                         <div className='flex items-center gap-2'>
                                             <div className='bg-muted w-8 h-8 rounded flex items-center justify-center'>
-                                                {/* Attachment SVG */}
-                                                <svg
-                                                    width='16'
-                                                    height='16'
-                                                    viewBox='0 0 24 24'
-                                                    fill='none'
-                                                    xmlns='http://www.w3.org/2000/svg'
-                                                >
-                                                    {/* ... SVG paths ... */}
-                                                </svg>
+                                                <Image
+                                                    src={url}
+                                                    width={32}
+                                                    height={80}
+                                                    alt='Payment Proves'
+                                                ></Image>
                                             </div>
                                             <div>
                                                 <div className='text-sm truncate max-w-[200px]'>
-                                                    {file.name}
+                                                    {getFileNameFromUrl(url)}
                                                 </div>
-                                                <div className='text-xs text-muted-foreground'>
+                                                {/* <div className='text-xs text-muted-foreground'>
                                                     {Math.round(
                                                         file.size / 1024,
                                                     )}{' '}
                                                     KB
-                                                </div>
+                                                </div> */}
                                             </div>
                                         </div>
                                         <button
@@ -264,25 +323,36 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                             </div>
                         )}
 
-                        <div
-                            className='border border-dashed rounded-md p-4 flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors'
-                            onClick={triggerFileInput}
-                        >
-                            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-                                <Paperclip className='h-4 w-4' />
-                                <span>Attach or drag & drop</span>
-                                <span className='text-xs'>
-                                    .JPG, .PNG, .PDF, .DOC, .XLSX, .MP4
-                                </span>
+                        {uploadingFiles ? (
+                            <div className='flex items-center justify-center space-x-2 text-gray text-sm'>
+                                <LoadingSpinner size={20} /> Please wait,
+                                Uploading...
                             </div>
-                            <input
-                                type='file'
-                                ref={fileInputRef}
-                                className='hidden'
-                                onChange={handleFileChange}
-                                multiple
-                            />
-                        </div>
+                        ) : (
+                            <div
+                                className='border border-dashed rounded-md p-4 flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors'
+                                onClick={triggerFileInput}
+                            >
+                                <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                                    <Paperclip className='h-4 w-4' />
+                                    <span>Attach or drag & drop</span>
+                                    <span className='text-xs'>
+                                        .JPG, .PNG, .PDF, .DOC, .XLSX, .MP4
+                                    </span>
+                                </div>
+                                <input
+                                    type='file'
+                                    ref={fileInputRef}
+                                    className='hidden'
+                                    onChange={(e) =>
+                                        e.target.files &&
+                                        handleUpload(e.target.files[0])
+                                    }
+                                    multiple
+                                    disabled={uploadingFiles}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -295,28 +365,29 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
             open={open}
             setOpen={onOpenChange}
             title={
-                <div>
-                    <Button
-                        variant='ghost'
-                        className='p-0'
-                        onClick={() => onOpenChange(false)}
-                    >
-                        <ArrowLeft className='h-4 w-4' />
-                    </Button>
-                    <span className='ml-1'>Add Payment</span>
+                <div className='flex items-center justify-between'>
+                    <div>
+                        <Button
+                            variant='ghost'
+                            className='p-0'
+                            onClick={() => onOpenChange(false)}
+                        >
+                            <ArrowLeft className='h-4 w-4' />
+                        </Button>
+                        <span className='ml-1'>Add Payment</span>
+                    </div>
+                    <div className='bg-foreground border rounded-md px-3 py-1 text-sm'>
+                        {currentDate}
+                    </div>
                 </div>
             }
             subTitle='Fill out the form to add new payment'
-            buttons={
-                <div className='border rounded-md px-3 py-1 text-sm'>
-                    {currentDate}
-                </div>
-            }
             customFooter={
                 <div className='p-5 bg-background'>
                     <Button
                         className='w-full bg-primary hover:bg-primary/90'
-                        disabled={!selectedMethod || !amount}
+                        onClick={submitPayment}
+                        disabled={!selectedMethod || !amount || isLoading}
                     >
                         Continue to Payment{' '}
                         <ArrowRight className='ml-2 h-4 w-4' />

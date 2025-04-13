@@ -7,7 +7,7 @@ const paymentHistory = baseApi.injectEndpoints({
                 url: '/transaction/mytransaction',
                 method: 'GET',
             }),
-            providesTags: ['Payment History'],
+            providesTags: ['PaymentHistory'],
         }),
         addPaymentApi: build.mutation({
             query: ({ payload }) => ({
@@ -15,14 +15,14 @@ const paymentHistory = baseApi.injectEndpoints({
                 method: 'POST',
                 data: payload,
             }),
-            invalidatesTags: ['Payment History'],
+            invalidatesTags: ['PaymentHistory'],
         }),
         getPaymentDetailsById: build.query({
             query: (id) => ({
                 url: `/order/details/${id}`,
                 method: 'GET',
             }),
-            providesTags: ['Payment History Id'],
+            providesTags: ['PaymentHistory'],
         }),
         addPaymentById: build.mutation({
             query: ({ payload, id }) => ({
@@ -30,7 +30,7 @@ const paymentHistory = baseApi.injectEndpoints({
                 method: 'POST',
                 data: payload,
             }),
-            invalidatesTags: ['Payment History Id'],
+            invalidatesTags: ['PaymentHistory'],
         }),
     }),
 });

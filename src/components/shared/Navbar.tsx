@@ -38,6 +38,7 @@ import Image from 'next/image';
 import { SidebarTrigger } from '../ui/sidebar';
 import { persistor } from '@/redux/store';
 import { usePathname } from 'next/navigation';
+import { toast } from 'sonner';
 
 const Navbar = () => {
     const dispatch = useAppDispatch();
@@ -69,7 +70,9 @@ const Navbar = () => {
         persistor.purge();
         window.location.href = process.env.NEXT_PUBLIC_REDIRECT_URL as string;
     };
-
+    const commingSoon = () => {
+        toast.success('Coming Soon...');
+    };
     const dropdownItems: DropdownItems[] = [
         {
             id: 2,
@@ -95,24 +98,24 @@ const Navbar = () => {
                 </Link>
             ),
         },
-        {
-            id: 3,
-            content: (
-                <Link
-                    href='/payment-history'
-                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
-                >
-                    <CircleDollarSign size={18} />
-                    Payments
-                </Link>
-            ),
-        },
+        // {
+        //     id: 3,
+        //     content: (
+        //         <Link
+        //             href='/payment-history'
+        //             className='flex gap-2 text-dark-gray items-center cursor-pointer'
+        //         >
+        //             <CircleDollarSign size={18} />
+        //             Payments
+        //         </Link>
+        //     ),
+        // },
         {
             id: 343,
             content: (
                 <Link
                     href='/aggrements'
-                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
+                    className='flex gap-2 text-dark-gray items-center cursor-pointer'
                 >
                     <ScrollText size={18} />
                     Aggrements
@@ -123,8 +126,9 @@ const Navbar = () => {
             id: 98,
             content: (
                 <Link
-                    href='/docs'
-                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
+                    href='#'
+                    onClick={commingSoon}
+                    className='flex gap-2 text-dark-gray items-center cursor-pointer'
                 >
                     <Bell size={18} />
                     User Manual
@@ -136,7 +140,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/notification-preferences'
-                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
+                    className='flex gap-2 text-dark-gray items-center cursor-pointer'
                 >
                     <BellDot size={18} />
                     Notification Preferences
@@ -225,7 +229,7 @@ const Navbar = () => {
 
     if (navigations.technicalTest) {
         permissions.push({
-            route: '/technical-tests',
+            route: '/dashboard/technical-tests',
             label: 'Technical Test',
             id: 'technicalTest',
         });

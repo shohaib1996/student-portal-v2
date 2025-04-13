@@ -24,9 +24,14 @@ import { useState } from 'react';
 import { RadialProgress } from '@/components/global/RadialProgress';
 import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
 import Link from 'next/link';
+import GlobalModal from '@/components/global/GlobalModal';
+import ReviewModal from '@/components/shared/review-modal';
 
-export default function CourseCard({ course }: { course: TCourse }) {
+export default function CourseCard({ course }: { course: any }) {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [reviewOpen, setReviewOpen] = useState<boolean>(false);
+
+    console.log({ course });
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -44,10 +49,10 @@ export default function CourseCard({ course }: { course: TCourse }) {
                     <div className='relative h-[200px] w-full bg-blue-900/20'>
                         <Image
                             src={
-                                course?.course?.image ||
+                                course?.program?.image ||
                                 '/images/course-thumbnail.jpeg'
                             }
-                            alt={course.course?.title}
+                            alt={course?.program?.title}
                             fill
                             className='object-cover brightness-[0.8] contrast-[1.1] saturate-[1.2] filter'
                         />
@@ -56,7 +61,7 @@ export default function CourseCard({ course }: { course: TCourse }) {
 
                     {/* Active Badge */}
                     <Badge className='absolute right-3 top-3 text-green-500 bg-background py-1'>
-                        {course.status}
+                        {course?.status}
                     </Badge>
                 </div>
 
@@ -75,7 +80,7 @@ export default function CourseCard({ course }: { course: TCourse }) {
                         </div>
                         <div>
                             <h3 className='font-medium text-sm text-black'>
-                                {course?.course?.instructor?.name}
+                                {course?.program?.instructor?.name}
                             </h3>
                             {/* <p className='text-dark-gray text-xs'>
                                 CloudOps Engineer
@@ -86,6 +91,7 @@ export default function CourseCard({ course }: { course: TCourse }) {
                         variant='outline'
                         size='sm'
                         className='text-primary px-1 py-0.5'
+                        onClick={() => setReviewOpen(true)}
                     >
                         <svg
                             width='15'
@@ -192,7 +198,7 @@ export default function CourseCard({ course }: { course: TCourse }) {
                             <University size={16} /> Org With Logo
                         </p>
                         <p className='flex items-center gap-1 line-clamp-1'>
-                            <Network size={16} /> {course.course?.title}
+                            <Network size={16} /> {course.program?.title}
                         </p>
                         <p className='flex items-center gap-1 '>
                             <CalendarDays size={16} />{' '}
@@ -233,16 +239,18 @@ export default function CourseCard({ course }: { course: TCourse }) {
                     <div className='grid grid-cols-3 rounded-md bg-background border border-muted p-2'>
                         <div>
                             <p className='text-sm text-gray'>Total Fee:</p>
-                            <p className='font-medium'>${course?.amount}</p>
+                            <p className='font-medium'>
+                                ${course?.totalAmount}
+                            </p>
                         </div>
                         <div className='border-l pl-2'>
                             <p className='text-sm text-gray'>Paid:</p>
-                            <p className='font-medium'>${course?.paid}</p>
+                            <p className='font-medium'>${course?.paid || 0}</p>
                         </div>
                         <div className='border-l pl-2'>
                             <p className='text-sm text-gray'>Due:</p>
                             <p className='font-medium'>
-                                ${course?.amount - course?.paid}
+                                ${course?.totalAmount - course?.paid || 0}
                             </p>
                         </div>
                     </div>
@@ -261,27 +269,23 @@ export default function CourseCard({ course }: { course: TCourse }) {
                     </div> */}
                 </CardContent>
 
-                <CardFooter className='border-t border-border grid grid-cols-3 gap-2 p-2 pt-2'>
-                    <Button className='col-span-1 text-xs'>
-                        <span>Go to Course</span>
+                <CardFooter className='border-t border-border p-2 pt-2'>
+                    <Button className='col-span-1 text-xs w-full'>
+                        <span>Switch to Program</span>
                         <ArrowRight className='h-3 w-3' />
-                    </Button>
-                    <Link href='/payment-history' className='w-full'>
-                        <Button
-                            variant='outline'
-                            className='col-span-1 text-xs w-full'
-                        >
-                            <CreditCard className='mr-1 h-3 w-3' />
-                            Payment
-                        </Button>
-                    </Link>
-                    <Button variant='outline' className='col-span-1 text-xs'>
-                        <FileText className='mr-1 h-3 w-3' />
-                        Assessment
                     </Button>
                 </CardFooter>
             </Card>
-
+            <GlobalModal
+                open={reviewOpen}
+                setOpen={setReviewOpen}
+                className='w-[550px] md:w-[550px] lg:w-[550px]'
+                allowFullScreen={false}
+                subTitle='A quick overview of your feedback and rating'
+                title='My Review'
+            >
+                <ReviewModal _id={course?._id as string} />
+            </GlobalModal>
             {/* <PaymentModal open={isModalOpen} onOpenChange={handleCloseModal} /> */}
         </div>
     );

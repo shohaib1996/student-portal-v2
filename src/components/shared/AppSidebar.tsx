@@ -263,7 +263,23 @@ export function AppSidebar() {
                                                                     </SidebarMenuSubItem>
                                                                 )}
 
-                                                                {navigations?.myE2eProgramAgenda && (
+                                                                {navigations?.myProgram && (
+                                                                    <SidebarMenuSubItem>
+                                                                        <SidebarMenuButton
+                                                                            asChild
+                                                                            isActive={
+                                                                                pathname ===
+                                                                                '/payment-history'
+                                                                            }
+                                                                        >
+                                                                            <Link href='/payment-history'>
+                                                                                Payments
+                                                                            </Link>
+                                                                        </SidebarMenuButton>
+                                                                    </SidebarMenuSubItem>
+                                                                )}
+
+                                                                {/* {navigations?.myE2eProgramAgenda && (
                                                                     <SidebarMenuSubItem>
                                                                         <SidebarMenuButton
                                                                             asChild
@@ -279,7 +295,7 @@ export function AppSidebar() {
                                                                             </Link>
                                                                         </SidebarMenuButton>
                                                                     </SidebarMenuSubItem>
-                                                                )}
+                                                                )} */}
 
                                                                 {navigations?.myMedia && (
                                                                     <SidebarMenuSubItem>
@@ -297,7 +313,7 @@ export function AppSidebar() {
                                                                     </SidebarMenuSubItem>
                                                                 )}
 
-                                                                {navigations?.showTell && (
+                                                                {/* {navigations?.showTell && (
                                                                     <SidebarMenuSubItem>
                                                                         <SidebarMenuButton
                                                                             asChild
@@ -313,7 +329,7 @@ export function AppSidebar() {
                                                                             </Link>
                                                                         </SidebarMenuButton>
                                                                     </SidebarMenuSubItem>
-                                                                )}
+                                                                )} */}
 
                                                                 {navigations?.technicalTest && (
                                                                     <SidebarMenuSubItem>
@@ -332,7 +348,7 @@ export function AppSidebar() {
                                                                     </SidebarMenuSubItem>
                                                                 )}
 
-                                                                {navigations?.myDayToDayActivity && (
+                                                                {/* {navigations?.myDayToDayActivity && (
                                                                     <SidebarMenuSubItem>
                                                                         <SidebarMenuButton
                                                                             asChild
@@ -349,7 +365,7 @@ export function AppSidebar() {
                                                                             </Link>
                                                                         </SidebarMenuButton>
                                                                     </SidebarMenuSubItem>
-                                                                )}
+                                                                )} */}
 
                                                                 {navigations?.diagram && (
                                                                     <SidebarMenuSubItem>

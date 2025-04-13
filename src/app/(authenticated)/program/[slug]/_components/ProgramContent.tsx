@@ -1,4 +1,4 @@
-import { ICourseData, TContent, TLessonInfo } from '@/types';
+import { ICourseData, TContent, TCourse, TLessonInfo, TProgram } from '@/types';
 import { useEffect, useState } from 'react';
 import { ProgramSidebar } from './ProgramSidebar';
 import { Input } from '@/components/ui/input';
@@ -70,7 +70,7 @@ const ProgramContent = ({
             >
                 {sidebarOpen && (
                     <ProgramSidebar
-                        courseData={courseData}
+                        courseData={courseData as any}
                         onToggle={toggleSidebar}
                     />
                 )}
@@ -102,7 +102,9 @@ const ProgramContent = ({
                             </SheetTrigger>
                             <SheetContent side='left' className='w-[280px] p-0'>
                                 <div className='p-4'>
-                                    <ProgramSidebar courseData={courseData} />
+                                    <ProgramSidebar
+                                        courseData={courseData as any}
+                                    />
                                 </div>
                             </SheetContent>
                         </Sheet>

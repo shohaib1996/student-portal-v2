@@ -20,6 +20,8 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
     const { state } = useSidebar();
     const pathName = usePathname();
     const isChat = pathName.includes('/chat') ? true : false;
+    const isChatWithId = /\/chat\/[a-zA-Z0-9]+/.test(pathName); // Check if URL matches chat with ID pattern
+
     useEffect(() => {
         if (user?._id) {
             // Clean up listeners or any other resources here if needed
@@ -40,7 +42,7 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
                 <>
                     <AppSidebar />
                     <main
-                        className={`relative bg-background ${state === 'expanded' ? 'md:w-[calc(100%-256px)]' : 'md:w-[calc(100%-48px)]'} w-full`}
+                        className={`relative bg-background ${state === 'expanded' ? 'md:w-[calc(100%-256px)]' : 'md:w-[calc(100%-48px)]'} w-full ${isChatWithId ? 'overflow-hidden' : ''}`}
                     >
                         <Navbar />
                         <div className='px-2 min-h-[calc(100vh-55px)]'>
