@@ -489,6 +489,20 @@ const TextEditor: React.FC<TextEditorProps> = ({
             }),
         );
     };
+    const handleSendMessage = useCallback(
+        (text: string) => {
+            setLocalText(text);
+            sendMessage();
+        },
+        [
+            localText,
+            uploadFiles,
+            chatId,
+            parentMessage,
+            selectedMessage,
+            sendMessage,
+        ],
+    );
 
     return (
         <>
@@ -588,6 +602,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                         mentionMenu={MentionMenu}
                                         mentionMenuItem={MentionMenuItem}
                                         placeholder='Type a message...'
+                                        onSendMessage={handleSendMessage}
                                     />
                                 </div>
 

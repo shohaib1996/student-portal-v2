@@ -98,6 +98,10 @@ import { BeautifulMentionsPlugin } from '../components/plugins/beautiful-mention
 
 import { PluginOptions } from './editor';
 import { QuotePluginToolbar } from '../components/plugins/toolbar/quote-insert-plugin';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { COMMAND_PRIORITY_NORMAL, KEY_ENTER_COMMAND } from 'lexical';
+import { $getRoot } from 'lexical';
+import { SubmitPlugin } from '../components/plugins/SubmitPlugin';
 
 export function Plugins({
     maxLength,
@@ -108,6 +112,7 @@ export function Plugins({
     mentionMenu,
     mentionMenuItem,
     placeholder = 'Press / for commands...',
+    onSendMessage,
 }: {
     maxLength?: number;
     pluginOptions?: PluginOptions;
@@ -123,15 +128,58 @@ export function Plugins({
     mentionMenu?: React.ComponentType<any>;
     mentionMenuItem?: React.ComponentType<any>;
     placeholder?: string;
+    onSendMessage?: (text: string) => void;
 }) {
     const [floatingAnchorElem, setFloatingAnchorElem] =
         useState<HTMLDivElement | null>(null);
+
+    const [editor] = useLexicalComposerContext();
 
     const onRef = (_floatingAnchorElem: HTMLDivElement) => {
         if (_floatingAnchorElem !== null) {
             setFloatingAnchorElem(_floatingAnchorElem);
         }
     };
+
+    // Define the handleSubmit function
+    const handleSubmit = useCallback(() => {
+        if (!onSendMessage) {
+            return;
+        }
+
+        // Get the editor content
+        editor.getEditorState().read(() => {
+            const root = $getRoot();
+            const text = root.getTextContent();
+
+            // Send the message using the provided callback
+            onSendMessage(text);
+
+            // Clear the editor
+            editor.update(() => {
+                const root = $getRoot();
+                root.clear();
+            });
+        });
+    }, [editor, onSendMessage]);
+
+    // Register the Enter key command to submit messages
+    useCallback(() => {
+        return editor.registerCommand(
+            KEY_ENTER_COMMAND,
+            (event) => {
+                // Only handle if it's not a Shift+Enter (which should create a new line)
+                if (event && !event.shiftKey) {
+                    handleSubmit();
+                    return true; // Prevents default Enter behavior
+                }
+
+                // Let Shift+Enter be handled by the default handler
+                return false;
+            },
+            COMMAND_PRIORITY_NORMAL,
+        );
+    }, [editor, handleSubmit]);
 
     // Use the provided onMentionSearch or fall back to default implementation
     const queryMentions = async (
@@ -293,6 +341,8 @@ export function Plugins({
             )}
 
             <div className='relative flex-1 flex flex-col'>
+                {/* Add the SubmitPlugin here on submitting on enter press*/}
+                {onSendMessage && <SubmitPlugin onSubmit={onSendMessage} />}
                 {pluginOptions.beautifulMentions !== false && (
                     <BeautifulMentionsPlugin
                         triggers={['@']}
@@ -317,6 +367,7 @@ export function Plugins({
                                     <ContentEditable
                                         placeholder={placeholder}
                                         className='ContentEditable__root h-full w-full overflow-auto px-4 py-2 focus:outline-none'
+                                        onSubmit={handleSubmit}
                                     />
                                 </div>
                             </div>
