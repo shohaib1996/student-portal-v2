@@ -469,8 +469,9 @@ const MyInvitations = () => {
                 setProposeModalOpen(false);
                 setEvent(null);
             }
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            console.log(err);
+            toast.error(err?.data?.error || 'Failed to update invitation');
         }
     };
 

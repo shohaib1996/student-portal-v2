@@ -12,17 +12,11 @@ import {
 } from 'date-fns';
 
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
 import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
 import { TEvent } from '@/types/calendar/calendarTypes';
 
 import GlobalDropdown from '../global/GlobalDropdown';
-import { Button } from '../ui/button';
-import AcceptedIcon from '../svgs/calendar/AcceptedIcon';
-import PendingIcon from '../svgs/calendar/PendingIcon';
-import DeniedIcon from '../svgs/calendar/DeniedIcon';
-import GlobalTooltip from '../global/GlobalTooltip';
-import FinishedIcon from '../svgs/calendar/FinishedIcon';
+import { useMediaQuery } from 'react-responsive';
 import {
     EventPopoverTrigger,
     useEventPopover,
@@ -31,8 +25,6 @@ import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setCurrentDate } from '@/redux/features/calendarReducer';
 import EventButton from './EventButton';
-
-const staticEvents = '/calendarData.json';
 
 interface MonthViewProps {
     currentDate: Date;
@@ -93,6 +85,10 @@ export function MonthView({ currentDate }: MonthViewProps) {
         0, 1, 2, 7, 8, 9, 14, 15, 16, 21, 22, 23, 28, 29, 30, 35, 36, 37,
     ];
 
+    const isMobile = useMediaQuery({
+        query: '(max-width: 1024px)',
+    });
+
     return (
         <div className='flex-1 flex flex-col border border-t-0 border-forground-border'>
             <div className='grid grid-cols-7 border-b'>
@@ -121,7 +117,7 @@ export function MonthView({ currentDate }: MonthViewProps) {
                             <div
                                 key={index}
                                 className={cn(
-                                    'min-h-[190px] cursor-pointer p-1 border-r border-forground-border border-b',
+                                    'lg:min-h-[190px] min-h-[140px] cursor-pointer p-1 border-r border-forground-border border-b',
                                     !isCurrentMonth && 'bg-muted/30',
                                 )}
                                 onClick={() => handleDayClick(day)}
@@ -143,18 +139,20 @@ export function MonthView({ currentDate }: MonthViewProps) {
                                     onClick={(e) => e.stopPropagation()}
                                     className='mt-1 space-y-1 max-h-[80px]'
                                 >
-                                    {dayEvents.slice(0, 4).map((event) => (
-                                        <EventButton
-                                            key={event._id}
-                                            event={event}
-                                        />
-                                    ))}
-                                    {dayEvents?.length > 4 && (
+                                    {dayEvents
+                                        .slice(0, isMobile ? 2 : 4)
+                                        .map((event) => (
+                                            <EventButton
+                                                key={event._id}
+                                                event={event}
+                                            />
+                                        ))}
+                                    {dayEvents?.length > (isMobile ? 2 : 4) && (
                                         <GlobalDropdown
                                             dropdownRender={
                                                 <div className='space-y-1 bg-foreground p-2'>
                                                     {dayEvents
-                                                        .slice(4)
+                                                        .slice(isMobile ? 2 : 4)
                                                         .map((event) => (
                                                             <EventButton
                                                                 key={event._id}
@@ -164,8 +162,11 @@ export function MonthView({ currentDate }: MonthViewProps) {
                                                 </div>
                                             }
                                         >
-                                            <button className='h-4 text-sm font-semibold text-center w-full border-none text-primary-white'>
-                                                +{dayEvents.length - 4} more
+                                            <button className='h-4 md:text-sm text-xs font-semibold text-center w-full border-none text-primary-white'>
+                                                +
+                                                {dayEvents.length -
+                                                    (isMobile ? 2 : 4)}{' '}
+                                                more
                                             </button>
                                         </GlobalDropdown>
                                     )}

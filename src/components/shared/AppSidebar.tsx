@@ -43,6 +43,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'nextjs-toploader/app';
 import { Button } from '../ui/button';
+import { toast } from 'sonner';
 
 export type TLoookup = {
     data: any;
@@ -583,7 +584,13 @@ export function AppSidebar() {
                                         <CollapsibleContent>
                                             <SidebarMenuSub>
                                                 {navigations.myMockInterview && (
-                                                    <SidebarMenuSubItem>
+                                                    <SidebarMenuSubItem
+                                                        onClick={() =>
+                                                            toast.info(
+                                                                'Comming soon',
+                                                            )
+                                                        }
+                                                    >
                                                         <SidebarMenuButton
                                                             asChild
                                                             isActive={
@@ -591,9 +598,9 @@ export function AppSidebar() {
                                                                 '/mock-interviews'
                                                             }
                                                         >
-                                                            <Link href='/mock-interviews'>
-                                                                Mock Interviews
-                                                            </Link>
+                                                            {/* <Link href='/mock-interviews'>
+                                                            </Link> */}
+                                                            Mock Interviews
                                                         </SidebarMenuButton>
                                                     </SidebarMenuSubItem>
                                                 )}

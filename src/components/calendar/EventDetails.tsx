@@ -143,8 +143,9 @@ const EventDetails = () => {
                 setUpdateOpen(false);
                 setProposeModalOpen(false);
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
+            toast.error(err?.data?.error || 'Failed to update invitation');
         }
     };
 
