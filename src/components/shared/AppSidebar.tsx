@@ -54,7 +54,9 @@ export type TLoookup = {
 
 export function AppSidebar() {
     const { chats = [] } = useAppSelector((state) => state.chat);
-    const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+    const { user, isAuthenticated, enrollment } = useAppSelector(
+        (state) => state.auth,
+    );
     const [wordEntered, setWordEntered] = useState('');
     const [filteredData, setFilteredData] = useState([]);
     const dispatch = useAppDispatch();
@@ -155,7 +157,11 @@ export function AppSidebar() {
                                     <Image
                                         src={
                                             theme === 'dark'
-                                                ? '/logo-icon-white.png'
+                                                ? enrollment?.branch?.data
+                                                      ?.branchLogo ||
+                                                  enrollment?.organization?.data
+                                                      ?.companyLogo ||
+                                                  '/logo-icon-white.png'
                                                 : '/logo-icon.png'
                                         }
                                         width={30}
