@@ -25,6 +25,7 @@ type TProps = {
     className?: string;
     wrapperClassName?: string;
     disabled?: boolean;
+    max?: number;
 };
 
 const MultiSelect = ({
@@ -36,6 +37,7 @@ const MultiSelect = ({
     disabled,
     className,
     searchable = false,
+    max,
 }: TProps) => {
     const [open, setOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -169,13 +171,15 @@ const MultiSelect = ({
                     <div className='space-y-2 p-2'>
                         {filteredOptions.length > 0 ? (
                             filteredOptions.map((op, i) => (
-                                <div
+                                <button
+                                    type='button'
+                                    disabled={max ? value.length >= max : false}
                                     onClick={() => handleSelect(op)}
-                                    className='text-gray text-sm cursor-pointer capitalize hover:bg-muted p-1 rounded-sm'
+                                    className='text-gray w-full text-start text-sm cursor-pointer capitalize hover:bg-muted p-1 rounded-sm'
                                     key={i}
                                 >
                                     {op.label}
-                                </div>
+                                </button>
                             ))
                         ) : (
                             <div className='text-muted-foreground text-sm p-1'>

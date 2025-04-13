@@ -441,7 +441,6 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                 <SelectTrigger className='w-fit gap-2 bg-background h-8 flex'>
                                                     <RepeatIcon size={16} />
                                                     <SelectValue placeholder='Repeat'></SelectValue>
-                                                    <X />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value='daily'>
@@ -568,26 +567,30 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                             'col-span-10 order-9': isFullScreen,
                         })}
                     >
-                        <div
-                            className={
-                                isFullScreen ? 'min-h-[calc(100%-20px)]' : ''
-                            }
-                        >
-                            {isFullScreen && (
-                                <FormLabel reqired>Add Reminders</FormLabel>
-                            )}
-                            {field.value?.map((noti, i) => (
-                                <AddNotification
-                                    disabled={edit}
-                                    setNotification={(val) =>
-                                        field.onChange([val])
-                                    }
-                                    key={i}
-                                    notificaiton={noti as TNotification}
-                                />
-                            ))}
-                            <FormMessage />
-                        </div>
+                        <FormControl>
+                            <div
+                                className={
+                                    isFullScreen
+                                        ? 'min-h-[calc(100%-20px)]'
+                                        : ''
+                                }
+                            >
+                                {isFullScreen && (
+                                    <FormLabel reqired>Add Reminders</FormLabel>
+                                )}
+                                {field.value?.map((noti, i) => (
+                                    <AddNotification
+                                        disabled={edit}
+                                        setNotification={(val) =>
+                                            field.onChange([val])
+                                        }
+                                        key={i}
+                                        notificaiton={noti as TNotification}
+                                    />
+                                ))}
+                            </div>
+                        </FormControl>
+                        <FormMessage />
                     </FormItem>
                 )}
             />
