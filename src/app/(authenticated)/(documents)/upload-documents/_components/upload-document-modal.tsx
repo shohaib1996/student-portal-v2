@@ -53,9 +53,13 @@ export interface UploadDocumentModalProps {
 // Zod schema for form validation
 const documentSchema = z.object({
     description: z.string().optional(),
-    documentName: z.string().refine((value) => !value.includes(' '), {
-        message: 'Document name cannot contain spaces',
-    }),
+    documentName: z
+        .string()
+        .trim()
+        .min(1, { message: 'Document is required' })
+        .refine((value) => value.trim().length > 0, {
+            message: 'Document name cannot contain spaces',
+        }),
     category1: z.string({
         required_error: 'Please select a category',
     }),
@@ -124,6 +128,7 @@ export function UploadDocumentModal({
 
             try {
                 const url = await uploadFile(file);
+
                 setThumbnailUrl(url);
 
                 // show preview
@@ -152,9 +157,12 @@ export function UploadDocumentModal({
             setIsUploading(true);
 
             try {
+                // Upload all new files concurrently
                 const urls = await Promise.all(
                     newFiles.map((file) => uploadFile(file)),
                 );
+
+                // Append new files and their URLs to the current state
                 setAttachedFiles((prev) => [...prev, ...newFiles]);
                 setAttachedFileUrls((prev) => [...prev, ...urls]);
             } catch (error) {
@@ -164,7 +172,6 @@ export function UploadDocumentModal({
             }
         }
     };
-
     const handleRemoveFile = (index: number) => {
         setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
         setAttachedFileUrls((prev) => prev.filter((_, i) => i !== index));
@@ -254,6 +261,10 @@ export function UploadDocumentModal({
                 } as unknown as React.ChangeEvent<HTMLInputElement>;
 
                 handleFileAttachment(fileChangeEvent);
+                setAttachedFileUrls((pre) => [
+                    ...pre,
+                    ...validFiles.map((file) => URL.createObjectURL(file)),
+                ]);
             } else {
                 toast.error(
                     'Please upload valid file types (JPG, PNG, PDF, DOCS)',
@@ -271,7 +282,7 @@ export function UploadDocumentModal({
                 ? values.tags.split(',').map((tag) => tag.trim())
                 : [],
             thumbnail: thumbnailUrl,
-            attachedFiles: attachedFileUrls,
+            attachment: [...attachedFileUrls, thumbnailUrl],
         };
 
         try {

@@ -1,6 +1,7 @@
 'use client';
 
 import { FileText, File, Image as ImageIcon } from 'lucide-react';
+import Link from 'next/link';
 
 export interface AttachedFile {
     id: string;
@@ -45,7 +46,6 @@ export function GlobalAttachedFilesSection({
             return <File className='h-4 w-4 text-muted-foreground' />;
         }
     };
-
     return (
         <div className='mt-6 border-t pt-4'>
             <h3 className='mb-3 text-sm font-medium'>
@@ -53,17 +53,18 @@ export function GlobalAttachedFilesSection({
             </h3>
             <div className='flex flex-wrap gap-4'>
                 {files.map((file) => (
-                    <a
-                        key={file.id}
-                        href={file.url || `#file-${file.id}`}
+                    <Link
+                        key={file?.id}
+                        href={file?.url || file?.name || `#file-${file.id}`}
                         target='_blank'
+                        download={file?.url || file?.name}
                         rel='noopener noreferrer'
                         className='bg-background flex flex-row gap-1 rounded-md border p-2 text-sm hover:bg-muted transition-colors cursor-pointer'
                     >
                         {isImageFile(file.type) ? (
                             <div className='h-24 w-32 overflow-hidden rounded'>
                                 <img
-                                    src={file.url}
+                                    src={file.url || file?.name}
                                     alt={file.name}
                                     className='h-full w-full object-cover'
                                 />
@@ -81,7 +82,7 @@ export function GlobalAttachedFilesSection({
                                 {file.size || 'undefined'}
                             </p>
                         </div>
-                    </a>
+                    </Link>
                 ))}
             </div>
         </div>

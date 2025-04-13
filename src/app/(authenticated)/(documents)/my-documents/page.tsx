@@ -284,7 +284,7 @@ export default function MyDocumentsPage() {
                 {isGridView ? (
                     <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
                         {allDocuments.length > 0 ? (
-                            allDocuments.map((doc) => (
+                            allDocuments.map((doc: any) => (
                                 <GlobalDocumentCard
                                     key={doc._id}
                                     id={doc._id}

@@ -81,8 +81,40 @@ export function DocumentContentArea({
             `);
         }
     };
-    console.log({ LabContent: content });
-    console.log({ document: document });
+
+    const imageExtensions = [
+        '.png',
+        '.jpg',
+        '.jpeg',
+        '.webp',
+        '.gif',
+        '.svg',
+        '.bmp',
+        '.tiff',
+        '.ico',
+        '.avif',
+    ];
+
+    const bannarImage = document?.attachedFiles?.reduce(
+        (
+            acc: string,
+            curr: { id: string; name: string; type: string; size: string },
+        ) => {
+            if (acc) {
+                return acc;
+            } // already found an image name
+            if (
+                imageExtensions.some((ext) =>
+                    curr.name.toLowerCase().endsWith(ext),
+                )
+            ) {
+                return curr.name; // return the matched image name
+            }
+            return acc; // continue with empty string
+        },
+        '',
+    );
+
     return (
         <div className='lg:col-span-2'>
             <GlobalDetailsBanner
@@ -91,7 +123,9 @@ export function DocumentContentArea({
                 uploadDate={document.uploadDate}
                 lastUpdate={document.lastUpdate}
                 tags={document.tags}
-                imageUrl={document?.thumbnail || '/default_image.png'}
+                imageUrl={
+                    bannarImage || document?.thumbnail || '/default_image.png'
+                }
             />
             <div className=''>
                 <Tabs defaultValue='documents'>
@@ -164,7 +198,14 @@ export function DocumentContentArea({
                         </div>
 
                         <GlobalAttachedFilesSection
-                            files={document.attachedFiles}
+                            files={
+                                document.attachedFiles as {
+                                    id: string;
+                                    name: string;
+                                    type: string;
+                                    size: string;
+                                }[]
+                            }
                         />
 
                         <GlobalCommentsSection

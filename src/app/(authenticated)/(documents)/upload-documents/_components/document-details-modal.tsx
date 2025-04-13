@@ -281,6 +281,7 @@ export function DocumentDetailsModal({
     }
 
     // Get document tags for the sidebar
+
     const documentTags =
         Array.isArray(content.tags) && content.tags.length > 0
             ? content.tags

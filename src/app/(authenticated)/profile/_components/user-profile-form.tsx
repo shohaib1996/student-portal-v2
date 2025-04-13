@@ -61,7 +61,7 @@ import {
     Loader,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAppSelector } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import Image from 'next/image';
 import { DatePicker } from '@/components/global/DatePicket';
 import dayjs from 'dayjs';
@@ -187,7 +187,7 @@ const FormSchema = z.object({
 });
 
 export default function UserProfileForm() {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const { user } = useAppSelector((state) => state.auth);
     const [updateUserInfo, { isLoading: isUpdating }] =
         useUpdateUserInfoMutation();
