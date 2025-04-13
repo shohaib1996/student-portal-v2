@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import {
     Bell,
     BookmarkCheck,
@@ -177,6 +176,7 @@ const EventDetails = () => {
                                     premissions?.modifyEvent === true) && (
                                     <EventPopoverTrigger updateId={event?._id}>
                                         <Button
+                                            tooltip='Edit Event'
                                             onClick={() => setOpen()}
                                             variant='ghost'
                                             size='icon'
@@ -186,17 +186,22 @@ const EventDetails = () => {
                                         </Button>
                                     </EventPopoverTrigger>
                                 )}
-                                <Button
-                                    variant='ghost'
-                                    size='icon'
-                                    className='h-8 w-8'
-                                >
-                                    <Copy className='h-4 w-4' />
-                                </Button>
+                                <EventPopoverTrigger copyId={event?._id}>
+                                    <Button
+                                        tooltip='Copy Event'
+                                        onClick={() => setOpen()}
+                                        variant='ghost'
+                                        size='icon'
+                                        className='h-8 w-8'
+                                    >
+                                        <Copy className='h-4 w-4' />
+                                    </Button>
+                                </EventPopoverTrigger>
                                 {isMyEvent &&
                                     (event?.recurrence?.isRecurring ||
                                     event?.seriesId ? (
                                         <Button
+                                            tooltip='Delete Event'
                                             onClick={() => setDeleteOpen(true)}
                                             variant='ghost'
                                             size='icon'
@@ -211,7 +216,16 @@ const EventDetails = () => {
                                             isButton
                                             _id={event?._id as string}
                                             deleteFun={deleteEvent}
-                                        />
+                                        >
+                                            <Button
+                                                tooltip='Delete Event'
+                                                variant='ghost'
+                                                size='icon'
+                                                className='h-8 w-8 text-danger'
+                                            >
+                                                <Trash2 size={17} />
+                                            </Button>
+                                        </GlobalDeleteModal>
                                     ))}
                             </div>
                         </div>

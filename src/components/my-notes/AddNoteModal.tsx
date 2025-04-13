@@ -40,12 +40,16 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import GlobalHeader from '../global/GlobalHeader';
 import GlobalEditor from '../editor/GlobalEditor';
-import { useAddNoteMutation } from '@/redux/api/notes/notesApi';
+import {
+    useAddNoteMutation,
+    useUpdateNoteMutation,
+} from '@/redux/api/notes/notesApi';
 import { TNote } from '@/types';
 import SelectPurpose from '../calendar/CreateEvent/SelectPurpose';
 import GlobalModal from '../global/GlobalModal';
 import { useUploadUserDocumentFileMutation } from '@/redux/api/documents/documentsApi';
 import GlobalBlockEditor from '../editor/GlobalBlockEditor';
+import { toast } from 'sonner';
 
 export interface AddNoteModalProps {
     isOpen: boolean;
@@ -59,7 +63,7 @@ const noteSchema = z.object({
     title: z.string().trim().min(1, { message: 'Title is required' }),
     description: z.string().optional(),
     thumbnail: z.string().optional(),
-    tags: z.array(z.string()).optional(),
+    tags: z.string().optional(),
     purpose: z
         .object({
             category: z.string(),
@@ -84,13 +88,10 @@ export function AddNoteModal({
     defaultValues,
     documentId,
 }: AddNoteModalProps) {
-    const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
-        null,
-    );
-    const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
     const [uploadingThumb, setUploadingThumb] = useState(false);
     const [uploadingAttac, setUploadingAttac] = useState(false);
     const [addNote, { isLoading: isCreating }] = useAddNoteMutation();
+    const [updateNote, { isLoading: isUpdating }] = useUpdateNoteMutation();
     const [
         uploadUserDocumentFile,
         { isLoading: isUploading, isError, isSuccess, data },
@@ -103,19 +104,31 @@ export function AddNoteModal({
             attachments: defaultValues?.attachments || [],
             description: defaultValues?.description || '',
             title: defaultValues?.title || '',
-            tags: defaultValues?.tags || [],
+            tags: defaultValues?.tags?.join(',') || '',
         },
     });
+
+    const clearForm = () => {
+        form.reset({
+            description: '',
+            title: '',
+            tags: '',
+            purpose: {
+                category: '',
+                resourceId: '',
+            },
+            attachments: [],
+            thumbnail: '',
+        });
+    };
 
     // Set default values when the modal opens
     useEffect(() => {
         if (isOpen && defaultValues) {
-            setThumbnailPreview(defaultValues?.thumbnail || '');
-            // setAttachedFileUrls(defaultValues?.attachments || []);
             form.reset({
                 description: defaultValues.description,
                 title: defaultValues.title,
-                tags: defaultValues?.tags,
+                tags: defaultValues?.tags?.join(','),
                 purpose: defaultValues?.purpose,
                 attachments: defaultValues?.attachments || [],
                 thumbnail: defaultValues?.thumbnail || '',
@@ -177,31 +190,43 @@ export function AddNoteModal({
     };
 
     const handleRemoveThumbnail = () => {
-        setThumbnailPreview(null);
         form.setValue('thumbnail', '');
-        setThumbnailFile(null);
     };
 
     const onSubmit = async (values: z.infer<typeof noteSchema>) => {
         const submissionData: Partial<TNote> = {
             description: values.description,
             title: values.title.trim(),
-            // tags: values.tags
-            //     ? values.tags.split(',').map((tag) => tag.trim())
-            //     : [],
+            tags: values.tags
+                ? values.tags.split(',').map((tag) => tag.trim())
+                : [],
             thumbnail: values.thumbnail,
             attachments: values.attachments,
             purpose: values.purpose,
         };
 
         try {
-            const res = await addNote(submissionData).unwrap();
-            if (res) {
-                console.log(res);
-                onClose();
+            if (defaultValues) {
+                const res = await updateNote({
+                    id: defaultValues._id,
+                    data: submissionData,
+                });
+
+                if (res) {
+                    toast.success('Note updated successfully');
+                    onClose();
+                    clearForm();
+                }
+            } else {
+                const res = await addNote(submissionData).unwrap();
+                if (res) {
+                    onClose();
+                    clearForm();
+                    toast.success('Added new note successfully');
+                }
             }
         } catch (err) {
-            console.log(err);
+            toast.error(`Failed to ${defaultValues ? 'update' : 'add'} note`);
         }
     };
 
@@ -244,7 +269,12 @@ export function AddNoteModal({
         <GlobalModal
             fullScreen
             open={isOpen}
-            setOpen={(open) => !open && onClose()}
+            setOpen={(open) => {
+                if (!open) {
+                    onClose();
+                    clearForm();
+                }
+            }}
             title={
                 <div className='w-full'>
                     <GlobalHeader
@@ -327,8 +357,9 @@ export function AddNoteModal({
                                                                 <GlobalBlockEditor
                                                                     placeholder='Add Description'
                                                                     value={
-                                                                        field.value ||
-                                                                        ''
+                                                                        form.watch(
+                                                                            'description',
+                                                                        ) || ''
                                                                     }
                                                                     onChange={(
                                                                         val,
@@ -436,7 +467,8 @@ export function AddNoteModal({
                                                                     </div>
                                                                 ) : form.watch(
                                                                       'thumbnail',
-                                                                  ) ? (
+                                                                  ) &&
+                                                                  field.value ? (
                                                                     <div className='relative mx-auto h-32 w-32 overflow-hidden rounded'>
                                                                         <Image
                                                                             src={

@@ -48,19 +48,14 @@ import {
     useFindUserAvailabilityQuery,
 } from '@/redux/api/calendar/calendarApi';
 import { TUser } from '@/types/auth';
-import { TdUser } from '@/components/global/TdUser';
-import GlobalDropdown from '@/components/global/GlobalDropdown';
 import { DatePicker } from '@/components/global/DatePicket';
 import dayjs, { Dayjs } from 'dayjs';
 import { TimePicker } from '@/components/global/TimePicker';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { UseFormReturn, SubmitHandler } from 'react-hook-form';
-import { ColorPicker } from '@/components/global/ColorPicker';
 import { TAvailability, TNotification } from '@/types/calendar/calendarTypes';
-import { MarkdownEditor } from '@/components/global/MarkdownEditor/MarkdownEditor';
 import { MDXEditorMethods } from '@mdxeditor/editor';
-import Image from 'next/image';
 import { useEventPopover } from '../CreateEvent/EventPopover';
 import { TTodoFormType } from '../validations/todoValidation';
 import AddNotification from '../CreateEvent/AddNotification';

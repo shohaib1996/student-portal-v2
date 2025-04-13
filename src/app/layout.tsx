@@ -7,6 +7,10 @@ import ReduxProvider from '@/providers/ReduxProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { Toaster } from 'sonner';
 import 'simplebar-react/dist/simplebar.min.css';
+import AllProvider from '@/providers/AllProvider';
+import WorkspaceProvider from '@/providers/WorkspaceProvider';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import MainLayout from '@/components/Layout/MainLayout';
 
 const interFont = Inter({
     variable: '--font-inter',
@@ -46,8 +50,19 @@ export default function RootLayout({
                         disableTransitionOnChange
                     >
                         <ReduxProvider>
-                            <>{children}</>
-                            <Toaster richColors position='top-center' />
+                            <AllProvider>
+                                <WorkspaceProvider>
+                                    <SidebarProvider>
+                                        <MainLayout>
+                                            {children}
+                                            <Toaster
+                                                richColors
+                                                position='top-center'
+                                            />
+                                        </MainLayout>
+                                    </SidebarProvider>
+                                </WorkspaceProvider>
+                            </AllProvider>
                         </ReduxProvider>
                     </ThemeProvider>
                 </body>

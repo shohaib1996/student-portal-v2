@@ -19,7 +19,41 @@ const notesApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: [tagTypes.notes],
         }),
+        getSingleNote: build.query({
+            query: (id: string) => ({
+                url: `/content/note/get/${id}`,
+                method: 'GET',
+            }),
+            providesTags: (result, error, id) => [
+                { type: tagTypes.notes, id },
+                tagTypes.notes,
+            ],
+        }),
+        updateNote: build.mutation({
+            query: ({ id, data }: { id: string; data: any }) => ({
+                url: `/content/note/edit/${id}`,
+                method: 'PATCH',
+                data,
+            }),
+            invalidatesTags: (result, error, id) => [
+                ...(result && { type: tagTypes.notes, id }),
+                tagTypes.notes,
+            ],
+        }),
+        deleteNote: build.mutation({
+            query: (id: string) => ({
+                url: `/content/note/delete/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: [tagTypes.notes],
+        }),
     }),
 });
 
-export const { useGetNotesQuery, useAddNoteMutation } = notesApi;
+export const {
+    useGetNotesQuery,
+    useAddNoteMutation,
+    useGetSingleNoteQuery,
+    useUpdateNoteMutation,
+    useDeleteNoteMutation,
+} = notesApi;

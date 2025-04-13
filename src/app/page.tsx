@@ -1,10 +1,10 @@
-import LoginPageCom from '@/components/auth/Login/page';
+import DashboardBody from './(authenticated)/dashboard/(root)/_components/dashboard-body';
 
 const LoginPage = () => {
     return (
-        <>
-            <LoginPageCom />
-        </>
+        <div>
+            <DashboardBody />
+        </div>
     );
 };
 

@@ -84,6 +84,8 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                 process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,
             );
 
+            console.log(token);
+
             const activeCompanyFromCookie = Cookies.get('activeCompany');
 
             if (token) {
@@ -131,12 +133,16 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                     setIsLoading(false);
                     Cookies.remove(
                         process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,
+                        {
+                            domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN,
+                        },
                     );
                     toast.error(
                         err?.response?.data?.error || 'Something went wrong',
                     );
                     dispatch(logout());
-                    window.location.href = `/auth/login`;
+                    // window.location.href = process.env
+                    //     .NEXT_PUBLIC_REDIRECT_URL as string;
                 }
             } else {
                 setTimeout(async () => {
@@ -145,7 +151,8 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                     await persistor.purge();
                 }, 200);
 
-                window.location.href = `/auth/login`;
+                // window.location.href = process.env
+                //     .NEXT_PUBLIC_REDIRECT_URL as string;
             }
         };
 
