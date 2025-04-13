@@ -464,6 +464,135 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
         );
     };
 
+    // Implementing handleSendMessage similar to TextEditor component
+    const handleSendMessage = useCallback(
+        (editorText: string) => {
+            console.log({ editorText });
+            setText(editorText);
+
+            // We need to ensure the text is updated before sending the message
+            // Using a setTimeout to allow the state update to be processed
+            setTimeout(() => {
+                const successFiles = uploadFiles
+                    .filter((file) => file.url)
+                    .map((x) => ({
+                        name: x?.name,
+                        type: x?.type,
+                        size: x?.size,
+                        url: x?.url,
+                    }));
+
+                const messageText = editorText.trim();
+
+                if (!messageText && successFiles.length === 0) {
+                    return toast.error(
+                        'Please write something or attach a file',
+                    );
+                }
+
+                const data = {
+                    text: messageText,
+                    files: successFiles,
+                } as any;
+
+                if (parentMessage) {
+                    data['parentMessage'] = parentMessage;
+                }
+
+                if (selectedMessage) {
+                    instance
+                        .patch(
+                            `/chat/update/message/${selectedMessage?._id}`,
+                            data,
+                        )
+                        .then((res) => {
+                            setText('');
+                            setUploadFiles([]);
+                            toast.success('Message updated successfully');
+                            if (onSentCallback) {
+                                onSentCallback({
+                                    action: 'edit',
+                                    message: res.data.message,
+                                });
+                            }
+                        })
+                        .catch((err) => {
+                            toast.error(
+                                err?.response?.data?.error ||
+                                    'Failed to update message',
+                            );
+                        });
+                } else {
+                    const randomId = Math.floor(
+                        Math.random() * (999999 - 1111) + 1111,
+                    );
+                    const messageData = {
+                        message: {
+                            ...data,
+                            _id: randomId,
+                            sender: {
+                                _id: user?._id,
+                                fullName: `${user?.firstName} ${user?.lastName}`,
+                                profilePicture: user?.profilePicture,
+                            },
+                            createdAt: Date.now(),
+                            status: 'sending',
+                            chat: chatId,
+                            type: 'message',
+                        },
+                    };
+
+                    dispatch(pushMessage(messageData));
+                    setText('');
+                    setUploadFiles([]);
+
+                    instance
+                        .put(`/chat/sendmessage/${chatId}`, data)
+                        .then((res) => {
+                            // Update the message status to 'sent' in Redux
+                            dispatch(
+                                updateSendingInfo({
+                                    message: {
+                                        ...res.data.message,
+                                        status: 'sent', // Ensure status is set to 'sent'
+                                    },
+                                    trackingId: randomId.toString(),
+                                }),
+                            );
+
+                            if (scrollIntoBottom) {
+                                scrollIntoBottom();
+                            }
+
+                            if (onSentCallback) {
+                                onSentCallback({
+                                    action: 'create',
+                                    message: res.data.message,
+                                });
+                            }
+                        })
+                        .catch((err) => {
+                            toast.error(
+                                err?.response?.data?.error ||
+                                    'Failed to send message',
+                            );
+                        });
+                }
+            }, 0);
+        },
+        [
+            text,
+            uploadFiles,
+            chatId,
+            parentMessage,
+            selectedMessage,
+            user,
+            dispatch,
+            onSentCallback,
+            scrollIntoBottom,
+        ],
+    );
+
     return (
         <>
             {/* Pasted Files Modal */}
@@ -554,6 +683,7 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                                         mentionMenu={MentionMenu}
                                         mentionMenuItem={MentionMenuItem}
                                         placeholder='Type a message...'
+                                        onSendMessage={handleSendMessage}
                                     />
                                 </div>
 
