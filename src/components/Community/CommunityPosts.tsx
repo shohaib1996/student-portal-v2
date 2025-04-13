@@ -463,7 +463,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     </div>
                 </CardFooter>
                 {/* Action Buttons */}
-                <div className='grid grid-cols-4 border-t border-border pt-2'>
+                <div className='grid grid-cols-4 border-t border-forground-border pt-2'>
                     <div
                         className={cn(
                             'flex items-center justify-center gap-2 py-2 text-sm font-medium hover:bg-foreground relative cursor-pointer',

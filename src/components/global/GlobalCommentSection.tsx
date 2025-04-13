@@ -60,7 +60,7 @@ export function GlobalCommentsSection({
     }
 
     return (
-        <div className='mt-2 border-t pt-2'>
+        <div className='mt-2 border-t border-forground-border pt-2'>
             {isTitleEnable && (
                 <h3 className='mb-2 text-sm font-medium'>
                     Comments ({commentsToDisplay.length})
@@ -144,7 +144,7 @@ export function GlobalCommentsSection({
                 <div className='relative flex-1'>
                     <Textarea
                         placeholder='Write a comment...'
-                        className='min-h-[40px] resize-none pr-10 bg-background'
+                        className='min-h-[40px] resize-none pr-10 bg-foreground'
                         onKeyUp={(e) => {
                             if (
                                 e.key === 'Enter' &&

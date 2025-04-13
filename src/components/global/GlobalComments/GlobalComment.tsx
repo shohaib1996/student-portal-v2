@@ -39,7 +39,7 @@ interface GlobalCommentProps {
     cbDelete?: () => void;
     focused?: boolean;
     wrapperHight?: string;
-    bgColor?: string;
+    bgColor?: 'foreground' | 'background';
 }
 
 const GlobalComment: React.FC<GlobalCommentProps> = ({
@@ -49,7 +49,7 @@ const GlobalComment: React.FC<GlobalCommentProps> = ({
     cbDelete,
     focused = true,
     wrapperHight = '500px',
-    bgColor = 'white',
+    bgColor = 'background',
 }) => {
     const { user } = useAppSelector((state) => state.auth);
     const [comment, setComment] = useState<string>('');
@@ -307,7 +307,7 @@ const GlobalComment: React.FC<GlobalCommentProps> = ({
                                 })
                             }
                         >
-                            <Send size={24} />
+                            <Send size={24} className='stroke-primary-white' />
                         </button>
                     </div>
                 </div>
@@ -319,7 +319,7 @@ const GlobalComment: React.FC<GlobalCommentProps> = ({
         <>
             {contentId && (
                 <div className='p-2'>
-                    <Separator />
+                    <Separator className='bg-forground-border' />
                     <h2 className='text-lg font-semibold text-dark-gray pb-2'>
                         Comments
                     </h2>
