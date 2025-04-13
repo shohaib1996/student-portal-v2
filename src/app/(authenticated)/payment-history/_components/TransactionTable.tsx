@@ -217,8 +217,8 @@ const TransactionTable = () => {
         },
     ];
 
-    const isImage = item.attachment?.match(/\.(jpeg|jpg|gif|png)$/i) !== null;
-    const isPdf = item.attachment?.match(/\.(pdf)$/i) !== null;
+    // const isImage = item.attachment?.match(/\.(jpeg|jpg|gif|png)$/i) !== null;
+    // const isPdf = item.attachment?.match(/\.(pdf)$/i) !== null;
 
     return (
         <div className='py-4'>
@@ -247,12 +247,12 @@ const TransactionTable = () => {
                 buttons={
                     <Badge
                         className={
-                            item.status === 'approved'
+                            item?.status === 'approved'
                                 ? 'bg-green-100 text-green-800 hover:bg-green-200'
                                 : 'bg-red-100 text-red-800 hover:bg-red-200'
                         }
                     >
-                        {item.status === 'approved' ? (
+                        {item?.status === 'approved' ? (
                             <span className='flex items-center gap-1'>
                                 <BadgeCheck className='h-3.5 w-3.5' /> Approved
                             </span>
@@ -316,7 +316,7 @@ const TransactionTable = () => {
                                             Payment ID
                                         </h4>
                                         <p className='font-medium text-black'>
-                                            {item._id}
+                                            {item?._id}
                                         </p>
                                     </div>
 
@@ -325,7 +325,7 @@ const TransactionTable = () => {
                                             Amount
                                         </h4>
                                         <p className='text-xl font-bold text-black'>
-                                            ${item.amount.toFixed(2)}
+                                            ${item?.amount?.toFixed(2)}
                                         </p>
                                     </div>
 
@@ -334,7 +334,7 @@ const TransactionTable = () => {
                                             Method
                                         </h4>
                                         <p className='font-medium text-black capitalize'>
-                                            {item.method}
+                                            {item?.method}
                                         </p>
                                     </div>
                                 </div>
@@ -345,7 +345,7 @@ const TransactionTable = () => {
                                             Date and Time
                                         </h4>
                                         <p className='font-medium text-black'>
-                                            {dayjs(item.date).format(
+                                            {dayjs(item?.date).format(
                                                 'MMM D, YYYY h:mm A',
                                             )}
                                         </p>
@@ -357,7 +357,7 @@ const TransactionTable = () => {
                                                 Attachment
                                             </h4>
                                             <a
-                                                href={item.attachment}
+                                                href={item?.attachment}
                                                 target='_blank'
                                                 rel='noopener noreferrer'
                                                 className='text-primary hover:underline flex items-center gap-1'
@@ -374,7 +374,7 @@ const TransactionTable = () => {
                                                 Note
                                             </h4>
                                             <p className='text-black'>
-                                                {item.note}
+                                                {item?.note}
                                             </p>
                                         </div>
                                     )}
