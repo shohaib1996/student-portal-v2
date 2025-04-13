@@ -86,7 +86,7 @@ export const loadNotifications = (): AppThunk => {
 
 export const getOnlines = (): AppThunk => {
     return (dispatch) => {
-        axios
+        instance
             .get('/user/online')
             .then((res) => {
                 dispatch(setOnlineUsers(res.data.users));

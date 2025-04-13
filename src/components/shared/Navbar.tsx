@@ -22,6 +22,7 @@ import {
     ScrollText,
     LogOut,
     BookOpenText,
+    MessageCircle,
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -401,6 +402,14 @@ const Navbar = () => {
                             Manual
                         </Link>
                     </Button> */}
+                    <Button
+                        className='rounded-full  size-9 text-dark-gray'
+                        variant={'outline'}
+                    >
+                        <Link href='/chat'>
+                            <MessageCircle size={18} />
+                        </Link>
+                    </Button>
                     <Button
                         className='rounded-full  size-9 text-dark-gray'
                         variant={'outline'}

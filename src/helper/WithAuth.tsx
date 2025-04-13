@@ -74,13 +74,8 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
     const dispatch = useDispatch<any>(); // Use useDispatch hook
     const [enrollments, setEnrollments] = useState([]);
 
-
     useEffect(() => {
-
-
         const fetchData = async (): Promise<void> => {
-
-
             const storageModule = await import('../utils/storage');
             const storage: Storage = storageModule.default;
 
@@ -167,7 +162,6 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                         domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN,
                     });
                     setIsLoading(false);
-
                 }, 200);
 
                 window.location.href = `${process.env.NEXT_PUBLIC_REDIRECT_URL as string}/auth/login`;
