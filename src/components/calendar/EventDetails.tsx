@@ -186,7 +186,7 @@ const EventDetails = () => {
                                         </Button>
                                     </EventPopoverTrigger>
                                 )}
-                                {/* <EventPopoverTrigger copyId={event?._id}>
+                                <EventPopoverTrigger copyId={event?._id}>
                                     <Button
                                         tooltip='Copy Event'
                                         onClick={() => setOpen()}
@@ -196,7 +196,7 @@ const EventDetails = () => {
                                     >
                                         <Copy className='h-4 w-4' />
                                     </Button>
-                                </EventPopoverTrigger> */}
+                                </EventPopoverTrigger>
                                 {isMyEvent &&
                                     (event?.recurrence?.isRecurring ||
                                     event?.seriesId ? (
