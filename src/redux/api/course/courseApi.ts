@@ -76,6 +76,7 @@ const courseApi = baseApi.injectEndpoints({
                 method: 'POST',
                 data: { action, chapterId },
             }),
+            invalidatesTags: [tagTypes.course],
         }),
     }),
 });

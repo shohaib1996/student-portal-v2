@@ -153,11 +153,6 @@ const ContentDropDown = ({
                                     </div>
 
                                     <div className='flex items-center gap-1'>
-                                        <span>
-                                            {item.isPinned && (
-                                                <Pin className='h-4 w-4 text-primary-white' />
-                                            )}
-                                        </span>
                                         <LessionActionMenu
                                             item={item}
                                             lessonId={item?._id}
@@ -179,7 +174,7 @@ const ContentDropDown = ({
                                 <Link
                                     href={
                                         item.lesson.url
-                                            ? `/slide/${item.lesson.url}`
+                                            ? `/presentation-slides/${item.lesson.url}`
                                             : '#'
                                     }
                                     target='_blank'
@@ -210,7 +205,7 @@ const ContentDropDown = ({
                                                     item.priority,
                                                 )}
                                             </div>
-                                            <MoreVertical className='h-5 w-5 text-gray' />
+                                            {/* <MoreVertical className='h-5 w-5 text-gray' /> */}
                                         </div>
                                     </div>
                                 </Link>

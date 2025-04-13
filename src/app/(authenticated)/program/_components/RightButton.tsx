@@ -4,7 +4,7 @@ export default function RightButton() {
     return (
         <div className='flex flex-col sm:flex-row gap-1.5 w-full max-w-4xl mx-auto'>
             <Link
-                href='/dashboard/leaderboard'
+                href='/leaderboard'
                 className='text-dark-gray font-medium text-sm flex items-center gap-1 px-3 py-2 bg-background rounded-lg border border-gray-200 transition-colors'
             >
                 <svg
@@ -34,7 +34,7 @@ export default function RightButton() {
             </Link>
 
             <Link
-                href='/dashboard/progress'
+                href='/progress'
                 className='text-dark-gray font-medium text-sm flex items-center gap-2 px-3 py-2 bg-background rounded-lg border border-gray-200 transition-colors'
             >
                 <svg
