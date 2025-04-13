@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 
 import { useEffect, useState } from 'react';
 import { useGetAllPortalChartDataMutation } from '@/redux/api/myprogram/myprogramApi';
+import { MessageCircle } from 'lucide-react';
 
 export function ChatsSection() {
     const [getAllChats] = useGetAllPortalChartDataMutation();
@@ -24,6 +25,7 @@ export function ChatsSection() {
             try {
                 const response = await getAllChats({ message: {} }).unwrap();
                 const results = response.data.message.results;
+                console.log(results, 'all chats data');
                 setChatData({
                     totalChat: results.totalChat,
                     totalMessage: results.totalMessage,
@@ -74,20 +76,7 @@ export function ChatsSection() {
                 <div className=''>
                     <div className='grid lg:grid-cols-3 gap-2 border rounded-lg'>
                         <div className='p-2 flex items-center gap-2'>
-                            <svg
-                                xmlns='http://www.w3.org/2000/svg'
-                                width='24'
-                                height='24'
-                                viewBox='0 0 24 24'
-                                fill='none'
-                                stroke='currentColor'
-                                strokeWidth='2'
-                                strokeLinecap='round'
-                                strokeLinejoin='round'
-                                className='lucide lucide-message-square text-primary'
-                            >
-                                <path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' />
-                            </svg>
+                            <MessageCircle className='text-primary' />
                             <div>
                                 <div className='text-sm font-medium text-nowrap'>
                                     Total Chats

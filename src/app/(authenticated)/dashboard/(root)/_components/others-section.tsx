@@ -5,6 +5,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useGetPortalDataQuery } from '@/redux/api/dashboard/calendarApi';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import GlobalModal from '@/components/global/GlobalModal';
+import ReviewModal from '@/components/shared/review-modal';
+import { useRouter } from 'next/navigation';
 
 export function OthersSection() {
     const { data, isLoading, error } = useGetPortalDataQuery({
@@ -13,7 +18,7 @@ export function OthersSection() {
         review: {},
     });
 
-    console.log(data);
+    const router = useRouter();
 
     return (
         <Card className='p-2 rounded-lg shadow-none bg-foreground'>
@@ -173,28 +178,14 @@ export function OthersSection() {
                                 {data?.data?.review?.results?.totalReviews || 0}
                             </span>
                         </div>
-                        <Link href={'/program'}>
+                        <Link href={'/program/online-courses'}>
                             <Button
                                 variant='secondary'
                                 size='sm'
                                 className='w-full mt-2 text-xs'
                             >
                                 Leave a Review
-                                <svg
-                                    xmlns='http://www.w3.org/2000/svg'
-                                    width='12'
-                                    height='12'
-                                    viewBox='0 0 24 24'
-                                    fill='none'
-                                    stroke='currentColor'
-                                    strokeWidth='2'
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
-                                    className='lucide lucide-arrow-right ml-1'
-                                >
-                                    <path d='M5 12h14' />
-                                    <path d='m12 5 7 7-7 7' />
-                                </svg>
+                                <ArrowRight className='h-3 w-3 ml-1' />
                             </Button>
                         </Link>
                     </div>

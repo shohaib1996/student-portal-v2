@@ -133,7 +133,7 @@ export function OverallProgress() {
                         Your activity distribution across categories
                     </p>
                 </div>
-                <Select defaultValue='this-month'>
+                {/* <Select defaultValue='this-month'>
                     <SelectTrigger className='w-[140px] h-8'>
                         <SelectValue placeholder='Select period' />
                     </SelectTrigger>
@@ -142,7 +142,7 @@ export function OverallProgress() {
                         <SelectItem value='last-month'>Last month</SelectItem>
                         <SelectItem value='this-year'>This year</SelectItem>
                     </SelectContent>
-                </Select>
+                </Select> */}
             </CardHeader>
             <CardContent>
                 {isLoading ? (
