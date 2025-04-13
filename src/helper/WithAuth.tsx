@@ -73,8 +73,14 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
     const [userData, setUserData] = useState<User>({});
     const dispatch = useDispatch<any>(); // Use useDispatch hook
     const [enrollments, setEnrollments] = useState([]);
+
+
     useEffect(() => {
+
+
         const fetchData = async (): Promise<void> => {
+
+
             const storageModule = await import('../utils/storage');
             const storage: Storage = storageModule.default;
 
@@ -84,10 +90,8 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                 process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,
             );
 
-            console.log(token);
-
             const activeCompanyFromCookie = Cookies.get('activeCompany');
-
+            console.log(token, 'token');
             if (token) {
                 setIsLoading(true);
                 try {
@@ -149,10 +153,24 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                     await persistor.pause();
                     await persistor.flush();
                     await persistor.purge();
+
+                    Cookies.remove(
+                        process.env.NEXT_PUBLIC_AUTH_TOKEN_NAME as string,
+                        {
+                            domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN,
+                        },
+                    );
+                    Cookies.remove('activeCompany', {
+                        domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN,
+                    });
+                    Cookies.remove('activeEnrolment', {
+                        domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN,
+                    });
+                    setIsLoading(false);
+
                 }, 200);
 
-                // window.location.href = process.env
-                //     .NEXT_PUBLIC_REDIRECT_URL as string;
+                window.location.href = `${process.env.NEXT_PUBLIC_REDIRECT_URL as string}/auth/login`;
             }
         };
 
@@ -161,7 +179,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
         return () => {
             disconnectSocket();
         };
-    }, [dispatch]); // Add dispatch to dependency array
+    }, []); // Add dispatch to dependency array
 
     // Update loading spinner to use Tailwind instead of inline styles
     if (isLoading) {
