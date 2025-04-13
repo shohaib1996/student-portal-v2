@@ -174,6 +174,15 @@ export interface MessagesResponse {
     typingUsers?: boolean;
 }
 
+// Add this interface to your existing types section
+export interface NotificationUpdateParams {
+    member: string;
+    selectedOption: number;
+    dateUntil: string | null;
+    chat: string;
+    actionType: 'mutenoti' | 'unmutenoti';
+}
+
 // RTK Query API definition
 export const chatApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
@@ -888,6 +897,89 @@ export const chatApi = baseApi.injectEndpoints({
             },
             invalidatesTags: [{ type: 'Chats', id: 'LIST' }],
         }),
+
+        // Add this to the chatApi endpoints
+        updateNotificationSettings: build.mutation<
+            {
+                member: {
+                    notification: { isOn: boolean; dateUntil: string | null };
+                };
+            },
+            NotificationUpdateParams
+        >({
+            query: (data) => ({
+                url: '/chat/member/update',
+                method: 'POST',
+                data,
+            }),
+            // Optimistically update the UI
+            async onQueryStarted(
+                { chat, actionType },
+                { dispatch, queryFulfilled },
+            ) {
+                const isOn = actionType === 'unmutenoti';
+
+                // Update chats list optimistically
+                const patchResult = dispatch(
+                    chatApi.util.updateQueryData(
+                        'getChats',
+                        undefined,
+                        (draft) => {
+                            const chatToUpdate = draft.find(
+                                (c) => c._id === chat,
+                            );
+                            if (chatToUpdate && chatToUpdate.myData) {
+                                chatToUpdate.myData.notification = {
+                                    ...chatToUpdate.myData.notification,
+                                    isOn,
+                                };
+
+                                // Update in local storage
+                                updateChatInStorage(chatToUpdate);
+                            }
+                        },
+                    ),
+                );
+
+                try {
+                    // Wait for the actual response
+                    const { data: responseData } = await queryFulfilled;
+
+                    // If the server response includes updated notification settings,
+                    // update the store with the exact server values
+                    if (
+                        responseData &&
+                        responseData.member &&
+                        responseData.member.notification
+                    ) {
+                        dispatch(
+                            chatApi.util.updateQueryData(
+                                'getChats',
+                                undefined,
+                                (draft) => {
+                                    const chatToUpdate = draft.find(
+                                        (c) => c._id === chat,
+                                    );
+                                    if (chatToUpdate && chatToUpdate.myData) {
+                                        chatToUpdate.myData.notification =
+                                            responseData.member.notification;
+
+                                        // Update in local storage
+                                        updateChatInStorage(chatToUpdate);
+                                    }
+                                },
+                            ),
+                        );
+                    }
+                } catch {
+                    // Revert optimistic update on error
+                    patchResult.undo();
+                }
+            },
+            invalidatesTags: (result, error, { chat }) => [
+                { type: 'Chats', id: chat },
+            ],
+        }),
     }),
 });
 
@@ -907,6 +999,7 @@ export const {
     useFindOrCreateChatMutation,
     useSearchUsersQuery,
     useCreateGroupMutation,
+    useUpdateNotificationSettingsMutation,
 } = chatApi;
 
 // Socket integration with RTK Query

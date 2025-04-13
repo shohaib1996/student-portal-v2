@@ -34,6 +34,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { useUpdateEventMutation } from '@/redux/api/calendar/calendarApi';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
+import { EventPopoverTrigger } from '../CreateEvent/EventPopover';
 
 interface TaskCardProps {
     task: TEvent;
@@ -110,10 +111,7 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
             <Collapsible defaultOpen className='group/collapsible'>
                 {/* Header */}
                 <CollapsibleTrigger className='flex items-center w-full justify-between p-2 border-b'>
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        className='flex items-center gap-2'
-                    >
+                    <div className='flex items-center gap-2'>
                         <GripVertical
                             className='h-5 w-5 text-muted-foreground cursor-grab'
                             {...attributes}
@@ -127,24 +125,33 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
                             {task.title}
                         </h3>
                     </div>
-                    <div className='flex items-center gap-2'>
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        className='flex items-center gap-2'
+                    >
                         <GlobalDropdown
                             items={[
                                 {
                                     id: 1,
                                     content: (
-                                        <Button
-                                            variant={'plain'}
-                                            icon={<Pencil size={16} />}
+                                        <EventPopoverTrigger
+                                            updateId={task?._id}
                                         >
-                                            Rename
-                                        </Button>
+                                            <Button
+                                                className='w-full'
+                                                variant={'plain'}
+                                                icon={<Pencil size={16} />}
+                                            >
+                                                Edit
+                                            </Button>
+                                        </EventPopoverTrigger>
                                     ),
                                 },
                                 {
                                     id: 2,
                                     content: (
                                         <Button
+                                            className='w-full'
                                             variant={'plain'}
                                             icon={<History size={16} />}
                                         >
@@ -156,6 +163,7 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
                                     id: 3,
                                     content: (
                                         <Button
+                                            className='w-full'
                                             variant={'danger_light'}
                                             icon={<Trash size={16} />}
                                         >

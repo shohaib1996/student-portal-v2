@@ -26,7 +26,7 @@ import { markRead, updateMyData } from '@/redux/features/chatReducer';
 import { Input } from '../ui/input';
 import NotificationOptionModal from './ChatForm/NotificationModal';
 import { useGetOnlineUsersQuery } from '@/redux/api/chats/chatApi';
-import { useAppSelector } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -94,7 +94,6 @@ const Inbox: React.FC<InboxProps> = ({
 }) => {
     const [chat, setChatInfo] = useState<any>({} as any);
     const [isMeeting, setIsMeeting] = useState(false);
-    const dispatch = useDispatch();
     const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
     const { chats } = useAppSelector((state) => state.chat);
     const [search, setSearch] = useState({
@@ -104,7 +103,7 @@ const Inbox: React.FC<InboxProps> = ({
 
     const [finalQuery, setFinalQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-
+    const dispatch = useAppDispatch();
     const handleSearchSubmit = useCallback(() => {
         setFinalQuery(search.query);
     }, [search.query]);
@@ -505,6 +504,26 @@ const Inbox: React.FC<InboxProps> = ({
                                 opened={notificationOption.isVisible}
                                 close={closeNotificationModal}
                                 member={chat?.myData}
+                                handleUpdateCallback={(updatedMember) => {
+                                    // Immediately update local state to reflect the change
+                                    setChatInfo((prevChat: any) => ({
+                                        ...prevChat,
+                                        myData: {
+                                            ...prevChat.myData,
+                                            notification:
+                                                updatedMember.notification,
+                                        },
+                                    }));
+
+                                    // Also dispatch to update the redux store directly
+                                    dispatch(
+                                        updateMyData({
+                                            _id: chat?._id,
+                                            field: 'notification',
+                                            value: updatedMember.notification,
+                                        }),
+                                    );
+                                }}
                             />
                         </div>
                     </div>

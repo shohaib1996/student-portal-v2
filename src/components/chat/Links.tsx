@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import LinkPreviewCard from './LinkPreviewCard';
 import Link from 'next/link';
 import { useGetChatMediaQuery } from '@/redux/api/chats/chatApi';
-import MessagePreview from './Message/MessagePreview';
+import MessageRenderer from '../lexicalEditor/renderer/MessageRenderer';
 
 // Initialize dayjs plugins
 dayjs.extend(relativeTime);
@@ -281,7 +281,7 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
                             {/* Display message text if available */}
                             {link.text && (
                                 <p className='text-sm text-gray mb-2'>
-                                    <MessagePreview
+                                    <MessageRenderer
                                         searchQuery={searchQuery}
                                         text={link?.text || ''}
                                     />

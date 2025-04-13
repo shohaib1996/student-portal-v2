@@ -258,7 +258,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                         <FormControl>
                             <div>
                                 <ColorPicker
-                                    className='h-10 bg-foreground'
+                                    className='h-10 bg-foreground border border-forground-bordere'
                                     value={field.value || ''}
                                     onChange={field.onChange}
                                 />
@@ -441,6 +441,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                 <SelectTrigger className='w-fit gap-2 bg-background h-8 flex'>
                                                     <RepeatIcon size={16} />
                                                     <SelectValue placeholder='Repeat'></SelectValue>
+                                                    <X />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value='daily'>

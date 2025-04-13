@@ -53,7 +53,7 @@ export const updateOptionsOptions: {
 ];
 
 const CreateEventModal = () => {
-    const { closePopover, isFullScreen, updateId } = useEventPopover();
+    const { closePopover, isFullScreen, updateId, copyId } = useEventPopover();
     const { currentDate: clickedDate } = useAppSelector((s) => s.calendar);
     const [currentDate, setCurrentDate] = useState(
         clickedDate ? dayjs(clickedDate) : dayjs(),
@@ -69,6 +69,9 @@ const CreateEventModal = () => {
     const { data: eventDetails } = useGetSingleEventQuery(updateId as string, {
         skip: !updateId,
     });
+    const { data: copyDetails } = useGetSingleEventQuery(copyId as string, {
+        skip: !copyId,
+    });
 
     const handleClose = () => {
         closePopover();
@@ -77,19 +80,21 @@ const CreateEventModal = () => {
         setUpdateOpen(false);
     };
 
-    useEffect(() => {
-        const event: TEvent | undefined = eventDetails?.event;
-        if (!event || !updateId) {
-            return;
-        }
+    const setEventToForm = (event: TEvent, copy?: boolean) => {
         if (event.type === 'event') {
             setTab('event');
             eventForm.reset({
-                title: event.title,
+                title: copy ? `${event.title} copy` : event.title,
                 priority: event.priority || undefined,
                 attendees: event.attendees?.map((at) => at.user),
-                startTime: new Date(event.startTime),
-                endTime: new Date(event.endTime),
+                startTime:
+                    copy && dayjs(event.startTime).isBefore(dayjs())
+                        ? new Date()
+                        : new Date(event.startTime),
+                endTime:
+                    copy && dayjs(event.startTime).isBefore(dayjs())
+                        ? dayjs().add(15, 'minutes').toDate()
+                        : new Date(event.endTime),
                 isAllDay: event.isAllDay,
                 // repeat: false,
                 reminders: event.reminders,
@@ -102,7 +107,7 @@ const CreateEventModal = () => {
         } else if (event.type === 'task') {
             setTab('todo');
             todoForm.reset({
-                title: event.title,
+                title: copy ? `${event.title} copy` : event.title,
                 priority: event.priority || undefined,
                 startTime: new Date(event.startTime),
                 endTime: new Date(event.endTime),
@@ -113,7 +118,23 @@ const CreateEventModal = () => {
                 description: event.description,
             });
         }
+    };
+
+    useEffect(() => {
+        const event: TEvent | undefined = eventDetails?.event;
+        if (!event || !updateId) {
+            return;
+        }
+        setEventToForm(event);
     }, [eventDetails, updateId]);
+
+    useEffect(() => {
+        const event: TEvent | undefined = copyDetails?.event;
+        if (!event || !copyId) {
+            return;
+        }
+        setEventToForm(event, true);
+    }, [copyDetails, copyId]);
 
     const eventDefaultValues: TEventFormType = {
         title: '',
