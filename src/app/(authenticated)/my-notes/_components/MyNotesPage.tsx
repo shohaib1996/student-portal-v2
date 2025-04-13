@@ -55,6 +55,7 @@ const MyNotesPage = () => {
                     <NotesGridView
                         isLoading={isLoading}
                         data={notes as TNote[]}
+                        setIsOpen={setIsOpen}
                     ></NotesGridView>
                 ) : (
                     <NotesListView data={notes as TNote[]}></NotesListView>

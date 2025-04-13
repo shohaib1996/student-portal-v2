@@ -12,13 +12,13 @@ limits:
 
 requests:
   cpu: "500m"
-  memory: "512Mi"
+  memory: "1Gi"
 
-host: beta-branch.bootcampshub.ai
+host: portal.bootcampshub.ai
 
 image:
-  name: bh-branch-admin
-  repository: ts4udocker/bh-branch-admin
+  name: bh-student-portal
+  repository: ts4udocker/bh-student-portal
   tag: staging-latest
   pullPolicy: IfNotPresent
 imagePullSecrets:

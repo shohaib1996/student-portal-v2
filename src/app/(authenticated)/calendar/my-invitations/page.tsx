@@ -378,6 +378,15 @@ const MyInvitations = () => {
                                     }
                                     onClick={() => {
                                         setProposeModalOpen(true);
+                                        setProposeTime({
+                                            start: dayjs(
+                                                event.startTime,
+                                            ).toISOString(),
+                                            end: dayjs(
+                                                event.endTime,
+                                            ).toISOString(),
+                                            reason: '',
+                                        });
                                         setEvent(row.original);
                                         setResponseStatus('proposedNewTime');
                                     }}

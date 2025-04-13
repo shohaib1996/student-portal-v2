@@ -152,6 +152,8 @@ const EventDetails = () => {
         return <div></div>;
     }
 
+    console.log(event, user, isMyEvent);
+
     return (
         <div suppressHydrationWarning>
             <GlobalModal
@@ -250,65 +252,69 @@ const EventDetails = () => {
                                 {dayjs(event?.endTime).format('hh:mm A')}
                             </h2>
                         </div>
-                        <div className='flex items-center justify-between'>
-                            <div className='flex items-center gap-2'>
-                                <div className='bg-blue-100 p-1 rounded'>
-                                    <svg
-                                        width='24'
-                                        height='24'
-                                        viewBox='0 0 24 24'
-                                        fill='none'
-                                        xmlns='http://www.w3.org/2000/svg'
-                                    >
-                                        <rect
+                        {event.location?.link && (
+                            <div className='flex items-center justify-between'>
+                                <div className='flex items-center gap-2'>
+                                    <div className='bg-blue-100 p-1 rounded'>
+                                        <svg
                                             width='24'
                                             height='24'
-                                            rx='4'
-                                            fill='#4285F4'
-                                            fillOpacity='0.2'
-                                        />
-                                        <path
-                                            d='M17.5 10.5V8.5C17.5 7.4 16.6 6.5 15.5 6.5H8.5C7.4 6.5 6.5 7.4 6.5 8.5V15.5C6.5 16.6 7.4 17.5 8.5 17.5H10.5'
-                                            stroke='#4285F4'
-                                            strokeWidth='1.5'
-                                        />
-                                        <path
-                                            d='M13 11.5L14.5 13L18 9.5'
-                                            stroke='#4285F4'
-                                            strokeWidth='1.5'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                        />
-                                    </svg>
-                                </div>
-                                <div>
-                                    {event?.location?.type !== 'custom' && (
-                                        <a
-                                            target='_blank'
-                                            rel='noreferrer'
-                                            href={`${event?.location?.link}`}
-                                            className='text-blue-600 capitalize hover:underline text-sm font-medium flex items-center'
+                                            viewBox='0 0 24 24'
+                                            fill='none'
+                                            xmlns='http://www.w3.org/2000/svg'
                                         >
-                                            Join with Google{' '}
-                                            {event.location?.type}
-                                        </a>
-                                    )}
-                                    <span className='text-xs text-muted-foreground'>
-                                        {event?.location?.link}
-                                    </span>
+                                            <rect
+                                                width='24'
+                                                height='24'
+                                                rx='4'
+                                                fill='#4285F4'
+                                                fillOpacity='0.2'
+                                            />
+                                            <path
+                                                d='M17.5 10.5V8.5C17.5 7.4 16.6 6.5 15.5 6.5H8.5C7.4 6.5 6.5 7.4 6.5 8.5V15.5C6.5 16.6 7.4 17.5 8.5 17.5H10.5'
+                                                stroke='#4285F4'
+                                                strokeWidth='1.5'
+                                            />
+                                            <path
+                                                d='M13 11.5L14.5 13L18 9.5'
+                                                stroke='#4285F4'
+                                                strokeWidth='1.5'
+                                                strokeLinecap='round'
+                                                strokeLinejoin='round'
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        {event?.location?.type !== 'custom' && (
+                                            <a
+                                                target='_blank'
+                                                rel='noreferrer'
+                                                href={`${event?.location?.link}`}
+                                                className='text-blue-600 capitalize hover:underline text-sm font-medium flex items-center'
+                                            >
+                                                Join with Google{' '}
+                                                {event.location?.type}
+                                            </a>
+                                        )}
+                                        <span className='text-xs text-muted-foreground'>
+                                            {event?.location?.link}
+                                        </span>
+                                    </div>
                                 </div>
+                                <Button
+                                    onClick={() =>
+                                        copyToClipboard(
+                                            event?.location?.link || '',
+                                        )
+                                    }
+                                    variant='ghost'
+                                    size='icon'
+                                    className='h-8 w-8'
+                                >
+                                    <Copy className='h-4 w-4' />
+                                </Button>
                             </div>
-                            <Button
-                                onClick={() =>
-                                    copyToClipboard(event?.location?.link || '')
-                                }
-                                variant='ghost'
-                                size='icon'
-                                className='h-8 w-8'
-                            >
-                                <Copy className='h-4 w-4' />
-                            </Button>
-                        </div>
+                        )}
 
                         {isMyEvent || premissions?.seeGuestList ? (
                             <Collapsible className='group/collapsible w-full'>
@@ -489,7 +495,7 @@ const EventDetails = () => {
                             </ScrollArea>
                         </div>
 
-                        {!isMyEvent &&
+                        {isMyEvent === false &&
                             event?.myResponseStatus === 'needsAction' && (
                                 <div className='flex justify-between pt-4 border-t border-forground-border'>
                                     <div className='text-base text-black font-medium'>

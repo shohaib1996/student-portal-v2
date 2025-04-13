@@ -5,18 +5,20 @@ type Props = {
     placeholder: string;
     className?: string;
     placeholderClassName?: string;
+    onSubmit?: () => void;
 };
 
 export function ContentEditable({
     placeholder,
     className,
     placeholderClassName,
+    onSubmit,
 }: Props): JSX.Element {
     return (
         <LexicalContentEditable
             className={
                 className ??
-                `ContentEditable__root relative block overflow-auto min-h-full px-2 py-4 focus:outline-none`
+                `ContentEditable__root relative block overflow-auto min-h-full px-2 py-4 focus:outline-none whitespace-pre-wrap`
             }
             aria-placeholder={placeholder}
             placeholder={

@@ -237,11 +237,11 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                             Program Completion
                         </span>
                         <span className='text-xs font-medium text-primary'>
-                            {newData?.programComplete}%
+                            {newData?.programComplete || 0}%
                         </span>
                     </div>
                     <Progress
-                        value={newData?.programComplete}
+                        value={newData?.programComplete || 0}
                         className='h-2 bg-pure-black'
                         indicatorClass='bg-primary rounded-full'
                     />
@@ -254,7 +254,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                             <span className='text-xs text-gray'>Completed</span>
                         </div>
                         <span className='text-xs font-medium text-black'>
-                            {totalCompleted}
+                            {totalCompleted || 0}
                         </span>
                     </div>
                     <div className='flex items-center justify-between'>
@@ -268,7 +268,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                                 (totalCompleted /
                                     (totalCompleted + totalIncomplete)) *
                                     100,
-                            )}
+                            ) || 0}
                             %
                         </span>
                     </div>
@@ -281,7 +281,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                             </span>
                         </div>
                         <span className='text-xs font-medium text-black'>
-                            {totalIncomplete}
+                            {totalIncomplete || 0}
                         </span>
                     </div>
                 </div>

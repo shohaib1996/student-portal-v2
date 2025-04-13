@@ -47,7 +47,7 @@ const courseApi = baseApi.injectEndpoints({
             query: (data: {
                 slug: string;
                 contentId: string;
-                body: {
+                body?: {
                     parent?: string | null;
                     queryText?: string;
                     filterBy?: string;

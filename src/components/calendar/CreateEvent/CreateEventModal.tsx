@@ -159,7 +159,9 @@ const CreateEventModal = () => {
             daysOfWeek: [],
             frequency: undefined,
             interval: 1,
-            endRecurrence: '',
+            endRecurrence: dayjs(clickedDate ?? dayjs())
+                .add(9, 'months')
+                .toISOString(),
         },
         description: '',
         eventColor: '',
@@ -214,6 +216,7 @@ const CreateEventModal = () => {
 
     useEffect(() => {
         const errors = Object.values(eventForm.formState?.errors);
+        const todoErrors = Object.values(todoForm.formState?.errors);
         console.error(errors);
         if (errors.length > 0) {
             if (eventForm.formState.errors.recurrence?.endRecurrence) {
@@ -221,11 +224,33 @@ const CreateEventModal = () => {
                     eventForm.formState.errors.recurrence?.endRecurrence
                         .message,
                 );
+            } else if (eventForm.formState.errors.reminders) {
+                const reminderError = eventForm.formState.errors.reminders;
+                if (reminderError[0]?.chatGroups?.message) {
+                    toast.error(reminderError[0]?.chatGroups?.message);
+                } else if (reminderError[0]?.methods?.message) {
+                    toast.error(reminderError[0]?.methods?.message);
+                }
+            } else {
+                toast.error(errors[0].message);
+            }
+        } else if (todoErrors.length > 0) {
+            if (todoForm.formState.errors.recurrence?.endRecurrence) {
+                toast.error(
+                    todoForm.formState.errors.recurrence?.endRecurrence.message,
+                );
+            } else if (todoForm.formState.errors.reminders) {
+                const reminderError = todoForm.formState.errors.reminders;
+                if (reminderError[0]?.chatGroups?.message) {
+                    toast.error(reminderError[0]?.chatGroups?.message);
+                } else if (reminderError[0]?.methods?.message) {
+                    toast.error(reminderError[0]?.methods?.message);
+                }
             } else {
                 toast.error(errors[0].message);
             }
         }
-    }, [eventForm.formState?.errors]);
+    }, [eventForm.formState?.errors, todoForm.formState?.errors]);
 
     const getAttendeeChanges = (
         prevAttendees: TUser[],
@@ -375,6 +400,8 @@ const CreateEventModal = () => {
             </Button>
         );
     };
+
+    console.log(eventForm.formState.errors);
 
     return (
         <div>

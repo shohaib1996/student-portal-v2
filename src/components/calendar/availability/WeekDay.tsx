@@ -13,6 +13,7 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogHeader,
     DialogTitle,
@@ -224,17 +225,19 @@ export default function WeekDay({
                                                         </div>
                                                     ),
                                                 )}
-                                                <Button
-                                                    className='w-full'
-                                                    onClick={() =>
-                                                        handleAppyCopyTo({
-                                                            intervals,
-                                                            copyTo,
-                                                        })
-                                                    }
-                                                >
-                                                    Apply
-                                                </Button>
+                                                <DialogClose className='w-full'>
+                                                    <Button
+                                                        className='w-full'
+                                                        onClick={() =>
+                                                            handleAppyCopyTo({
+                                                                intervals,
+                                                                copyTo,
+                                                            })
+                                                        }
+                                                    >
+                                                        Apply
+                                                    </Button>
+                                                </DialogClose>
                                             </div>
                                         </DialogContent>
                                     </Dialog>

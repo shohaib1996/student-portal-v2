@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import dayjs from 'dayjs';
 import { useTheme } from 'next-themes';
 import Highlighter from 'react-highlight-words';
+import { renderText } from '@/helper/renderText';
 
 // Dynamic import of markdown preview component
 const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {
@@ -68,14 +69,15 @@ function MessageRenderer({ text, searchQuery, isUser }: MessageRendererProps) {
 
     return (
         <div className='message-preview'>
-            <MarkdownPreview
+            {/* <MarkdownPreview
                 source={processedText}
                 components={components}
                 wrapperElement={{
                     'data-color-mode': theme === 'dark' ? 'dark' : 'light',
                 }}
                 className={`${isUser ? '!text-pure-white/80 dark:!text-pure-white/80' : '!text-gray dark:!text-pure-white/90'} `}
-            />
+            /> */}
+            {renderText(processedText || '')}
             {searchQuery && (
                 <div className='hidden'>
                     <Highlighter
