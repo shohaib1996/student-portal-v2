@@ -344,7 +344,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                             <div className='flex items-center gap-1 text-nowrap'>
                                 <FileText className='h-4 w-4 text-primary' />
                                 <span className='text-sm font-medium'>
-                                    {fetchedData?.length} modules
+                                    {fetchedData?.length || 0} modules
                                 </span>
                             </div>
                         </div>
