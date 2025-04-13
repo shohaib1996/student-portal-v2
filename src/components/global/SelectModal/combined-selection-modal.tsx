@@ -49,6 +49,8 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
     const [setAsDefault, setSetAsDefault] = useState(false);
     const [activeTab, setActiveTab] = useState('program');
 
+    const activeEnrolment = Cookies.get('activeEnrolment');
+
     // Memoize filtered enrollments to prevent recalculations on every render
     const { filteredPrograms, filteredCourses, filteredInterviews } =
         useMemo(() => {
@@ -110,6 +112,7 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
             .replace('.00', '');
     };
 
+    console.log({ activeEnrolment });
     // Memoize the star rendering to prevent unnecessary recalculations
     const renderStars = (rating = 0) =>
         Array(5)
@@ -325,8 +328,8 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                                 </div>
                             </div>
                         </div>
-
                         {/* right button */}
+
                         <div className='flex flex-col items-end justify-between'>
                             {selectedCourseId === enroll._id ? (
                                 <div className='px-4 py-1.5 rounded bg-primary/10 text-primary text-xs font-medium flex items-center'>
@@ -347,8 +350,9 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                                         handleCourseSelect(enroll._id);
                                     }}
                                     disabled={
-                                        enroll.status !== 'approved' &&
-                                        enroll.status !== 'trial'
+                                        activeEnrolment === enroll._id ||
+                                        (enroll.status !== 'approved' &&
+                                            enroll.status !== 'trial')
                                     }
                                 >
                                     Switch to Program{' '}

@@ -52,18 +52,17 @@ export default function UploadDocumentComponent() {
     const allDocuments = data?.documents || [];
     const total = data?.count || 0;
 
-    console.log({ AllDocuments: data });
     // Filter documents based on filter values
     const filteredDocuments = useMemo(() => {
         return allDocuments.filter((doc) => {
             const matchesQuery = filters.query
                 ? (doc.name
                       ?.toLowerCase()
-                      .includes(filters.query.toLowerCase()) ??
+                      .includes(filters?.query?.toLowerCase()) ??
                       false) ||
                   (doc.description
                       ?.toLowerCase()
-                      .includes(filters.query.toLowerCase()) ??
+                      .includes(filters?.query?.toLowerCase()) ??
                       false)
                 : true;
 

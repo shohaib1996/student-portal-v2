@@ -188,7 +188,7 @@ const LeaderBoard = () => {
     };
 
     return (
-        <>
+        <div className='pt-2'>
             <GlobalHeader
                 title={
                     <span className='flex items-center justify-center gap-1'>
@@ -445,7 +445,7 @@ const LeaderBoard = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

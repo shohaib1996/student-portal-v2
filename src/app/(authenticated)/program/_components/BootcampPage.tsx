@@ -295,9 +295,7 @@ export default function BootcampPage() {
                             <Button
                                 variant='outline'
                                 className='flex items-center gap-2'
-                                onClick={() =>
-                                    router.push('/dashboard/leaderboard')
-                                }
+                                onClick={() => router.push('/leaderboard')}
                             >
                                 <Users className='h-4 w-4' />
                                 Leaderboard
@@ -305,9 +303,7 @@ export default function BootcampPage() {
                             <Button
                                 variant='outline'
                                 className='flex items-center gap-2'
-                                onClick={() =>
-                                    router.push('/dashboard/progress')
-                                }
+                                onClick={() => router.push('/progress')}
                             >
                                 <LayoutDashboard className='h-4 w-4' />
                                 Progress

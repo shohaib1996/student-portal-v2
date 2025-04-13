@@ -18,6 +18,7 @@ export interface GlobalDocumentCardProps {
     createdAt?: string | Date;
     readTime?: number;
     categories?: string[];
+    attachment?: string[] | [];
     imageUrl?: string;
     description?: string;
     authorAvatar?: string;
@@ -38,6 +39,7 @@ export function GlobalDocumentCard({
     readTime = 2,
     categories = ['Document'],
     imageUrl = '/default_image.png',
+    attachment = [''],
     description = 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Consectetur, adipisci?',
     authorAvatar = '/images/author.png',
     showAuthorInfo = true,
@@ -59,6 +61,22 @@ export function GlobalDocumentCard({
         onClick?.();
     };
 
+    const imageExtensions = [
+        '.png',
+        '.jpg',
+        '.jpeg',
+        '.webp',
+        '.gif',
+        '.svg',
+        '.bmp',
+        '.tiff',
+        '.ico',
+        '.avif',
+    ];
+
+    const getImageUrl = attachment?.find((file) =>
+        imageExtensions.some((ext) => file?.toLowerCase().includes(ext)),
+    );
     return (
         <Card className='overflow-hidden'>
             <div className='cursor-pointer' onClick={handleReadMore}>
@@ -88,7 +106,7 @@ export function GlobalDocumentCard({
                         </div>
                     </div>
                     <Image
-                        src={imageUrl || '/default_image.png'}
+                        src={getImageUrl || imageUrl || '/default_image.png'}
                         alt={title || 'thumbnail'}
                         width={400}
                         height={200}

@@ -21,7 +21,7 @@ export interface DocumentContent {
     imageUrl: string;
     thumbnail?: string;
     user?: string;
-    attachedFiles: { id: string; name: string; type: string; size: string }[];
+    attachedFiles?: { id: string; name: string; type: string; size: string }[];
     programs?: { _id: string; title: string }[];
     sessions?: string[] | { _id: string; name: string }[];
 }
@@ -59,7 +59,6 @@ export function DocumentDetailsModal({
     useEffect(() => {
         if (urlMode === 'edit' && id) {
             // Handle edit mode logic here if needed
-            console.log('Edit mode detected in URL');
         }
     }, [urlMode, id]);
 
