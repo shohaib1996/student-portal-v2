@@ -49,7 +49,7 @@ const AvailabilityPage = () => {
     };
 
     return (
-        <div>
+        <div className='pt-2'>
             <GlobalHeader
                 title='Availability'
                 subTitle='Manage Availability with Precision'
@@ -61,12 +61,6 @@ const AvailabilityPage = () => {
                             onClick={handleUndo}
                         >
                             Undo
-                        </Button>
-                        <Button
-                            variant={'secondary'}
-                            icon={<XCircle size={18} />}
-                        >
-                            Cancel
                         </Button>
                         <Button
                             icon={<BookmarkCheck size={18} />}
