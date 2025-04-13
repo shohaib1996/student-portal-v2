@@ -289,7 +289,7 @@ export default function BootcampPage() {
                         </div>
 
                         {/* Progress Section */}
-                        <div className='shadow border rounded-md p-2.5 my-3'>
+                        <div className='shadow border rounded-md bg-primary-foreground p-2.5 my-3'>
                             <div className='flex items-center justify-between mb-2'>
                                 <h3 className='text-lg font-semibold'>
                                     Your Progress
