@@ -42,6 +42,7 @@ import { useCreateCommentsMutation } from '@/redux/api/audio-video/audioVideos';
 import GlobalComment from '../global/GlobalComments/GlobalComment';
 import Repost from '../global/Community/Repost/Repost';
 import { Button } from '../ui/button';
+import { renderText } from '@/helper/renderText';
 
 interface ICommunityPostProps {
     post: ICommunityPost;
@@ -383,7 +384,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     ) : (
                         <div>
                             <p className='text-sm leading-[22px] text-gray text-justify'>
-                                {post.description}
+                                {renderText(post?.description || '')}
                             </p>
                         </div>
                     )}
