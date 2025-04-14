@@ -136,7 +136,7 @@ const ContentDropDown = ({
                                             <Play className='h-5 w-5 stroke-gray' />
                                         </div>
 
-                                        <div>
+                                        <Link href={'#program-title'}>
                                             <p className='text-sm font-medium text-black'>
                                                 {item.lesson.title}
                                             </p>
@@ -146,7 +146,7 @@ const ContentDropDown = ({
                                                         .duration as number,
                                                 )}
                                             </span>
-                                        </div>
+                                        </Link>
                                         <div className='flex items-start gap-1'>
                                             {renderPriorityBadge(item.priority)}
                                         </div>
@@ -174,7 +174,7 @@ const ContentDropDown = ({
                                 <Link
                                     href={
                                         item.lesson.url
-                                            ? `/presentation-slides/${item.lesson.url}`
+                                            ? `/presentation-slides/?slide=${item.lesson.url}`
                                             : '#'
                                     }
                                     target='_blank'

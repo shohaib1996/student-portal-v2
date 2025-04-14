@@ -15,6 +15,7 @@ import { TooltipProvider } from '../ui/tooltip';
 import { nodes } from './nodes';
 import { Plugins } from './plugins';
 import { cn } from '@/lib/utils';
+import EditorMethods from '../components/shared/EditorMethods';
 
 // In editor.ts or editor.tsx file
 
@@ -128,6 +129,7 @@ export function Editor({
     mentionMenuItem,
     className,
     placeholder,
+    editorRef,
 }: {
     editorState?: EditorState;
     editorSerializedState?: SerializedEditorState;
@@ -150,6 +152,7 @@ export function Editor({
     mentionMenuItem?: React.FC<any>;
     className?: string;
     placeholder?: string;
+    editorRef?: React.Ref<any>;
 }) {
     return (
         <div
@@ -169,6 +172,11 @@ export function Editor({
                 }}
             >
                 <TooltipProvider>
+                    <EditorMethods
+                        // initialMarkdown={initialMarkdown}
+                        // transformers={TRANSFORMERS}
+                        ref={editorRef}
+                    />
                     <SharedAutocompleteContext>
                         <FloatingLinkContext>
                             <div className='flex flex-col h-full'>

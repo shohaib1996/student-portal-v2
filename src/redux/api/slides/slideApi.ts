@@ -3,7 +3,7 @@ import { baseApi } from '../baseApi';
 const slideApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getSingleSlide: build.query({
-            query: ({ id }: { id: string }) => ({
+            query: ({ id }: { id: string | null | undefined }) => ({
                 url: `/slide/single/${id}`,
                 method: 'GET',
             }),

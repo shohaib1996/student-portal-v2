@@ -1,22 +1,26 @@
 'use client';
 
-import { useGetMySlidesQuery } from '@/redux/api/documents/documentsApi';
-import { Button } from '@/components/ui/button';
-import { ChevronRight, Eye, Grid, List } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
-import PresentationCard from './presentation-card';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useState, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
+import { ChevronRight, Eye, Grid, List } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import PresentationCard from './presentation-card';
 import GlobalTable, {
     TCustomColumnDef,
 } from '@/components/global/GlobalTable/GlobalTable';
-import { TSlide } from '@/types';
-import TdDate from '@/components/global/TdDate';
-import { TdUser } from '@/components/global/TdUser';
 import GlobalHeader from '@/components/global/GlobalHeader';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
-import { toast } from 'sonner';
+import TdDate from '@/components/global/TdDate';
+import { TdUser } from '@/components/global/TdUser';
+
+import { useGetMySlidesQuery } from '@/redux/api/documents/documentsApi';
+import { useGetDocumentsAndLabsQuery } from '@/redux/api/slides/slideApi';
+
+import { ISlideApiResponse, TSlide } from '@/types';
 
 interface FilterValues {
     query?: string;
@@ -27,6 +31,10 @@ interface FilterValues {
 }
 
 const PresentationComponents = () => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const slideId = searchParams.get('slide');
+
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
@@ -36,14 +44,19 @@ const PresentationComponents = () => {
         updateDate: '',
     });
 
-    const router = useRouter();
-    const pathName = usePathname();
+    // Fetch a single slide if ID is present
+    const { data: singleSlide } = useGetDocumentsAndLabsQuery<{
+        data: ISlideApiResponse;
+    }>({ id: slideId as string }, { skip: !slideId });
 
+    // Redirect to presentation view if a single slide is found
+    if (singleSlide) {
+        router.push(`/presentation-slides/${singleSlide.content.slide}`);
+    }
+
+    // Fetch all slides
     const { data, error, isLoading } = useGetMySlidesQuery(
-        {
-            page: currentPage,
-            limit: limit,
-        },
+        { page: currentPage, limit },
         {
             refetchOnMountOrArgChange: true,
             refetchOnReconnect: true,
@@ -66,17 +79,17 @@ const PresentationComponents = () => {
             creationDate: queryObj.creationDate,
             updateDate: queryObj.updateDate,
         });
-        setCurrentPage(1); // Reset to first page when filtering
+        setCurrentPage(1); // Reset pagination on filter
     };
 
     if (isLoading) {
         return 'Please wait...';
     }
-
     if (error) {
         return 'Something went wrong';
     }
 
+    // Table column definitions
     const columns: TCustomColumnDef<TSlide>[] = [
         {
             accessorKey: 'index',
@@ -124,14 +137,12 @@ const PresentationComponents = () => {
         {
             accessorKey: 'uploadedBy',
             header: 'Uploaded By',
-            cell: ({ row }) => {
-                const createdBy = row.original.createdBy;
-                return createdBy ? (
-                    <TdUser user={createdBy} />
+            cell: ({ row }) =>
+                row.original.createdBy ? (
+                    <TdUser user={row.original.createdBy} />
                 ) : (
                     <span>Unknown</span>
-                );
-            },
+                ),
             footer: (data) => data.column.id,
             id: 'uploadedBy',
             visible: true,
@@ -179,14 +190,15 @@ const PresentationComponents = () => {
 
     return (
         <div>
-            <div className='mb-3'>
+            {/* Header */}
+            <div className='mb-3 mt-2'>
                 <GlobalHeader
                     title='Presentations/Slides'
                     subTitle='View and manage your presentations'
                     buttons={
                         <div className='flex items-center gap-2'>
                             <Button
-                                size={'icon'}
+                                size='icon'
                                 onClick={() => setViewMode('grid')}
                                 variant={
                                     viewMode === 'grid'
@@ -196,7 +208,7 @@ const PresentationComponents = () => {
                                 icon={<Grid size={18} />}
                             />
                             <Button
-                                size={'icon'}
+                                size='icon'
                                 onClick={() => setViewMode('list')}
                                 variant={
                                     viewMode === 'list'
@@ -215,18 +227,12 @@ const PresentationComponents = () => {
                                     }))}
                                 onChange={handleFilter}
                                 columns={[
-                                    {
-                                        label: 'Search (Title)',
-                                        value: 'query',
-                                    },
+                                    { label: 'Search (Title)', value: 'query' },
                                     {
                                         label: 'Creation Date',
                                         value: 'creationDate',
                                     },
-                                    {
-                                        label: 'Update Date',
-                                        value: 'date',
-                                    },
+                                    { label: 'Update Date', value: 'date' },
                                 ]}
                             />
                             <Link href='/dashboard'>
@@ -240,8 +246,9 @@ const PresentationComponents = () => {
                 />
             </div>
 
+            {/* Slides Display */}
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
-                {viewMode === 'grid' && (
+                {viewMode === 'grid' ? (
                     <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
                         {allSlides.map((presentation, index) => (
                             <PresentationCard
@@ -251,8 +258,7 @@ const PresentationComponents = () => {
                             />
                         ))}
                     </div>
-                )}
-                {viewMode === 'list' && (
+                ) : (
                     <GlobalTable
                         isLoading={isLoading}
                         tableName='slides-table'
@@ -262,6 +268,7 @@ const PresentationComponents = () => {
                     />
                 )}
 
+                {/* Pagination */}
                 <GlobalPagination
                     currentPage={currentPage}
                     totalItems={totalItems}

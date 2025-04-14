@@ -47,6 +47,7 @@ export type TSlide = {
     branches: string[];
     slides: Slide[];
     createdBy: TUser;
+    role?: string;
     organization: string;
     createdAt: string;
     updatedAt: string;

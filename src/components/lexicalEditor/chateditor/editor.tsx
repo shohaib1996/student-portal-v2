@@ -40,6 +40,7 @@ import { TABLE } from '../components/transformers/markdown-table-transformer';
 import { TWEET } from '../components/transformers/markdown-tweet-transformer';
 import { MENTION_MARKDOWN_TRANSFORMER } from '../components/transformers/markdown-mention-transformer';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import EditorMethods from '../components/shared/EditorMethods';
 
 export interface PluginOptions {
     history?: boolean;
@@ -149,6 +150,7 @@ export function ChatEditor({
     initialMarkdown,
     placeholder,
     onSendMessage,
+    editorRef,
 }: {
     onChange?: (editorState: EditorState) => void;
     onSerializedChange?: (editorSerializedState: SerializedEditorState) => void;
@@ -172,6 +174,7 @@ export function ChatEditor({
     initialMarkdown?: string;
     placeholder?: string;
     onSendMessage?: (text: string) => void;
+    editorRef?: React.RefObject<any>;
 }) {
     const TRANSFORMERS = [
         MENTION_MARKDOWN_TRANSFORMER,
@@ -208,9 +211,14 @@ export function ChatEditor({
                 }}
             >
                 <TooltipProvider
-                    initialMarkdown={initialMarkdown}
-                    transformers={TRANSFORMERS}
+                // initialMarkdown={initialMarkdown}
+                // transformers={TRANSFORMERS}
                 >
+                    <EditorMethods
+                        initialMarkdown={initialMarkdown}
+                        transformers={TRANSFORMERS}
+                        ref={editorRef}
+                    />
                     <SharedAutocompleteContext>
                         <FloatingLinkContext>
                             <div className='flex flex-col h-full'>
