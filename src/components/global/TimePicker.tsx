@@ -84,21 +84,23 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
     };
 
     // Handle period change
+    // Handle period change
     const handlePeriodChange = () => {
         const newPeriod = period === 'AM' ? 'PM' : 'AM';
         setPeriod(newPeriod);
 
         if (value) {
             const newDate = new Date(value);
-            const hours = newDate.getHours();
+            const currentHour = newDate.getHours();
 
-            if (newPeriod === 'PM' && hours < 12) {
-                newDate.setHours(hours + 12);
-                onChange(newDate);
-            } else if (newPeriod === 'AM' && hours >= 12) {
-                newDate.setHours(hours - 12);
-                onChange(newDate);
+            // Convert the current hour based on the new period without resetting to 12
+            if (newPeriod === 'PM' && currentHour < 12) {
+                newDate.setHours(currentHour + 12);
+            } else if (newPeriod === 'AM' && currentHour >= 12) {
+                newDate.setHours(currentHour - 12);
             }
+
+            onChange(newDate);
         }
     };
 

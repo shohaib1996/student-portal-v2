@@ -7,22 +7,15 @@ import { TNote } from '@/types';
 import {
     ArrowLeft,
     BookOpen,
-    Calendar,
     CalendarIcon,
     CircleDot,
     Download,
-    Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import dayjs from 'dayjs';
-import { DocumentContentArea } from '../global/documents/DocumentContentArea';
-import { DocumentSidebar } from '../global/documents/DocumentSider';
-import { GlobalDetailsBanner } from '../global/documents/GlobalDetailsBanner';
 import Image from 'next/image';
-import { TdUser } from '../global/TdUser';
 import { Badge } from '../ui/badge';
-import LexicalJsonRenderer from '../lexicalEditor/renderer/JsonRenderer';
-import { renderText } from '@/helper/renderText';
+import { renderText } from '@/components/lexicalEditor/renderer/renderText';
 import { ScrollArea } from '../ui/scroll-area';
 import { Card, CardContent } from '../ui/card';
 import { format } from 'date-fns';

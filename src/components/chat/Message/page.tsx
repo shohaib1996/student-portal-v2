@@ -33,7 +33,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import MessagePreview from './MessagePreview';
+import MessagePreview from '../../lexicalEditor/renderer/MessagePreview';
 import { generateActivityText } from './helper';
 import FileCard from '../FileCard';
 import DeleteMessage from '../ChatForm/DeleteMessage';

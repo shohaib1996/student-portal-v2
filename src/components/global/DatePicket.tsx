@@ -46,7 +46,7 @@ export function DatePicker({
     calendarClassName,
 }: DatePickerDemoProps) {
     const [date, setDate] = React.useState<Dayjs | undefined>(
-        value ? dayjs(value) : undefined,
+        value ? dayjs(value) : dayjs(),
     );
     const [open, setOpen] = React.useState(false);
 
@@ -222,7 +222,7 @@ export function DatePicker({
                 )}
                 <Calendar
                     mode='single'
-                    selected={date?.toDate()}
+                    selected={date ? date?.toDate() : undefined}
                     onSelect={handleDateSelect}
                     initialFocus
                     month={calendarDate}

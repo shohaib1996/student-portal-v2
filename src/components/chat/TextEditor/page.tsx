@@ -100,6 +100,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const [pestFiles, setPestFiles] = useState<string[]>([]);
     const params = useParams();
     const [pestFileModal, setPestFileModal] = useState<boolean>(false);
+    const editorRef = useRef<any>(null);
     // Plugin options for the markdown editor
     const pluginOptions: PluginOptions = {
         // Main plugin options
@@ -360,6 +361,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
             store.dispatch(setDraft({ chat: chatId as string, message: '' }));
             return toast.error('Please write something or attach a file');
         }
+        editorRef.current?.clearEditor();
 
         const data = {
             text: localText,
@@ -604,6 +606,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                         mentionMenuItem={MentionMenuItem}
                                         placeholder='Type a message...'
                                         onSendMessage={handleSendMessage}
+                                        editorRef={editorRef}
                                     />
                                 </div>
 

@@ -5,7 +5,7 @@ import useAspectRatioFitting from '@/hooks/useAspectRatioFitting';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { Phone } from 'lucide-react';
-import MessagePreview from '../chat/Message/MessagePreview';
+import MessagePreview from '../lexicalEditor/renderer/MessagePreview';
 
 interface SlideContent {
     content?: string;

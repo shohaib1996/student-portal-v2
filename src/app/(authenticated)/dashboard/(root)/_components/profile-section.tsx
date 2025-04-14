@@ -269,7 +269,7 @@ export function ProfileSection() {
                 </span>
             </CardHeader>
             <CardContent className='p-2'>
-                <div className='grid grid-cols-2 gap-4'>
+                <div className='grid grid-cols-1 gap-4'>
                     <div className='border rounded-lg p-3 bg-background'>
                         <div className='flex items-center gap-2 mb-2'>
                             <div className=' rounded-md bg-primary/10 text-primary flex items-center justify-center'>

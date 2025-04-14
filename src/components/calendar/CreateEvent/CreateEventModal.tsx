@@ -81,6 +81,7 @@ const CreateEventModal = () => {
     };
 
     const setEventToForm = (event: TEvent, copy?: boolean) => {
+        const isRecurring = event?.recurrence?.isRecurring;
         if (event.type === 'event') {
             setTab('event');
             eventForm.reset({
@@ -99,7 +100,17 @@ const CreateEventModal = () => {
                 // repeat: false,
                 reminders: event.reminders,
                 location: event.location,
-                recurrence: event.recurrence,
+                recurrence: {
+                    isRecurring: event.recurrence?.isRecurring,
+                    daysOfWeek: isRecurring ? event.recurrence?.daysOfWeek : [],
+                    frequency: isRecurring
+                        ? event.recurrence?.frequency
+                        : undefined,
+                    interval: isRecurring ? event.recurrence?.interval : 1,
+                    endRecurrence: isRecurring
+                        ? event.recurrence?.endRecurrence
+                        : undefined,
+                },
                 description: event.description,
                 eventColor: event.eventColor,
                 permissions: event.permissions,
@@ -114,7 +125,17 @@ const CreateEventModal = () => {
                 isAllDay: event.isAllDay,
                 // repeat: false,
                 reminders: event.reminders,
-                recurrence: event.recurrence,
+                recurrence: {
+                    isRecurring: event.recurrence?.isRecurring,
+                    daysOfWeek: isRecurring ? event.recurrence?.daysOfWeek : [],
+                    frequency: isRecurring
+                        ? event.recurrence?.frequency
+                        : undefined,
+                    interval: isRecurring ? event.recurrence?.interval : 1,
+                    endRecurrence: isRecurring
+                        ? event.recurrence?.endRecurrence
+                        : undefined,
+                },
                 description: event.description,
             });
         }
@@ -153,15 +174,6 @@ const CreateEventModal = () => {
         location: {
             type: 'custom',
             link: '',
-        },
-        recurrence: {
-            isRecurring: false,
-            daysOfWeek: [],
-            frequency: undefined,
-            interval: 1,
-            endRecurrence: dayjs(clickedDate ?? dayjs())
-                .add(9, 'months')
-                .toISOString(),
         },
         description: '',
         eventColor: '',

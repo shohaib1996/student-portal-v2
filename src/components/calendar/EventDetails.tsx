@@ -41,7 +41,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ProposeTimeModal from './ProposeTimeModal';
 import EventDetailsSkeleton from './EventDetailSkeleton';
 import LexicalJsonRenderer from '../lexicalEditor/renderer/JsonRenderer';
-import { renderText } from '@/helper/renderText';
+import { renderText } from '@/components/lexicalEditor/renderer/renderText';
 
 const EventDetails = () => {
     const { user } = useAppSelector((s) => s.auth);

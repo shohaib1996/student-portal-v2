@@ -288,9 +288,7 @@ const MyInvitations = () => {
             accessorKey: 'guests',
             header: 'Guests',
             cell: ({ row }) => {
-                const start = row.original.startTime;
-                const end = row.original.endTime;
-                return <h2>{dayjs(end).diff(dayjs(start), 'minutes')}</h2>;
+                return <h2>{row.original?.attendeeCount}</h2>;
             },
             footer: (data) => data.column.id,
             id: 'guests',

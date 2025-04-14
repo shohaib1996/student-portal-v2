@@ -12,6 +12,7 @@ function TooltipProvider({
     delayDuration = 0,
     initialMarkdown,
     transformers,
+    editorRef,
     ...props
 }: React.ComponentProps<any>) {
     const [editor] = useLexicalComposerContext();
@@ -30,9 +31,24 @@ function TooltipProvider({
             });
             initializedRef.current = true;
         }
+    }, [initialMarkdown, editor, transformers]);
 
-        // console.log(initialMarkdown);
-    }, []);
+    // Expose editor methods via ref
+    React.useImperativeHandle(
+        editorRef,
+        () => ({
+            clearEditor: () => {
+                editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
+            },
+            focus: () => {
+                editor.focus();
+            },
+            // Add more methods as needed
+            getEditor: () => editor,
+        }),
+        [editor],
+    );
+
     return (
         <TooltipPrimitive.Provider
             data-slot='tooltip-provider'
