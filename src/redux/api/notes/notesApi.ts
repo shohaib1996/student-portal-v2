@@ -24,10 +24,7 @@ const notesApi = baseApi.injectEndpoints({
                 url: `/content/note/get/${id}`,
                 method: 'GET',
             }),
-            providesTags: (result, error, id) => [
-                { type: tagTypes.notes, id },
-                tagTypes.notes,
-            ],
+            providesTags: [tagTypes.notes],
         }),
         updateNote: build.mutation({
             query: ({ id, data }: { id: string; data: any }) => ({
@@ -35,10 +32,7 @@ const notesApi = baseApi.injectEndpoints({
                 method: 'PATCH',
                 data,
             }),
-            invalidatesTags: (result, error, id) => [
-                ...(result && { type: tagTypes.notes, id }),
-                tagTypes.notes,
-            ],
+            invalidatesTags: [tagTypes.notes],
         }),
         deleteNote: build.mutation({
             query: (id: string) => ({

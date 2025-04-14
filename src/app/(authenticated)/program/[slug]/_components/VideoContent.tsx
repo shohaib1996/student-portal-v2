@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import AddNotes from './AddNotes';
 import DownloadTab from './DownloadTab';
 import RatingsTab from './RatingsTab';
+import NewAddNote from './NewAddNote';
 
 const VideoContent = ({
     videoData,
@@ -18,11 +19,14 @@ const VideoContent = ({
     videoData: {
         videoInfo: null | TLessonInfo;
         isSideOpen: boolean;
+        contentId?: string;
     };
 }) => {
     if (!videoData || (!videoData?.videoInfo && videoData?.isSideOpen)) {
         return <div>Loading...</div>;
     }
+
+    console.log({ videoData });
 
     const tabData = videoData?.videoInfo?.data;
     const tabs = tabData
@@ -360,7 +364,10 @@ const VideoContent = ({
                         value='notes'
                         className='p-0 m-0 data-[state=active]:border-0'
                     >
-                        <AddNotes />
+                        <NewAddNote
+                            contentId={videoData?.contentId as string}
+                        />
+                        {/* <AddNotes contentId={videoData?.contentId as string} /> */}
                     </TabsContent>
 
                     <TabsContent

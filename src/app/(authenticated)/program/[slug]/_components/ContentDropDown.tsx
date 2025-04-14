@@ -51,6 +51,7 @@ const ContentDropDown = ({
         React.SetStateAction<{
             videoInfo: null | TLessonInfo;
             isSideOpen: boolean;
+            contentId?: string;
         }>
     >;
     setParentId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -123,12 +124,14 @@ const ContentDropDown = ({
                                 // isChevronDown={false}
                             >
                                 <div className='flex items-center justify-between w-full p-2'>
-                                    <div
+                                    <Link
+                                        href={'#program-title'}
                                         className='flex items-center gap-3'
                                         onClick={() =>
                                             setVideoData({
                                                 videoInfo: item?.lesson,
                                                 isSideOpen: true,
+                                                contentId: item._id,
                                             })
                                         }
                                     >
@@ -136,7 +139,7 @@ const ContentDropDown = ({
                                             <Play className='h-5 w-5 stroke-gray' />
                                         </div>
 
-                                        <Link href={'#program-title'}>
+                                        <div>
                                             <p className='text-sm font-medium text-black'>
                                                 {item.lesson.title}
                                             </p>
@@ -146,11 +149,11 @@ const ContentDropDown = ({
                                                         .duration as number,
                                                 )}
                                             </span>
-                                        </Link>
+                                        </div>
                                         <div className='flex items-start gap-1'>
                                             {renderPriorityBadge(item.priority)}
                                         </div>
-                                    </div>
+                                    </Link>
 
                                     <div className='flex items-center gap-1'>
                                         <LessionActionMenu
