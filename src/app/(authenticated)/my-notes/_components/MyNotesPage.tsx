@@ -15,7 +15,7 @@ const MyNotesPage = () => {
     const [view, setView] = useState<'list' | 'grid'>('grid');
     const [isOpen, setIsOpen] = useState(false);
 
-    const { data, isLoading } = useGetNotesQuery(undefined);
+    const { data, isLoading } = useGetNotesQuery({});
 
     const notes = data?.notes || [];
 

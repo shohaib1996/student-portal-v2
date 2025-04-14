@@ -72,12 +72,12 @@ const PresentationCard = ({ presentation, index }: PresentationCardProps) => {
                         </AvatarFallback>
                     </Avatar>
                     <div>
-                        {/* <p className='text-sm font-medium'>
+                        <p className='text-sm font-medium'>
                             {presentation?.createdBy?.fullName || 'Author'}
                         </p>
                         <p className='text-xs text-muted-foreground'>
-                            {presentation.role || 'Admin'}
-                        </p> */}
+                            {presentation?.role || 'Admin'}
+                        </p>
                         {/* <TdUser user={presentation?.createdBy} /> */}
                     </div>
                     <div className='flex items-center gap-1 ml-auto'>
