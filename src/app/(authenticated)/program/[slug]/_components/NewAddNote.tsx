@@ -18,8 +18,11 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
     const [title, setTitle] = useState<string>('');
     const [description, setDescription] = useState<string>('');
 
-    const { data: noteData, isLoading: isLoadingNote } =
-        useGetSingleNoteQuery(contentId);
+    const {
+        data: noteData,
+        isLoading: isLoadingNote,
+        refetch, // Add refetch function to manually refresh data
+    } = useGetSingleNoteQuery(contentId);
     const note = noteData?.note;
 
     const [updateNote, { isLoading: isUpdating }] = useUpdateNoteMutation();
@@ -39,6 +42,11 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
         const payload = {
             title,
             description,
+            contentId,
+            purpose: {
+                category: '', // e.g., "module", "document"
+                resourceId: contentId, // ID of the related resource
+            }, // Make sure contentId is included in the payload if needed by your API
         };
 
         try {
@@ -47,6 +55,11 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
             } else {
                 await addNote(payload).unwrap();
             }
+
+            // After successful mutation, refetch the data to get the latest version
+            await refetch();
+
+            // Then exit edit mode
             setIsEdit(false);
         } catch (error) {
             console.error('Note submission error:', error);
@@ -95,6 +108,17 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
             <Button onClick={() => setIsEdit(true)}>Create Note</Button>
         </div>
     );
+
+    // Show loading state
+    if (isLoadingNote) {
+        return (
+            <div className='flex justify-center items-center p-8'>
+                <div className='animate-pulse text-center'>
+                    <p className='text-muted-foreground'>Loading note...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -154,7 +178,11 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
                             type='submit'
                             disabled={isUpdating || isCreating}
                         >
-                            {note?._id ? 'Update Note' : 'Save Note'}
+                            {isUpdating || isCreating
+                                ? 'Saving...'
+                                : note?._id
+                                  ? 'Update Note'
+                                  : 'Save Note'}
                         </Button>
                     </div>
                 </form>
