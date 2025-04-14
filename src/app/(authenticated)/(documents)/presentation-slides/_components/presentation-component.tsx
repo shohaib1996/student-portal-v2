@@ -52,7 +52,6 @@ const PresentationComponents = () => {
 
     const allSlides = (data?.slides as TSlide[]) || [];
     const totalItems = data?.count || 0;
-    console.log({ currentPage, limit });
     const handlePageChange = (page: number, newLimit: number) => {
         setCurrentPage(page);
         setLimit(newLimit);

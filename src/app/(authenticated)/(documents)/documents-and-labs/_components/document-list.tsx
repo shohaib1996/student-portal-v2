@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { DocumentCard } from './document-card';
-import { DocumentDetailsModal } from './document-details-modal';
+import { DocumentAndLabsDetailsModal } from './DocumentAndLabsDetailsModal';
 
 interface Document {
     id: string;
@@ -45,7 +45,7 @@ export default function DocumentList({ documents }: DocumentListProps) {
                 ))}
             </div>
 
-            <DocumentDetailsModal
+            <DocumentAndLabsDetailsModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 documentId={selectedDocumentId}

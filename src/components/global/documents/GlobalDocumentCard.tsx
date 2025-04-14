@@ -9,6 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetMySingleDocumentQuery } from '@/redux/api/documents/documentsApi';
+import { useEffect, useState } from 'react';
+import { instance } from '@/lib/axios/axiosInstance';
 
 export interface GlobalDocumentCardProps {
     id: string;
@@ -40,8 +42,8 @@ export function GlobalDocumentCard({
     categories = ['Document'],
     imageUrl = '/default_image.png',
     attachment = [''],
-    description = 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Consectetur, adipisci?',
-    authorAvatar = '/images/author.png',
+    description,
+    authorAvatar = '/avatar.png',
     showAuthorInfo = true,
     onClick,
     badgeVariant = 'secondary',
@@ -50,6 +52,18 @@ export function GlobalDocumentCard({
     const router = useRouter();
     const searchParams = useSearchParams();
     const { data } = useGetMySingleDocumentQuery(searchParams.get('id') || '');
+    const [des, setDes] = useState(description);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await instance.get(`/content/singlecontent/${id}`);
+                setDes(res.data.content?.description);
+            } catch (error) {
+                console.log((error as Error).message);
+            }
+        })();
+    }, [id]);
 
     const handleReadMore: (e: React.MouseEvent) => void = (
         e: React.MouseEvent,
@@ -152,9 +166,7 @@ export function GlobalDocumentCard({
                     <h3 className='mb-1 line-clamp-2 font-semibold'>
                         {name || title}
                     </h3>
-                    <p className='line-clamp-2 text-sm text-gray'>
-                        {description}
-                    </p>
+                    <p className='line-clamp-2 text-sm text-gray'>{des}</p>
                     <Button
                         variant='link'
                         className='h-auto p-0 text-xs font-medium text-primary-white hover:no-underline'

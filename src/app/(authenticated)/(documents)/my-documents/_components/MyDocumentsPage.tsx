@@ -18,7 +18,7 @@ import GlobalTable, {
 import TdDate from '@/components/global/TdDate';
 import { TdUser } from '@/components/global/TdUser';
 import GlobalPagination from '@/components/global/GlobalPagination';
-import { DocumentDetailsModal } from './document-details-modal';
+import { MyDocumentDetailsModal } from './MyDocumentDetailsModal';
 import { UploadDocumentModal } from './upload-document-modal';
 
 interface FilterValues {
@@ -54,7 +54,7 @@ export default function MyDocumentsPage() {
     }, [documentId, mode]);
 
     const allDocuments = data?.documents || [];
-
+    console.log({ allDocuments });
     const { data: singleDocument, isLoading: isSingleDocLoading } =
         useGetSingleUploadDocumentQuery(documentId || '', {
             skip:
@@ -230,10 +230,10 @@ export default function MyDocumentsPage() {
             canHide: false,
         },
     ];
-
+    console.log({ data });
     return (
         <div>
-            <div className='mb-3'>
+            <div className='my-2'>
                 <GlobalHeader
                     title='My Documents'
                     subTitle='Resource Library: Access All Essential Documents'
@@ -357,10 +357,11 @@ export default function MyDocumentsPage() {
                 )}
             </div>
 
-            <DocumentDetailsModal
+            <MyDocumentDetailsModal
                 isOpen={isDetailsModalOpen}
                 onClose={handleCloseDetailsModal}
                 documentId={selectedDocumentId || documentId}
+                relatedDocuments={data?.documents || []}
             />
 
             <UploadDocumentModal

@@ -30,7 +30,6 @@ export default function MyTemplateComponent() {
     const [limit, setLimit] = useState<number>(10);
     const [filters, setFilters] = useState<FilterValues>({});
     const { data, error, isLoading } = useGetMyTemplatesQuery();
-    console.log({ AllTemplates: data });
     const allTemplates = data?.templates || [];
     const totalItems = data?.count || 0;
     const router = useRouter();

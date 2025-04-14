@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { DocumentCard } from './document-card';
-import { DocumentDetailsModal } from './document-details-modal';
 import { UploadDocumentModal } from './upload-document-modal';
+import { MyDocumentDetailsModal } from './MyDocumentDetailsModal';
 
 interface Document {
     id: string;
@@ -67,7 +67,7 @@ export default function DocumentList({ documents }: DocumentListProps) {
             </div>
 
             {/* Modals */}
-            <DocumentDetailsModal
+            <MyDocumentDetailsModal
                 isOpen={isDetailsModalOpen}
                 onClose={handleCloseDetailsModal}
                 documentId={selectedDocumentId}

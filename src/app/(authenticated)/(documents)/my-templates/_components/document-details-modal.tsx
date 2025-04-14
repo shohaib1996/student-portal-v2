@@ -52,7 +52,6 @@ export function DocumentDetailsModal({
         skip: !id,
     });
 
-    console.log({ TemplateDetails: data });
     // Handle loading and error states
     if (!documentData && isLoading) {
         return <div>Loading...</div>;
@@ -104,10 +103,6 @@ export function DocumentDetailsModal({
         imageUrl: '/images/documents-and-labs-thumbnail.png',
         readTime: 12,
     }));
-
-    const handleCommentSubmit = (content: string) => {
-        console.log('New comment:', content);
-    };
 
     // If neither documentData nor fetched data is available
     if (!documentData && !data && !isLoading) {
@@ -171,7 +166,7 @@ export function DocumentDetailsModal({
                         <DocumentContentArea
                             document={content}
                             documentId={documentId}
-                            onCommentSubmit={handleCommentSubmit}
+                            // onCommentSubmit={handleCommentSubmit}
                         />
 
                         <DocumentSidebar

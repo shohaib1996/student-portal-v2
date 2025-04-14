@@ -65,11 +65,9 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
     const [volume, setVolume] = useState(1);
     const [currentMedia, setCurrentMedia] = useState<TMediaItem>(media);
     const videoRef = useRef<HTMLVideoElement>(null);
-    console.log({ currentMedia });
     // Fetch related videos
     const { data, isLoading } = useMyAudioVideoQuery({});
     const relatedVideos = data?.medias || [];
-    console.log({ currentMedia });
     // Update current media when media prop changes
     useEffect(() => {
         setCurrentMedia(media);
@@ -339,7 +337,6 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
             </div>
         </div>
     );
-    console.log({ currentMedia });
     return (
         <GlobalModal
             open={showModal}

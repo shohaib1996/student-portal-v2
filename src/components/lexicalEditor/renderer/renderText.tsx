@@ -60,7 +60,7 @@ export const renderText = (text: string): React.ReactNode => {
             }
 
             // Check for Lexical editor structure
-            return <LexicalJsonRenderer lexicalState={obj} />;
+            return <LexicalJsonRenderer lexicalState={obj} showTOC />;
         } else {
             // If JSON parsed but isn't the right object type, check if it contains HTML
             return checkAndRenderHtml(text);
