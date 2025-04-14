@@ -41,6 +41,7 @@ import { TWEET } from '../components/transformers/markdown-tweet-transformer';
 import { MENTION_MARKDOWN_TRANSFORMER } from '../components/transformers/markdown-mention-transformer';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { cn } from '@/lib/utils';
+import EditorMethods from '../components/shared/EditorMethods';
 
 export interface PluginOptions {
     // Main plugin options
@@ -133,6 +134,7 @@ export function MarkdownEditor({
     initialMarkdown,
     placeholder,
     className,
+    editorRef,
 }: {
     onChange?: (editorState: EditorState) => void;
     onSerializedChange?: (editorSerializedState: SerializedEditorState) => void;
@@ -155,6 +157,7 @@ export function MarkdownEditor({
     initialMarkdown?: string;
     placeholder?: string;
     className?: string;
+    editorRef?: React.RefObject<any>;
 }) {
     // Memoize transformers so that their reference does not change on every render.
     const TRANSFORMERS = [
@@ -194,17 +197,17 @@ export function MarkdownEditor({
                 }}
             >
                 <TooltipProvider
-                    initialMarkdown={initialMarkdown}
-                    transformers={TRANSFORMERS}
+                // initialMarkdown={initialMarkdown}
+                // transformers={TRANSFORMERS}
+                // editorRef={editorRef}
                 >
+                    <EditorMethods
+                        initialMarkdown={initialMarkdown}
+                        transformers={TRANSFORMERS}
+                        ref={editorRef}
+                    />
                     <SharedAutocompleteContext>
                         <FloatingLinkContext>
-                            {/* {initialMarkdown && (
-                                <LoadMarkdownContent
-                                    initialMarkdown={initialMarkdown}
-                                    transformers={TRANSFORMERS}
-                                />
-                            )} */}
                             <div className='flex flex-col h-full'>
                                 <Plugins
                                     maxLength={maxLength}
