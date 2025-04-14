@@ -32,6 +32,7 @@ import {
 } from '@/redux/api/myprogram/myprogramApi';
 import { TProgram, TProgressChart } from '@/types';
 import dayjs from 'dayjs';
+import { useAppSelector } from '@/redux/hooks';
 
 // Types
 type Status = 'approved' | 'pending' | 'cancelled';
@@ -65,6 +66,7 @@ interface LeaderboardEntry {
 type Leaderboard = LeaderboardEntry[];
 
 const LeaderBoard = () => {
+    const { user } = useAppSelector((state) => state.auth);
     const router = useRouter();
     const [filterPeriod, setFilterPeriod] = useState('weekly');
     const { data, isLoading, isError, error } = useGetLeaderboardQuery({});
@@ -113,8 +115,8 @@ const LeaderBoard = () => {
 
     // User progress data
     const userProgress = {
-        name: 'N/A',
-        avatar: '/placeholder.svg?height=40&width=40',
+        name: user?.fullName,
+        avatar: user?.profilePicture,
         rank: data?.myData?.rank,
         score: myProgress?.metrics?.totalObtainedMark,
         improvement: myProgress?.metrics?.overallPercentageAllItems,
@@ -236,8 +238,14 @@ const LeaderBoard = () => {
                                 <div className='flex items-center gap-3 my-2'>
                                     <div className='relative'>
                                         <Image
-                                            src='/avatar.png'
-                                            alt={userProgress.name}
+                                            src={
+                                                userProgress?.avatar ||
+                                                '/avatar.png'
+                                            }
+                                            alt={
+                                                userProgress.name ||
+                                                'User Avatar'
+                                            }
                                             width={40}
                                             height={40}
                                             className='rounded-full'
@@ -317,7 +325,7 @@ const LeaderBoard = () => {
                                     </h3>
                                 </div>
                                 <Select defaultValue='weekly'>
-                                    <SelectTrigger className='w-[98px] h-9 border-border bg-foreground'>
+                                    <SelectTrigger className='w-[98px] h-9 border-border bg-foreground mr-1'>
                                         <SelectValue placeholder='Weekly' />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -360,7 +368,7 @@ const LeaderBoard = () => {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className='py-2 md:py-3 min-w-[200px] md:min-w-[250px]'>
+                                                <td className='py-2 md:py-3 min-w-[160px] md:min-w-[200px]'>
                                                     <div className='flex items-center gap-1 md:gap-1.5'>
                                                         <div className='relative'>
                                                             <Image
@@ -384,7 +392,7 @@ const LeaderBoard = () => {
                                                         </span>
                                                     </div>
                                                 </td>
-                                                <td className='py-2 md:py-3 w-20 md:w-auto'>
+                                                <td className='py-2 md:py-3 min-w-16 md:w-auto'>
                                                     <div className='text-xs font-medium text-gray'>
                                                         Score
                                                     </div>
@@ -395,7 +403,7 @@ const LeaderBoard = () => {
                                                         }
                                                     </div>
                                                 </td>
-                                                <td className='py-2 md:py-3 w-24 md:w-auto'>
+                                                <td className='py-2 md:py-3 min-w-24 md:w-auto'>
                                                     <div className='text-xs font-medium text-gray'>
                                                         Improvement
                                                     </div>
@@ -407,7 +415,7 @@ const LeaderBoard = () => {
                                                         %
                                                     </div>
                                                 </td>
-                                                <td className='py-2 md:py-3 w-24 md:w-auto'>
+                                                <td className='py-2 md:py-3 min-w-24 md:w-auto'>
                                                     <div className='font-semibold text-xs md:text-sm text-dark-gray'>
                                                         {getPerformance(
                                                             performer?.rank,

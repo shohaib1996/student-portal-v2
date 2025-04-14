@@ -177,7 +177,7 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                 <div className='absolute -left-1 top-1/2 transform -translate-y-1/2 w-2 h-16 bg-primary rounded-r-md'></div>
             )}
 
-            <div className='grid grid-cols-6 gap-2'>
+            <div className='grid grid-cols-3 md:grid-cols-6 gap-2'>
                 {/* left section */}
                 <div className='relative w-full h-full'>
                     <Image
@@ -185,10 +185,10 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                         alt={enroll?.program?.title}
                         width={200}
                         height={200}
-                        className='rounded-md object-cover w-[80px] h-[80px]'
+                        className='rounded-md object-cover w-full md:w-[80px] h-[80px]'
                     />
 
-                    <div className='absolute inset-0 flex items-end pb-3 justify-center'>
+                    <div className='absolute inset-0 flex items-end pb-3 justify-start'>
                         <div className='flex items-center gap-2'>
                             <div className='flex'>
                                 {renderStars(enroll.rating)}
@@ -201,11 +201,11 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                 </div>
 
                 {/* Right section */}
-                <div className='col-span-5'>
+                <div className='col-span-2 md:col-span-5'>
                     {/* top part */}
                     <div className='flex items-center justify-between pb-2 border-b mb-2'>
                         <div>
-                            <div className='flex items-center gap-2 flex-wrap'>
+                            <div className='flex flex-col md:flex-row items-start md:items-center gap-2 flex-wrap'>
                                 <h3 className='text-sm font-medium'>
                                     {enroll.program.title}
                                 </h3>
@@ -235,7 +235,7 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                                 </div>
                             </div>
 
-                            <div className='flex items-center mt-1 gap-2'>
+                            <div className='flex flex-col md:flex-row items-start md:items-center mt-1 gap-2'>
                                 <div className='text-xs text-muted-foreground flex items-center gap-1'>
                                     <CalendarDays className='h-4 w-4' />
                                     <p>{enroll.date ?? 'Dec 16, 1971'}</p>
@@ -261,7 +261,7 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                             </div>
                         </div>
 
-                        <div className='relative h-14 w-14 flex items-center justify-center'>
+                        <div className='hidden relative h-14 w-14 md:flex items-center justify-center'>
                             {/* Circle background */}
                             <div
                                 className={cn(
@@ -301,7 +301,7 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                     </div>
 
                     {/* bottom part */}
-                    <div className='flex items-center justify-between w-full'>
+                    <div className='flex flex-col md:flex-row items-start md:items-center justify-between gap-2 w-full'>
                         <div className='flex gap-6'>
                             <div>
                                 <div className='text-xs text-muted-foreground'>
@@ -396,7 +396,7 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
             setOpen={() => dispatch(closeModal())}
             title='Switch Bootcamp'
             subTitle='Select the program you want to switch to from your enrolled programs below.'
-            className='w-full max-w-4xl bg-foreground h-[90vh]'
+            className='w-[98%] md:w-full max-w-4xl bg-foreground h-[90vh]'
             allowFullScreen={true}
         >
             <div className='py-3'>
@@ -419,24 +419,24 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                     value={activeTab}
                     onValueChange={setActiveTab}
                 >
-                    <TabsList className='flex items-center justify-start gap-3 bg-transparent mt-4'>
+                    <TabsList className='flex items-center justify-start gap-2 bg-transparent mt-4'>
                         <TabsTrigger
                             value='program'
-                            className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
+                            className='text-[10px] md:text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
                         >
                             <GraduationCap className='w-4 h-4 mr-1' />
                             Programs ({filteredPrograms.length})
                         </TabsTrigger>
                         <TabsTrigger
                             value='courses'
-                            className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
+                            className='text-[10px] md:text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
                         >
                             <BookOpen className='w-4 h-4 mr-1' />
                             Courses ({filteredCourses.length})
                         </TabsTrigger>
                         <TabsTrigger
                             value='interviews'
-                            className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
+                            className='text-[10px] md:text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
                         >
                             <MessageSquare className='w-4 h-4 mr-1' />
                             Interviews ({filteredInterviews.length})

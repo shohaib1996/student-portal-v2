@@ -14,7 +14,7 @@ const BottomCalendar = ({ data }: { data: any }) => {
                 </div>
                 <Link
                     href='#'
-                    className='text-sm text-primary-white font-medium hover:underline flex items-center'
+                    className='text-sm text-nowrap text-primary-white bg-primary-light rounded-lg py-2 px-2.5 font-medium hover:underline flex items-center'
                 >
                     View More
                     <svg
@@ -23,7 +23,7 @@ const BottomCalendar = ({ data }: { data: any }) => {
                         viewBox='0 0 16 16'
                         fill='none'
                         xmlns='http://www.w3.org/2000/svg'
-                        className='ml-1'
+                        className='ml-1 hidden md:block'
                     >
                         <path
                             d='M6.66675 12L10.6667 8L6.66675 4'
