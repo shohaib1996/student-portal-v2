@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, LayoutGrid, List, Eye } from 'lucide-react';
+import { ChevronRight, LayoutGrid, List, Eye, Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 import {
@@ -276,7 +276,11 @@ export default function DocumentsAndLabsPage() {
     ];
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className='flex items-center justify-center h-screen'>
+                <Loader2 className='w-8 h-8 animate-spin text-primary' />
+            </div>
+        );
     }
 
     if (error) {
