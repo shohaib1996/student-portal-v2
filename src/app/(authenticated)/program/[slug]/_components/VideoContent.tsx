@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
-import AddNotes from './AddNotes';
+// import AddNotes from './AddNotes';
 import DownloadTab from './DownloadTab';
 import RatingsTab from './RatingsTab';
 import NewAddNote from './NewAddNote';
