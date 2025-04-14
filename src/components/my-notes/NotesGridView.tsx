@@ -12,11 +12,11 @@ import {
 } from 'lucide-react';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import GlobalHeader from '../global/GlobalHeader';
-import MessagePreview from '../chat/Message/MessagePreview';
+import MessagePreview from '../lexicalEditor/renderer/MessagePreview';
 import { Button } from '../ui/button';
 import { TNote } from '@/types';
 import LexicalJsonRenderer from '../lexicalEditor/renderer/JsonRenderer';
-import { renderText } from '@/helper/renderText';
+import { renderText } from '@/components/lexicalEditor/renderer/renderText';
 import GlobalDeleteModal from '../global/GlobalDeleteModal';
 import { useDeleteNoteMutation } from '@/redux/api/notes/notesApi';
 import Link from 'next/link';

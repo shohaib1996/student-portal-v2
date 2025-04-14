@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import dayjs from 'dayjs';
 import { useTheme } from 'next-themes';
 import Highlighter from 'react-highlight-words';
-import { renderText } from '@/helper/renderText';
+import { renderText } from '@/components/lexicalEditor/renderer/renderText';
 
 // Dynamic import of markdown preview component
 const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {

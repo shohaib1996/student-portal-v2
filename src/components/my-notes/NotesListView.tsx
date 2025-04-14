@@ -4,7 +4,7 @@ import GlobalTable, {
 } from '../global/GlobalTable/GlobalTable';
 import { Badge } from '../ui/badge';
 import { Eye, Pencil, Trash, Volume } from 'lucide-react';
-import MessagePreview from '../chat/Message/MessagePreview';
+import MessagePreview from '../lexicalEditor/renderer/MessagePreview';
 import GlobalTooltip from '../global/GlobalTooltip';
 import Link from 'next/link';
 import TdDate from '../global/TdDate';

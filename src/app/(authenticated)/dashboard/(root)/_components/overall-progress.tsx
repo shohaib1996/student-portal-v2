@@ -60,7 +60,7 @@ export function OverallProgress() {
     // Check screen size on component mount and when window resizes
     useEffect(() => {
         const checkScreenSize = () => {
-            setIsSmallScreen(window.innerWidth < 768); // 768px is a common breakpoint for medium screens
+            setIsSmallScreen(window.innerWidth < 1655); // 768px is a common breakpoint for medium screens
         };
 
         // Initial check

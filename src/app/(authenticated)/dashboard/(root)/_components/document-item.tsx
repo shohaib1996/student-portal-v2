@@ -22,7 +22,7 @@ export function DocumentItem({ document, type }: DocumentItemProps) {
                     alt={document?.name}
                     width={60}
                     height={60}
-                    className='h-full w-full object-cover'
+                    className='size-14 object-cover'
                 />
             </div>
             <div className='flex-1'>

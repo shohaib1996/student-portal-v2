@@ -73,7 +73,7 @@ import Scaled from './Scaled';
 import { useGetSingleSlideQuery } from '@/redux/api/slides/slideApi';
 import useSize from './useSize';
 import dayjs from 'dayjs';
-import MessagePreview from '../chat/Message/MessagePreview';
+import MessagePreview from '../lexicalEditor/renderer/MessagePreview';
 import { GlobalCommentsSection } from '../global/GlobalCommentSection';
 import GlobalComment from '../global/GlobalComments/GlobalComment';
 // import GlobalComment from '@/components/common/GlobalComment/GlobalComment';

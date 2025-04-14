@@ -124,7 +124,7 @@ export function CalendarSection() {
                         Failed to load calendar data. Please try again later.
                     </div>
                 ) : (
-                    <Tabs defaultValue='overview' className='border-b'>
+                    <Tabs defaultValue='overview' className=''>
                         <TabsList className='bg-transparent'>
                             <TabsTrigger
                                 value='overview'

@@ -42,7 +42,7 @@ import { useCreateCommentsMutation } from '@/redux/api/audio-video/audioVideos';
 import GlobalComment from '../global/GlobalComments/GlobalComment';
 import Repost from '../global/Community/Repost/Repost';
 import { Button } from '../ui/button';
-import { renderText } from '@/helper/renderText';
+import { renderText } from '@/components/lexicalEditor/renderer/renderText';
 
 interface ICommunityPostProps {
     post: ICommunityPost;

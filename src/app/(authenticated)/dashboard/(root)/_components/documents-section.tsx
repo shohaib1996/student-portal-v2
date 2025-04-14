@@ -60,7 +60,7 @@ export function DocumentsSection() {
             </CardHeader>
             <CardContent className='p-2'>
                 <Tabs defaultValue='my-documents' className='border-b mt-1'>
-                    <TabsList className='bg-transparent'>
+                    <TabsList className='bg-transparent overflow-x-auto overflow-y-hidden'>
                         <TabsTrigger
                             value='my-documents'
                             className='border-b rounded-none data-[state=active]:text-primary-white data-[state=active]:font-semibold data-[state=active]:border-primary-white data-[state=active]:shadow-none flex items-center gap-1 text-xs data-[state=active]:bg-transparent'

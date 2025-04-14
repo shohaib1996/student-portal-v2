@@ -70,9 +70,12 @@ import { useAppSelector } from '@/redux/hooks';
 import { useFindOrCreateChatMutation } from '@/redux/api/chats/chatApi';
 
 // Dynamic imports for better performance
-const MessagePreview = dynamic(() => import('./Message/MessagePreview'), {
-    ssr: false,
-});
+const MessagePreview = dynamic(
+    () => import('../lexicalEditor/renderer/MessagePreview'),
+    {
+        ssr: false,
+    },
+);
 
 const SideNavigation = dynamic(() => import('./SideNavigation'), {
     ssr: false,

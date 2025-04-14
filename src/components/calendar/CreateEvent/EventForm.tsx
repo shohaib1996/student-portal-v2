@@ -423,6 +423,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                             <Select
                                                 allowDeselect
                                                 value={
+                                                    form.watch('recurrence') &&
                                                     field.value?.isRecurring
                                                         ? field.value?.frequency
                                                         : ''
@@ -434,7 +435,17 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                         interval: 1,
                                                         endRecurrence:
                                                             field.value
-                                                                ?.endRecurrence,
+                                                                ?.endRecurrence ??
+                                                            dayjs(
+                                                                form.watch(
+                                                                    'endTime',
+                                                                ),
+                                                            )
+                                                                .add(
+                                                                    9,
+                                                                    'months',
+                                                                )
+                                                                .toISOString(),
                                                     })
                                                 }
                                             >

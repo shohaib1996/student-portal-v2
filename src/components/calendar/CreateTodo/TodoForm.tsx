@@ -445,8 +445,9 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                         allowDeselect={false}
                                                         className='border-none h-fit w-fit'
                                                         value={
-                                                            field.value
-                                                                .endRecurrence
+                                                            form.watch(
+                                                                'recurrence',
+                                                            )?.endRecurrence
                                                         }
                                                         onChange={(val) =>
                                                             field.onChange({

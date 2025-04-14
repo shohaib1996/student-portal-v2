@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { instance } from '@/lib/axios/axiosInstance';
 import parse from 'html-react-parser';
-import MessagePreview from '@/components/chat/Message/MessagePreview';
+import MessagePreview from '@/components/lexicalEditor/renderer/MessagePreview';
 import MessageRenderer from '@/components/lexicalEditor/renderer/MessageRenderer';
 
 interface DocumentContentAreaProps {

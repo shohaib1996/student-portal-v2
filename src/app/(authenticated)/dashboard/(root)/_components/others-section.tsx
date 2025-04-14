@@ -31,7 +31,7 @@ export function OthersSection() {
             <CardContent className='p-2'>
                 <div className='grid lg:grid-cols-2 gap-3'>
                     {/* Community Section */}
-                    <div className='border rounded-lg p-4 bg-background'>
+                    <div className='border max-[1700px]:col-span-2 rounded-lg p-4 bg-background'>
                         <div className='flex items-center gap-2 mb-2'>
                             <div className='w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center'>
                                 <svg
@@ -115,7 +115,7 @@ export function OthersSection() {
                     </div>
 
                     {/* Family Members Section */}
-                    <div className='border rounded-lg p-4 bg-background'>
+                    <div className='border max-[1700px]:col-span-2 rounded-lg p-4 bg-background'>
                         <div className='flex items-center gap-2 mb-2'>
                             <div className='w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center'>
                                 <svg
@@ -152,7 +152,7 @@ export function OthersSection() {
                     </div>
 
                     {/* Review Section */}
-                    <div className='border rounded-lg p-4 bg-background'>
+                    <div className='border col-span-2 rounded-lg p-4 bg-background'>
                         <div className='flex items-center gap-2 mb-2'>
                             <div className='w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center'>
                                 <svg
