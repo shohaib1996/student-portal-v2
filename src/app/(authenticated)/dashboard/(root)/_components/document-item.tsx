@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { ViewMoreLink } from './view-more-link';
 import { LabContent, MyDocument } from '@/redux/api/documents/documentsApi';
+import parse from 'html-react-parser';
 import dayjs from 'dayjs';
 import { TSlide } from '@/types';
 
@@ -19,7 +20,7 @@ export function DocumentItem({ document, type }: DocumentItemProps) {
                         (document?.thumbnail as string) ||
                         '/images/interview-item-thumbnail.png'
                     }
-                    alt={document?.name}
+                    alt={document?.name || 'document thumbnail'}
                     width={60}
                     height={60}
                     className='size-14 object-cover'
@@ -29,7 +30,7 @@ export function DocumentItem({ document, type }: DocumentItemProps) {
                 <div>
                     <h4 className='font-medium text-sm'>{document?.name}</h4>
                     <p className='text-xs text-muted-foreground line-clamp-2'>
-                        {document?.description}
+                        {parse(document?.description || '')}
                     </p>
                     <div className='flex items-center gap-4 mt-2 text-xs text-muted-foreground'>
                         <div className='flex items-center'>

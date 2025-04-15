@@ -167,7 +167,7 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                     .map((relatedMedia: any) => (
                         <div
                             key={relatedMedia._id}
-                            className={`flex gap-3 cursor-pointer bg-foreground p-2 rounded-md ${
+                            className={`flex lg:flex-col xl:flex-row gap-3 cursor-pointer bg-foreground p-2 rounded-md ${
                                 relatedMedia._id === currentMedia._id
                                     ? 'bg-primary'
                                     : ''
@@ -221,7 +221,7 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                                     </span>
                                 </div>
                                 <h4
-                                    className={`text-sm font-medium line-clamp-1 truncate capitalize mb-1 ${
+                                    className={`text-sm text-wrap font-medium line-clamp-1 truncate capitalize mb-1 ${
                                         relatedMedia._id === currentMedia._id
                                             ? 'text-pure-white'
                                             : 'text-primary-white'

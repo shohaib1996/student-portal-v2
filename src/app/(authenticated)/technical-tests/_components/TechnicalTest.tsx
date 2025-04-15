@@ -250,7 +250,7 @@ const TechnicalTest = () => {
                 <TechnicalMetrics />
                 <Tabs defaultValue='tasks' className='w-full'>
                     <TabsList
-                        className={`p-0 bg-transparent ${isMobile ? 'flex flex-wrap' : ''}`}
+                        className={`p-0 bg-transparent ${isMobile ? 'flex flex-wrap overflow-x-auto' : ''}`}
                     >
                         <TabsTrigger
                             value='tasks'
@@ -283,7 +283,7 @@ const TechnicalTest = () => {
 
                     <TabsContent value='tasks' className='mt-2.5'>
                         {isGridView ? (
-                            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3'>
+                            <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3'>
                                 {assignments.map((assignment, index) => (
                                     <TaskCard
                                         key={index}
@@ -313,7 +313,7 @@ const TechnicalTest = () => {
 
                     <TabsContent value='assignments' className='mt-2.5'>
                         {isGridView ? (
-                            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3'>
+                            <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3'>
                                 {assignments.map((assignment, index) => (
                                     <TaskCard
                                         key={index}
