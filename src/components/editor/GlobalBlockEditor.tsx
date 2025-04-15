@@ -22,7 +22,7 @@ type TProps = {
 export default function GlobalBlockEditor({
     value,
     onChange,
-    maxLength = 5000,
+    maxLength = 50000,
     height = '100%',
     className,
     pluginOptions,

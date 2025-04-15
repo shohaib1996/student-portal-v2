@@ -20,6 +20,7 @@ import {
     Search,
     Plus,
     Download,
+    TriangleAlert,
 } from 'lucide-react';
 import GlobalTable, {
     type TCustomColumnDef,
@@ -28,7 +29,7 @@ import TdDate from '@/components/global/TdDate';
 import { TdUser } from '@/components/global/TdUser';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import { MyDocumentDetailsModal } from './MyDocumentDetailsModal';
-import { UploadDocumentModal } from './upload-document-modal';
+import { UploadDocumentModal } from './UploadDocumentModal';
 import CardLoader from '@/components/loading-skeletons/CardLoader';
 import { instance } from '@/lib/axios/axiosInstance';
 
@@ -321,7 +322,15 @@ export default function MyDocumentsPage() {
 
     // Error state
     if (error) {
-        return <div>Something went wrong!</div>;
+        return (
+            <div className='w-full h-[60vh] flex flex-col items-center justify-center gap-2 '>
+                <TriangleAlert size={60} color='red' />
+                <p className='text-2xl font-semibold'>
+                    {(error as { data?: { error: string } })?.data?.error ||
+                        'Failed to fetch data'}
+                </p>
+            </div>
+        );
     }
 
     return (

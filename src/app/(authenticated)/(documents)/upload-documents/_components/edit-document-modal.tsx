@@ -29,6 +29,7 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import GlobalEditor from '@/components/editor/GlobalEditor';
+import GlobalBlockEditor from '@/components/editor/GlobalBlockEditor';
 
 export interface EditDocumentModalProps {
     isOpen: boolean;
@@ -260,7 +261,7 @@ export function EditDocumentModal({
                                                     </FormLabel>
                                                     <FormControl>
                                                         <div className='h-[80vh] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0'>
-                                                            <GlobalEditor
+                                                            <GlobalBlockEditor
                                                                 value={
                                                                     field.value ||
                                                                     ''

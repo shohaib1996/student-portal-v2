@@ -8,6 +8,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Clock,
+    Download,
     Eye,
     FileIcon,
     PencilLine,
@@ -19,7 +20,6 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { renderText } from '@/components/lexicalEditor/renderer/renderText';
 import GlobalComment from '@/components/global/GlobalComments/GlobalComment';
 import { Card, CardContent } from '@/components/ui/card';
-import { EditDocumentModal } from './edit-document-modal';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
 import GlobalDeleteModal from '@/components/global/GlobalDeleteModal';
@@ -28,6 +28,7 @@ import {
     useGetSingleUpdatedDocumentByIdQuery,
     useGetSingleUploadDocumentQuery,
 } from '@/redux/api/documents/documentsApi';
+import { EditDocumentModal } from './edit-document-modal';
 
 export interface DocumentContent {
     title: string;
@@ -144,7 +145,7 @@ export function UploadedDocumentDetailsModal({
                           name:
                               typeof file === 'string'
                                   ? file
-                                  : file.name || `File ${index}`,
+                                  : file?.name || `File ${index}`,
                           type: 'document',
                           size: '1.0 MB',
                       }))
@@ -444,7 +445,10 @@ export function UploadedDocumentDetailsModal({
                                     ref={contentRef}
                                 >
                                     <div className='prose prose-gray max-w-none dark:prose-invert'>
-                                        {renderText({ text: content?.content })}
+                                        {renderText({
+                                            text: content?.content,
+                                            toc: true,
+                                        })}
                                     </div>
                                 </div>
 
@@ -555,39 +559,15 @@ export function UploadedDocumentDetailsModal({
                                                                         </div>
                                                                     </div>
                                                                     <Button
-                                                                        variant='ghost'
+                                                                        variant='secondary'
                                                                         size='sm'
+                                                                        className='bg-background w-8 h-8'
                                                                     >
-                                                                        <svg
-                                                                            width='16'
-                                                                            height='16'
-                                                                            viewBox='0 0 16 16'
-                                                                            fill='none'
-                                                                            xmlns='http://www.w3.org/2000/svg'
-                                                                            className='h-4 w-4'
-                                                                        >
-                                                                            <path
-                                                                                d='M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10'
-                                                                                stroke='currentColor'
-                                                                                strokeWidth='1.33333'
-                                                                                strokeLinecap='round'
-                                                                                strokeLinejoin='round'
-                                                                            />
-                                                                            <path
-                                                                                d='M4.66699 6.66699L8.00033 10.0003L11.3337 6.66699'
-                                                                                stroke='currentColor'
-                                                                                strokeWidth='1.33333'
-                                                                                strokeLinecap='round'
-                                                                                strokeLinejoin='round'
-                                                                            />
-                                                                            <path
-                                                                                d='M8 10V2'
-                                                                                stroke='currentColor'
-                                                                                strokeWidth='1.33333'
-                                                                                strokeLinecap='round'
-                                                                                strokeLinejoin='round'
-                                                                            />
-                                                                        </svg>
+                                                                        <Download
+                                                                            size={
+                                                                                16
+                                                                            }
+                                                                        />
                                                                     </Button>
                                                                 </div>
                                                             ),

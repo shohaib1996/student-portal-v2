@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { DocumentCard } from './document-card';
-import { UploadDocumentModal } from './upload-document-modal';
+import { UploadDocumentModal } from './UploadDocumentModal';
 import { MyDocumentDetailsModal } from './MyDocumentDetailsModal';
 
 interface Document {

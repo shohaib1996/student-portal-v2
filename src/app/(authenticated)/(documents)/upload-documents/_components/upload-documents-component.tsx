@@ -2,8 +2,8 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Upload, LayoutGrid, List, Eye } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Upload, LayoutGrid, List, Eye, TriangleAlert } from 'lucide-react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 import { useGetUploadDocumentsQuery } from '@/redux/api/documents/documentsApi';
 import { UploadDocumentModal } from './upload-document-modal';
@@ -11,11 +11,12 @@ import GlobalPagination from '@/components/global/GlobalPagination';
 import GlobalHeader from '@/components/global/GlobalHeader';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
 import GlobalTable, {
-    TCustomColumnDef,
+    type TCustomColumnDef,
 } from '@/components/global/GlobalTable/GlobalTable';
 import TdDate from '@/components/global/TdDate';
 import { TdUser } from '@/components/global/TdUser';
 import { UploadedDocumentDetailsModal } from './UploadedDocumentDetailsModal';
+import CardLoader from '@/components/loading-skeletons/CardLoader';
 
 interface FilterValues {
     query?: string;
@@ -29,18 +30,21 @@ export default function UploadDocumentComponent() {
     );
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [isGridView, setIsGridView] = useState<boolean>(true);
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const router = useRouter();
+    const viewMode = searchParams.get('view') || 'grid';
+    const isGridView = viewMode === 'grid';
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
     const [filters, setFilters] = useState<FilterValues>({});
-    const searchParams = useSearchParams();
     const documentId = searchParams.get('documentId');
     const mode = searchParams.get('mode');
-    const router = useRouter();
     const { data, error, isLoading } = useGetUploadDocumentsQuery({
         page: currentPage,
         limit: limit,
     });
+
     useEffect(() => {
         if (documentId && mode === 'view') {
             setIsDetailsModalOpen(true);
@@ -87,11 +91,38 @@ export default function UploadDocumentComponent() {
 
     const totalPages = Math.ceil(filteredDocuments.length / limit);
 
+    // Loading state
     if (isLoading) {
-        return <div>Loading...</div>;
+        if (isGridView) {
+            return (
+                <div className='flex flex-col gap-3 mt-3'>
+                    <h3 className='text-black font-2xl'>Loading...</h3>
+                    <div className='mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
+                        {Array(10)
+                            .fill(0)
+                            .map((_, index) => (
+                                <div
+                                    key={index}
+                                    className={`${index >= 3 ? 'hidden sm:block' : ''} ${index >= 10 ? 'hidden' : ''}`}
+                                >
+                                    <CardLoader />
+                                </div>
+                            ))}
+                    </div>
+                </div>
+            );
+        }
     }
     if (error) {
-        return <div>Something went wrong!</div>;
+        return (
+            <div className='w-full h-[60vh] flex flex-col items-center justify-center gap-2 '>
+                <TriangleAlert size={60} color='red' />
+                <p className='text-2xl font-semibold'>
+                    {(error as { data?: { error: string } })?.data?.error ||
+                        'Failed to fetch data'}
+                </p>
+            </div>
+        );
     }
 
     const handleFilter = (
@@ -223,6 +254,12 @@ export default function UploadDocumentComponent() {
         },
     ];
 
+    const setViewMode = (mode: 'grid' | 'list') => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('view', mode);
+        router.push(`${pathname}?${params.toString()}`);
+    };
+
     return (
         <div>
             <div className='my-2'>
@@ -233,13 +270,13 @@ export default function UploadDocumentComponent() {
                         <div className='ml-auto flex items-center gap-2'>
                             <Button
                                 variant={!isGridView ? 'outline' : 'default'}
-                                onClick={() => setIsGridView(true)}
+                                onClick={() => setViewMode('grid')}
                             >
                                 <LayoutGrid size={16} />
                             </Button>
                             <Button
                                 variant={isGridView ? 'outline' : 'default'}
-                                onClick={() => setIsGridView(false)}
+                                onClick={() => setViewMode('list')}
                             >
                                 <List size={16} />
                             </Button>
