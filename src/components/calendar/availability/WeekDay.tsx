@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TInterval } from '@/types/calendar/calendarTypes';
-import timesArray from '../../../../public/times';
+import timesArray from '../helpers/times';
 
 export type TCopyTo = Record<string, boolean>;
 

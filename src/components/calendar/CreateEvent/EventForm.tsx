@@ -54,14 +54,14 @@ import { Label } from '@/components/ui/label';
 import { useEventPopover } from './EventPopover';
 
 import { UseFormReturn, SubmitHandler } from 'react-hook-form';
-import { ColorPicker } from '@/components/global/ColorPicker';
+import { ColorPicker } from '@/components/calendar/ui/ColorPicker';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import timesArray from '../../../../public/times';
+import timesArray from '../helpers/times';
 import {
     TAvailability,
     TEvent,

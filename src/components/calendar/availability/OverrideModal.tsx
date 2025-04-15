@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import timesArray from '../../../../public/times';
+import timesArray from '../helpers/times';
 import { TInterval } from '@/types/calendar/calendarTypes';
 import GlobalModal from '@/components/global/GlobalModal';
 

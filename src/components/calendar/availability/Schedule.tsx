@@ -6,7 +6,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import { useUpdateScheduleMutation } from '@/redux/api/calendar/calendarApi';
-import timesArray from '../../../../public/times';
+import timesArray from '../helpers/times';
 import {
     TAvailability,
     TInterval,
