@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 import {
@@ -65,14 +65,14 @@ export default function MyTemplateComponent() {
             const matchesQuery = filters.query
                 ? template.name
                       ?.toLowerCase()
-                      .includes(filters.query.toLowerCase()) ||
+                      .includes(filters.query?.toLowerCase()) ||
                   template.description
                       ?.toLowerCase()
-                      .includes(filters.query.toLowerCase())
+                      .includes(filters.query?.toLowerCase())
                 : true;
 
             const matchesType = filters.type
-                ? template.type?.toLowerCase() === filters.type.toLowerCase()
+                ? template.type?.toLowerCase() === filters.type?.toLowerCase()
                 : true;
 
             const matchesDate = filters.date
@@ -93,7 +93,11 @@ export default function MyTemplateComponent() {
     const totalPages = Math.ceil(filteredTemplates.length / limit);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className='flex items-center justify-center h-screen'>
+                <Loader2 className='w-8 h-8 animate-spin text-primary' />
+            </div>
+        );
     }
     if (error) {
         return <div>Something went wrong!</div>;

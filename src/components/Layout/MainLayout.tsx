@@ -11,8 +11,6 @@ import ChatModalsWrapper from '../chat/PopUpChat/ChatModalsWrapper';
 import { useAppSelector } from '@/redux/hooks';
 import setupSocketListeners from '@/helper/socketHandler';
 import { socket } from '@/helper/socketManager';
-import { EventPopoverProvider } from '../calendar/CreateEvent/EventPopover';
-import CombinedSelectionModal from '../global/SelectModal/combined-selection-modal';
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
     const activeCompany = Cookies.get('activeCompany');
@@ -42,7 +40,7 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
                 <>
                     <AppSidebar />
                     <main
-                        className={`relative bg-background ${state === 'expanded' ? 'md:w-[calc(100%-256px)]' : 'md:w-[calc(100%-48px)]'} w-full ${isChatWithId ? 'overflow-hidden' : ''}`}
+                        className={`relative bg-background ${state === 'expanded' ? 'md:w-[calc(100%-200px)]' : 'md:w-[calc(100%-48px)]'} w-full ${isChatWithId ? 'overflow-hidden' : ''}`}
                     >
                         <Navbar />
                         <div className='px-2 min-h-[calc(100vh-55px)]'>
