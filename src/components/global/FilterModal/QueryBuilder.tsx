@@ -109,7 +109,7 @@ function QueryBuilder({ columns, conditions, setConditions }: TProps) {
         if (field === 'date' && operator === 'equals') {
             return (
                 <DatePicker
-                    value={dayjs(value as string)}
+                    value={value ? dayjs(value as string) : dayjs()}
                     onChange={(date) =>
                         handleConditionChange(
                             index,
@@ -117,7 +117,7 @@ function QueryBuilder({ columns, conditions, setConditions }: TProps) {
                             date?.toDate() || '',
                         )
                     }
-                    className='rounded-md border'
+                    className='rounded-md border bg-background'
                 />
             );
         }

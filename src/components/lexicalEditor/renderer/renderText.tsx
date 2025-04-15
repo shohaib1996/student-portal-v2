@@ -43,7 +43,15 @@ interface QuillData {
  * @param text The text content to render
  * @returns A React component rendering the appropriate format
  */
-export const renderText = (text: string): React.ReactNode => {
+export const renderText = ({
+    text,
+    bgColor,
+    toc,
+}: {
+    text: string;
+    bgColor?: 'background' | 'foreground';
+    toc?: boolean;
+}): React.ReactNode => {
     if (!text) {
         return null; // Handle empty text case
     }
@@ -51,7 +59,6 @@ export const renderText = (text: string): React.ReactNode => {
     // First check if it's valid JSON
     try {
         const obj = JSON.parse(text);
-
         // Check if this is a Quill editor object
         if (typeof obj === 'object' && obj !== null) {
             // Check for Quill editor data structure
@@ -60,7 +67,13 @@ export const renderText = (text: string): React.ReactNode => {
             }
 
             // Check for Lexical editor structure
-            return <LexicalJsonRenderer lexicalState={obj} showTOC />;
+            return (
+                <LexicalJsonRenderer
+                    lexicalState={obj}
+                    showTOC={toc}
+                    bgColor={bgColor ? bgColor : 'background'}
+                />
+            );
         } else {
             // If JSON parsed but isn't the right object type, check if it contains HTML
             return checkAndRenderHtml(text);

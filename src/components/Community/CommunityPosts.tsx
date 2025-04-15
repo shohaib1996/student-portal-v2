@@ -384,7 +384,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     ) : (
                         <div>
                             <p className='text-sm leading-[22px] text-gray text-justify'>
-                                {renderText(post?.description || '')}
+                                {renderText({ text: post?.description || '' })}
                             </p>
                         </div>
                     )}

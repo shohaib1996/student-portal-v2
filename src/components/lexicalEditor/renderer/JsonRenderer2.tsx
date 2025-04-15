@@ -218,16 +218,11 @@ function createTOCElement(
         const listItem = document.createElement('li');
         // Indentation based on heading level
         listItem.style.marginLeft = `${(level - 1) * 12}px`;
-        listItem.style.maxWidth = `100%`;
-        listItem.style.overflow = `hidden`;
-        listItem.style.whiteSpace = `nowrap`;
-        listItem.style.textOverflow = `ellipsis`;
-        listItem.style.listStyle = `disc`;
 
         // Create anchor
         const link = document.createElement('a');
         link.href = `#${id}`;
-        link.className = 'text-blue-600 hover:underline truncate max-w-[80%]';
+        link.className = 'text-blue-600 hover:underline ';
         link.textContent = text;
 
         listItem.appendChild(link);
@@ -436,7 +431,7 @@ function createParagraph(
     headings: HeadingData[],
 ): HTMLElement {
     const paragraph = document.createElement('p');
-    paragraph.className = 'mb-4 flex flex-row flex-wrap';
+    paragraph.className = 'mb-4';
 
     // If node.format includes alignment info
     if (node.format && node.format.includes('align')) {

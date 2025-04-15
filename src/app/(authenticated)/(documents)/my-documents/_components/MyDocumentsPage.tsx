@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 import {
@@ -10,8 +9,18 @@ import {
 } from '@/redux/api/documents/documentsApi';
 import GlobalHeader from '@/components/global/GlobalHeader';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
+import type { TConditions } from '@/components/global/FilterModal/QueryBuilder'; // Import TConditions type
+import SortMenu from '@/components/global/SortMenu'; // Import SortMenu component
 import { Button } from '@/components/ui/button';
-import { Eye, FileX, LayoutGrid, List, Loader2, Search } from 'lucide-react';
+import {
+    Eye,
+    FileX,
+    LayoutGrid,
+    List,
+    Search,
+    Plus,
+    Download,
+} from 'lucide-react';
 import GlobalTable, {
     type TCustomColumnDef,
 } from '@/components/global/GlobalTable/GlobalTable';
@@ -20,32 +29,65 @@ import { TdUser } from '@/components/global/TdUser';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import { MyDocumentDetailsModal } from './MyDocumentDetailsModal';
 import { UploadDocumentModal } from './upload-document-modal';
+import CardLoader from '@/components/loading-skeletons/CardLoader';
+import { instance } from '@/lib/axios/axiosInstance';
 
-interface FilterValues {
-    query?: string;
-    priority?: string;
-    date?: string;
+interface DocumentDescription {
+    [key: string]: string;
 }
 
 export default function MyDocumentsPage() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const documentId = searchParams.get('documentId');
+    const mode = searchParams.get('mode') || 'view';
+    const viewMode = searchParams.get('view') || 'grid';
+
+    // State variables
     const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
         null,
     );
-    const searchParams = useSearchParams();
-    const documentId = searchParams.get('documentId');
-    const mode = searchParams.get('mode') || 'view';
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [isGridView, setIsGridView] = useState<boolean>(true);
+    const [isGridView, setIsGridView] = useState<boolean>(viewMode === 'grid');
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
-    const [filters, setFilters] = useState<FilterValues>({});
+    const [documentDescriptions, setDocumentDescriptions] =
+        useState<DocumentDescription>({});
+    const [isCsvLoading, setIsCsvLoading] = useState(false);
 
-    const router = useRouter();
+    // Filter and sort state
+    const [filterData, setFilterData] = useState<TConditions[]>([]);
+    const [sortData, setSortData] = useState<Record<string, number>>({});
+    const [query, setQuery] = useState('');
+    const [priority, setPriority] = useState('');
+    const [date, setDate] = useState('');
+
+    // Fetch documents with filter and sort parameters
     const { data, error, isLoading } = useGetMyDocumentQuery({
         page: currentPage,
         limit: limit,
+        // sort: serializeSortData(sortData),
+        query,
+        priority,
+        createdAt: date,
     });
+
+    // Update URL when view mode changes
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('view', isGridView ? 'grid' : 'list');
+
+        // Preserve other query parameters
+        if (documentId) {
+            params.set('documentId', documentId);
+        }
+        if (mode !== 'view') {
+            params.set('mode', mode);
+        }
+
+        router.push(`/my-documents?${params.toString()}`);
+    }, [isGridView, router, searchParams, documentId, mode]);
 
     useEffect(() => {
         if (documentId && mode === 'view') {
@@ -53,70 +95,85 @@ export default function MyDocumentsPage() {
         }
     }, [documentId, mode]);
 
+    // Set initial view mode from URL
+    useEffect(() => {
+        setIsGridView(viewMode === 'grid');
+    }, [viewMode]);
+
     const allDocuments = data?.documents || [];
-    console.log({ allDocuments });
+
+    // Fetch descriptions for documents that don't have one
+    useEffect(() => {
+        const fetchMissingDescriptions = async () => {
+            if (!allDocuments || allDocuments.length === 0) {
+                return;
+            }
+
+            const documentsWithoutDescription = allDocuments.filter(
+                (doc) => !doc.description && !documentDescriptions[doc._id],
+            );
+
+            if (documentsWithoutDescription.length === 0) {
+                return;
+            }
+
+            const fetchPromises = documentsWithoutDescription.map(
+                async (doc) => {
+                    try {
+                        const res = await instance.get(
+                            `/content/singlecontent/${doc._id}`,
+                        );
+                        return {
+                            id: doc._id,
+                            description: res.data.content?.description || '',
+                        };
+                    } catch (error) {
+                        console.log((error as Error).message);
+                        return { id: doc._id, description: '' };
+                    }
+                },
+            );
+
+            const results = await Promise.all(fetchPromises);
+            const newDescriptions = results.reduce(
+                (acc, { id, description }) => {
+                    acc[id] = description;
+                    return acc;
+                },
+                {} as DocumentDescription,
+            );
+
+            setDocumentDescriptions((prev) => ({
+                ...prev,
+                ...newDescriptions,
+            }));
+        };
+
+        fetchMissingDescriptions();
+    }, [allDocuments]);
+
     const { data: singleDocument, isLoading: isSingleDocLoading } =
         useGetSingleUploadDocumentQuery(documentId || '', {
             skip:
                 !documentId ||
                 (data?.documents || []).some((doc) => doc._id === documentId),
         });
+
     // Find selected document from local data or use fetched single document
     const selectedDocument = documentId
         ? allDocuments.find((doc) => doc._id === documentId) || singleDocument
         : null;
-    // Filter documents based on filter values
-    const filteredDocuments = useMemo(() => {
-        return allDocuments.filter((doc) => {
-            const matchesQuery = filters.query
-                ? (doc.name
-                      ?.toLowerCase()
-                      .includes(filters.query.toLowerCase()) ??
-                      false) ||
-                  (doc.description
-                      ?.toLowerCase()
-                      .includes(filters.query.toLowerCase()) ??
-                      false) ||
-                  (doc.createdBy?.fullName
-                      ?.toLowerCase()
-                      .includes(filters.query.toLowerCase()) ??
-                      false)
-                : true;
 
-            const matchesPriority = filters.priority
-                ? doc.priority?.toLowerCase() === filters.priority.toLowerCase()
-                : true;
-
-            const matchesDate = filters.date
-                ? new Date(doc.createdAt).toDateString() ===
-                  new Date(filters.date).toDateString()
-                : true;
-
-            return matchesQuery && matchesPriority && matchesDate;
-        });
-    }, [allDocuments, filters]);
-
-    if (isLoading) {
-        return (
-            <div className='flex h-screen items-center justify-center'>
-                <Loader2 className='w-8 h-8 animate-spin text-primary' />
-            </div>
-        );
-    }
-    if (error) {
-        return <div>Something went wrong!</div>;
-    }
-
+    // Handle filter changes
     const handleFilter = (
-        conditions: any[],
+        conditions: TConditions[],
         queryObj: Record<string, string>,
     ) => {
-        setFilters({
-            query: queryObj.query,
-            priority: queryObj.priority,
-            date: queryObj.date,
-        });
-        setCurrentPage(1); // Reset to first page when filtering
+        setFilterData(conditions);
+        setQuery(queryObj['query'] || '');
+        setPriority(queryObj['priority'] || '');
+        setDate(queryObj['date'] || '');
+        setCurrentPage(1);
     };
 
     const handleDocumentClick = (documentId: string) => {
@@ -127,16 +184,16 @@ export default function MyDocumentsPage() {
     const handleCloseDetailsModal = () => {
         setIsDetailsModalOpen(false);
         setSelectedDocumentId(null);
-        router.push(`/my-documents`);
-    };
-
-    const handleCloseUploadModal = () => {
-        setIsUploadModalOpen(false);
+        router.push(`/my-documents?view=${isGridView ? 'grid' : 'list'}`);
     };
 
     const handlePageChange = (page: number, newLimit: number) => {
         setCurrentPage(page);
         setLimit(newLimit);
+    };
+
+    const toggleViewMode = (gridView: boolean) => {
+        setIsGridView(gridView);
     };
 
     const defaultColumns: TCustomColumnDef<(typeof allDocuments)[0]>[] = [
@@ -201,13 +258,17 @@ export default function MyDocumentsPage() {
         {
             accessorKey: 'description',
             header: 'Description',
-            cell: ({ row }) => (
-                <span
-                    className={row.original.description ? '' : 'text-gray-400'}
-                >
-                    {row.original.description || 'No description'}
-                </span>
-            ),
+            cell: ({ row }) => {
+                const description =
+                    row.original.description ||
+                    documentDescriptions[row.original._id] ||
+                    '';
+                return (
+                    <span className={description ? '' : 'text-gray-400'}>
+                        {description || 'No description'}
+                    </span>
+                );
+            },
             footer: (data) => data.column.id,
             id: 'description',
             visible: true,
@@ -221,7 +282,7 @@ export default function MyDocumentsPage() {
                     <Button
                         tooltip='View'
                         variant={'plain'}
-                        className='bg-foreground size-8'
+                        className='size-8 bg-foreground'
                         icon={<Eye size={18} />}
                         size={'icon'}
                         onClick={() => handleDocumentClick(row.original._id)}
@@ -234,36 +295,73 @@ export default function MyDocumentsPage() {
             canHide: false,
         },
     ];
-    console.log({ data });
+
+    // Loading state
+    if (isLoading) {
+        if (isGridView) {
+            return (
+                <div className='flex flex-col gap-3'>
+                    <h3 className='text-black font-2xl'>Loading...</h3>
+                    <div className='mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
+                        {Array(10)
+                            .fill(0)
+                            .map((_, index) => (
+                                <div
+                                    key={index}
+                                    className={`${index >= 3 ? 'hidden sm:block' : ''} ${index >= 10 ? 'hidden' : ''}`}
+                                >
+                                    <CardLoader />
+                                </div>
+                            ))}
+                    </div>
+                </div>
+            );
+        }
+    }
+
+    // Error state
+    if (error) {
+        return <div>Something went wrong!</div>;
+    }
+
     return (
         <div>
             <div className='my-2'>
                 <GlobalHeader
                     title='My Documents'
                     subTitle='Resource Library: Access All Essential Documents'
+                    tooltip={
+                        <div>
+                            <h5>
+                                This page displays all your documents in one
+                                place.
+                            </h5>
+                            <h5>
+                                You can view, filter, and manage your documents.
+                                Use the grid view for a visual representation or
+                                list view for detailed information.
+                            </h5>
+                        </div>
+                    }
                     buttons={
                         <div className='flex items-center gap-2'>
+                            {/* View mode toggles */}
                             <Button
                                 variant={!isGridView ? 'outline' : 'default'}
-                                onClick={() => setIsGridView(true)}
+                                onClick={() => toggleViewMode(true)}
                             >
                                 <LayoutGrid size={16} />
                             </Button>
                             <Button
                                 variant={isGridView ? 'outline' : 'default'}
-                                onClick={() => setIsGridView(false)}
+                                onClick={() => toggleViewMode(false)}
                             >
                                 <List size={16} />
                             </Button>
-                            {/* Filter modal  */}
+
+                            {/* Filter modal */}
                             <FilterModal
-                                value={Object.entries(filters)
-                                    .filter(([_, value]) => value)
-                                    .map(([column, value]) => ({
-                                        field: column,
-                                        operator: 'eq',
-                                        value,
-                                    }))}
+                                value={filterData}
                                 onChange={handleFilter}
                                 columns={[
                                     {
@@ -273,19 +371,40 @@ export default function MyDocumentsPage() {
                                     {
                                         label: 'Priority',
                                         value: 'priority',
+                                        type: 'select',
+                                        options: [
+                                            { value: 'high', label: 'High' },
+                                            {
+                                                value: 'medium',
+                                                label: 'Medium',
+                                            },
+                                            { value: 'low', label: 'Low' },
+                                        ],
                                     },
                                     {
-                                        label: 'Created Date',
+                                        label: 'Creation Date',
                                         value: 'date',
                                     },
                                 ]}
+                            />
+
+                            {/* Sort menu */}
+                            <SortMenu
+                                value={sortData}
+                                onChange={(val) => setSortData(val)}
+                                columns={defaultColumns.filter(
+                                    (col) =>
+                                        !['actions'].includes(
+                                            col.accessorKey as string,
+                                        ),
+                                )}
                             />
                         </div>
                     }
                 />
             </div>
 
-            <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
+            <div className='flex h-[calc(100vh-120px)] flex-col justify-between'>
                 {isGridView ? (
                     <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
                         {allDocuments.length > 0 ? (
@@ -295,41 +414,47 @@ export default function MyDocumentsPage() {
                                     id={doc._id}
                                     redirect='my-documents'
                                     {...doc}
+                                    description={
+                                        doc.description ||
+                                        documentDescriptions[doc._id] ||
+                                        ''
+                                    }
                                     onClick={() => handleDocumentClick(doc._id)}
                                 />
                             ))
                         ) : (
                             <div className='col-span-full flex flex-col items-center justify-center py-10'>
-                                {allDocuments.length === 0 ? (
+                                {!query && !priority && !date ? (
                                     <>
                                         <FileX
                                             size={64}
-                                            className='text-gray-400 mb-4'
+                                            className='mb-4 text-gray-400'
                                         />
                                         <h3 className='text-lg font-medium'>
                                             No documents found
                                         </h3>
-                                        <p className='text-gray mt-1'>
-                                            {`You haven't uploaded any documents
-                                            yet`}
-                                        </p>
+                                        <p className='mt-1 text-gray'>{`You haven't uploaded any documents yet`}</p>
                                     </>
                                 ) : (
                                     <>
                                         <Search
                                             size={64}
-                                            className='text-gray-400 mb-4'
+                                            className='mb-4 text-gray-400'
                                         />
                                         <h3 className='text-lg font-medium'>
                                             No matching documents
                                         </h3>
-                                        <p className='text-gray mt-1'>
+                                        <p className='mt-1 text-gray'>
                                             No documents match your current
                                             filter criteria
                                         </p>
                                         <Button
-                                            onClick={() => setFilters({})}
-                                            variant='outline'
+                                            onClick={() => {
+                                                setFilterData([]);
+                                                setQuery('');
+                                                setPriority('');
+                                                setDate('');
+                                            }}
                                             className='mt-4'
                                         >
                                             Clear Filters
@@ -366,11 +491,6 @@ export default function MyDocumentsPage() {
                 onClose={handleCloseDetailsModal}
                 documentId={selectedDocumentId || documentId}
                 relatedDocuments={data?.documents || []}
-            />
-
-            <UploadDocumentModal
-                isOpen={isUploadModalOpen}
-                onClose={handleCloseUploadModal}
             />
         </div>
     );
