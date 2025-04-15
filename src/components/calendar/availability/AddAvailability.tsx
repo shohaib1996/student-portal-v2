@@ -7,16 +7,16 @@ import {
     TAvailability,
     TSchedule,
     TUpdateSchedule,
-} from '@/components/calendar/types/calendarTypes';
+} from '../types/calendarTypes';
 import {
     useAddNewScheduleMutation,
     useGetAllSchedulesQuery,
-} from '@/components/calendar/api/calendarApi';
-import { Card } from '@/components/ui/card';
+} from '../api/calendarApi';
+import { Card } from '../ui/card';
 import { Loader, Plus, XCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import GlobalModal from '@/components/global/GlobalModal';
-import { Input } from '@/components/ui/input';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import CalendarModal from '../ui/CalendarModal';
 
 type TProps = {
     handleSave: (_: TUpdateSchedule, id: string) => void;
@@ -110,7 +110,7 @@ const AddAvailability = ({
                 </div>
             )}
 
-            <GlobalModal
+            <CalendarModal
                 className='w-[550px] md:w-[550px] lg:w-[550px]'
                 allowFullScreen={true}
                 open={isCreateOpen}
@@ -140,7 +140,7 @@ const AddAvailability = ({
                     value={sname}
                     onChange={(e) => setsName(e.target.value)}
                 />
-            </GlobalModal>
+            </CalendarModal>
         </div>
     );
 };
