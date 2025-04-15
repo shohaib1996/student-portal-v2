@@ -44,6 +44,8 @@ export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
             return toast.warning('Please select future date and time');
         }
 
+        console.log(onModal, date);
+
         const dateTime = dayjs(currentDate)
             .hour(hour)
             .minute(0)
@@ -107,7 +109,7 @@ export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
                                     : `${hour - 12} PM`}
                         </div>
                         <div
-                            onClick={(e) => e.stopPropagation()}
+                            // onClick={(e) => e.stopPropagation()}
                             className={cn('mt-1 flex w-full flex-wrap gap-2', {
                                 'flex-col': onModal,
                             })}

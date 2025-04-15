@@ -43,9 +43,9 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
     const hourRef = useRef<HTMLDivElement>(null);
     const minuteRef = useRef<HTMLDivElement>(null);
 
-    // Update state when value prop changes or when popover opens
+    // Update state when value prop changes (regardless of popover state)
     useEffect(() => {
-        if (value && isOpen) {
+        if (value) {
             const hours = value.getHours();
             const minutes = value.getMinutes();
 
@@ -53,7 +53,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
             setMinute(minutes);
             setPeriod(hours >= 12 ? 'PM' : 'AM');
         }
-    }, [value, isOpen]);
+    }, [value]);
 
     // Generate hours (1-12)
     const hours = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -61,9 +61,13 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
     // Generate minutes (00-59)
     const minutes = Array.from({ length: 60 }, (_, i) => i);
 
-    // Format time for display
+    // Format time for display - use the current value prop to display
     const formattedTime = value
-        ? `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${period}`
+        ? `${
+              value.getHours() === 0 || value.getHours() === 12
+                  ? '12'
+                  : (value.getHours() % 12).toString().padStart(2, '0')
+          }:${value.getMinutes().toString().padStart(2, '0')} ${value.getHours() >= 12 ? 'PM' : 'AM'}`
         : 'Select time';
 
     // Handle time selection (only when Done button is clicked)

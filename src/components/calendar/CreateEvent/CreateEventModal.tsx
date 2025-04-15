@@ -413,7 +413,7 @@ const CreateEventModal = () => {
         );
     };
 
-    console.log(eventForm.formState.errors);
+    console.log(eventForm.watch('startTime'));
 
     return (
         <div>
@@ -480,6 +480,7 @@ const CreateEventModal = () => {
                         <DayView
                             onModal
                             onChange={(date) => {
+                                console.log(date);
                                 if (tab === 'event') {
                                     eventForm.setValue(
                                         'startTime',
