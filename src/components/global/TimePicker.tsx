@@ -43,9 +43,9 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
     const hourRef = useRef<HTMLDivElement>(null);
     const minuteRef = useRef<HTMLDivElement>(null);
 
-    // Update state when value prop changes
+    // Update state when value prop changes or when popover opens
     useEffect(() => {
-        if (value) {
+        if (value && isOpen) {
             const hours = value.getHours();
             const minutes = value.getMinutes();
 
@@ -53,7 +53,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
             setMinute(minutes);
             setPeriod(hours >= 12 ? 'PM' : 'AM');
         }
-    }, [value]);
+    }, [value, isOpen]);
 
     // Generate hours (1-12)
     const hours = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -66,42 +66,31 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
         ? `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${period}`
         : 'Select time';
 
-    // Handle time selection
-    const handleTimeSelect = (selectedHour: number, selectedMinute: number) => {
-        const newDate = value || new Date();
-        newDate.setHours(
-            period === 'PM'
-                ? selectedHour === 12
-                    ? 12
-                    : selectedHour + 12
-                : selectedHour === 12
-                  ? 0
-                  : selectedHour,
-            selectedMinute,
-        );
+    // Handle time selection (only when Done button is clicked)
+    const handleTimeSelect = () => {
+        // Convert the currently selected hour/minute/period to a Date object
+        const newDate = value ? new Date(value) : new Date();
+
+        // Convert hour from 12-hour to 24-hour format
+        let hours24 = hour;
+        if (period === 'PM' && hour !== 12) {
+            hours24 = hour + 12;
+        } else if (period === 'AM' && hour === 12) {
+            hours24 = 0;
+        }
+
+        // Set the hours and minutes
+        newDate.setHours(hours24, minute);
+
+        // Trigger the onChange callback with the new date
         onChange(newDate);
         setIsOpen(false);
     };
 
-    // Handle period change
-    // Handle period change
+    // Handle period change (AM/PM toggle)
     const handlePeriodChange = () => {
-        const newPeriod = period === 'AM' ? 'PM' : 'AM';
-        setPeriod(newPeriod);
-
-        if (value) {
-            const newDate = new Date(value);
-            const currentHour = newDate.getHours();
-
-            // Convert the current hour based on the new period without resetting to 12
-            if (newPeriod === 'PM' && currentHour < 12) {
-                newDate.setHours(currentHour + 12);
-            } else if (newPeriod === 'AM' && currentHour >= 12) {
-                newDate.setHours(currentHour - 12);
-            }
-
-            onChange(newDate);
-        }
+        // Just toggle the period state without changing the date yet
+        setPeriod((prevPeriod) => (prevPeriod === 'AM' ? 'PM' : 'AM'));
     };
 
     // Scroll to selected hour/minute when opened
@@ -214,10 +203,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
                     </div>
 
                     <div className='border-t p-3 flex justify-end'>
-                        <Button
-                            size='sm'
-                            onClick={() => handleTimeSelect(hour, minute)}
-                        >
+                        <Button size='sm' onClick={handleTimeSelect}>
                             Done
                         </Button>
                     </div>

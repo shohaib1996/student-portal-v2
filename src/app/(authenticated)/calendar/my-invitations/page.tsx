@@ -434,6 +434,8 @@ const MyInvitations = () => {
 
     const dispatch = useAppDispatch();
 
+    console.log(proproseTime);
+
     const handleUpdateInvitation = async ({
         status,
         event,
