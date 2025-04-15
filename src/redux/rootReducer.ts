@@ -16,7 +16,7 @@ import comapnyReducer from './features/comapnyReducer';
 import notificationReducer from './features/notificationReducer';
 import navigationReducer from './features/navigationReducer';
 import programReducer from './features/programReducer';
-import calendarReducer from './features/calendarReducer';
+import calendarReducer from '../components/calendar/reducer/calendarReducer';
 import selectionModalReducer from './features/selectionModalSlice';
 import tableReducer from './features/tableReducer';
 import localforage from 'localforage';

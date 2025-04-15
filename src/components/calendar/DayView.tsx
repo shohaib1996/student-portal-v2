@@ -6,11 +6,11 @@ import { format, isToday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import dayjs, { Dayjs } from 'dayjs';
 import { toast } from 'sonner';
-import { TEvent } from '@/types/calendar/calendarTypes';
-import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
+import { useGetMyEventsQuery } from '@/components/calendar/api/calendarApi';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { useEventPopover } from './CreateEvent/EventPopover';
-import { setCurrentDate } from '@/redux/features/calendarReducer';
+import { setCurrentDate } from '@/components/calendar/reducer/calendarReducer';
 import EventButton from './EventButton';
 import EventButtonWithBG from './EventButtonWithBG';
 interface DayViewProps {
@@ -43,6 +43,8 @@ export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
         if (dayjs(updatedDate).isBefore(dayjs(), 'minute')) {
             return toast.warning('Please select future date and time');
         }
+
+        console.log(onModal, date);
 
         const dateTime = dayjs(currentDate)
             .hour(hour)
@@ -107,7 +109,7 @@ export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
                                     : `${hour - 12} PM`}
                         </div>
                         <div
-                            onClick={(e) => e.stopPropagation()}
+                            // onClick={(e) => e.stopPropagation()}
                             className={cn('mt-1 flex w-full flex-wrap gap-2', {
                                 'flex-col': onModal,
                             })}

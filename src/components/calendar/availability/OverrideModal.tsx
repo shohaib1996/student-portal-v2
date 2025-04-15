@@ -4,25 +4,17 @@ import React, { useState } from 'react';
 import { Dayjs } from 'dayjs';
 import { Plus, X } from 'lucide-react';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-} from '@/components/ui/dialog';
-import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+} from '../ui/select';
+import { Button } from '../ui/button';
+import { Calendar } from '../ui/calendar';
 import timesArray from '../helpers/times';
-import { TInterval } from '@/types/calendar/calendarTypes';
-import GlobalModal from '@/components/global/GlobalModal';
+import { TInterval } from '../types/calendarTypes';
+import CalendarModal from '../ui/CalendarModal';
 
 type TProps = {
     isOpen: boolean;
@@ -80,7 +72,7 @@ export default function OverrideModal({
     };
 
     return (
-        <GlobalModal
+        <CalendarModal
             open={isOpen}
             setOpen={handleClose}
             title='Date Specific Schedule'
@@ -191,6 +183,6 @@ export default function OverrideModal({
                     </div>
                 )}
             </div>
-        </GlobalModal>
+        </CalendarModal>
     );
 }

@@ -18,10 +18,10 @@ import TaskCard from './TaskCard';
 import {
     useGetMyEventsQuery,
     useUpdateEventMutation,
-} from '@/redux/api/calendar/calendarApi';
+} from '@/components/calendar/api/calendarApi';
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
 import { toast } from 'sonner';
 
 export interface TaskType {

@@ -1,4 +1,4 @@
-import { TUser } from '../auth';
+import { TUser } from '../../../types/auth';
 
 export type TEventNotification = {
     type: string;

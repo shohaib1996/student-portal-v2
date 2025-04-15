@@ -13,7 +13,7 @@ import { X, Maximize2, Minimize2, GripHorizontal } from 'lucide-react';
 import { motion, useDragControls, useMotionValue } from 'framer-motion';
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 import { createPortal } from 'react-dom';
 
 type Side = 'top' | 'right' | 'bottom' | 'left';

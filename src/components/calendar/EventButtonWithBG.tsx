@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
 import dayjs from 'dayjs';
 import React from 'react';
 

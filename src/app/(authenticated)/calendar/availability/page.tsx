@@ -5,8 +5,11 @@ import { Button } from '@/components/ui/button';
 import {
     useGetAllSchedulesQuery,
     useUpdateScheduleMutation,
-} from '@/redux/api/calendar/calendarApi';
-import { TAvailability, TUpdateSchedule } from '@/types/calendar/calendarTypes';
+} from '@/components/calendar/api/calendarApi';
+import {
+    TAvailability,
+    TUpdateSchedule,
+} from '@/components/calendar/types/calendarTypes';
 import { BookmarkCheck, RotateCcw, Undo, XCircle } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';

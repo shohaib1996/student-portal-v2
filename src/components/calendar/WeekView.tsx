@@ -12,16 +12,16 @@ import {
 
 import { cn } from '@/lib/utils';
 import GlobalTooltip from '../global/GlobalTooltip';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
 import dayjs from 'dayjs';
 import GlobalDropdown from '../global/GlobalDropdown';
-import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
+import { useGetMyEventsQuery } from '@/components/calendar/api/calendarApi';
 import {
     EventPopoverTrigger,
     useEventPopover,
 } from './CreateEvent/EventPopover';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { setCurrentDate } from '@/redux/features/calendarReducer';
+import { setCurrentDate } from '@/components/calendar/reducer/calendarReducer';
 import EventButton from './EventButton';
 
 interface WeekViewProps {
