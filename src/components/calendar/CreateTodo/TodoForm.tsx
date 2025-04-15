@@ -48,9 +48,9 @@ import {
 } from '../api/calendarApi';
 import { TUser } from '@/types/auth';
 import dayjs, { Dayjs } from 'dayjs';
-import { TimePicker } from '@/components/global/TimePicker';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { TimePicker } from '../ui/TimePicker';
+import { Switch } from '../ui/switch';
+import { Label } from '../ui/label';
 import { UseFormReturn, SubmitHandler } from 'react-hook-form';
 import { TAvailability, TNotification } from '../types/calendarTypes';
 import { MDXEditorMethods } from '@mdxeditor/editor';
@@ -58,9 +58,9 @@ import { useEventPopover } from '../CreateEvent/EventPopover';
 import { TTodoFormType } from '../validations/todoValidation';
 import AddNotification from '../CreateEvent/AddNotification';
 import { renderRecurrence } from '../CreateEvent/EventForm';
-import GlobalEditor from '@/components/editor/GlobalEditor';
 import SelectPurpose from '../CreateEvent/SelectPurpose';
 import { DatePicker } from '../ui/DatePicker';
+import GlobalEditor from '@/components/editor/GlobalEditor';
 
 type TProps = {
     form: UseFormReturn<TTodoFormType>;

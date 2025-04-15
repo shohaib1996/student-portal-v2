@@ -40,11 +40,10 @@ const phoneImg = '/calendar/phone.png';
 const customImg = '/calendar/custom.png';
 import AddNotification from './AddNotification';
 import { TEventFormType } from '../validations/eventValidation';
-import MultiSelect from '@/components/global/MultiSelect';
+import MultiSelect from '../ui/MultiSelect';
 import { useAppSelector } from '@/redux/hooks';
 import { toast } from 'sonner';
 import SelectPurpose from './SelectPurpose';
-import GlobalEditor from '@/components/editor/GlobalEditor';
 import { TAvailability, TEvent, TNotification } from '../types/calendarTypes';
 import {
     Form,
@@ -72,6 +71,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Button } from '../ui/button';
 import { Calendar } from '../ui/calendar';
 import timesArray from '../helpers/times';
+import GlobalEditor from '@/components/editor/GlobalEditor';
 
 type TProps = {
     form: UseFormReturn<TEventFormType>;
