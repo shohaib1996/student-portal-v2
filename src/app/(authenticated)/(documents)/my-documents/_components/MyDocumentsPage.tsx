@@ -11,7 +11,7 @@ import {
 import GlobalHeader from '@/components/global/GlobalHeader';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
 import { Button } from '@/components/ui/button';
-import { Eye, FileX, LayoutGrid, List, Search } from 'lucide-react';
+import { Eye, FileX, LayoutGrid, List, Loader2, Search } from 'lucide-react';
 import GlobalTable, {
     type TCustomColumnDef,
 } from '@/components/global/GlobalTable/GlobalTable';
@@ -97,7 +97,11 @@ export default function MyDocumentsPage() {
     }, [allDocuments, filters]);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className='flex h-screen items-center justify-center'>
+                <Loader2 className='w-8 h-8 animate-spin text-primary' />
+            </div>
+        );
     }
     if (error) {
         return <div>Something went wrong!</div>;

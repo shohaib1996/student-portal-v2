@@ -246,8 +246,8 @@ const ContentDropDown = ({
                             }`}
                             onClick={() => setParentId(item._id)}
                         >
-                            <div className='flex items-center justify-between w-full p-2 flex-wrap'>
-                                <div className='flex items-center gap-3'>
+                            <div className='flex items-center justify-between w-full p-2 flex-wrap gap-2'>
+                                <div className='flex items-center gap-2'>
                                     <div className='bg-primary-light mr-1.5 p-1.5 rounded-md'>
                                         {parentId ? (
                                             <Folder className='h-5 w-5 stroke-primary' />

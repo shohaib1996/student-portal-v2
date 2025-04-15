@@ -1,28 +1,52 @@
 'use client';
 
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, LabelList } from 'recharts';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
-// Mock interview data with exact values from the image
-const mockInterviewData = [
-    {
-        name: 'Total mock interview questions',
-        value: 60,
-        color: '#0d6efd',
-        count: 34,
-    }, // Blue
-    {
-        name: 'Total mock interview Answers',
-        value: 40,
-        color: '#20c997',
-        count: 15,
-    }, // Teal/Cyan
-    { name: 'Reviewed', value: 30, color: '#198754', count: 22 }, // Green
-    { name: 'Not reviewed', value: 20, color: '#fd7e14', count: 15 }, // Orange
-];
+export function MockInterviewChart({ data }: { data: any }) {
+    const totalCount = Object.values(data)?.reduce(
+        (sum: number, item: any) => sum + item,
+        0,
+    );
 
-export function MockInterviewChart() {
+    const mockInterviewData = [
+        {
+            name: 'Total mock interview questions',
+            color: '#0d6efd',
+            count: data?.totalInterview || 0,
+            percentage: totalCount
+                ? (((data?.totalInterview || 0) / totalCount) * 100).toFixed(
+                      0,
+                  ) + '%'
+                : '0%',
+        }, // Blue
+        {
+            name: 'Total mock interview Answers',
+            color: '#20c997',
+            count: data?.submitted || 0,
+            percentage: totalCount
+                ? (((data?.submitted || 0) / totalCount) * 100).toFixed(0) + '%'
+                : '0%',
+        }, // Teal/Cyan
+        {
+            name: 'Reviewed',
+            color: '#198754',
+            count: data?.completed || 0,
+            percentage: totalCount
+                ? (((data?.completed || 0) / totalCount) * 100).toFixed(0) + '%'
+                : '0%',
+        }, // Green
+        {
+            name: 'Not reviewed',
+            color: '#fd7e14',
+            count: data?.pending || 0,
+            percentage: totalCount
+                ? (((data?.pending || 0) / totalCount) * 100).toFixed(0) + '%'
+                : '0%',
+        }, // Orange
+    ];
+
     return (
         <div className='bg-foreground rounded-xl mb-2'>
             <div className='flex justify-between items-center mb-2 pb-2 border-b border-border'>
@@ -37,7 +61,7 @@ export function MockInterviewChart() {
                     className='text-sm text-primary-white bg-primary-light hover:bg-primary hover:text-white font-medium flex items-center gap-0.5 py-2 px-2.5 rounded-lg'
                 >
                     View More
-                    <ArrowRight />
+                    <ArrowRight className='hidden md:block' />
                 </Link>
             </div>
 
@@ -53,7 +77,7 @@ export function MockInterviewChart() {
                                     innerRadius={0}
                                     outerRadius={80}
                                     paddingAngle={0}
-                                    dataKey='value'
+                                    dataKey='count'
                                 >
                                     {mockInterviewData.map((entry, index) => (
                                         <Cell
@@ -61,23 +85,18 @@ export function MockInterviewChart() {
                                             fill={entry.color}
                                         />
                                     ))}
+                                    <LabelList
+                                        dataKey='percentage'
+                                        position='inside'
+                                        style={{
+                                            fill: '#ffffff',
+                                            fontWeight: '400',
+                                            fontSize: '14px',
+                                        }}
+                                    />
                                 </Pie>
                             </PieChart>
                         </ResponsiveContainer>
-
-                        {/* Manually add percentage labels to match the image exactly */}
-                        <div className='absolute top-[20%] right-[25%] text-white font-bold'>
-                            60%
-                        </div>
-                        <div className='absolute top-[40%] left-[15%] text-white font-bold'>
-                            40%
-                        </div>
-                        <div className='absolute bottom-[20%] left-[40%] text-white font-bold'>
-                            30%
-                        </div>
-                        <div className='absolute bottom-[35%] right-[20%] text-white font-bold'>
-                            20%
-                        </div>
                     </div>
                 </div>
 

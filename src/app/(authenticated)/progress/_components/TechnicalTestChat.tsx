@@ -189,7 +189,9 @@ export function TechnicalTestChart({ data }: { data: any }) {
                                 </span>
                             </div>
                             <span className='font-medium text-black text-lg'>
-                                {data?.totalItems || 0}
+                                {data?.acceptedItems +
+                                    data?.pendingItems +
+                                    data?.rejectedItems || 0}
                             </span>
                         </div>
                         <div className='flex items-center justify-between'>
