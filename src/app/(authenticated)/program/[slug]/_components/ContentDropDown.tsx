@@ -51,6 +51,7 @@ const ContentDropDown = ({
         React.SetStateAction<{
             videoInfo: null | TLessonInfo;
             isSideOpen: boolean;
+            contentId?: string;
         }>
     >;
     setParentId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -123,12 +124,14 @@ const ContentDropDown = ({
                                 // isChevronDown={false}
                             >
                                 <div className='flex items-center justify-between w-full p-2'>
-                                    <div
+                                    <Link
+                                        href={'#program-title'}
                                         className='flex items-center gap-3'
                                         onClick={() =>
                                             setVideoData({
                                                 videoInfo: item?.lesson,
                                                 isSideOpen: true,
+                                                contentId: item._id,
                                             })
                                         }
                                     >
@@ -150,7 +153,7 @@ const ContentDropDown = ({
                                         <div className='flex items-start gap-1'>
                                             {renderPriorityBadge(item.priority)}
                                         </div>
-                                    </div>
+                                    </Link>
 
                                     <div className='flex items-center gap-1'>
                                         <LessionActionMenu
@@ -174,7 +177,7 @@ const ContentDropDown = ({
                                 <Link
                                     href={
                                         item.lesson.url
-                                            ? `/presentation-slides/${item.lesson.url}`
+                                            ? `/presentation-slides/?slide=${item.lesson.url}`
                                             : '#'
                                     }
                                     target='_blank'
@@ -243,8 +246,8 @@ const ContentDropDown = ({
                             }`}
                             onClick={() => setParentId(item._id)}
                         >
-                            <div className='flex items-center justify-between w-full p-2 flex-wrap'>
-                                <div className='flex items-center gap-3'>
+                            <div className='flex items-center justify-between w-full p-2 flex-wrap gap-2'>
+                                <div className='flex items-center gap-2'>
                                     <div className='bg-primary-light mr-1.5 p-1.5 rounded-md'>
                                         {parentId ? (
                                             <Folder className='h-5 w-5 stroke-primary' />

@@ -468,7 +468,7 @@ const MyInvitations = () => {
                 setEvent(null);
             }
         } catch (err: any) {
-            console.log(err);
+            console.error(err);
             toast.error(err?.data?.error || 'Failed to update invitation');
         }
     };

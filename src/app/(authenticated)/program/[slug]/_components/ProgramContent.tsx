@@ -83,7 +83,7 @@ const ProgramContent = ({
                     sidebarOpen ? 'lg:pl-2' : 'pl-0',
                 )}
             >
-                <div className='flex flex-col lg:flex-row justify-between items-center mb-2 gap-2'>
+                <div className='flex flex-col lg:flex-row justify-between items-start md:items-center mb-2'>
                     {/* Desktop Sidebar Toggle */}
                     <div className='flex items-start lg:items-center gap-2'>
                         {/* Mobile Sidebar */}
@@ -132,7 +132,7 @@ const ProgramContent = ({
                             </p>
                         </div>
                     </div>
-                    <div className='flex items-center gap-3'>
+                    <div className='flex flex-row items-start md:items-center gap-3'>
                         <div className='relative text-dark-gray'>
                             <Search
                                 onClick={() => {
@@ -155,7 +155,7 @@ const ProgramContent = ({
                             <Input
                                 onChange={(e) => setSearchInput(e.target.value)}
                                 placeholder='Search chapter & modules...'
-                                className='pl-9 w-[300px] border-border rounded-lg text-dark-gray placeholder:text-dark-gray bg-foreground'
+                                className='pl-9 w-[280px] md:w-[300px] border-border rounded-lg text-dark-gray placeholder:text-dark-gray bg-foreground'
                             />
                         </div>
                         <FilterProgram

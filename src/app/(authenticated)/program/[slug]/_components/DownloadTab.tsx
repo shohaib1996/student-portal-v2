@@ -267,12 +267,12 @@ const DownloadTab = () => {
                                 .map((material) => (
                                     <div
                                         key={material.id}
-                                        className='p-2 flex justify-between items-center hover:bg-foreground'
+                                        className='p-2 flex flex-col md:flex-row justify-between items-start md:items-center hover:bg-foreground'
                                     >
                                         <div className='flex items-center gap-3'>
                                             {getFileIcon(material.type)}
                                             <div className='min-w-0 flex-1'>
-                                                <h4 className='font-medium text-black truncate'>
+                                                <h4 className='font-medium text-black truncate text-wrap'>
                                                     {material.name}
                                                 </h4>
                                                 <div className='flex items-center gap-1 text-sm text-gray'>
@@ -315,7 +315,7 @@ const DownloadTab = () => {
                                 .map((material) => (
                                     <div
                                         key={material.id}
-                                        className='p-2 flex justify-between items-center hover:bg-foreground'
+                                        className='p-2 flex flex-col md:flex-row justify-between items-start md:items-center hover:bg-foreground'
                                     >
                                         <div className='flex items-center gap-3'>
                                             {getFileIcon(material.type)}

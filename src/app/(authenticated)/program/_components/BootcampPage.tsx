@@ -172,7 +172,7 @@ const ProgramStats = ({
     totalItems: number;
     totalModule: number;
 }) => (
-    <div className='grid grid-cols-1 md:grid-cols-3 gap-4 my-2.5'>
+    <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 my-2.5'>
         <Card className='rounded-md shadow-none'>
             <CardContent className='px-2.5 py-3 flex items-center gap-4'>
                 <div className='bg-primary-light p-3 rounded-full'>

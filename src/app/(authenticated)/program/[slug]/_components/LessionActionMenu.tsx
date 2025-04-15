@@ -9,6 +9,7 @@ import {
     MessageSquare,
     MoreVertical,
     CheckCircle,
+    CircleCheckBig,
 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -77,9 +78,23 @@ const LessionActionMenu = ({
     return (
         <>
             {' '}
-            <span>
-                {isPinned && <Pin className='h-4 w-4 text-primary-white' />}
-            </span>
+            <div className='flex items-center gap-3'>
+                <span>
+                    {isCompleted && (
+                        <CircleCheckBig className='h-4 w-4 text-primary-white' />
+                    )}
+                </span>
+                <span>
+                    {isPinned && (
+                        <Pin className='h-4 w-4 stroke-primary-white' />
+                    )}
+                </span>
+                <span>
+                    {isFocused && (
+                        <Eye className='h-4 w-4 stroke-primary-white' />
+                    )}
+                </span>
+            </div>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <button className='focus:outline-none'>

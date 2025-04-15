@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GlobalDetailsBanner } from '@/components/global/documents/GlobalDetailsBanner';
 import { GlobalAttachedFilesSection } from '@/components/global/GlobalAttachedFilesSection';
 import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
-import { DocumentContent } from '@/app/(authenticated)/(documents)/documents-and-labs/_components/document-details-modal';
+import { DocumentContent } from '@/app/(authenticated)/(documents)/documents-and-labs/_components/DocumentAndLabsDetailsModal';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';

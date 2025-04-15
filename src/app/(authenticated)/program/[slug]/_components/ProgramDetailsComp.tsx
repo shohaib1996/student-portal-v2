@@ -210,7 +210,10 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
         <div className='bg-background border-t border-border pt-2'>
             <GlobalHeader
                 title={
-                    <span className='flex items-center justify-center gap-1'>
+                    <span
+                        className='flex items-center justify-center gap-1'
+                        id='program-title'
+                    >
                         <ArrowLeft
                             onClick={() => router.push('/program')}
                             size={18}

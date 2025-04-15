@@ -11,14 +11,14 @@ import {
 import GlobalHeader from '@/components/global/GlobalHeader';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
 import { Button } from '@/components/ui/button';
-import { Eye, FileX, LayoutGrid, List, Search } from 'lucide-react';
+import { Eye, FileX, LayoutGrid, List, Loader2, Search } from 'lucide-react';
 import GlobalTable, {
     type TCustomColumnDef,
 } from '@/components/global/GlobalTable/GlobalTable';
 import TdDate from '@/components/global/TdDate';
 import { TdUser } from '@/components/global/TdUser';
 import GlobalPagination from '@/components/global/GlobalPagination';
-import { DocumentDetailsModal } from './document-details-modal';
+import { MyDocumentDetailsModal } from './MyDocumentDetailsModal';
 import { UploadDocumentModal } from './upload-document-modal';
 
 interface FilterValues {
@@ -54,7 +54,7 @@ export default function MyDocumentsPage() {
     }, [documentId, mode]);
 
     const allDocuments = data?.documents || [];
-
+    console.log({ allDocuments });
     const { data: singleDocument, isLoading: isSingleDocLoading } =
         useGetSingleUploadDocumentQuery(documentId || '', {
             skip:
@@ -97,7 +97,11 @@ export default function MyDocumentsPage() {
     }, [allDocuments, filters]);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className='flex h-screen items-center justify-center'>
+                <Loader2 className='w-8 h-8 animate-spin text-primary' />
+            </div>
+        );
     }
     if (error) {
         return <div>Something went wrong!</div>;
@@ -230,10 +234,10 @@ export default function MyDocumentsPage() {
             canHide: false,
         },
     ];
-
+    console.log({ data });
     return (
         <div>
-            <div className='mb-3'>
+            <div className='my-2'>
                 <GlobalHeader
                     title='My Documents'
                     subTitle='Resource Library: Access All Essential Documents'
@@ -357,10 +361,11 @@ export default function MyDocumentsPage() {
                 )}
             </div>
 
-            <DocumentDetailsModal
+            <MyDocumentDetailsModal
                 isOpen={isDetailsModalOpen}
                 onClose={handleCloseDetailsModal}
                 documentId={selectedDocumentId || documentId}
+                relatedDocuments={data?.documents || []}
             />
 
             <UploadDocumentModal

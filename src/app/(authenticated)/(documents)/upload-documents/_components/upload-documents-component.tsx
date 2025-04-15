@@ -6,7 +6,6 @@ import { Upload, LayoutGrid, List, Eye } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 import { useGetUploadDocumentsQuery } from '@/redux/api/documents/documentsApi';
-import { DocumentDetailsModal } from './document-details-modal';
 import { UploadDocumentModal } from './upload-document-modal';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import GlobalHeader from '@/components/global/GlobalHeader';
@@ -16,6 +15,7 @@ import GlobalTable, {
 } from '@/components/global/GlobalTable/GlobalTable';
 import TdDate from '@/components/global/TdDate';
 import { TdUser } from '@/components/global/TdUser';
+import { UploadedDocumentDetailsModal } from './UploadedDocumentDetailsModal';
 
 interface FilterValues {
     query?: string;
@@ -225,7 +225,7 @@ export default function UploadDocumentComponent() {
 
     return (
         <div>
-            <div className='mb-3'>
+            <div className='my-2'>
                 <GlobalHeader
                     title='Upload Documents'
                     subTitle='Securely upload and manage your files with ease'
@@ -282,7 +282,7 @@ export default function UploadDocumentComponent() {
 
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
                 {isGridView ? (
-                    <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
+                    <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-5 overflow-x-hidden'>
                         {allDocuments.map((doc) => (
                             <GlobalDocumentCard
                                 key={doc._id}
@@ -294,7 +294,7 @@ export default function UploadDocumentComponent() {
                         ))}
                     </div>
                 ) : (
-                    <div>
+                    <div className='overflow-x-auto'>
                         <GlobalTable
                             isLoading={false}
                             limit={limit}
@@ -313,10 +313,11 @@ export default function UploadDocumentComponent() {
                 />
             </div>
 
-            <DocumentDetailsModal
+            <UploadedDocumentDetailsModal
                 isOpen={isDetailsModalOpen}
                 onClose={handleCloseDetailsModal}
                 documentId={selectedDocumentId || documentId}
+                relatedDocuments={allDocuments}
             />
 
             <UploadDocumentModal

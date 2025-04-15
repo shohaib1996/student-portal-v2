@@ -200,7 +200,6 @@ export function UploadDocumentModal({
                 attachedFiles: attachedFileUrls,
             };
 
-            console.log('Submitting data:', submissionData);
             // Here you would typically send this data to your backend
 
             onClose();

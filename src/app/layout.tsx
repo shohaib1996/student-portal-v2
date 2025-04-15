@@ -11,6 +11,7 @@ import AllProvider from '@/providers/AllProvider';
 import WorkspaceProvider from '@/providers/WorkspaceProvider';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import MainLayout from '@/components/Layout/MainLayout';
+import { headers } from 'next/headers';
 
 const interFont = Inter({
     variable: '--font-inter',

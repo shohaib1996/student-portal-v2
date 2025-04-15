@@ -5,8 +5,9 @@
     "type": "module",
     "scripts": {
         "dev": "next dev -p 4001 --turbopack",
-        "build:staging": "env-cmd -f .env.staging next build",
         "build:prod": "env-cmd -f .env.prod next build",
+        "build:staging": "env-cmd -f .env.staging next build",
+        "dev:staging-dev": "env-cmd -f .env.staging.dev next dev -p 4001",
         "build": "next build",
         "start": "next start -p 4001",
         "lint": "next lint",

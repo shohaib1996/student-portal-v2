@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, LayoutGrid, List, Eye } from 'lucide-react';
+import { ChevronRight, LayoutGrid, List, Eye, Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
 import {
@@ -20,7 +20,7 @@ import GlobalTable, {
 } from '@/components/global/GlobalTable/GlobalTable';
 import TdDate from '@/components/global/TdDate';
 import { TdUser } from '@/components/global/TdUser';
-import { DocumentDetailsModal } from './_components/document-details-modal';
+import { DocumentAndLabsDetailsModal } from './_components/DocumentAndLabsDetailsModal';
 
 interface FilterValues {
     query?: string;
@@ -47,7 +47,7 @@ interface Filters {
     date?: string;
 }
 
-export default function MyTemplateComponent() {
+export default function DocumentsAndLabsPage() {
     const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
         null,
     );
@@ -73,7 +73,6 @@ export default function MyTemplateComponent() {
         page: currentPage,
         limit: limit,
     });
-
     // Fetch single document data if documentId is present
     // Always call hooks at the top level with skip condition
     const { data: singleData, isLoading: isDocumentLoading } =
@@ -86,7 +85,6 @@ export default function MyTemplateComponent() {
             setIsModalOpen(true);
         }
     }, [documentId, mode]);
-    console.log({ labsData });
     const allLabsData = labsData?.contents || [];
     const totalItems = labsData?.count || 0;
 
@@ -97,6 +95,7 @@ export default function MyTemplateComponent() {
         }
 
         return {
+            _id: singleData?.content?._id || '',
             title: singleData?.content?.name || 'Untitled',
             author: singleData?.content?.createdBy || 'Unknown Author',
             uploadDate:
@@ -277,11 +276,23 @@ export default function MyTemplateComponent() {
     ];
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className='flex items-center justify-center h-screen'>
+                <Loader2 className='w-8 h-8 animate-spin text-primary' />
+            </div>
+        );
     }
 
     if (error) {
-        return <div>Something went wrong!</div>;
+        const errorMessage =
+            typeof error === 'object' && error !== null && 'data' in error
+                ? (error.data as any)?.error
+                : 'Failed to fetch data';
+        return (
+            <div className='w-full h-[80vh] flex items-center justify-center text-xl'>
+                {errorMessage}
+            </div>
+        );
     }
 
     return (
@@ -374,11 +385,12 @@ export default function MyTemplateComponent() {
                 />
             </div>
 
-            <DocumentDetailsModal
+            <DocumentAndLabsDetailsModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 documentId={selectedDocumentId}
                 documentData={content || undefined}
+                relatedDocuments={allLabsData || undefined}
                 mode={(mode as 'view' | 'edit' | 'add') || 'view'}
             />
         </div>
