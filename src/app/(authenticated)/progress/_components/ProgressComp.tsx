@@ -341,7 +341,8 @@ const ProgressComp = () => {
                                             </div>
                                         </div>
                                         <div className='text-2xl font-bold text-black mb-1'>
-                                            72
+                                            {processedData?.dcumentLabsComment
+                                                ?.count || 0}
                                         </div>
                                         <div className='text-xs text-gray'>
                                             All documents & labs
@@ -376,7 +377,8 @@ const ProgressComp = () => {
                                             </div>
                                         </div>
                                         <div className='text-2xl font-bold text-black mb-1'>
-                                            35
+                                            {processedData?.uploadedDocuments
+                                                ?.count || 0}
                                         </div>
                                         <div className='text-xs text-gray'>
                                             All uploaded documents
@@ -469,7 +471,12 @@ const ProgressComp = () => {
                         {/* Mock Interview & Calendar Section */}
                         <div className='grid grid-cols-1 2xl:grid-cols-2 gap-2 mb-2'>
                             <div className='bg-foreground rounded-xl border border-border p-2 mb-2'>
-                                <MockInterviewChart />
+                                <MockInterviewChart
+                                    data={
+                                        processedData?.mockInterview
+                                            ?.additionalData || {}
+                                    }
+                                />
                             </div>
                             <div className='bg-foreground rounded-xl border border-border p-2 mb-2'>
                                 <div className='flex justify-between items-center mb-2 pb-2 border-b border-border'>
@@ -484,10 +491,10 @@ const ProgressComp = () => {
                                     </div>
                                     <Link
                                         href='#'
-                                        className='text-sm text-primary-white bg-primary-light hover:bg-primary hover:text-white font-medium flex items-center gap-0.5 py-2 px-2.5 rounded-lg'
+                                        className='text-sm text-nowrap text-primary-white bg-primary-light hover:bg-primary hover:text-white font-medium flex items-center gap-0.5 py-2 px-2.5 rounded-lg'
                                     >
                                         View More
-                                        <ArrowRight />
+                                        <ArrowRight className='hidden md:block' />
                                     </Link>
                                 </div>
 
@@ -578,10 +585,14 @@ const ProgressComp = () => {
                                         </div>
 
                                         <div className='text-2xl font-bold text-black mb-1'>
-                                            45
+                                            {processedData?.communityPost
+                                                ?.count || 0}
                                         </div>
                                         <p className='text-sm text-gray mb-3'>
-                                            Total 45 posts
+                                            Total{' '}
+                                            {processedData?.communityPost
+                                                ?.count || 0}{' '}
+                                            posts
                                         </p>
 
                                         <Link

@@ -129,9 +129,9 @@ const RatingsTab = () => {
                     </Button>
                 </div>
 
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-2 mb-2'>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-2'>
                     {/* Video Content */}
-                    <div className='border border-border rounded-md p-2 bg-background flex justify-between items-center'>
+                    <div className='border border-border rounded-md p-2 bg-background flex flex-row md:flex-col lg:flex-row justify-between items-center md:items-start lg:items-center'>
                         <div>
                             <div className='flex items-center gap-1'>
                                 <svg

@@ -53,7 +53,7 @@ const VideoContent = ({
                 ></iframe>
             )}
             {/* Video Info */}
-            <div className='p-4 border-b border-border flex justify-between items-center'>
+            <div className='p-4 border-b border-border flex flex-col md:flex-row justify-between items-start md:items-center gap-2'>
                 <div>
                     <h1 className='text-xl font-semibold text-black'>
                         {videoData?.videoInfo?.title}
@@ -106,7 +106,7 @@ const VideoContent = ({
             <div className='flex-1 overflow-auto'>
                 <Tabs defaultValue='overview' className='w-full'>
                     <div className='border-b border-border'>
-                        <TabsList className='h-auto bg-transparent p-0 border-0 gap-8'>
+                        <TabsList className='h-auto bg-transparent p-0 border-0 gap-3 md:gap-6 lg:gap-8 overflow-x-auto flex-wrap'>
                             <TabsTrigger
                                 value='overview'
                                 className='px-0 py-3 text-sm font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-border-primary-light data-[state=active]:text-primary-white rounded-none'
@@ -246,7 +246,7 @@ const VideoContent = ({
                                     </h2>
                                 </div>
                                 <Tabs defaultValue='summary' className=''>
-                                    <TabsList className='bg-foreground p-1 rounded-full gap-2 flex-wrap'>
+                                    <TabsList className='bg-background p-1 rounded-full gap-2 flex-wrap overflow-x-auto lg:overflow-x-visible'>
                                         {tabs?.map((tab) => (
                                             <TabsTrigger
                                                 key={tab.title}
@@ -254,7 +254,7 @@ const VideoContent = ({
                                                 className={cn(
                                                     'rounded-full data-[state=active]:bg-primary-light data-[state=active]:text-white text-sm font-medium',
                                                     'data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-border-primary-light',
-                                                    'text-gray hover:text-dark-gray',
+                                                    'text-gray hover:text-dark-gray overx',
                                                 )}
                                             >
                                                 {/* SVG for Summary */}
