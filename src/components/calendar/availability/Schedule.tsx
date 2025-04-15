@@ -5,14 +5,14 @@ import dayjs, { Dayjs } from 'dayjs';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-import { useUpdateScheduleMutation } from '@/redux/api/calendar/calendarApi';
+import { useUpdateScheduleMutation } from '@/components/calendar/api/calendarApi';
 import timesArray from '../helpers/times';
 import {
     TAvailability,
     TInterval,
     TSchedule,
     TUpdateSchedule,
-} from '@/types/calendar/calendarTypes';
+} from '@/components/calendar/types/calendarTypes';
 import WeekDay, { TCopyTo } from './WeekDay';
 import OverrideModal from './OverrideModal';
 

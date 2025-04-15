@@ -26,7 +26,6 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import {
     Form,
     FormControl,
@@ -34,27 +33,26 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '../ui/form';
+import { Input } from '../ui/input';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/components/ui/select';
+} from '../ui/select';
 import {
     useFetchUsersQuery,
     useFindUserAvailabilityQuery,
-} from '@/redux/api/calendar/calendarApi';
+} from '../api/calendarApi';
 import { TUser } from '@/types/auth';
-import { DatePicker } from '@/components/global/DatePicket';
 import dayjs, { Dayjs } from 'dayjs';
 import { TimePicker } from '@/components/global/TimePicker';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { UseFormReturn, SubmitHandler } from 'react-hook-form';
-import { TAvailability, TNotification } from '@/types/calendar/calendarTypes';
+import { TAvailability, TNotification } from '../types/calendarTypes';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import { useEventPopover } from '../CreateEvent/EventPopover';
 import { TTodoFormType } from '../validations/todoValidation';
@@ -62,6 +60,7 @@ import AddNotification from '../CreateEvent/AddNotification';
 import { renderRecurrence } from '../CreateEvent/EventForm';
 import GlobalEditor from '@/components/editor/GlobalEditor';
 import SelectPurpose from '../CreateEvent/SelectPurpose';
+import { DatePicker } from '../ui/DatePicker';
 
 type TProps = {
     form: UseFormReturn<TTodoFormType>;

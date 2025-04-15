@@ -20,7 +20,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-import { TInterval } from '@/types/calendar/calendarTypes';
+import { TInterval } from '@/components/calendar/types/calendarTypes';
 import timesArray from '../helpers/times';
 
 export type TCopyTo = Record<string, boolean>;

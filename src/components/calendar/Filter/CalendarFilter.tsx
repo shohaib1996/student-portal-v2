@@ -1,20 +1,16 @@
 'use client';
-import EventsIcon from '@/components/svgs/calendar/EventsIcon';
-import FilterIcon from '@/components/svgs/common/FilterIcon';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
+import EventsIcon from '../svgs/calendar/EventsIcon';
+import FilterIcon from '../svgs/calendar/FilterIcon';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import {
     setEventFilter,
     setPriorityFilter,
     setRolesFilter,
     setTodoFilter,
     setTypeFilter,
-} from '@/redux/features/calendarReducer';
+} from '../reducer/calendarReducer';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import React, { useCallback, useState } from 'react';
 import {
@@ -31,8 +27,8 @@ import {
     SquareChartGantt,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import TodoIcon from '@/components/svgs/calendar/TodoIcon';
-import HolidayIcon from '@/components/svgs/calendar/HolidayIcon';
+import TodoIcon from '../svgs/calendar/TodoIcon';
+import HolidayIcon from '../svgs/calendar/HolidayIcon';
 
 const CalendarFilter = () => {
     const {

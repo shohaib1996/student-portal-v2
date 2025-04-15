@@ -21,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import timesArray from '../helpers/times';
-import { TInterval } from '@/types/calendar/calendarTypes';
+import { TInterval } from '@/components/calendar/types/calendarTypes';
 import GlobalModal from '@/components/global/GlobalModal';
 
 type TProps = {

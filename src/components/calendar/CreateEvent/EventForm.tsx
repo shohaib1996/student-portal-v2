@@ -22,52 +22,15 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import {
     useFetchUsersQuery,
     useFindUserAvailabilityQuery,
-} from '@/redux/api/calendar/calendarApi';
+} from '../api/calendarApi';
 import { TUser } from '@/types/auth';
 import { TdUser } from '@/components/global/TdUser';
-import GlobalDropdown from '@/components/global/GlobalDropdown';
-import { DatePicker } from '@/components/global/DatePicket';
 import dayjs, { Dayjs } from 'dayjs';
-import { TimePicker } from '@/components/global/TimePicker';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { useEventPopover } from './EventPopover';
-
 import { UseFormReturn, SubmitHandler } from 'react-hook-form';
-import { ColorPicker } from '@/components/calendar/ui/ColorPicker';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import timesArray from '../helpers/times';
-import {
-    TAvailability,
-    TEvent,
-    TNotification,
-} from '@/types/calendar/calendarTypes';
-import { MarkdownEditor } from '@/components/global/MarkdownEditor/MarkdownEditor';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import Image from 'next/image';
 
@@ -82,6 +45,33 @@ import { useAppSelector } from '@/redux/hooks';
 import { toast } from 'sonner';
 import SelectPurpose from './SelectPurpose';
 import GlobalEditor from '@/components/editor/GlobalEditor';
+import { TAvailability, TEvent, TNotification } from '../types/calendarTypes';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '../ui/form';
+import { Input } from '../ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '../ui/select';
+import { ColorPicker } from '../ui/ColorPicker';
+import { DatePicker } from '../ui/DatePicker';
+import { TimePicker } from '../ui/TimePicker';
+import { Switch } from '../ui/switch';
+import { Label } from '../ui/label';
+import CalendarDropdown from '../ui/CalendarDropdown';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Button } from '../ui/button';
+import { Calendar } from '../ui/calendar';
+import timesArray from '../helpers/times';
 
 type TProps = {
     form: UseFormReturn<TEventFormType>;
@@ -771,7 +761,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                     >
                                         <FormControl className='w-full'>
                                             <div className='w-full'>
-                                                <GlobalDropdown
+                                                <CalendarDropdown
                                                     className='w-[--radix-popover-trigger-width] '
                                                     dropdownRender={
                                                         <div className='p-2'>
@@ -879,7 +869,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                             *
                                                         </span>
                                                     </div>
-                                                </GlobalDropdown>
+                                                </CalendarDropdown>
 
                                                 {field.value?.length > 0 && (
                                                     <div className='space-y-2 max-h-40 bg-foreground p-2 overflow-y-auto'>

@@ -6,11 +6,11 @@ import { format, isToday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import dayjs, { Dayjs } from 'dayjs';
 import { toast } from 'sonner';
-import { TEvent } from '@/types/calendar/calendarTypes';
-import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
+import { useGetMyEventsQuery } from '@/components/calendar/api/calendarApi';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { useEventPopover } from './CreateEvent/EventPopover';
-import { setCurrentDate } from '@/redux/features/calendarReducer';
+import { setCurrentDate } from '@/components/calendar/reducer/calendarReducer';
 import EventButton from './EventButton';
 import EventButtonWithBG from './EventButtonWithBG';
 interface DayViewProps {

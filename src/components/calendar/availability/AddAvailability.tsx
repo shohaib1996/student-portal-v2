@@ -7,11 +7,11 @@ import {
     TAvailability,
     TSchedule,
     TUpdateSchedule,
-} from '@/types/calendar/calendarTypes';
+} from '@/components/calendar/types/calendarTypes';
 import {
     useAddNewScheduleMutation,
     useGetAllSchedulesQuery,
-} from '@/redux/api/calendar/calendarApi';
+} from '@/components/calendar/api/calendarApi';
 import { Card } from '@/components/ui/card';
 import { Loader, Plus, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';

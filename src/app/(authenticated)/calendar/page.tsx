@@ -4,8 +4,8 @@ import { CalendarSidebar } from '@/components/calendar/CalendarSidebar';
 import CreateEventModal from '@/components/calendar/CreateEvent/CreateEventModal';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
 import GlobalHeader from '@/components/global/GlobalHeader';
-import AvailabilityIcon from '@/components/svgs/calendar/Availability';
-import MyInvitationsIcon from '@/components/svgs/calendar/MyInvitationsIcon';
+import AvailabilityIcon from '@/components/calendar/svgs/calendar/Availability';
+import MyInvitationsIcon from '@/components/calendar/svgs/calendar/MyInvitationsIcon';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {

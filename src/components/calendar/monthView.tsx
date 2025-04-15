@@ -12,8 +12,8 @@ import {
 } from 'date-fns';
 
 import { cn } from '@/lib/utils';
-import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { useGetMyEventsQuery } from '@/components/calendar/api/calendarApi';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
 
 import GlobalDropdown from '../global/GlobalDropdown';
 import { useMediaQuery } from 'react-responsive';
@@ -23,7 +23,7 @@ import {
 } from './CreateEvent/EventPopover';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { setCurrentDate } from '@/redux/features/calendarReducer';
+import { setCurrentDate } from '@/components/calendar/reducer/calendarReducer';
 import EventButton from './EventButton';
 
 interface MonthViewProps {

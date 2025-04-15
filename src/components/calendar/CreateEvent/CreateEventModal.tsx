@@ -1,15 +1,14 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { EventPopover, useEventPopover } from './EventPopover';
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 import {
     BookmarkCheck,
     ChevronLeft,
     ChevronRight,
     XCircle,
 } from 'lucide-react';
-import AvailabilityIcon from '@/components/svgs/calendar/Availability';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AvailabilityIcon from '../svgs/calendar/Availability';
 import EventForm from './EventForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,7 +19,7 @@ import {
     useCreateEventMutation,
     useGetSingleEventQuery,
     useUpdateEventMutation,
-} from '@/redux/api/calendar/calendarApi';
+} from '../api/calendarApi';
 import { toast } from 'sonner';
 import {
     EventFormSchema,
@@ -28,11 +27,12 @@ import {
 } from '../validations/eventValidation';
 import TodoForm from '../CreateTodo/TodoForm';
 import { TodoFormSchema, TTodoFormType } from '../validations/todoValidation';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { TEvent } from '../types/calendarTypes';
 import { TUser } from '@/types/auth';
-import { Checkbox } from '@/components/ui/checkbox';
-import GlobalModal from '@/components/global/GlobalModal';
+import { Checkbox } from '../ui/checkbox';
 import { useAppSelector } from '@/redux/hooks';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import CalendarModal from '../ui/CalendarModal';
 
 export const updateOptionsOptions: {
     label: string;
@@ -542,7 +542,7 @@ const CreateEventModal = () => {
                 </Tabs>
             </EventPopover>
 
-            <GlobalModal
+            <CalendarModal
                 open={updateOpen}
                 setOpen={setUpdateOpen}
                 className='w-[550px] md:w-[550px] lg:w-[550px]'
@@ -588,7 +588,7 @@ const CreateEventModal = () => {
                         </Button>
                     ))}
                 </div>
-            </GlobalModal>
+            </CalendarModal>
         </div>
     );
 };
