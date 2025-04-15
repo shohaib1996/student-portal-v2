@@ -22,6 +22,13 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import LessionActionMenu from './LessionActionMenu';
+// Define the video data type for better type safety
+type VideoDataType = {
+    videoInfo: null | TLessonInfo;
+    isSideOpen: boolean;
+    item: TContent;
+    contentId: string | null;
+};
 
 const ContentDropDown = ({
     fetchedData,
@@ -33,29 +40,29 @@ const ContentDropDown = ({
 }: {
     fetchedData: TContent[] | null;
     parentId?: string | null;
-    videoData: {
-        videoInfo: null | TLessonInfo;
-        isSideOpen: boolean;
-    };
+    videoData: VideoDataType;
     option: {
         isLoading: boolean;
         isError: boolean;
         courseProgramsLoading: boolean;
-        setFilterOption: React.Dispatch<{
-            filter: string;
-            query: string;
-            pId: string | null;
-        }>;
+        setFilterOption: React.Dispatch<
+            React.SetStateAction<{
+                filter: string;
+                query: string;
+            }>
+        >;
+        refetchCoursePrograms?: () => void; // Add this property to the option object
     };
-    setVideoData: React.Dispatch<
-        React.SetStateAction<{
-            videoInfo: null | TLessonInfo;
-            isSideOpen: boolean;
-            contentId?: string;
-        }>
-    >;
+    setVideoData: React.Dispatch<React.SetStateAction<VideoDataType>>;
     setParentId: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
+    const refreshContent = () => {
+        // Use the refetch function if it's available in the options
+        if (option?.refetchCoursePrograms) {
+            option.refetchCoursePrograms();
+        }
+    };
+
     function formatSeconds(totalSeconds: number) {
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
@@ -127,13 +134,14 @@ const ContentDropDown = ({
                                     <Link
                                         href={'#program-title'}
                                         className='flex items-center gap-3'
-                                        onClick={() =>
+                                        onClick={() => {
                                             setVideoData({
                                                 videoInfo: item?.lesson,
                                                 isSideOpen: true,
                                                 contentId: item._id,
-                                            })
-                                        }
+                                                item: item,
+                                            });
+                                        }}
                                     >
                                         <div>
                                             <Play className='h-5 w-5 stroke-gray' />
@@ -157,7 +165,9 @@ const ContentDropDown = ({
 
                                     <div className='flex items-center gap-1'>
                                         <LessionActionMenu
+                                            videoData={videoData}
                                             item={item}
+                                            setVideoData={setVideoData}
                                             lessonId={item?._id}
                                             courseId={item?.myCourse?.course}
                                         />
@@ -374,6 +384,7 @@ const ContentDropDown = ({
                     : 'w-full',
             )}
         >
+            {' '}
             <Accordion type='single' collapsible className='w-full'>
                 {fetchedData && fetchedData.length > 0 ? (
                     renderContent(fetchedData)

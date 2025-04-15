@@ -54,10 +54,14 @@ import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
 import {
     ICourseData,
     TBootcampResult,
+    TChaptersResponse,
+    TContent,
     TProgram,
     TProgramMain,
     TProgressChart,
 } from '@/types';
+import { key } from 'localforage';
+import { it } from 'node:test';
 
 const BootcampSkeleton = () => (
     <div className='overflow-hidden mt-2'>
@@ -167,57 +171,72 @@ const ProgramStats = ({
     program,
     totalItems,
     totalModule = 0,
+    bootcamp,
 }: {
     program: TProgram;
     totalItems: number;
     totalModule: number;
-}) => (
-    <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 my-2.5'>
-        <Card className='rounded-md shadow-none'>
-            <CardContent className='px-2.5 py-3 flex items-center gap-4'>
-                <div className='bg-primary-light p-3 rounded-full'>
-                    <Clock className='h-6 w-6 text-blue-600' />
-                </div>
-                <div>
-                    <p className='text-sm text-black'>Lesson</p>
-                    <h4 className='text-xl font-semibold'>{totalItems || 0}</h4>
-                    <p className='text-xs text-gray'>Full-time commitment</p>
-                </div>
-            </CardContent>
-        </Card>
-        <Card className='rounded-md shadow-none'>
-            <CardContent className='px-2.5 py-3 flex items-center gap-4'>
-                <div className='bg-purple-100 dark:bg-primary-light p-3 rounded-full'>
-                    <Layers className='h-6 w-6 text-purple-600' />
-                </div>
-                <div>
-                    <p className='text-sm text-black'>Modules</p>
-                    <h4 className='text-xl font-semibold'>
-                        {totalModule} Modules
-                    </h4>
-                    <p className='text-xs text-gray'>120+ hours of content</p>
-                </div>
-            </CardContent>
-        </Card>
-        <Card className='rounded-md shadow-none'>
-            <CardContent className='px-2.5 py-3 flex items-center gap-4'>
-                <div className='bg-green-100 dark:bg-primary-light p-3 rounded-full'>
-                    <Award className='h-6 w-6 text-green-600' />
-                </div>
-                <div>
-                    <p className='text-sm text-black'>Certifications</p>
-                    <h4 className='text-xl font-semibold'>
-                        Industry Recognized
-                    </h4>
-                    <p className='text-xs text-gray'>
-                        {program?.title} certifications
-                    </p>
-                </div>
-            </CardContent>
-        </Card>
-    </div>
-);
+    bootcamp: TBootcampResult[];
+}) => {
+    // console.log({ bootcamp });
 
+    // const newBootcamp = bootcamp?.map((item: TBootcampResult, idxnumber) => {return [...item, icon: idx === 0 ? <Clock className='h-6 w-6 text-blue-600' /> : idx === 1  'bg-red-100']});
+    return (
+        <div className='grid grid-cols-1 lg:grid-cols-4 gap-4 my-2.5'>
+            {bootcamp?.map((item: TBootcampResult, index: number) => (
+                <Card className='rounded-md shadow-none' key={index}>
+                    <CardContent className='px-2.5 py-3 flex items-center gap-4'>
+                        <div className='bg-primary-light p-3 rounded-full'>
+                            <Layers className='h-6 w-6 text-purple-600' />
+                        </div>
+                        <div>
+                            <p className='text-sm text-black'>
+                                {item?.category?.name || 'Category'}
+                            </p>
+                            <h4 className='text-xl font-semibold'>
+                                {item?.totalItems || 0}
+                            </h4>
+                            <p className='text-xs text-gray'>
+                                Full-time commitment
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+            ))}
+
+            {/* <Card className='rounded-md shadow-none'>
+                <CardContent className='px-2.5 py-3 flex items-center gap-4'>
+                    <div className='bg-purple-100 dark:bg-primary-light p-3 rounded-full'>
+                        <Layers className='h-6 w-6 text-purple-600' />
+                    </div>
+                    <div>
+                        <p className='text-sm text-black'>Modules</p>
+                        <h4 className='text-xl font-semibold'>{0} Modules</h4>
+                        <p className='text-xs text-gray'>
+                            120+ hours of content
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card className='rounded-md shadow-none'>
+                <CardContent className='px-2.5 py-3 flex items-center gap-4'>
+                    <div className='bg-green-100 dark:bg-primary-light p-3 rounded-full'>
+                        <Award className='h-6 w-6 text-green-600' />
+                    </div>
+                    <div>
+                        <p className='text-sm text-black'>Certifications</p>
+                        <h4 className='text-xl font-semibold'>
+                            Industry Recognized
+                        </h4>
+                        <p className='text-xs text-gray'>
+                            {program?.title} certifications
+                        </p>
+                    </div>
+                </CardContent>
+            </Card> */}
+        </div>
+    );
+};
 export default function BootcampPage() {
     const router = useRouter();
 
@@ -428,6 +447,7 @@ export default function BootcampPage() {
                     program={program}
                     totalItems={totalCompleted + totalIncomplete}
                     totalModule={totalModule}
+                    bootcamp={bootcamp}
                 />
                 {program?.layoutSections?.map((section: any, index: number) => {
                     if (section?.isVisible) {
