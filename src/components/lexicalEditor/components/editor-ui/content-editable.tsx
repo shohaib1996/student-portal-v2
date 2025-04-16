@@ -6,6 +6,7 @@ type Props = {
     className?: string;
     placeholderClassName?: string;
     onSubmit?: () => void;
+    onKeyDown?: (event: React.KeyboardEvent) => void;
 };
 
 export function ContentEditable({
@@ -13,9 +14,11 @@ export function ContentEditable({
     className,
     placeholderClassName,
     onSubmit,
+    onKeyDown,
 }: Props): JSX.Element {
     return (
         <LexicalContentEditable
+            onKeyDown={onKeyDown}
             className={
                 className ??
                 `ContentEditable__root relative block overflow-auto min-h-full px-2 py-4 focus:outline-none whitespace-pre-wrap`

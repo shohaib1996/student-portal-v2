@@ -149,8 +149,8 @@ export function ChatEditor({
     onMarkdownChange,
     initialMarkdown,
     placeholder,
-    onSendMessage,
     editorRef,
+    onKeyDown,
 }: {
     onChange?: (editorState: EditorState) => void;
     onSerializedChange?: (editorSerializedState: SerializedEditorState) => void;
@@ -173,8 +173,8 @@ export function ChatEditor({
     onMarkdownChange?: (markdown: string) => void;
     initialMarkdown?: string;
     placeholder?: string;
-    onSendMessage?: (text: string) => void;
     editorRef?: React.RefObject<any>;
+    onKeyDown?: (event: React.KeyboardEvent) => void;
 }) {
     const TRANSFORMERS = [
         MENTION_MARKDOWN_TRANSFORMER,
@@ -223,6 +223,7 @@ export function ChatEditor({
                         <FloatingLinkContext>
                             <div className='flex flex-col h-full'>
                                 <Plugins
+                                    onKeyDown={onKeyDown}
                                     maxLength={maxLength}
                                     pluginOptions={pluginOptions}
                                     onMentionSearch={onMentionSearch}
@@ -231,7 +232,6 @@ export function ChatEditor({
                                     mentionMenu={mentionMenu}
                                     mentionMenuItem={mentionMenuItem}
                                     placeholder={placeholder}
-                                    onSendMessage={onSendMessage}
                                 />
                             </div>
                             <OnChangePlugin
