@@ -660,6 +660,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                 })();
                                                 const isMuted =
                                                     chat?.myData?.mute?.isMute;
+                                                const isNotification =
+                                                    chat?.myData?.notification
+                                                        ?.isOn;
                                                 const isPinned =
                                                     chat?.myData?.isFavourite;
                                                 const isDelivered =
@@ -956,7 +959,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                         )}
 
                                                                         {/* Bell icon (muted or not) */}
-                                                                        {isMuted && (
+                                                                        {!isNotification && (
                                                                             <BellOff className='h-4 w-4 text-gray' />
                                                                         )}
 
