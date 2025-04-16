@@ -490,7 +490,7 @@ const ProgressComp = () => {
                                         </p>
                                     </div>
                                     <Link
-                                        href='#'
+                                        href='/calendar'
                                         className='text-sm text-nowrap text-primary-white bg-primary-light hover:bg-primary hover:text-white font-medium flex items-center gap-0.5 py-2 px-2.5 rounded-lg'
                                     >
                                         View More

@@ -13,7 +13,7 @@ const BottomCalendar = ({ data }: { data: any }) => {
                     </p>
                 </div>
                 <Link
-                    href='#'
+                    href='/calendar'
                     className='text-sm text-nowrap text-primary-white bg-primary-light rounded-lg py-2 px-2.5 font-medium hover:underline flex items-center'
                 >
                     View More
