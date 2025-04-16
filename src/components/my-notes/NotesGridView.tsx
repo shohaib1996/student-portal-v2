@@ -280,11 +280,6 @@ const NotesGridView = ({
                         }
                     />
 
-                    <GlobalBlockEditor
-                        value={activeNote?.description}
-                        onChange={() => console.log('first')}
-                    />
-
                     <SheetContent className='lg:hidden p-2 pt-4'>
                         <div className='pe-2 border-r h-full border-forground-border'>
                             <h2 className='text-black font-semibold border-b border-forground-border mb-2'>
