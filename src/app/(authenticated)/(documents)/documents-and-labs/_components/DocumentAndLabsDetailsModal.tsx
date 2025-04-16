@@ -325,7 +325,7 @@ export function DocumentAndLabsDetailsModal({
                                     </div>
                                 ) : (
                                     <div className='prose prose-gray max-w-none dark:prose-invert'>
-                                        {renderText(content?.content)}
+                                        {renderText({ text: content?.content })}
                                     </div>
                                 )}
                             </div>

@@ -22,7 +22,7 @@ type TProps = {
 export default function GlobalBlockEditor({
     value,
     onChange,
-    maxLength = 5000,
+    maxLength = 50000,
     height = '100%',
     className,
     pluginOptions,
@@ -32,6 +32,11 @@ export default function GlobalBlockEditor({
         value ? JSON.parse(value) : '',
     );
 
+    useEffect(() => {
+        if (value) {
+            setEditorState(JSON.parse(value));
+        }
+    }, [value]);
     // Define a minimal set of toolbar options
     const defaultPluginOptions: PluginOptions = {
         // Enable only essential features
@@ -191,10 +196,11 @@ export default function GlobalBlockEditor({
         );
     };
 
-    console.log(value);
+    // console.log(value);
 
     return (
         <Editor
+            // initialHtml={"<h1>hello</h1>"}
             onChange={(value) => {
                 onChange(JSON.stringify(value));
                 // setEditorState();

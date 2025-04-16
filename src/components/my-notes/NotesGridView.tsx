@@ -155,7 +155,7 @@ const NotesGridView = ({
                                     },
                                 )}
                             >
-                                {renderText(note?.description || '')}
+                                {renderText({ text: note?.description || '' })}
                             </p>
 
                             <div
@@ -254,7 +254,7 @@ const NotesGridView = ({
                 />
 
                 <div className='pt-2 text-dark-gray h-[calc(100%-60px)] overflow-y-auto'>
-                    {renderText(activeNote?.description || '')}
+                    {renderText({ text: activeNote?.description || '' })}
                 </div>
             </div>
         </div>
