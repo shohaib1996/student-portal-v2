@@ -130,6 +130,7 @@ export function Editor({
     className,
     placeholder,
     editorRef,
+    initialHtml,
 }: {
     editorState?: EditorState;
     editorSerializedState?: SerializedEditorState;
@@ -153,6 +154,7 @@ export function Editor({
     className?: string;
     placeholder?: string;
     editorRef?: React.Ref<any>;
+    initialHtml?: string;
 }) {
     return (
         <div
@@ -175,7 +177,9 @@ export function Editor({
                     <EditorMethods
                         // initialMarkdown={initialMarkdown}
                         // transformers={TRANSFORMERS}
+                        serializedEditorState={editorSerializedState}
                         ref={editorRef}
+                        initialHtml={initialHtml}
                     />
                     <SharedAutocompleteContext>
                         <FloatingLinkContext>

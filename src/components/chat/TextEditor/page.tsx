@@ -361,7 +361,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
             store.dispatch(setDraft({ chat: chatId as string, message: '' }));
             return toast.error('Please write something or attach a file');
         }
-        editorRef.current?.clearEditor();
 
         const data = {
             text: localText,
@@ -386,6 +385,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                             message: res.data.message,
                         });
                     }
+                    editorRef.current?.clearEditor();
                 })
                 .catch((err) => {
                     toast.error(
