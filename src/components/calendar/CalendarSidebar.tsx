@@ -28,15 +28,15 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import AcceptedIcon from '../svgs/calendar/AcceptedIcon';
-import PendingIcon from '../svgs/calendar/PendingIcon';
-import DeniedIcon from '../svgs/calendar/DeniedIcon';
-import ProposeTimeIcon from '../svgs/calendar/ProposeTimeIcon';
-import FinishedIcon from '../svgs/calendar/FinishedIcon';
-import InProgressIcon from '../svgs/calendar/InProgressIcon';
-import TodoIcon from '../svgs/calendar/TodoIcon';
-import HolidayIcon from '../svgs/calendar/HolidayIcon';
-import EventsIcon from '../svgs/calendar/EventsIcon';
+import AcceptedIcon from './svgs/calendar/AcceptedIcon';
+import PendingIcon from './svgs/calendar/PendingIcon';
+import DeniedIcon from './svgs/calendar/DeniedIcon';
+import ProposeTimeIcon from './svgs/calendar/ProposeTimeIcon';
+import FinishedIcon from './svgs/calendar/FinishedIcon';
+import InProgressIcon from './svgs/calendar/InProgressIcon';
+import TodoIcon from './svgs/calendar/TodoIcon';
+import HolidayIcon from './svgs/calendar/HolidayIcon';
+import EventsIcon from './svgs/calendar/EventsIcon';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import {
     setEventFilter,
@@ -45,9 +45,9 @@ import {
     setRolesFilter,
     setTodoFilter,
     setTypeFilter,
-} from '@/redux/features/calendarReducer';
-import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
-import { TEvent } from '@/types/calendar/calendarTypes';
+} from '@/components/calendar/reducer/calendarReducer';
+import { useGetMyEventsQuery } from '@/components/calendar/api/calendarApi';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
 import dayjs from 'dayjs';
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';

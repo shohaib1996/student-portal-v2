@@ -8,9 +8,9 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
+} from '../ui/select';
+import { Switch } from '../ui/switch';
+import { Button } from '../ui/button';
 import {
     Dialog,
     DialogClose,
@@ -18,9 +18,9 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
-import { TInterval } from '@/types/calendar/calendarTypes';
+} from '../ui/dialog';
+import { Checkbox } from '../ui/checkbox';
+import { TInterval } from '../types/calendarTypes';
 import timesArray from '../helpers/times';
 
 export type TCopyTo = Record<string, boolean>;

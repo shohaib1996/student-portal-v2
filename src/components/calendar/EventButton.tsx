@@ -1,17 +1,17 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
 import { useRouter } from 'next/navigation';
 import React, { memo } from 'react';
 import GlobalTooltip from '../global/GlobalTooltip';
-import AcceptedIcon from '../svgs/calendar/AcceptedIcon';
-import PendingIcon from '../svgs/calendar/PendingIcon';
-import DeniedIcon from '../svgs/calendar/DeniedIcon';
-import FinishedIcon from '../svgs/calendar/FinishedIcon';
-import TodoIcon from '../svgs/calendar/TodoIcon';
+import AcceptedIcon from './svgs/calendar/AcceptedIcon';
+import PendingIcon from './svgs/calendar/PendingIcon';
+import DeniedIcon from './svgs/calendar/DeniedIcon';
+import FinishedIcon from './svgs/calendar/FinishedIcon';
+import TodoIcon from './svgs/calendar/TodoIcon';
 import { useAppSelector } from '@/redux/hooks';
 import { Repeat } from 'lucide-react';
-import InProgressIcon from '../svgs/calendar/InProgressIcon';
+import InProgressIcon from './svgs/calendar/InProgressIcon';
 
 const EventButton = memo(({ event }: { event: TEvent }) => {
     const { user } = useAppSelector((s) => s.auth);

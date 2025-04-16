@@ -1,29 +1,24 @@
 'use client';
-import FilterModal from '@/components/global/FilterModal/FilterModal';
-import GlobalHeader from '@/components/global/GlobalHeader';
-import GlobalPagination from '@/components/global/GlobalPagination';
-import AvailabilityIcon from '@/components/svgs/calendar/Availability';
-import MyInvitationsIcon from '@/components/svgs/calendar/MyInvitationsIcon';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import MyInvitationsIcon from '../svgs/calendar/MyInvitationsIcon';
+import { Button } from '../ui/button';
+import { Separator } from '../ui/separator';
+import { useGetMyEventsQuery } from '../api/calendarApi';
+import { TEvent } from '../types/calendarTypes';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { Bell, ChevronDown, Clock, Ellipsis, Plus, Users } from 'lucide-react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useState } from 'react';
-import EventDetails from '../EventDetails';
 import {
     EventPopoverProvider,
     EventPopoverTrigger,
 } from '../CreateEvent/EventPopover';
-import CreateEventModal from '../CreateEvent/CreateEventModal';
 import Link from 'next/link';
 import { DateRange } from 'react-day-picker';
 import { RangePickerCL } from '../dateRangePicker/RangePickerCL';
 import dayjs from 'dayjs';
-import GlobalMarkDownPreview from '@/components/global/Community/MarkDown/GlobalMarkDownPreview';
+import CalendarHeader from '../ui/CalendarHeader';
+import CalendarPagination from '../ui/CalendarPagination';
 
 const AllEvents = () => {
     const [limit, setLimit] = useState(10);
@@ -46,7 +41,7 @@ const AllEvents = () => {
 
     return (
         <div className='pt-2'>
-            <GlobalHeader
+            <CalendarHeader
                 title={
                     <div>
                         All Events{' '}
@@ -233,7 +228,7 @@ const AllEvents = () => {
                     ))}
                 </div>
 
-                <GlobalPagination
+                <CalendarPagination
                     totalItems={events.length || 0}
                     currentPage={currentPage}
                     itemsPerPage={limit}

@@ -3,9 +3,9 @@ import {
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-} from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+} from '../ui/accordion';
+import { Badge } from '../ui/badge';
+
 import { cn } from '@/lib/utils';
 import {
     useCourseContentQuery,

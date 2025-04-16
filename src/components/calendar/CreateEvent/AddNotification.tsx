@@ -1,18 +1,18 @@
 'use client';
 import MultiSelect from '@/components/global/MultiSelect';
-import { FormControl } from '@/components/ui/form';
+import { FormControl } from '../ui/form';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/components/ui/select';
+} from '../ui/select';
 import { cn } from '@/lib/utils';
 import { useAppSelector } from '@/redux/hooks';
-import { TNotification } from '@/types/calendar/calendarTypes';
 import { Bell } from 'lucide-react';
 import React from 'react';
+import { TNotification } from '../types/calendarTypes';
 
 const timebeforeoptions = [
     { value: '5', label: '5 minutes before' },
