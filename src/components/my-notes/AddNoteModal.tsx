@@ -1,32 +1,13 @@
 'use client';
 
+import type React from 'react';
+
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import {
-    ArrowLeft,
-    Bold,
-    ImageIcon,
-    Italic,
-    Link2,
-    List,
-    ListOrdered,
-    Loader,
-    Paperclip,
-    Underline,
-    X,
-} from 'lucide-react';
+import { ArrowLeft, ImageIcon, Loader, Paperclip, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import {
     Form,
     FormControl,
@@ -39,12 +20,11 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import GlobalHeader from '../global/GlobalHeader';
-import GlobalEditor from '../editor/GlobalEditor';
 import {
     useAddNoteMutation,
     useUpdateNoteMutation,
 } from '@/redux/api/notes/notesApi';
-import { TNote } from '@/types';
+import type { TNote } from '@/types';
 import SelectPurpose from '../calendar/CreateEvent/SelectPurpose';
 import GlobalModal from '../global/GlobalModal';
 import { useUploadUserDocumentFileMutation } from '@/redux/api/documents/documentsApi';
@@ -235,8 +215,8 @@ export function AddNoteModal({
         formData.append('file', file);
 
         try {
-            await uploadUserDocumentFile(formData).unwrap();
-            return data?.fileUrl as string;
+            const response = await uploadUserDocumentFile(formData).unwrap();
+            return response?.fileUrl as string;
         } catch (error) {
             console.error('Error uploading file:', error);
             throw error;
@@ -276,7 +256,10 @@ export function AddNoteModal({
                 }
             }}
             title={
-                <div className='w-full'>
+                <div className='w-full flex flex-row items-start'>
+                    <Button variant={'ghost'} onClick={onClose}>
+                        <ArrowLeft size={20} />
+                    </Button>
                     <GlobalHeader
                         className='border-none'
                         title={defaultValues ? 'Edit Note' : 'Add Note'}
@@ -285,24 +268,17 @@ export function AddNoteModal({
                                 ? 'Fill out the form, to update note'
                                 : 'Fill out the form, to add new note'
                         }
-                        buttons={
-                            <div className='flex items-center gap-2'>
-                                <Button
-                                    variant='outline'
-                                    size='sm'
-                                    onClick={onClose}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    size='sm'
-                                    onClick={form.handleSubmit(onSubmit)}
-                                >
-                                    Save & Close
-                                </Button>
-                            </div>
-                        }
                     />
+                </div>
+            }
+            buttons={
+                <div className='flex items-center gap-2'>
+                    <Button variant='outline' size='sm' onClick={onClose}>
+                        Cancel
+                    </Button>
+                    <Button size='sm' onClick={form.handleSubmit(onSubmit)}>
+                        Save & Close
+                    </Button>
                 </div>
             }
         >
@@ -473,7 +449,7 @@ export function AddNoteModal({
                                                                         <Image
                                                                             src={
                                                                                 field.value ||
-                                                                                '/placeholder.svg'
+                                                                                '/default_image.png'
                                                                             }
                                                                             alt='Thumbnail preview'
                                                                             fill

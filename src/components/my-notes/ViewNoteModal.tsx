@@ -135,7 +135,9 @@ const ViewNoteModal = () => {
                             <Card className='w-full overflow-x-auto'>
                                 <CardContent className='pt-6'>
                                     <div className='prose overflow-x-auto max-w-none dark:prose-invert'>
-                                        {renderText(note?.description)}
+                                        {renderText({
+                                            text: note?.description,
+                                        })}
                                     </div>
                                 </CardContent>
                             </Card>
