@@ -1,8 +1,8 @@
-import { TEvent, TUpdateSchedule } from '@/types/calendar/calendarTypes';
-import { baseApi } from '../baseApi';
-import { tagTypes } from '../tagType/tagTypes';
+import { baseApi } from '../../../redux/api/baseApi';
+import { tagTypes } from '../../../redux/api/tagType/tagTypes';
 import dayjs from 'dayjs';
 import { string } from 'zod';
+import { TEvent, TUpdateSchedule } from '../types/calendarTypes';
 
 type TParams = {
     queryDate: {

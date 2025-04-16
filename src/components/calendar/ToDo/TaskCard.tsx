@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/collapsible';
 import { memo, useState } from 'react';
 import GlobalDropdown from '@/components/global/GlobalDropdown';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
 import {
     Popover,
     PopoverContent,
@@ -35,7 +35,7 @@ import { Calendar } from '@/components/ui/calendar';
 import {
     useDeleteEventMutation,
     useUpdateEventMutation,
-} from '@/redux/api/calendar/calendarApi';
+} from '@/components/calendar/api/calendarApi';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
 import { EventPopoverTrigger } from '../CreateEvent/EventPopover';

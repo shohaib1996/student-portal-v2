@@ -4,10 +4,10 @@ import { RangePickerCL } from '@/components/calendar/dateRangePicker/RangePicker
 import TodoBoard from '@/components/calendar/ToDo/TodoBoard';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
 import GlobalHeader from '@/components/global/GlobalHeader';
-import MyInvitationsIcon from '@/components/svgs/calendar/MyInvitationsIcon';
+import MyInvitationsIcon from '@/components/calendar/svgs/calendar/MyInvitationsIcon';
 import { Button } from '@/components/ui/button';
-import { useGetMyEventsQuery } from '@/redux/api/calendar/calendarApi';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { useGetMyEventsQuery } from '@/components/calendar/api/calendarApi';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';

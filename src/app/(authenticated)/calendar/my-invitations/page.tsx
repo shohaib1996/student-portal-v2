@@ -23,10 +23,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import {
     useGetMyEventsQuery,
     useUpdateInvitationMutation,
-} from '@/redux/api/calendar/calendarApi';
+} from '@/components/calendar/api/calendarApi';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { TUser } from '@/types/auth';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import dayjs from 'dayjs';
 import {
@@ -433,6 +433,8 @@ const MyInvitations = () => {
     ];
 
     const dispatch = useAppDispatch();
+
+    console.log(proproseTime);
 
     const handleUpdateInvitation = async ({
         status,

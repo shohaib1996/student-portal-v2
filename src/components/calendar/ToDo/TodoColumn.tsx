@@ -8,7 +8,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
 import TaskCard from './TaskCard';
 import { Virtuoso, VirtuosoProps } from 'react-virtuoso';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
 
 interface TodoColumnProps {
     index: number;

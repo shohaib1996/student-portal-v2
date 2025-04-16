@@ -11,7 +11,7 @@ import {
     Trash2,
     XCircle,
 } from 'lucide-react';
-import { TEvent } from '@/types/calendar/calendarTypes';
+import { TEvent } from '@/components/calendar/types/calendarTypes';
 import {
     Collapsible,
     CollapsibleContent,
@@ -23,16 +23,15 @@ import { EventPopover, EventPopoverTrigger } from './CreateEvent/EventPopover';
 import GlobalModal from '../global/GlobalModal';
 import { useAppSelector } from '@/redux/hooks';
 import dayjs from 'dayjs';
-import GuestIcon from '../svgs/calendar/GuestIcon';
+import GuestIcon from './svgs/calendar/GuestIcon';
 import { TdUser } from '../global/TdUser';
 import { TUser } from '@/types/auth';
-import GlobalMarkDownPreview from '../global/Community/MarkDown/GlobalMarkDownPreview';
 import { Checkbox } from '../ui/checkbox';
 import {
     useDeleteEventMutation,
     useGetSingleEventQuery,
     useUpdateInvitationMutation,
-} from '@/redux/api/calendar/calendarApi';
+} from './api/calendarApi';
 import GlobalDeleteModal from '../global/GlobalDeleteModal';
 import { toast } from 'sonner';
 import { updateOptionsOptions } from './CreateEvent/CreateEventModal';
@@ -40,8 +39,7 @@ import { copyToClipboard } from '@/utils/common';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ProposeTimeModal from './ProposeTimeModal';
 import EventDetailsSkeleton from './EventDetailSkeleton';
-import LexicalJsonRenderer from '../lexicalEditor/renderer/JsonRenderer';
-import { renderText } from '@/components/lexicalEditor/renderer/renderText';
+import { renderText } from '../lexicalEditor/renderer/renderText';
 
 const EventDetails = () => {
     const { user } = useAppSelector((s) => s.auth);

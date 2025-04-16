@@ -3,16 +3,14 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-
-import { useUpdateScheduleMutation } from '@/redux/api/calendar/calendarApi';
-import timesArray from '../../../../public/times';
+import { Button } from '../ui/button';
+import timesArray from '../helpers/times';
 import {
     TAvailability,
     TInterval,
     TSchedule,
     TUpdateSchedule,
-} from '@/types/calendar/calendarTypes';
+} from '../types/calendarTypes';
 import WeekDay, { TCopyTo } from './WeekDay';
 import OverrideModal from './OverrideModal';
 
