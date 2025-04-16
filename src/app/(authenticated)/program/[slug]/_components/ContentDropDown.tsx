@@ -141,8 +141,7 @@ const ContentDropDown = ({
                                 // isChevronDown={false}
                             >
                                 <div className='flex items-center justify-between w-full p-2'>
-                                    <Link
-                                        href={'#program-title'}
+                                    <div
                                         className='flex items-center gap-3'
                                         onClick={() => {
                                             setVideoData({
@@ -171,7 +170,7 @@ const ContentDropDown = ({
                                         <div className='flex items-start gap-1'>
                                             {renderPriorityBadge(item.priority)}
                                         </div>
-                                    </Link>
+                                    </div>
 
                                     <div className='flex items-center gap-1'>
                                         <LessionActionMenu
@@ -390,11 +389,10 @@ const ContentDropDown = ({
             className={cn(
                 'space-y-4',
                 videoData?.isSideOpen
-                    ? 'no-scrollbar lg:col-span-1 md:overflow-auto'
+                    ? `no-scrollbar lg:col-span-1 sticky top-0   h-[607px] overflow-y-auto bottom-[20px]`
                     : 'w-full',
             )}
         >
-            {' '}
             <Accordion type='single' collapsible className='w-full'>
                 {fetchedData && fetchedData.length > 0 ? (
                     renderContent(fetchedData)

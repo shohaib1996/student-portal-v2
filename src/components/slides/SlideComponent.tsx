@@ -189,6 +189,7 @@ function ViewSlide({ id }: { id: string }) {
     ]);
     // Use the helper hook to get slide data
     const slideData = useSlideData(id);
+
     const [current, setCurrent] = useState<number>(0);
     const [selected, setSelected] = useState<Slide | null>(null);
     const handle = useFullScreenHandle();
@@ -427,7 +428,13 @@ function ViewSlide({ id }: { id: string }) {
         }
     };
 
-    return (
+    return slideData?.isLoading ? (
+        <>
+            <div className='flex items-center justify-center h-screen'>
+                <Loader className='animate-spin stroke-primary' size={40} />
+            </div>
+        </>
+    ) : (
         <div className='h-full py-2'>
             <div className='page_wrapper h-full'>
                 <GlobalHeader
@@ -594,6 +601,7 @@ function ViewSlide({ id }: { id: string }) {
 export default ViewSlide;
 
 // --- Helper hook to retrieve slide data ---
+// Define the custom hook at the module level, not inside ViewSlide.
 const useSlideData = (id: string) => {
     // First query: try to get slide data directly.
     const { data: slidesData, isLoading } = useGetSingleSlideQuery(
@@ -601,19 +609,17 @@ const useSlideData = (id: string) => {
         { skip: !id },
     );
     const router = useRouter();
-    console.log(slidesData, 'slidesData');
     // Second query: if slidesData is not available, try to get it from documents and labs.
     const { data: singleSlide } = useGetDocumentsAndLabsQuery<{
         data: ISlideApiResponse;
     }>({ id }, { skip: !!slidesData?.slide });
 
-    // Return the appropriate data.
-
-    if (slidesData && slidesData.slide) {
-        return slidesData;
+    if (slidesData?.slide) {
+        return { ...slidesData, isLoading };
     }
-    if (singleSlide && singleSlide.content && singleSlide.content.slide) {
-        router.push(`/presentation-slides/${singleSlide.content.slide}`);
+    if (singleSlide?.content?.slide) {
+        router.push(`/presentation-slides/${singleSlide?.content?.slide}`);
+        return { slide: null, isLoading };
     }
-    return null;
+    return { slide: null, isLoading };
 };
