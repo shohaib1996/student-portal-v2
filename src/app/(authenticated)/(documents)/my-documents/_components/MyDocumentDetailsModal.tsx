@@ -376,7 +376,7 @@ export function MyDocumentDetailsModal({
                             <Button variant='outline' size='sm'>
                                 <DownloadIcon className='h-4 w-4' />
                             </Button> */}
-                            <Button
+                            {/* <Button
                                 variant='primary_light'
                                 size='sm'
                                 onClick={handleEditClick}
@@ -390,7 +390,7 @@ export function MyDocumentDetailsModal({
                                 className='bg-red-500/10 text-danger'
                             >
                                 <DeleteTrashIcon className='h-4 w-4' />
-                            </Button>
+                            </Button> */}
                         </div>
                     </div>
 
@@ -445,7 +445,9 @@ export function MyDocumentDetailsModal({
                                     ref={contentRef}
                                 >
                                     <div className='prose prose-gray max-w-none dark:prose-invert'>
-                                        {renderText(document?.content)}
+                                        {renderText({
+                                            text: document?.content,
+                                        })}
                                     </div>
                                 </div>
 

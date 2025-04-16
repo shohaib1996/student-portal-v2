@@ -99,11 +99,17 @@ const documentsApi = baseApi.injectEndpoints({
         }),
         getMyDocument: build.query<
             MyDocumentResponse,
-            { page?: number; limit?: number }
+            {
+                page?: number;
+                limit?: number;
+                query?: string;
+                priority?: string;
+                createdAt?: string | Date;
+            }
         >({
-            query: ({ page = 1, limit = 8 }) => ({
+            query: ({ page = 1, limit = 8, query, priority, createdAt }) => ({
                 url: '/document/mydocuments',
-                params: { page, limit },
+                params: { page, limit, query, priority, createdAt },
             }),
         }),
         getMyDocumentById: build.query<any, string>({

@@ -28,6 +28,7 @@
         "@lexical/code": "^0.29.0",
         "@lexical/file": "^0.29.0",
         "@lexical/hashtag": "^0.29.0",
+        "@lexical/html": "^0.29.0",
         "@lexical/link": "^0.29.0",
         "@lexical/list": "^0.29.0",
         "@lexical/markdown": "^0.29.0",

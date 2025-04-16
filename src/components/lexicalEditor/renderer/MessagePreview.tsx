@@ -21,10 +21,9 @@ function transformMessage(text?: string): string {
     if (!text) {
         return '';
     }
-
     return text.replace(
-        /@\[([^\]]+)\]$$[^$$]+\)/g,
-        '<span class="bg-green-100/20 text-green-600 dark:bg-green-900/30 dark:text-green-400 font-bold">@$1</span>',
+        /@\[(.*?)\]\((.*?)\)/g,
+        '<span class="mention text-yellow-500 hover:underline cursor-pointer" data-user-id="$2" data-user-name="$1">@$1</span>',
     );
 }
 

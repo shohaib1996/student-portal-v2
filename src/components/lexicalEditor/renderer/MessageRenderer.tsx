@@ -77,7 +77,7 @@ function MessageRenderer({ text, searchQuery, isUser }: MessageRendererProps) {
                 }}
                 className={`${isUser ? '!text-pure-white/80 dark:!text-pure-white/80' : '!text-gray dark:!text-pure-white/90'} `}
             /> */}
-            {renderText(processedText || '')}
+            {renderText({ text: processedText || '' })}
             {searchQuery && (
                 <div className='hidden'>
                     <Highlighter

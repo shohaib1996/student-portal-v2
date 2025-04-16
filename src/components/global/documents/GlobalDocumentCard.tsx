@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetMySingleDocumentQuery } from '@/redux/api/documents/documentsApi';
 import { useEffect, useState } from 'react';
 import { instance } from '@/lib/axios/axiosInstance';
+import { renderText } from '@/components/lexicalEditor/renderer/renderText';
 
 export interface GlobalDocumentCardProps {
     id: string;
@@ -164,9 +165,14 @@ export function GlobalDocumentCard({
                         </div>
                     </div>
                     <h3 className='mb-1 line-clamp-2 font-semibold'>
-                        {name || title}
+                        {name || title || 'Untitled'}
                     </h3>
-                    <p className='line-clamp-2 text-sm text-gray'>{des}</p>
+                    <p className='!line-clamp-2 !text-sm text-gray opacity-80 max-h-[80px] overflow-hidden'>
+                        {description
+                            ? renderText({ text: description, toc: false })
+                            : renderText({ text: des as string, toc: false }) ||
+                              'No description available'}
+                    </p>
                     <Button
                         variant='link'
                         className='h-auto p-0 text-xs font-medium text-primary-white hover:no-underline'
