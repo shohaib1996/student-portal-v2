@@ -224,16 +224,18 @@ export function EditDocumentModal({
                             <form
                                 id='upload-document-form'
                                 onSubmit={form.handleSubmit(onSubmit)}
-                                className='grid grid-cols-1 gap-6 lg:grid-cols-3'
+                                // className='grid grid-cols-1 gap-6 lg:grid-cols-3'
+                                className='flex flex-row gap-4'
                             >
                                 {/* Left column - 2/3 width on large screens */}
-                                <div className='lg:col-span-2'>
+                                {/* <div className='lg:col-span-2'> */}
+                                <div className='w-2/3'>
                                     <div className='space-y-4'>
                                         <FormField
                                             control={form.control}
                                             name='description'
                                             render={({ field }) => (
-                                                <FormItem>
+                                                <FormItem className='h-[80vh] bg-background'>
                                                     <FormLabel className='mb-2 flex items-center gap-1'>
                                                         Description
                                                         <span className='text-muted-foreground'>
@@ -260,7 +262,7 @@ export function EditDocumentModal({
                                                         </span>
                                                     </FormLabel>
                                                     <FormControl>
-                                                        <div className='h-[80vh] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0'>
+                                                        <div className='h-[80vh] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 w-full'>
                                                             <GlobalBlockEditor
                                                                 value={
                                                                     field.value ||
@@ -273,6 +275,7 @@ export function EditDocumentModal({
                                                                         val,
                                                                     )
                                                                 }
+                                                                className='bg-foreground'
                                                             />
                                                         </div>
                                                     </FormControl>
@@ -283,8 +286,9 @@ export function EditDocumentModal({
                                 </div>
 
                                 {/* Right column - 1/3 width on large screens */}
-                                <div className='space-y-6'>
-                                    <div className='space-y-4'>
+                                {/* <div className='space-y-6'> */}
+                                <div className='w-1/3'>
+                                    <div className='space-y-2'>
                                         <FormField
                                             control={form.control}
                                             name='name'
@@ -300,6 +304,7 @@ export function EditDocumentModal({
                                                         <Input
                                                             placeholder='Enter document name'
                                                             {...field}
+                                                            className='bg-foreground'
                                                         />
                                                     </FormControl>
                                                     <FormMessage />
@@ -327,7 +332,7 @@ export function EditDocumentModal({
                                                         }
                                                     >
                                                         <FormControl>
-                                                            <SelectTrigger>
+                                                            <SelectTrigger className='bg-foreground'>
                                                                 <SelectValue placeholder='Select Category' />
                                                             </SelectTrigger>
                                                         </FormControl>
@@ -371,7 +376,7 @@ export function EditDocumentModal({
                                                         }
                                                     >
                                                         <FormControl>
-                                                            <SelectTrigger>
+                                                            <SelectTrigger className='bg-foreground'>
                                                                 <SelectValue placeholder='Select Sub Category' />
                                                             </SelectTrigger>
                                                         </FormControl>
@@ -406,6 +411,7 @@ export function EditDocumentModal({
                                                         <Input
                                                             placeholder='Enter tags (Maximum 10 tags)'
                                                             {...field}
+                                                            className='bg-foreground'
                                                         />
                                                     </FormControl>
                                                 </FormItem>
@@ -416,7 +422,7 @@ export function EditDocumentModal({
                                             <Label className='mb-2'>
                                                 Upload Thumbnail
                                             </Label>
-                                            <div className='mt-1 flex justify-center rounded-lg border border-dashed border-border px-6 py-10'>
+                                            <div className='mt-1 flex justify-center rounded-lg border border-dashed border-border px-6 py-10 bg-foreground'>
                                                 <div className='text-center'>
                                                     {thumbnailPreview ? (
                                                         <div className='relative mx-auto h-32 w-32 overflow-hidden rounded'>
@@ -483,7 +489,7 @@ export function EditDocumentModal({
                                                 Attached Files (
                                                 {attachedFileUrls.length})
                                             </Label>
-                                            <div className='rounded-lg border bg-muted/20 p-4'>
+                                            <div className='rounded-lg border bg-foreground p-4'>
                                                 {attachedFileUrls.length > 0 ? (
                                                     <ul className='space-y-2'>
                                                         {attachedFileUrls.map(
