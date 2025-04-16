@@ -133,6 +133,7 @@ export default {
                 'accordion-up': 'accordion-up 0.2s ease-out',
                 'border-glow': 'borderGlow 2s infinite alternate ease-in-out',
             },
+
             keyframes: {
                 shimmer: {
                     '0%': {

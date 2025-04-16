@@ -1,3 +1,4 @@
+import GlobalBlockEditor from '@/components/editor/GlobalBlockEditor';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
@@ -297,6 +298,7 @@ const RatingsTab = () => {
                         <StarRating
                             value={0}
                             onChange={(val) =>
+                                //
                                 console.log('Overall rating:', val)
                             }
                         />
@@ -323,12 +325,12 @@ const RatingsTab = () => {
                         </svg>
                         <span className='font-medium'>Your Feedback</span>
                     </div>
-                    <textarea
+                    <GlobalBlockEditor
                         className='w-full bg-background border border-border rounded-md p-3 min-h-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500'
                         placeholder='Share your thought about this course...'
                         value={feedbackText}
-                        onChange={(e) => setFeedbackText(e.target.value)}
-                    ></textarea>
+                        onChange={setFeedbackText}
+                    ></GlobalBlockEditor>
                 </div>
 
                 {/* All Reviews Section */}

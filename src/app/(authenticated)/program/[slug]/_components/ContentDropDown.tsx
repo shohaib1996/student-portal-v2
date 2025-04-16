@@ -22,6 +22,13 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import LessionActionMenu from './LessionActionMenu';
+// Define the video data type for better type safety
+type VideoDataType = {
+    videoInfo: null | TLessonInfo;
+    isSideOpen: boolean;
+    item: TContent;
+    contentId: string | null;
+};
 
 const ContentDropDown = ({
     fetchedData,
@@ -33,29 +40,39 @@ const ContentDropDown = ({
 }: {
     fetchedData: TContent[] | null;
     parentId?: string | null;
-    videoData: {
-        videoInfo: null | TLessonInfo;
-        isSideOpen: boolean;
-    };
+    videoData: VideoDataType;
     option: {
         isLoading: boolean;
         isError: boolean;
         courseProgramsLoading: boolean;
-        setFilterOption: React.Dispatch<{
-            filter: string;
-            query: string;
-            pId: string | null;
-        }>;
+        setFilterOption: React.Dispatch<
+            React.SetStateAction<{
+                filter: string;
+                query: string;
+            }>
+        >;
+        refetchCoursePrograms?: () => void; // Add this property to the option object
     };
-    setVideoData: React.Dispatch<
-        React.SetStateAction<{
-            videoInfo: null | TLessonInfo;
-            isSideOpen: boolean;
-            contentId?: string;
-        }>
-    >;
+    setVideoData: React.Dispatch<React.SetStateAction<VideoDataType>>;
     setParentId: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
+    const refreshContent = () => {
+        // Use the refetch function if it's available in the options
+        if (option?.refetchCoursePrograms) {
+            option.refetchCoursePrograms();
+        }
+    };
+
+    const extractSlideId = (url: string): string => {
+        try {
+            const urlObj = new URL(url);
+            const segments = urlObj.pathname.split('/');
+            return segments[segments.length - 1]; // Get the ID from the path
+        } catch {
+            return url; // If it's already an ID, just return it
+        }
+    };
+
     function formatSeconds(totalSeconds: number) {
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
@@ -124,16 +141,16 @@ const ContentDropDown = ({
                                 // isChevronDown={false}
                             >
                                 <div className='flex items-center justify-between w-full p-2'>
-                                    <Link
-                                        href={'#program-title'}
+                                    <div
                                         className='flex items-center gap-3'
-                                        onClick={() =>
+                                        onClick={() => {
                                             setVideoData({
                                                 videoInfo: item?.lesson,
                                                 isSideOpen: true,
                                                 contentId: item._id,
-                                            })
-                                        }
+                                                item: item,
+                                            });
+                                        }}
                                     >
                                         <div>
                                             <Play className='h-5 w-5 stroke-gray' />
@@ -153,11 +170,13 @@ const ContentDropDown = ({
                                         <div className='flex items-start gap-1'>
                                             {renderPriorityBadge(item.priority)}
                                         </div>
-                                    </Link>
+                                    </div>
 
                                     <div className='flex items-center gap-1'>
                                         <LessionActionMenu
+                                            videoData={videoData}
                                             item={item}
+                                            setVideoData={setVideoData}
                                             lessonId={item?._id}
                                             courseId={item?.myCourse?.course}
                                         />
@@ -177,7 +196,7 @@ const ContentDropDown = ({
                                 <Link
                                     href={
                                         item.lesson.url
-                                            ? `/presentation-slides/?slide=${item.lesson.url}`
+                                            ? `/presentation-slides/${extractSlideId(item.lesson.url)}`
                                             : '#'
                                     }
                                     target='_blank'
@@ -370,7 +389,7 @@ const ContentDropDown = ({
             className={cn(
                 'space-y-4',
                 videoData?.isSideOpen
-                    ? 'no-scrollbar lg:col-span-1 md:overflow-auto'
+                    ? `no-scrollbar lg:col-span-1 sticky top-0   h-[607px] overflow-y-auto bottom-[20px]`
                     : 'w-full',
             )}
         >

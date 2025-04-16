@@ -1,8 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TLessonInfo } from '@/types';
-import { Star, Download, ChevronDown, Pin, Share } from 'lucide-react';
+import { TContent, TLessonInfo, TProgram, TProgramMain } from '@/types';
+import { Star, Download, ChevronDown, Pin, Share, PinOff } from 'lucide-react';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
@@ -12,21 +12,47 @@ import { toast } from 'sonner';
 import DownloadTab from './DownloadTab';
 import RatingsTab from './RatingsTab';
 import NewAddNote from './NewAddNote';
+import { useAppSelector } from '@/redux/hooks';
+import { useMyProgramQuery } from '@/redux/api/myprogram/myprogramApi';
+import { useTrackChapterMutation } from '@/redux/api/course/courseApi';
 
 const VideoContent = ({
     videoData,
+    refreshData, // Add this prop to refresh parent data after pinning/unpinning
+    setVideoData,
 }: {
     videoData: {
         videoInfo: null | TLessonInfo;
         isSideOpen: boolean;
-        contentId?: string;
+        contentId: string | null;
+        item: Partial<TContent | any>;
     };
+    refreshData?: () => void;
+    setVideoData: React.Dispatch<React.SetStateAction<any>>;
 }) => {
     if (!videoData || (!videoData?.videoInfo && videoData?.isSideOpen)) {
         return <div>Loading...</div>;
     }
 
-    console.log({ videoData });
+    const { data } = useMyProgramQuery<{ data: TProgramMain }>(undefined);
+    const [trackChapter, { isLoading: isTracking }] = useTrackChapterMutation();
+
+    // Local state to track the pinned status
+    const [isPinned, setIsPinned] = useState(
+        videoData?.item?.isPinned || false,
+    );
+
+    // Update local state when videoData changes
+    useEffect(() => {
+        setIsPinned(videoData?.item?.isPinned || false);
+    }, [videoData?.item?.isPinned]);
+
+    const programData = data?.program;
+    console.log({
+        item: videoData?.item,
+        videoInfo: videoData?.videoInfo,
+        isPinned,
+    });
 
     const tabData = videoData?.videoInfo?.data;
     const tabs = tabData
@@ -37,9 +63,76 @@ const VideoContent = ({
           }))
         : [];
 
-    const commingSoon = () => {
-        toast.success('Coming Soon...');
+    const handlePinContent = async () => {
+        if (!videoData?.contentId) {
+            toast.error('Content ID not found');
+            return;
+        }
+
+        // Determine the action based on the current pin state
+        const action = isPinned ? 'unpin' : 'pin';
+        const newPinnedState = !isPinned;
+
+        try {
+            // Update local state immediately for better UX
+            setIsPinned(newPinnedState);
+
+            // Update the videoData state to reflect the change
+            setVideoData((prev: any) => ({
+                ...prev,
+                item: {
+                    ...prev.item,
+                    isPinned: newPinnedState,
+                    courseId: videoData?.item?.courseId,
+                    chapterId: videoData?.item?.chapterId,
+                },
+            }));
+
+            // Call the API
+            const response = await trackChapter({
+                courseId: videoData?.item?.courseId,
+                action: action, // "pin" or "unpin" based on current state
+                chapterId: videoData?.item?.chapterId,
+            }).unwrap();
+
+            if (response.success) {
+                toast.success(
+                    isPinned
+                        ? 'Content unpinned successfully'
+                        : 'Content pinned successfully',
+                );
+
+                // Refresh the parent data if the refresh function is provided
+                if (refreshData) {
+                    refreshData();
+                }
+            } else {
+                // Revert the local state if API call fails
+                setIsPinned(!newPinnedState);
+                setVideoData((prev: any) => ({
+                    ...prev,
+                    item: {
+                        ...prev.item,
+                        isPinned: !newPinnedState,
+                    },
+                }));
+                toast.error(response.message || 'Failed to pin/unpin content');
+            }
+        } catch (error) {
+            // Revert the local state if API call fails
+            setIsPinned(!newPinnedState);
+            setVideoData((prev: any) => ({
+                ...prev,
+                item: {
+                    ...prev.item,
+                    isPinned: !newPinnedState,
+                },
+            }));
+            console.error('Error pinning/unpinning content:', error);
+            toast.error('Something went wrong while pinning/unpinning content');
+        }
     };
+
     return (
         <div
             className={`${videoData?.isSideOpen ? 'lg:col-span-2' : 'hidden'} `}
@@ -62,15 +155,21 @@ const VideoContent = ({
                         <div className='flex items-center gap-2'>
                             <div className='w-8 h-8 rounded-full overflow-hidden'>
                                 <Image
-                                    src='/images/author.png'
-                                    alt='Jane Cooper'
+                                    src={
+                                        programData?.instructor?.image ||
+                                        '/images/author.png'
+                                    }
+                                    alt={
+                                        programData?.instructor?.name ||
+                                        'Jane Cooper'
+                                    }
                                     width={32}
                                     height={32}
                                 />
                             </div>
                             <div className='flex flex-col'>
                                 <span className='text-sm text-gray'>
-                                    Jane Cooper
+                                    {programData?.instructor?.name || 'Unknown'}
                                 </span>
                                 <span className='text-xs text-gray'>
                                     Instructor
@@ -78,7 +177,7 @@ const VideoContent = ({
                             </div>
                         </div>
                         <div className='text-sm text-gray'>
-                            {dayjs(videoData?.videoInfo?.createdAt).format(
+                            {dayjs(videoData?.videoInfo?.updatedAt).format(
                                 'MMM DD, YYYY | hh:mm A',
                             )}
                         </div>
@@ -86,14 +185,31 @@ const VideoContent = ({
                 </div>
                 <div className='flex items-center gap-2'>
                     <button
-                        onClick={commingSoon}
-                        className='flex items-center gap-1 text-gray hover:text-dark-gray cursor-pointer'
+                        onClick={handlePinContent}
+                        disabled={isTracking}
+                        className={cn(
+                            'flex items-center gap-1 hover:text-dark-gray cursor-pointer transition-colors',
+                            isPinned ? 'text-primary' : 'text-gray',
+                            isTracking && 'opacity-70 cursor-not-allowed',
+                        )}
                     >
-                        <Pin className='h-4 w-4' />
-                        <span className='text-sm'>Pin</span>
+                        {isPinned ? (
+                            <PinOff className='h-4 w-4 stroke-primary' />
+                        ) : (
+                            <Pin className='h-4 w-4' />
+                        )}
+                        <span className='text-sm'>
+                            {isTracking
+                                ? 'Processing...'
+                                : isPinned
+                                  ? 'Unpin'
+                                  : 'Pin'}
+                        </span>
                     </button>
                     <button
-                        onClick={commingSoon}
+                        onClick={() =>
+                            toast.success('Sharing feature coming soon...')
+                        }
                         className='flex items-center gap-1 text-gray hover:text-dark-gray cursor-pointer'
                     >
                         <Share className='h-4 w-4' />
@@ -334,29 +450,6 @@ const VideoContent = ({
                                     ))}
                                 </Tabs>
                             </div>
-
-                            {/* Comments Section */}
-                            {/* <div>
-                                <div className='flex items-center gap-2 mb-2'>
-                                    <svg
-                                        width='16'
-                                        height='16'
-                                        viewBox='0 0 24 24'
-                                        fill='none'
-                                        xmlns='http://www.w3.org/2000/svg'
-                                        className='text-gray'
-                                    >
-                                        <path
-                                            d='M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7118 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0035 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92179 4.44061 8.37488 5.27072 7.03258C6.10083 5.69028 7.28825 4.6056 8.7 3.90003C9.87812 3.30496 11.1801 2.99659 12.5 3.00003H13C15.0843 3.11502 17.053 3.99479 18.5291 5.47089C20.0052 6.94699 20.885 8.91568 21 11V11.5Z'
-                                            stroke='currentColor'
-                                            strokeWidth='2'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                        />
-                                    </svg>
-                                    <GlobalCommentsSection />
-                                </div>
-                            </div> */}
                         </div>
                     </TabsContent>
 
@@ -367,7 +460,6 @@ const VideoContent = ({
                         <NewAddNote
                             contentId={videoData?.contentId as string}
                         />
-                        {/* <AddNotes contentId={videoData?.contentId as string} /> */}
                     </TabsContent>
 
                     <TabsContent

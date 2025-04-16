@@ -33,6 +33,7 @@ import {
 import { TProgram, TProgressChart } from '@/types';
 import dayjs from 'dayjs';
 import { useAppSelector } from '@/redux/hooks';
+import TopPerformersSkeleton from './TopPerformersSkeleton';
 
 // Types
 type Status = 'approved' | 'pending' | 'cancelled';
@@ -344,111 +345,119 @@ const LeaderBoard = () => {
                                     </SelectContent>
                                 </Select>
                             </div>
-
-                            <div className='overflow-x-auto'>
-                                <table className='w-full table-auto'>
-                                    <tbody>
-                                        {leaderboard?.map((performer) => (
-                                            <tr
-                                                key={performer._id}
-                                                className='bg-foreground border border-border shadow-sm px-2 md:px-4 py-2 md:py-3 space-x-2'
-                                            >
-                                                <td className='py-2 pl-2 md:py-3 md:pl-4 w-12 md:w-auto'>
-                                                    {renderMedalIcon(
-                                                        getMedalType(
+                            {isLoading ? (
+                                <TopPerformersSkeleton />
+                            ) : (
+                                <div className='overflow-x-auto'>
+                                    <table className='w-full table-auto'>
+                                        <tbody>
+                                            {leaderboard?.map((performer) => (
+                                                <tr
+                                                    key={performer._id}
+                                                    className='bg-foreground border border-border shadow-sm px-2 md:px-4 py-2 md:py-3 space-x-2'
+                                                >
+                                                    <td className='py-2 pl-2 md:py-3 md:pl-4 w-12 md:w-auto'>
+                                                        {renderMedalIcon(
+                                                            getMedalType(
+                                                                performer?.rank,
+                                                            ),
                                                             performer?.rank,
-                                                        ),
-                                                        performer?.rank,
-                                                    )}
-                                                </td>
-                                                <td className='py-2 md:py-3 w-12 md:w-auto'>
-                                                    <div className='flex justify-center'>
-                                                        <div className='profile-clip w-8 h-8 md:w-10 md:h-10 bg-primary-light rounded-full flex items-center justify-center text-primary-white font-medium text-sm md:text-base'>
-                                                            {performer?.rank}
+                                                        )}
+                                                    </td>
+                                                    <td className='py-2 md:py-3 w-12 md:w-auto'>
+                                                        <div className='flex justify-center'>
+                                                            <div className='profile-clip w-8 h-8 md:w-10 md:h-10 bg-primary-light rounded-full flex items-center justify-center text-primary-white font-medium text-sm md:text-base'>
+                                                                {
+                                                                    performer?.rank
+                                                                }
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td className='py-2 md:py-3 min-w-[160px] md:min-w-[200px]'>
-                                                    <div className='flex items-center gap-1 md:gap-1.5'>
-                                                        <div className='relative'>
-                                                            <Image
-                                                                src='/avatar.png'
-                                                                alt={
+                                                    </td>
+                                                    <td className='py-2 md:py-3 min-w-[160px] md:min-w-[200px]'>
+                                                        <div className='flex items-center gap-1 md:gap-1.5'>
+                                                            <div className='relative'>
+                                                                <Image
+                                                                    src='/avatar.png'
+                                                                    alt={
+                                                                        performer
+                                                                            ?.user
+                                                                            ?.fullName
+                                                                    }
+                                                                    width={40}
+                                                                    height={40}
+                                                                    className='w-9 h-9 md:w-11 md:h-11 rounded-full'
+                                                                />
+                                                                <div className='absolute bottom-0 right-0 w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full border-2 border-white'></div>
+                                                            </div>
+                                                            <span className='text-xs md:text-sm lg:text-lg font-semibold text-black text-wrap md:text-nowrap'>
+                                                                {
                                                                     performer
                                                                         ?.user
                                                                         ?.fullName
                                                                 }
-                                                                width={40}
-                                                                height={40}
-                                                                className='w-9 h-9 md:w-11 md:h-11 rounded-full'
-                                                            />
-                                                            <div className='absolute bottom-0 right-0 w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full border-2 border-white'></div>
+                                                            </span>
                                                         </div>
-                                                        <span className='text-xs md:text-sm lg:text-lg font-semibold text-black text-wrap md:text-nowrap'>
+                                                    </td>
+                                                    <td className='py-2 md:py-3 min-w-16 md:w-auto'>
+                                                        <div className='text-xs font-medium text-gray'>
+                                                            Score
+                                                        </div>
+                                                        <div className='text-sm md:text-base font-semibold text-black'>
                                                             {
-                                                                performer?.user
-                                                                    ?.fullName
+                                                                performer
+                                                                    ?.metrics
+                                                                    ?.totalObtainedMark
                                                             }
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td className='py-2 md:py-3 min-w-16 md:w-auto'>
-                                                    <div className='text-xs font-medium text-gray'>
-                                                        Score
-                                                    </div>
-                                                    <div className='text-sm md:text-base font-semibold text-black'>
-                                                        {
-                                                            performer?.metrics
-                                                                ?.totalObtainedMark
-                                                        }
-                                                    </div>
-                                                </td>
-                                                <td className='py-2 md:py-3 min-w-24 md:w-auto'>
-                                                    <div className='text-xs font-medium text-gray'>
-                                                        Improvement
-                                                    </div>
-                                                    <div className='text-sm md:text-base font-semibold text-black'>
-                                                        {
-                                                            performer?.metrics
-                                                                ?.overallPercentageAllItems
-                                                        }
-                                                        %
-                                                    </div>
-                                                </td>
-                                                <td className='py-2 md:py-3 min-w-24 md:w-auto'>
-                                                    <div className='font-semibold text-xs md:text-sm text-dark-gray'>
-                                                        {getPerformance(
-                                                            performer?.rank,
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td className='py-2 pr-2 md:py-3 md:pr-4 w-16 md:w-auto'>
-                                                    <div className='flex justify-center'>
-                                                        <RadialProgress
-                                                            value={
+                                                        </div>
+                                                    </td>
+                                                    <td className='py-2 md:py-3 min-w-24 md:w-auto'>
+                                                        <div className='text-xs font-medium text-gray'>
+                                                            Improvement
+                                                        </div>
+                                                        <div className='text-sm md:text-base font-semibold text-black'>
+                                                            {
                                                                 performer
                                                                     ?.metrics
                                                                     ?.overallPercentageAllItems
                                                             }
-                                                            size='sm'
-                                                            thickness='medium'
-                                                            color={
-                                                                performer.rank <=
-                                                                3
-                                                                    ? 'success'
-                                                                    : performer.rank <=
-                                                                        7
-                                                                      ? 'warning'
-                                                                      : 'danger'
-                                                            }
-                                                        />
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                            %
+                                                        </div>
+                                                    </td>
+                                                    <td className='py-2 md:py-3 min-w-24 md:w-auto'>
+                                                        <div className='font-semibold text-xs md:text-sm text-dark-gray'>
+                                                            {getPerformance(
+                                                                performer?.rank,
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className='py-2 pr-2 md:py-3 md:pr-4 w-16 md:w-auto'>
+                                                        <div className='flex justify-center'>
+                                                            <RadialProgress
+                                                                value={
+                                                                    performer
+                                                                        ?.metrics
+                                                                        ?.overallPercentageAllItems
+                                                                }
+                                                                size='sm'
+                                                                thickness='medium'
+                                                                color={
+                                                                    performer.rank <=
+                                                                    3
+                                                                        ? 'success'
+                                                                        : performer.rank <=
+                                                                            7
+                                                                          ? 'warning'
+                                                                          : 'danger'
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

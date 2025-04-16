@@ -6,12 +6,12 @@ import {
     Eye,
     FileText,
     FileX,
-    Filter,
     Image,
     Search,
     SlidersHorizontal,
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 const DownloadTab = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -87,49 +87,68 @@ const DownloadTab = () => {
         },
     ];
 
-    // Get file icon based on type
     const getFileIcon = (type: string) => {
+        const baseClass =
+            'w-10 h-10 rounded-md flex items-center justify-center';
+        const iconProps = { className: 'h-5 w-5' };
         switch (type) {
             case 'pdf':
                 return (
-                    <div className='w-10 h-10 bg-red-100 rounded-md flex items-center justify-center'>
-                        <FileText className='h-5 w-5 text-red-600' />
+                    <div className={`${baseClass} bg-red-100`}>
+                        <FileText
+                            {...iconProps}
+                            className='h-5 w-5 text-red-600'
+                        />
                     </div>
                 );
             case 'excel':
                 return (
-                    <div className='w-10 h-10 bg-green-100 rounded-md flex items-center justify-center'>
-                        <FileText className='h-5 w-5 text-green-600' />
+                    <div className={`${baseClass} bg-green-100`}>
+                        <FileText
+                            {...iconProps}
+                            className='h-5 w-5 text-green-600'
+                        />
                     </div>
                 );
             case 'word':
                 return (
-                    <div className='w-10 h-10 bg-blue-100 rounded-md flex items-center justify-center'>
-                        <FileText className='h-5 w-5 text-blue-600' />
+                    <div className={`${baseClass} bg-blue-100`}>
+                        <FileText
+                            {...iconProps}
+                            className='h-5 w-5 text-blue-600'
+                        />
                     </div>
                 );
             case 'code':
                 return (
-                    <div className='w-10 h-10 bg-purple-100 rounded-md flex items-center justify-center'>
-                        <FileText className='h-5 w-5 text-purple-600' />
+                    <div className={`${baseClass} bg-purple-100`}>
+                        <FileText
+                            {...iconProps}
+                            className='h-5 w-5 text-purple-600'
+                        />
                     </div>
                 );
             case 'image':
                 return (
-                    <div className='w-10 h-10 bg-pink-100 rounded-md flex items-center justify-center'>
-                        <Image className='h-5 w-5 text-pink-600' />
+                    <div className={`${baseClass} bg-pink-100`}>
+                        <Image
+                            {...iconProps}
+                            className='h-5 w-5 text-pink-600'
+                        />
                     </div>
                 );
             default:
                 return (
-                    <div className='w-10 h-10 bg-amber-100 rounded-md flex items-center justify-center'>
-                        <FileText className='h-5 w-5 text-amber-600' />
+                    <div className={`${baseClass} bg-amber-100`}>
+                        <FileText
+                            {...iconProps}
+                            className='h-5 w-5 text-amber-600'
+                        />
                     </div>
                 );
         }
     };
 
-    // Add this function to handle file filtering based on search query and file type
     const filteredMaterials = programMaterials.filter((material) => {
         const matchesSearch = material.name
             .toLowerCase()
@@ -140,13 +159,18 @@ const DownloadTab = () => {
         return matchesSearch && matchesType;
     });
 
-    // Get unique file types for the filter dropdown
-    const fileTypes = Array.from(
-        new Set(programMaterials.map((material) => material.type)),
-    );
+    const fileTypes = Array.from(new Set(programMaterials.map((m) => m.type)));
+
+    function downloadFile(params: any) {
+        toast.warning('This file is not available for download yet.');
+    }
+    function viewFile(params: any) {
+        toast.warning('This file is not available for viewing yet.');
+    }
 
     return (
         <div className='py-2'>
+            {/* 🔍 Search and Filter */}
             <div className='border border-border rounded-md'>
                 <div className='p-2 border-b border-border'>
                     <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3'>
@@ -216,7 +240,7 @@ const DownloadTab = () => {
                                                         className={`w-full text-left px-3 py-2 text-sm ${
                                                             selectedFileType ===
                                                             type
-                                                                ? 'bg-primary-light text-primary-light'
+                                                                ? 'bg-primary-light text-white'
                                                                 : 'text-dark-gray hover:text-black hover:bg-foreground'
                                                         }`}
                                                         onClick={() => {
@@ -243,6 +267,7 @@ const DownloadTab = () => {
                     </div>
                 </div>
 
+                {/* 📄 File Grid */}
                 {filteredMaterials.length === 0 ? (
                     <div className='p-2 text-center text-gray'>
                         <FileX className='h-12 w-12 mx-auto mb-3 text-dark-gray' />
@@ -272,12 +297,12 @@ const DownloadTab = () => {
                                         <div className='flex items-center gap-3'>
                                             {getFileIcon(material.type)}
                                             <div className='min-w-0 flex-1'>
-                                                <h4 className='font-medium text-black truncate text-wrap'>
+                                                <h4 className='font-medium text-black truncate'>
                                                     {material.name}
                                                 </h4>
                                                 <div className='flex items-center gap-1 text-sm text-gray'>
                                                     <Clock className='h-3.5 w-3.5' />
-                                                    <span className='truncate'>
+                                                    <span>
                                                         {material.date} |{' '}
                                                         {material.time}
                                                     </span>
@@ -293,6 +318,7 @@ const DownloadTab = () => {
                                                 variant='ghost'
                                                 size='icon'
                                                 className='text-gray hover:text-dark-gray h-8 w-8'
+                                                onClick={viewFile}
                                             >
                                                 <Eye className='h-4 w-4' />
                                             </Button>
@@ -300,6 +326,7 @@ const DownloadTab = () => {
                                                 variant='ghost'
                                                 size='icon'
                                                 className='text-gray hover:text-dark-gray h-8 w-8'
+                                                onClick={downloadFile}
                                             >
                                                 <Download className='h-4 w-4' />
                                             </Button>
@@ -325,7 +352,7 @@ const DownloadTab = () => {
                                                 </h4>
                                                 <div className='flex items-center gap-1 text-sm text-gray'>
                                                     <Clock className='h-3.5 w-3.5' />
-                                                    <span className='truncate'>
+                                                    <span>
                                                         {material.date} |{' '}
                                                         {material.time}
                                                     </span>

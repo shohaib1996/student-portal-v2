@@ -38,6 +38,7 @@ export type TLesson = {
     isLocked: boolean;
     isSpecial: boolean;
     duration: number;
+    courseId?: string;
 };
 
 export type TChapterInfo = {
@@ -79,6 +80,7 @@ export type TChapter = {
     isSpecial: boolean;
     createdAt?: string;
     lesson?: string;
+    courseId?: string;
 };
 
 export type TContent = TChapter | TLesson;
