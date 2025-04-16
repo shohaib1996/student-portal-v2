@@ -293,6 +293,8 @@ body {
 body {
     pointer-events: auto !important;
 }
+
 .my-container {
     @apply 3xl:w-[90%] 2xl:w-[92%] w-[95%]  mx-auto max-w-[1440px];
 }
+

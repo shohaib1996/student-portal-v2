@@ -4,12 +4,13 @@ import { ProgramSidebar } from './ProgramSidebar';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-
 import { Search, PanelLeft, PanelLeftClose } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ContentDropDown from './ContentDropDown';
 import VideoContent from './VideoContent';
 import FilterProgram from './FilterProgram';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
 
 const ProgramContent = ({
     selectedTab,
@@ -41,16 +42,40 @@ const ProgramContent = ({
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [searchInput, setSearchInput] = useState('');
     const { setFilterOption } = option;
+
+    // Setup form
+    const form = useForm({
+        defaultValues: {
+            search: '',
+        },
+    });
+
     const [videoData, setVideoData] = useState<{
         videoInfo: null | TLessonInfo;
         isSideOpen: boolean;
+        item: TContent;
+        contentId: string | null;
     }>({
         videoInfo: null,
         isSideOpen: false,
+        item: {} as TContent,
+        contentId: null,
     });
 
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
+    };
+
+    // Handle search form submission
+    const onSubmit = (values: { search: string }) => {
+        setFilterOption((pre: { query: string; filter: string }) => {
+            return {
+                filter: pre?.filter,
+                query: values.search,
+                pId: null,
+            };
+        });
+        setParentId(null);
     };
 
     useEffect(() => {
@@ -133,34 +158,36 @@ const ProgramContent = ({
                         </div>
                     </div>
                     <div className='flex flex-row items-start md:items-center gap-3'>
-                        <div className='relative text-dark-gray'>
-                            <Search
-                                onClick={() => {
-                                    setFilterOption(
-                                        (pre: {
-                                            query: string;
-                                            filter: string;
-                                        }) => {
-                                            return {
-                                                filter: pre?.filter,
-                                                query: searchInput,
-                                                pId: null,
-                                            };
-                                        },
-                                    );
-                                    setParentId(null);
-                                }}
-                                className='h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray'
-                            />
-                            <Input
-                                onChange={(e) => setSearchInput(e.target.value)}
-                                placeholder='Search chapter & modules...'
-                                className='pl-9 w-[280px] md:w-[300px] border-border rounded-lg text-dark-gray placeholder:text-dark-gray bg-foreground'
-                            />
-                        </div>
+                        {/* Search Form */}
+                        <Form {...form}>
+                            <form
+                                onSubmit={form.handleSubmit(onSubmit)}
+                                className='relative text-dark-gray'
+                            >
+                                <FormField
+                                    control={form.control}
+                                    name='search'
+                                    render={({ field }) => (
+                                        <FormItem className='m-0'>
+                                            <FormControl>
+                                                <div className='relative'>
+                                                    <Search className='h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray' />
+                                                    <Input
+                                                        {...field}
+                                                        placeholder='Search chapter & modules...'
+                                                        className='pl-9 w-[280px] md:w-[300px] border-border rounded-lg text-dark-gray placeholder:text-dark-gray bg-foreground'
+                                                    />
+                                                </div>
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                            </form>
+                        </Form>
+
                         <FilterProgram
                             option={option}
-                            searchInput={searchInput}
+                            searchInput={form.watch('search')}
                             setParentId={setParentId}
                         />
                     </div>
@@ -169,7 +196,10 @@ const ProgramContent = ({
                 <div
                     className={`mt-common ${videoData?.isSideOpen ? 'relative grid grid-cols-1 xl:grid-cols-3 gap-common' : 'block'} `}
                 >
-                    <VideoContent videoData={videoData} />
+                    <VideoContent
+                        videoData={videoData}
+                        setVideoData={setVideoData}
+                    />
                     {option?.courseProgramsLoading && parentId === null ? (
                         <div className='flex w-full items-center justify-center py-4 text-center text-primary'>
                             <p>Loading...</p>
