@@ -107,11 +107,11 @@ export default function GlobalBlockEditor({
             characterLimit: true,
             counter: true,
             speechToText: true,
-            shareContent: true,
+            shareContent: false,
             markdownToggle: true,
             editModeToggle: true,
             clearEditor: true,
-            treeView: true,
+            treeView: false,
         },
     };
 
