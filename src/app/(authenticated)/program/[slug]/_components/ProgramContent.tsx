@@ -41,6 +41,8 @@ const ProgramContent = ({
     const courseData = courseContentData?.course;
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [searchInput, setSearchInput] = useState('');
+
+    const [isPinnedEyeOpen, setIsPinnedEyeOpen] = useState(false);
     const { setFilterOption } = option;
 
     // Setup form
@@ -199,6 +201,7 @@ const ProgramContent = ({
                     <VideoContent
                         videoData={videoData}
                         setVideoData={setVideoData}
+                        isPinnedEyeOpen={isPinnedEyeOpen}
                     />
                     {option?.courseProgramsLoading && parentId === null ? (
                         <div className='flex w-full items-center justify-center py-4 text-center text-primary'>
@@ -225,6 +228,7 @@ const ProgramContent = ({
                             setParentId={setParentId}
                             option={option}
                             setVideoData={setVideoData}
+                            setIsPinnedEyeOpen={setIsPinnedEyeOpen}
                             videoData={videoData}
                         />
                     )}
