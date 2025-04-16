@@ -63,6 +63,16 @@ const ContentDropDown = ({
         }
     };
 
+    const extractSlideId = (url: string): string => {
+        try {
+            const urlObj = new URL(url);
+            const segments = urlObj.pathname.split('/');
+            return segments[segments.length - 1]; // Get the ID from the path
+        } catch {
+            return url; // If it's already an ID, just return it
+        }
+    };
+
     function formatSeconds(totalSeconds: number) {
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
@@ -187,7 +197,7 @@ const ContentDropDown = ({
                                 <Link
                                     href={
                                         item.lesson.url
-                                            ? `/presentation-slides/?slide=${item.lesson.url}`
+                                            ? `/presentation-slides/${extractSlideId(item.lesson.url)}`
                                             : '#'
                                     }
                                     target='_blank'

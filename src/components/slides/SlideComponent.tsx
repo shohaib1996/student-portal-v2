@@ -70,12 +70,16 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { toast } from 'sonner';
 import MultiSelect from '@/components/global/MultiSelect';
 import Scaled from './Scaled';
-import { useGetSingleSlideQuery } from '@/redux/api/slides/slideApi';
+import {
+    useGetDocumentsAndLabsQuery,
+    useGetSingleSlideQuery,
+} from '@/redux/api/slides/slideApi';
 import useSize from './useSize';
 import dayjs from 'dayjs';
 import MessagePreview from '../lexicalEditor/renderer/MessagePreview';
 import { GlobalCommentsSection } from '../global/GlobalCommentSection';
 import GlobalComment from '../global/GlobalComments/GlobalComment';
+import { ISlideApiResponse } from '@/types';
 // import GlobalComment from '@/components/common/GlobalComment/GlobalComment';
 
 // Define TypeScript interfaces
@@ -95,6 +99,7 @@ interface Slide {
     createdAt: string;
     updatedAt: string;
 }
+
 interface NavigationCallback {
     (): void;
 }
@@ -102,6 +107,7 @@ interface NavigationCallback {
 interface HandleNavigation {
     (navigateCallback: NavigationCallback): void;
 }
+
 interface DataState {
     activeBranch: string;
     programs: Array<{
@@ -150,7 +156,9 @@ function SortableItem({
                 onClick={onClick}
             >
                 <div
-                    className={`flex items-center justify-between px-2 py-1 ${isActive ? 'bg-primary' : 'bg-sidebar'}`}
+                    className={`flex items-center justify-between px-2 py-1 ${
+                        isActive ? 'bg-primary' : 'bg-sidebar'
+                    }`}
                 >
                     <span className={`text-sm font-medium ${textColor}`}>
                         {index + 1}
@@ -179,14 +187,8 @@ function ViewSlide({ id }: { id: string }) {
             _id: '1', // Initial ID
         },
     ]);
-
-    const { data: slidesData, isLoading } = useGetSingleSlideQuery(
-        { id: id },
-        {
-            skip: !id,
-        },
-    );
-
+    // Use the helper hook to get slide data
+    const slideData = useSlideData(id);
     const [current, setCurrent] = useState<number>(0);
     const [selected, setSelected] = useState<Slide | null>(null);
     const handle = useFullScreenHandle();
@@ -219,17 +221,15 @@ function ViewSlide({ id }: { id: string }) {
 
     // Set state from RTK Query data
     useEffect(() => {
-        if (slidesData?.slide) {
-            setSelected(slidesData.slide);
-            setTitle(slidesData.slide.title || '');
-            setSlides(slidesData?.slide?.slides || []);
-            setSelectedPrograms(slidesData?.slide?.programs || []);
-            setSelectedSessions(slidesData?.slide?.sessions || []);
+        if (slideData?.slide) {
+            setSelected(slideData?.slide);
+            setTitle(slideData?.slide.title || '');
+            setSlides(slideData?.slide?.slides || []);
+            setSelectedPrograms(slideData?.slide?.programs || []);
+            setSelectedSessions(slideData?.slide?.sessions || []);
             setHasUnsavedChanges(false); // Reset when data is loaded
         }
-    }, [slidesData]);
-
-    // Replace the existing browser back button handler with this:
+    }, [slideData]);
 
     // Keyboard navigation in fullscreen mode
     const handleUserKeyPress = (event: KeyboardEvent) => {
@@ -381,9 +381,7 @@ function ViewSlide({ id }: { id: string }) {
 
     useEffect(() => {
         if (text.length > 0) {
-            const formattedText = text.includes('list')
-                ? formateText(text)
-                : formateText(text);
+            const formattedText = formateText(text);
             handleChangeText(formattedText, 'content');
         }
     }, [text]);
@@ -428,15 +426,6 @@ function ViewSlide({ id }: { id: string }) {
             }
         }
     };
-
-    // Loading state
-    if (isLoading) {
-        return (
-            <div className='flex items-center justify-center h-screen'>
-                <Loader className='animate-spin' />
-            </div>
-        );
-    }
 
     return (
         <div className='h-full py-2'>
@@ -603,3 +592,28 @@ function ViewSlide({ id }: { id: string }) {
 }
 
 export default ViewSlide;
+
+// --- Helper hook to retrieve slide data ---
+const useSlideData = (id: string) => {
+    // First query: try to get slide data directly.
+    const { data: slidesData, isLoading } = useGetSingleSlideQuery(
+        { id },
+        { skip: !id },
+    );
+    const router = useRouter();
+    console.log(slidesData, 'slidesData');
+    // Second query: if slidesData is not available, try to get it from documents and labs.
+    const { data: singleSlide } = useGetDocumentsAndLabsQuery<{
+        data: ISlideApiResponse;
+    }>({ id }, { skip: !!slidesData?.slide });
+
+    // Return the appropriate data.
+
+    if (slidesData && slidesData.slide) {
+        return slidesData;
+    }
+    if (singleSlide && singleSlide.content && singleSlide.content.slide) {
+        router.push(`/presentation-slides/${singleSlide.content.slide}`);
+    }
+    return null;
+};
