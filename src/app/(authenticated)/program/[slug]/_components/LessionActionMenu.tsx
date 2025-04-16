@@ -27,6 +27,7 @@ const LessionActionMenu = ({
     courseId,
     item,
     setVideoData,
+    setIsPinnedEyeOpen,
     videoData,
 }: {
     lessonId: string;
@@ -34,72 +35,27 @@ const LessionActionMenu = ({
     item: TContent;
     setVideoData: any;
     videoData: any;
+    setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [isPinned, setIsPinned] = useState(item.isPinned || false);
-    const [isCompleted, setIsCompleted] = useState(item.isCompleted || false);
-    const [isFocused, setIsFocused] = useState(item.isFocused || false);
+    if (!item) {
+        return <div>Loading...</div>;
+    }
 
-    // Use a ref to track if the effect has already run
+    console.log({ item });
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [isPinned, setIsPinned] = useState(item.isPinned ?? false);
+    const [isCompleted, setIsCompleted] = useState(item.isCompleted ?? false);
+    const [isFocused, setIsFocused] = useState(item.isFocused ?? false);
+
     const initialUpdateDone = useRef(false);
 
     const [trackChapter] = useTrackChapterMutation();
-    const updateVideoData = (updates: Partial<TContent | any>) => {
-        setVideoData((prev: any) => {
-            // Only update if it's actually different to prevent loops
-            if (
-                prev?.item?.isPinned === updates.isPinned &&
-                prev?.item?.isCompleted === updates.isCompleted &&
-                prev?.item?.isFocused === updates.isFocused
-            ) {
-                return prev;
-            }
 
-            return {
-                ...prev,
-                item: {
-                    ...prev.item,
-                    courseId,
-                    chapterId: lessonId,
-                    ...updates,
-                },
-            };
-        });
-    };
-
-    // Only run this effect once on component mount
     useEffect(() => {
-        if (!initialUpdateDone.current) {
-            updateVideoData({
-                isPinned: item.isPinned || false,
-                isCompleted: item.isCompleted || false,
-                isFocused: item.isFocused || false,
-                courseId,
-                chapterId: lessonId,
-            });
-            initialUpdateDone.current = true;
-        }
-    }, []);
-
-    // Update when state changes, but with proper dependency array
-    useEffect(() => {
-        // Skip the first render to avoid duplicate updates
-        if (initialUpdateDone.current) {
-            updateVideoData({
-                isPinned,
-                isCompleted,
-                isFocused,
-                courseId,
-                chapterId: lessonId,
-            });
-        }
-    }, [isPinned, isCompleted, isFocused, courseId, lessonId, videoData]);
-
-    // Update component state when item props change
-    useEffect(() => {
-        setIsPinned(item.isPinned || false);
-        setIsCompleted(item.isCompleted || false);
-        setIsFocused(item.isFocused || false);
+        setIsPinned(item.isPinned ?? false);
+        setIsCompleted(item.isCompleted ?? false);
+        setIsFocused(item.isFocused ?? false);
     }, [item.isPinned, item.isCompleted, item.isFocused]);
 
     const handleAction = async (action: string) => {
@@ -121,6 +77,7 @@ const LessionActionMenu = ({
             toast.success(
                 `${action.charAt(0).toUpperCase() + action.slice(1)} has been successful`,
             );
+            setIsPinnedEyeOpen(isPinned);
         } catch (error) {
             toast.error('Something went wrong. Please try again.');
         } finally {

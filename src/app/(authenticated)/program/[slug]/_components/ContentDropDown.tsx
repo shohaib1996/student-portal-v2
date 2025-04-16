@@ -36,6 +36,7 @@ const ContentDropDown = ({
     setParentId,
     setVideoData,
     videoData,
+    setIsPinnedEyeOpen,
     option,
 }: {
     fetchedData: TContent[] | null;
@@ -55,6 +56,7 @@ const ContentDropDown = ({
     };
     setVideoData: React.Dispatch<React.SetStateAction<VideoDataType>>;
     setParentId: React.Dispatch<React.SetStateAction<string | null>>;
+    setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
     const refreshContent = () => {
         // Use the refetch function if it's available in the options
@@ -142,10 +144,13 @@ const ContentDropDown = ({
                             >
                                 <div className='flex items-center justify-between w-full p-2'>
                                     <div
-                                        className='flex items-center gap-3'
+                                        className='flex items-center gap-3 grow-[1] w-auto '
                                         onClick={() => {
+                                            setIsPinnedEyeOpen(item?.isPinned);
                                             setVideoData({
-                                                videoInfo: item?.lesson,
+                                                videoInfo: {
+                                                    ...item?.lesson,
+                                                },
                                                 isSideOpen: true,
                                                 contentId: item._id,
                                                 item: item,
@@ -179,6 +184,9 @@ const ContentDropDown = ({
                                             setVideoData={setVideoData}
                                             lessonId={item?._id}
                                             courseId={item?.myCourse?.course}
+                                            setIsPinnedEyeOpen={
+                                                setIsPinnedEyeOpen
+                                            }
                                         />
                                     </div>
                                 </div>
