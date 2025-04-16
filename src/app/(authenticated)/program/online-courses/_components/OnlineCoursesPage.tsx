@@ -124,24 +124,24 @@ const OnlineCoursesPage = () => {
                 onValueChange={setActiveTab}
                 className='mb-6'
             >
-                <TabsList className='flex items-center justify-start gap-3 bg-transparent mt-4'>
+                <TabsList className='flex items-center justify-start gap-3 bg-transparent mt-4 flex-wrap overflow-x-auto h-auto'>
                     <TabsTrigger
                         value='program'
-                        className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
+                        className='text-xs md:text-sm data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
                     >
                         <GraduationCap className='w-4 h-4 mr-1' />
                         Programs ({filteredPrograms.length})
                     </TabsTrigger>
                     <TabsTrigger
                         value='courses'
-                        className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
+                        className='text-xs md:text-sm data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
                     >
                         <BookOpen className='w-4 h-4 mr-1' />
                         Courses ({filteredCourses.length})
                     </TabsTrigger>
                     <TabsTrigger
                         value='interviews'
-                        className='text-xs data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
+                        className='text-xs md:text-sm data-[state=active]:text-primary-white shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary-white border-b rounded-none data-[state=active]:border-b-primary-white'
                     >
                         <MessageSquare className='w-4 h-4 mr-1' />
                         Interviews ({filteredInterviews.length})

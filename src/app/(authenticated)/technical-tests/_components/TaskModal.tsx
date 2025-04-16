@@ -61,13 +61,13 @@ export default function TaskModal({
                 <div className='flex items-center gap-2'>
                     <button
                         onClick={onClose}
-                        className='p-1 hover:bg-gray-100 rounded-full'
+                        className='p-1 hover:bg-background rounded-full'
                     >
                         <ChevronLeft className='h-5 w-5' />
                     </button>
                     <div>
                         <h2 className='font-medium text-lg'>Technical Test</h2>
-                        <p className='text-sm text-gray-500'>
+                        <p className='text-sm text-gray'>
                             {mode === 'test'
                                 ? 'Course Payment Invoice'
                                 : 'Get Ready to Begin Your Technical Test'}
@@ -76,7 +76,7 @@ export default function TaskModal({
                 </div>
             }
             buttons={
-                <div className='flex items-center gap-2'>
+                <div className='flex flex-col md:flex-row items-center gap-2'>
                     <Button size='sm' className='gap-1'>
                         <ChevronLeft className='h-4 w-4' />
                         Previous
@@ -110,7 +110,6 @@ export default function TaskModal({
                                     </Button>
                                     <Button
                                         size='sm'
-                                        className='bg-blue-600 hover:bg-blue-700'
                                         onClick={handleSubmitClick}
                                     >
                                         Submit
@@ -118,11 +117,7 @@ export default function TaskModal({
                                     </Button>
                                 </>
                             ) : (
-                                <Button
-                                    size='sm'
-                                    className='bg-blue-600 hover:bg-blue-700'
-                                    onClick={handleUpdateClick}
-                                >
+                                <Button size='sm' onClick={handleUpdateClick}>
                                     Update
                                 </Button>
                             )}
@@ -152,14 +147,14 @@ export default function TaskModal({
                         <span className='bg-primary-light text-primary-white border border-primary-white rounded-full px-2 py-1 text-sm font-medium'>
                             Technical Test
                         </span>
-                        <span className='bg-amber-200 rounded-full border border-amber-400 px-2 py-1 text-amber-600 font-medium text-sm'>
+                        <span className='bg-amber-200 dark:bg-background rounded-full border border-amber-400 px-2 py-1 text-amber-600 dark:text-white font-medium text-sm'>
                             {taskData.marks} marks
                         </span>
                     </div>
 
-                    <div className='grid grid-cols-2 gap-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                         <div className='flex items-center gap-2 border-dashed border border-gray-200 p-2 rounded-md'>
-                            <div className='bg-pink-100 p-2 rounded-full'>
+                            <div className='bg-pink-100 dark:bg-background p-2 rounded-full'>
                                 <svg
                                     className='w-5 h-5 text-pink-500'
                                     fill='none'
@@ -175,9 +170,7 @@ export default function TaskModal({
                                 </svg>
                             </div>
                             <div>
-                                <p className='text-sm text-gray-500'>
-                                    Deadline
-                                </p>
+                                <p className='text-sm text-gray'>Deadline</p>
                                 <p className='font-medium'>
                                     {taskData.deadline}
                                 </p>
@@ -185,7 +178,7 @@ export default function TaskModal({
                         </div>
 
                         <div className='flex items-center gap-2 border-dashed border border-gray-200 p-2 rounded-md'>
-                            <div className='bg-green-100 p-2 rounded-full'>
+                            <div className='bg-green-100 dark:bg-background p-2 rounded-full'>
                                 <svg
                                     className='w-5 h-5 text-green-500'
                                     fill='none'
@@ -201,9 +194,7 @@ export default function TaskModal({
                                 </svg>
                             </div>
                             <div>
-                                <p className='text-sm text-gray-500'>
-                                    Workshop
-                                </p>
+                                <p className='text-sm text-gray'>Workshop</p>
                                 <p className='font-medium'>
                                     {taskData.workshop}
                                 </p>
@@ -216,7 +207,7 @@ export default function TaskModal({
                 <div className='my-2 bg-foreground px-2.5 py-2'>
                     <div className='flex gap-2'>
                         <div className='mt-1'>
-                            <div className='w-4 h-4 rounded-full bg-blue-600'></div>
+                            <div className='w-4 h-4 rounded-full bg-primary'></div>
                         </div>
                         <div>
                             <h4 className='font-medium'>Description</h4>
@@ -241,7 +232,7 @@ export default function TaskModal({
                     {mode === 'test' || (mode === 'result' && isEditing) ? (
                         <Textarea
                             placeholder='Write here'
-                            className='min-h-[200px] w-full p-3 border rounded-md'
+                            className='min-h-[200px] w-full p-3 border-border bg-background focus-visible:ring-0 rounded-md'
                             value={mode === 'result' ? answerText : ''}
                             onChange={(e) => setAnswerText(e.target.value)}
                         />
@@ -262,7 +253,7 @@ export default function TaskModal({
                         <Button variant='outline' size='sm' className='p-2'>
                             <Paperclip className='h-4 w-4' />
                             Attach or drag & drop
-                            <span className='text-xs text-gray-500'>
+                            <span className='text-xs text-gray hidden md:block'>
                                 JPG, PNG, PDF, DOCS, Max 10MB
                             </span>
                         </Button>
@@ -271,14 +262,12 @@ export default function TaskModal({
                     {mode === 'result' && (
                         <div className='flex items-center gap-2 p-2 border rounded-md bg-gray-50'>
                             <div className='bg-gray-200 p-2 rounded'>
-                                <ImageIcon className='h-4 w-4 text-gray-500' />
+                                <ImageIcon className='h-4 w-4 text-gray' />
                             </div>
                             <span className='text-sm'>
                                 Group - image 2025-03...
                             </span>
-                            <span className='text-xs text-gray-500'>
-                                123 KB
-                            </span>
+                            <span className='text-xs text-gray'>123 KB</span>
                             <button className='ml-auto text-red-500'>
                                 <X className='h-4 w-4' />
                             </button>
