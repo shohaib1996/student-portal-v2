@@ -68,6 +68,7 @@ import {
 } from 'lucide-react';
 import { useAppSelector } from '@/redux/hooks';
 import { useFindOrCreateChatMutation } from '@/redux/api/chats/chatApi';
+import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
 
 // Dynamic imports for better performance
 const MessagePreview = dynamic(
@@ -261,7 +262,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const { chats, onlineUsers, chatMessages } = useAppSelector(
         (state) => state.chat,
     );
-    console.log({ chatMessages });
+    console.log({ chats });
     // Replace direct API call with RTK mutation
     const [findOrCreateChat, { isLoading: isCreatingChat }] =
         useFindOrCreateChatMutation();
@@ -658,20 +659,17 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                     );
                                                 })();
                                                 const isMuted =
-                                                    chat?.myData?.notification
-                                                        ?.isOn === false ||
-                                                    i % 4 === 0;
+                                                    chat?.myData?.mute?.isMute;
                                                 const isPinned =
-                                                    chat?.myData?.isFavourite ||
-                                                    i % 5 === 0;
+                                                    chat?.myData?.isFavourite;
                                                 const isDelivered =
                                                     chat?.latestMessage?.sender
-                                                        ?._id === user?._id &&
-                                                    i % 2 === 0;
+                                                        ?._id === user?._id;
                                                 const isRead =
                                                     chat?.latestMessage?.sender
-                                                        ?._id === user?._id &&
-                                                    i % 5 === 0;
+                                                        ?._id === user?._id;
+                                                const isUnRead =
+                                                    chat?.unreadCount !== 0;
 
                                                 return (
                                                     <Link
@@ -911,7 +909,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                     file
                                                                                 </span>
                                                                             ) : (
-                                                                                <>
+                                                                                <p
+                                                                                    className={`flex flex-row items-center ${isUnRead ? 'font-semibold text-dark-black' : 'font-normal text-gray'}`}
+                                                                                >
                                                                                     {chat
                                                                                         ?.latestMessage
                                                                                         ?.sender
@@ -919,13 +919,31 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                     user?._id
                                                                                         ? '• '
                                                                                         : ''}
-                                                                                    {getText(
+                                                                                    {/* {getText(
                                                                                         chat
                                                                                             ?.latestMessage
                                                                                             ?.text ||
                                                                                             'New conversation',
-                                                                                    )}
-                                                                                </>
+                                                                                    )} */}
+                                                                                    <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap'>
+                                                                                        {renderPlainText(
+                                                                                            {
+                                                                                                text:
+                                                                                                    chat
+                                                                                                        ?.latestMessage
+                                                                                                        ?.text ||
+                                                                                                    'New conversation',
+                                                                                                textSize:
+                                                                                                    'text-xs',
+                                                                                                textColor:
+                                                                                                    'text-gray-700',
+                                                                                                truncate:
+                                                                                                    true,
+                                                                                                width: 'w-full',
+                                                                                            },
+                                                                                        )}
+                                                                                    </div>
+                                                                                </p>
                                                                             )}
                                                                         </p>
                                                                     </div>
