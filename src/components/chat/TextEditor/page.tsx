@@ -172,11 +172,11 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const [localText, setLocalText] = useState<string>('');
     const [isSendingAudio, setIsSendingAudio] = useState<boolean>(false);
 
-    useEffect(() => {
-        store.dispatch(
-            setDraft({ chat: chatId as string, message: localText }),
-        );
-    }, [localText, chatId]);
+    // useEffect(() => {
+    //     store.dispatch(
+    //         setDraft({ chat: chatId as string, message: localText }),
+    //     );
+    // }, [localText, chatId]);
 
     useEffect(() => {
         setLocalText(text);
@@ -345,7 +345,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
         } as React.ChangeEvent<HTMLTextAreaElement>);
     };
 
-    console.log({ messageText: localText });
     const sendMessage = () => {
         const successFiles = uploadFiles
             .filter((file) => file.url)
@@ -370,6 +369,8 @@ const TextEditor: React.FC<TextEditorProps> = ({
         if (parentMessage) {
             data['parentMessage'] = parentMessage;
         }
+
+        editorRef.current?.clearEditor();
 
         if (selectedMessage) {
             instance
@@ -399,7 +400,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
             const messageData = {
                 message: {
                     ...data,
-                    _id: randomId,
+                    _id: String(randomId),
                     sender: {
                         _id: user?._id,
                         fullName: `${user?.firstName} ${user?.lastName}`,
@@ -425,7 +426,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                 ...res.data.message,
                                 status: 'sent',
                             },
-                            trackingId: randomId.toString(),
+                            trackingId: String(randomId),
                         }),
                     );
 
@@ -463,6 +464,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         ) {
             event.preventDefault();
             sendMessage();
+            editorRef.current?.clearEditor();
         }
     };
 
@@ -491,21 +493,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
             }),
         );
     };
-    const handleSendMessage = useCallback(
-        (text: string) => {
-            console.log({ text });
-            setLocalText(text);
-            sendMessage();
-        },
-        [
-            localText,
-            uploadFiles,
-            chatId,
-            parentMessage,
-            selectedMessage,
-            sendMessage,
-        ],
-    );
 
     return (
         <>
@@ -605,8 +592,8 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                         mentionMenu={MentionMenu}
                                         mentionMenuItem={MentionMenuItem}
                                         placeholder='Type a message...'
-                                        onSendMessage={handleSendMessage}
                                         editorRef={editorRef}
+                                        onKeyDown={handleKeyDown as any}
                                     />
                                 </div>
 

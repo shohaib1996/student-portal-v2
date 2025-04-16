@@ -91,6 +91,7 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
     const params = useParams();
     const { user } = useAppSelector((state) => state.auth);
     const dispatch = useAppDispatch();
+    const editorRef = useRef<any>(null);
 
     // Plugin options for the markdown editor
     const pluginOptions: PluginOptions = {
@@ -341,6 +342,8 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
             data['parentMessage'] = parentMessage;
         }
 
+        editorRef.current?.clearEditor();
+
         if (selectedMessage) {
             instance
                 .patch(`/chat/update/message/${selectedMessage?._id}`, data)
@@ -366,7 +369,7 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
             const messageData = {
                 message: {
                     ...data,
-                    _id: randomId,
+                    _id: String(randomId),
                     sender: {
                         _id: user?._id,
                         fullName: `${user?.firstName} ${user?.lastName}`,
@@ -393,7 +396,7 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                                 ...res.data.message,
                                 status: 'sent', // Ensure status is set to 'sent'
                             },
-                            trackingId: randomId.toString(),
+                            trackingId: String(randomId),
                         }),
                     );
 
@@ -419,22 +422,6 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
     const handleOnFocusEditor = () => {
         if (profileInfoShow && setProfileInfoShow) {
             setProfileInfoShow(false);
-        }
-    };
-
-    const handleKeyDown = (
-        event:
-            | React.KeyboardEvent<HTMLInputElement>
-            | React.KeyboardEvent<HTMLTextAreaElement>,
-    ) => {
-        if (
-            event.key === 'Enter' &&
-            !event.shiftKey &&
-            !event.ctrlKey &&
-            !event.metaKey
-        ) {
-            event.preventDefault();
-            sendMessage();
         }
     };
 
@@ -593,6 +580,23 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
         ],
     );
 
+    const handleKeyDown = (
+        event:
+            | React.KeyboardEvent<HTMLInputElement>
+            | React.KeyboardEvent<HTMLTextAreaElement>,
+    ) => {
+        if (
+            event.key === 'Enter' &&
+            !event.shiftKey &&
+            !event.ctrlKey &&
+            !event.metaKey
+        ) {
+            event.preventDefault();
+            sendMessage();
+            editorRef.current?.clearEditor();
+        }
+    };
+
     return (
         <>
             {/* Pasted Files Modal */}
@@ -683,7 +687,8 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                                         mentionMenu={MentionMenu}
                                         mentionMenuItem={MentionMenuItem}
                                         placeholder='Type a message...'
-                                        onSendMessage={handleSendMessage}
+                                        editorRef={editorRef}
+                                        onKeyDown={handleKeyDown as any}
                                     />
                                 </div>
 

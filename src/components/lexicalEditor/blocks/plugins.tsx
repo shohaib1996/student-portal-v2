@@ -219,7 +219,7 @@ export function Plugins({
             {pluginOptions.showToolbar !== false && (
                 <ToolbarPlugin>
                     {({ blockType }) => (
-                        <div className='vertical-align-middle sticky top-0 z-10 flex gap-2 overflow-auto border-b p-1'>
+                        <div className='vertical-align-middle sticky top-0 flex gap-2 overflow-auto border-b p-1'>
                             {pluginOptions.history !== false &&
                                 isToolbarOptionEnabled('history') && (
                                     <HistoryToolbarPlugin />

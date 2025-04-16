@@ -112,7 +112,7 @@ export function Plugins({
     mentionMenu,
     mentionMenuItem,
     placeholder = 'Press / for commands...',
-    onSendMessage,
+    onKeyDown,
 }: {
     maxLength?: number;
     pluginOptions?: PluginOptions;
@@ -128,7 +128,7 @@ export function Plugins({
     mentionMenu?: React.ComponentType<any>;
     mentionMenuItem?: React.ComponentType<any>;
     placeholder?: string;
-    onSendMessage?: (text: string) => void;
+    onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
 }) {
     const [floatingAnchorElem, setFloatingAnchorElem] =
         useState<HTMLDivElement | null>(null);
@@ -140,46 +140,6 @@ export function Plugins({
             setFloatingAnchorElem(_floatingAnchorElem);
         }
     };
-
-    // Define the handleSubmit function
-    const handleSubmit = useCallback(() => {
-        if (!onSendMessage) {
-            return;
-        }
-
-        // Get the editor content
-        editor.getEditorState().read(() => {
-            const root = $getRoot();
-            const text = root.getTextContent();
-
-            // Send the message using the provided callback
-            onSendMessage(text);
-
-            // Clear the editor
-            editor.update(() => {
-                const root = $getRoot();
-                root.clear();
-            });
-        });
-    }, [editor, onSendMessage]);
-
-    // Register the Enter key command to submit messages
-    useCallback(() => {
-        return editor.registerCommand(
-            KEY_ENTER_COMMAND,
-            (event) => {
-                // Only handle if it's not a Shift+Enter (which should create a new line)
-                if (event && !event.shiftKey) {
-                    handleSubmit();
-                    return true; // Prevents default Enter behavior
-                }
-
-                // Let Shift+Enter be handled by the default handler
-                return false;
-            },
-            COMMAND_PRIORITY_NORMAL,
-        );
-    }, [editor, handleSubmit]);
 
     // Use the provided onMentionSearch or fall back to default implementation
     const queryMentions = async (
@@ -341,8 +301,6 @@ export function Plugins({
             )}
 
             <div className='relative flex-1 flex flex-col'>
-                {/* Add the SubmitPlugin here on submitting on enter press*/}
-                {onSendMessage && <SubmitPlugin onSubmit={onSendMessage} />}
                 {pluginOptions.beautifulMentions !== false && (
                     <BeautifulMentionsPlugin
                         triggers={['@']}
@@ -367,7 +325,7 @@ export function Plugins({
                                     <ContentEditable
                                         placeholder={placeholder}
                                         className='ContentEditable__root h-full w-full overflow-auto px-4 py-2 focus:outline-none'
-                                        onSubmit={handleSubmit}
+                                        onKeyDown={onKeyDown as any}
                                     />
                                 </div>
                             </div>
