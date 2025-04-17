@@ -1,149 +1,73 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TContent, TLessonInfo, TProgram, TProgramMain } from '@/types';
+import { TContent, TLessonInfo, TProgramMain } from '@/types';
 import { Star, Download, ChevronDown, Pin, Share, PinOff } from 'lucide-react';
 import Image from 'next/image';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
-// import AddNotes from './AddNotes';
 import DownloadTab from './DownloadTab';
 import RatingsTab from './RatingsTab';
 import NewAddNote from './NewAddNote';
-import { useAppSelector } from '@/redux/hooks';
 import { useMyProgramQuery } from '@/redux/api/myprogram/myprogramApi';
 import { useTrackChapterMutation } from '@/redux/api/course/courseApi';
 
 const VideoContent = ({
     videoData,
-    refreshData, // Add this prop to refresh parent data after pinning/unpinning
-    setVideoData,
+    isPinnedEyeOpen,
 }: {
     videoData: {
         videoInfo: null | TLessonInfo;
         isSideOpen: boolean;
         contentId: string | null;
-        item: Partial<TContent | any>;
+        item: Partial<TContent>;
     };
     refreshData?: () => void;
     setVideoData: React.Dispatch<React.SetStateAction<any>>;
+    isPinnedEyeOpen: any;
 }) => {
-    if (!videoData || (!videoData?.videoInfo && videoData?.isSideOpen)) {
+    // Wait for required data
+    if (!videoData || (!videoData.videoInfo && videoData.isSideOpen)) {
         return <div>Loading...</div>;
     }
 
+    console.log('VideoData:', isPinnedEyeOpen, videoData);
+
+    // Retrieve program data using RTK Query
     const { data } = useMyProgramQuery<{ data: TProgramMain }>(undefined);
     const [trackChapter, { isLoading: isTracking }] = useTrackChapterMutation();
 
-    // Local state to track the pinned status
-    const [isPinned, setIsPinned] = useState(
-        videoData?.item?.isPinned || false,
-    );
-
-    // Update local state when videoData changes
-    useEffect(() => {
-        setIsPinned(videoData?.item?.isPinned || false);
-    }, [videoData?.item?.isPinned]);
-
     const programData = data?.program;
-    const tabData = videoData?.videoInfo?.data;
+    const tabData = videoData.videoInfo?.data;
+
     const tabs = tabData
-        ? Object.entries(tabData)?.map(([key, value]) => ({
+        ? Object.entries(tabData).map(([key, value]) => ({
               title: key,
               label: key.charAt(0).toUpperCase() + key.slice(1),
               data: value,
           }))
         : [];
 
-    const handlePinContent = async () => {
-        if (!videoData?.contentId) {
-            toast.error('Content ID not found');
-            return;
-        }
-
-        // Determine the action based on the current pin state
-        const action = isPinned ? 'unpin' : 'pin';
-        const newPinnedState = !isPinned;
-
-        try {
-            // Update local state immediately for better UX
-            setIsPinned(newPinnedState);
-
-            // Update the videoData state to reflect the change
-            setVideoData((prev: any) => ({
-                ...prev,
-                item: {
-                    ...prev.item,
-                    isPinned: newPinnedState,
-                    courseId: videoData?.item?.courseId,
-                    chapterId: videoData?.item?.chapterId,
-                },
-            }));
-
-            // Call the API
-            const response = await trackChapter({
-                courseId: videoData?.item?.courseId,
-                action: action, // "pin" or "unpin" based on current state
-                chapterId: videoData?.item?.chapterId,
-            }).unwrap();
-
-            if (response.success) {
-                toast.success(
-                    isPinned
-                        ? 'Content unpinned successfully'
-                        : 'Content pinned successfully',
-                );
-
-                // Refresh the parent data if the refresh function is provided
-                if (refreshData) {
-                    refreshData();
-                }
-            } else {
-                // Revert the local state if API call fails
-                setIsPinned(!newPinnedState);
-                setVideoData((prev: any) => ({
-                    ...prev,
-                    item: {
-                        ...prev.item,
-                        isPinned: !newPinnedState,
-                    },
-                }));
-                toast.error(response.message || 'Failed to pin/unpin content');
-            }
-        } catch (error) {
-            // Revert the local state if API call fails
-            setIsPinned(!newPinnedState);
-            setVideoData((prev: any) => ({
-                ...prev,
-                item: {
-                    ...prev.item,
-                    isPinned: !newPinnedState,
-                },
-            }));
-            console.error('Error pinning/unpinning content:', error);
-            toast.error('Something went wrong while pinning/unpinning content');
-        }
-    };
+    useEffect(() => {
+        console.log('chinging');
+    }, [isPinnedEyeOpen]);
 
     return (
-        <div
-            className={`${videoData?.isSideOpen ? 'lg:col-span-2' : 'hidden'} `}
-        >
-            {videoData?.videoInfo?.url && (
+        <div className={`${videoData.isSideOpen ? 'lg:col-span-2' : 'hidden'}`}>
+            {videoData.videoInfo?.url && (
                 <iframe
-                    src={videoData?.videoInfo?.url}
+                    src={videoData.videoInfo.url}
                     title='Video Content'
                     className='aspect-video w-full rounded-lg'
-                    allowFullScreen // Optional, allows full-screen playback
-                ></iframe>
+                    allowFullScreen
+                />
             )}
             {/* Video Info */}
             <div className='p-4 border-b border-border flex flex-col md:flex-row justify-between items-start md:items-center gap-2'>
                 <div>
                     <h1 className='text-xl font-semibold text-black'>
-                        {videoData?.videoInfo?.title}
+                        {videoData.videoInfo?.title}
                     </h1>
                     <div className='flex items-center gap-4 mt-2'>
                         <div className='flex items-center gap-2'>
@@ -171,35 +95,21 @@ const VideoContent = ({
                             </div>
                         </div>
                         <div className='text-sm text-gray'>
-                            {dayjs(videoData?.videoInfo?.updatedAt).format(
+                            {dayjs(videoData.videoInfo?.updatedAt).format(
                                 'MMM DD, YYYY | hh:mm A',
                             )}
                         </div>
                     </div>
                 </div>
                 <div className='flex items-center gap-2'>
-                    <button
-                        onClick={handlePinContent}
-                        disabled={isTracking}
+                    {/* Pin Icon only, no functionality */}
+                    <Pin
                         className={cn(
-                            'flex items-center gap-1 hover:text-dark-gray cursor-pointer transition-colors',
-                            isPinned ? 'text-primary' : 'text-gray',
-                            isTracking && 'opacity-70 cursor-not-allowed',
+                            'h-4 w-4 stroke-gray',
+                            isPinnedEyeOpen && 'stroke-primary',
                         )}
-                    >
-                        {isPinned ? (
-                            <PinOff className='h-4 w-4 stroke-primary' />
-                        ) : (
-                            <Pin className='h-4 w-4' />
-                        )}
-                        <span className='text-sm'>
-                            {isTracking
-                                ? 'Processing...'
-                                : isPinned
-                                  ? 'Unpin'
-                                  : 'Pin'}
-                        </span>
-                    </button>
+                    />
+
                     <button
                         onClick={() =>
                             toast.success('Sharing feature coming soon...')
@@ -328,13 +238,11 @@ const VideoContent = ({
                             </TabsTrigger>
                         </TabsList>
                     </div>
-
                     <TabsContent
                         value='overview'
                         className='p-0 m-0 data-[state=active]:border-0'
                     >
                         <div className='p-4'>
-                            {/* Description Section */}
                             <div className='mb-2'>
                                 <div className='flex items-center gap-2 mb-2'>
                                     <div className='w-4 h-4 rounded-full bg-primary'></div>
@@ -343,19 +251,17 @@ const VideoContent = ({
                                     </h2>
                                 </div>
                                 <p className='text-dark-gray text-sm ml-6'>
-                                    {videoData?.videoInfo?.title ||
+                                    {videoData.videoInfo?.title ||
                                         'Bootcamps Hub is an all-in-one SaaS platform designed for high-ticket coaches and educators. It empowers you to launch, manage, and scale premium boot camps without relying on fragmented tools like Udemy or Skillshare.'}
                                 </p>
                             </div>
-
-                            {/* Resources Section */}
                             <div className='mb-2'>
                                 <div className='flex items-center gap-2 mb-2'>
                                     <h2 className='text-base font-medium text-black'>
                                         Resources
                                     </h2>
                                 </div>
-                                <Tabs defaultValue='summary' className=''>
+                                <Tabs defaultValue='summary'>
                                     <TabsList className='bg-background p-1 rounded-full gap-2 flex-wrap overflow-x-auto lg:overflow-x-visible'>
                                         {tabs?.map((tab) => (
                                             <TabsTrigger
@@ -364,10 +270,9 @@ const VideoContent = ({
                                                 className={cn(
                                                     'rounded-full data-[state=active]:bg-primary-light data-[state=active]:text-white text-sm font-medium',
                                                     'data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-border-primary-light',
-                                                    'text-gray hover:text-dark-gray overx',
+                                                    'text-gray hover:text-dark-gray',
                                                 )}
                                             >
-                                                {/* SVG for Summary */}
                                                 {tab.title === 'summary' && (
                                                     <svg
                                                         width='16'
@@ -426,7 +331,6 @@ const VideoContent = ({
                                             </TabsTrigger>
                                         ))}
                                     </TabsList>
-
                                     {tabs?.map((tab) => (
                                         <TabsContent
                                             key={tab.title}
@@ -446,23 +350,18 @@ const VideoContent = ({
                             </div>
                         </div>
                     </TabsContent>
-
                     <TabsContent
                         value='notes'
                         className='p-0 m-0 data-[state=active]:border-0'
                     >
-                        <NewAddNote
-                            contentId={videoData?.contentId as string}
-                        />
+                        <NewAddNote contentId={videoData.contentId as string} />
                     </TabsContent>
-
                     <TabsContent
                         value='download'
                         className='p-0 m-0 data-[state=active]:border-0'
                     >
                         <DownloadTab />
                     </TabsContent>
-
                     <TabsContent
                         value='ratings'
                         className='p-0 m-0 data-[state=active]:border-0'

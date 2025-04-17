@@ -82,7 +82,13 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
 
     const handleUniversitySelect = (id: string) =>
         dispatch(setSelectedUniversity(id));
-    const handleCourseSelect = (id: string) => dispatch(setSelectedCourse(id));
+    const handleCourseSelect = (id: string) => {
+        if (activeEnrolment === id) {
+            toast.warning('This Bootcamp already selected');
+        } else {
+            dispatch(setSelectedCourse(id));
+        }
+    };
 
     const handleConfirm = async () => {
         const selected = myEnrollments.find(

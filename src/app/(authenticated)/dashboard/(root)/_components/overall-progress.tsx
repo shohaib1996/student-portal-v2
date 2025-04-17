@@ -188,7 +188,7 @@ export function OverallProgress() {
                             </ResponsiveContainer>
                         </div>
                         <div
-                            className={`space-y-2 ${isSmallScreen ? 'w-full mt-4' : 'flex-1'} max-h-48 overflow-y-auto`}
+                            className={`space-y-2 ${isSmallScreen ? 'w-full mt-4' : 'flex-1'}  overflow-y-auto`}
                         >
                             {data.map((item) => (
                                 <div key={item.name} className='flex flex-col'>
