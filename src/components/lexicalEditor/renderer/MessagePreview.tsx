@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import dynamic from 'next/dynamic';
 import dayjs from 'dayjs';
 import { useTheme } from 'next-themes';
 import Highlighter from 'react-highlight-words';
@@ -24,11 +23,7 @@ import {
 import { Button } from '../ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '../ui/separator';
-
-// Dynamic import of markdown preview component
-const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {
-    ssr: false,
-});
+import CustomMarkdownPreview from './CustomMarkdownPreview/CustomMarkdownPreview';
 
 interface MessagePreviewProps {
     text: string;
@@ -125,16 +120,6 @@ const MentionPopover = ({
                                         <h3 className='font-semibold text-lg leading-tight'>
                                             {user.name}
                                         </h3>
-                                        {/* <Badge
-                                            variant='outline'
-                                            className={`${user.status === 'online' ? 'bg-green-500/10 text-green-600' : user.status === 'away' ? 'bg-yellow-500/10 text-yellow-600' : 'bg-gray-200 text-gray-600'}`}
-                                        >
-                                            {user.status === 'online'
-                                                ? 'Online'
-                                                : user.status === 'away'
-                                                  ? 'Away'
-                                                  : 'Offline'}
-                                        </Badge> */}
                                     </div>
                                     <p className='text-sm font-medium text-gray '>
                                         {user.role}
@@ -287,6 +272,7 @@ const components = {
         ...props
     }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { node?: any }) => {
         const isMention = href?.startsWith('mention:');
+        console.log({ isMention });
         if (isMention && href) {
             const userId = href.replace('mention:', '');
 
@@ -334,7 +320,7 @@ function MessagePreview({ text, searchQuery, isUser }: MessagePreviewProps) {
 
     return (
         <div className='message-preview'>
-            <MarkdownPreview
+            <CustomMarkdownPreview
                 source={processedText}
                 components={components}
                 wrapperElement={{
