@@ -107,18 +107,16 @@ export default function GlobalBlockEditor({
             characterLimit: true,
             counter: true,
             speechToText: true,
-            shareContent: true,
+            shareContent: false,
             markdownToggle: true,
             editModeToggle: true,
             clearEditor: true,
-            treeView: true,
+            treeView: false,
         },
     };
 
     // Custom image upload handler
     const handleImageUpload = async (file: File) => {
-        console.log(`Uploading image: ${file.name}`);
-
         // Demo implementation
         return new Promise((resolve) => {
             setTimeout(() => {

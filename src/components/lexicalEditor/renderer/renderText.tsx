@@ -90,7 +90,6 @@ export const renderText = ({
 const checkAndRenderHtml = (text: string): React.ReactNode => {
     // Check if text contains HTML tags
     const containsHtml = /<[a-z][\s\S]*>/i.test(text);
-
     if (containsHtml) {
         // Use html-react-parser to render HTML
         return <div className='html-content'>{parse(text)}</div>;

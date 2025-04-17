@@ -97,7 +97,6 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 })
                 .then((res) => {
-                    console.log(res);
                     setUploadFiles((prev) => [...prev, res.data.url]);
                     setUploadingFiles(false);
                 })
@@ -134,7 +133,6 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
             addPayment({ payload: data })
                 .unwrap()
                 .then((res) => {
-                    console.log(res);
                     onOpenChange(false);
                     toast.success('Payment added successfully!');
                     setSelectedMethod(null);

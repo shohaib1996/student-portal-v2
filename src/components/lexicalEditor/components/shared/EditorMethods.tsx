@@ -118,7 +118,6 @@ const EditorMethods = React.forwardRef(
             ref,
             () => ({
                 clearEditor: () => {
-                    console.log('clearEditor');
                     editor.update(() => {
                         const root = $getRoot();
                         root.clear();
@@ -130,8 +129,6 @@ const EditorMethods = React.forwardRef(
                 },
                 getEditor: () => editor,
                 insertHtml: (htmlString: string) => {
-                    console.log('insertHtml', htmlString);
-
                     editor.update(() => {
                         // 1. Parse HTML string into a Document
                         const parser = new DOMParser();
@@ -139,8 +136,6 @@ const EditorMethods = React.forwardRef(
                             htmlString,
                             'text/html',
                         );
-
-                        console.log(dom);
 
                         // // 2. Convert DOM body into Lexical nodes
                         // const lexicalNodes = $generateNodesFromDOM(editor, dom.body);

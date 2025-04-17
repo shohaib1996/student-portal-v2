@@ -25,7 +25,6 @@ export function ChatsSection() {
             try {
                 const response = await getAllChats({ message: {} }).unwrap();
                 const results = response.data.message.results;
-                console.log(results, 'all chats data');
                 setChatData({
                     totalChat: results.totalChat,
                     totalMessage: results.totalMessage,

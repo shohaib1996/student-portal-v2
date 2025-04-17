@@ -205,7 +205,6 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
 
     const { data: reviews } = useGetAllCourseReviewQuery({});
 
-    console.log({ reviews });
     return (
         <div className='bg-background border-t border-border pt-2'>
             <GlobalHeader

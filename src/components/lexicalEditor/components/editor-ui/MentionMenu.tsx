@@ -20,7 +20,7 @@ export const MentionMenu = forwardRef<any, BeautifulMentionsMenuProps>(
             return (
                 <div
                     ref={ref}
-                    className='m-0 mt-6 min-w-[14rem] overflow-hidden rounded-md border bg-popover p-3 text-sm text-popover-foreground shadow-lg animate-in fade-in-50 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 z-[9999999'
+                    className='m-0 mt-6 min-w-[14rem] overflow-hidden rounded-md border bg-popover p-3 text-sm text-popover-foreground shadow-lg animate-in fade-in-50 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 relative z-[9999]'
                 >
                     <div className='flex items-center gap-2 px-1 py-1.5'>
                         <Loader2 className='h-4 w-4 animate-spin text-muted-foreground' />
@@ -38,7 +38,7 @@ export const MentionMenu = forwardRef<any, BeautifulMentionsMenuProps>(
                     scrollbarWidth: 'thin',
                     msOverflowStyle: 'none',
                 }}
-                className='absolute top-6 m-0 min-w-[14rem] max-h-[200px] overflow-y-auto overflow-x-hidden rounded-md border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-50 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95'
+                className='absolute z-[9999] top-6 m-0 min-w-[14rem] max-h-[200px] overflow-y-auto overflow-x-hidden rounded-md border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-50 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95'
                 {...other}
             />
         );

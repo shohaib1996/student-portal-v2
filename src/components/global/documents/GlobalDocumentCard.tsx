@@ -61,7 +61,7 @@ export function GlobalDocumentCard({
                 const res = await instance.get(`/content/singlecontent/${id}`);
                 setDes(res.data.content?.description);
             } catch (error) {
-                console.log((error as Error).message);
+                console.error((error as Error).message);
             }
         })();
     }, [id]);

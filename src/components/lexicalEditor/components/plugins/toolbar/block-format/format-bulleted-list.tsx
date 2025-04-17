@@ -41,7 +41,7 @@ export function FormatBulletedList() {
             value={BLOCK_FORMAT_VALUE}
             onPointerDown={formatBulletedList}
         >
-            <div className='flex items-center gap-1 font-normal'>
+            <div className='flex items-center gap-1 font-normal text-dark-gray'>
                 {blockTypeToBlockName[BLOCK_FORMAT_VALUE].icon}
                 {blockTypeToBlockName[BLOCK_FORMAT_VALUE].label}
             </div>

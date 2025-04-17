@@ -36,6 +36,8 @@ import {
     CircleOff,
 } from 'lucide-react';
 import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
+import { ChatSkeletonList } from '../chat-skeleton';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 interface Message {
     _id?: string;
@@ -229,18 +231,21 @@ function BlockedUser() {
             {/* Blocked users list */}
             <div className='flex-1 overflow-y-auto'>
                 {isLoading ? (
-                    <div className='flex justify-center py-8'>
-                        <Loader2 className='h-8 w-8 animate-spin text-primary' />
-                    </div>
+                    Array.from({ length: 10 }).map((_, index) => (
+                        <ChatSkeletonList key={index} />
+                    ))
                 ) : records.length > 0 ? (
-                    <div className='divide-y divide-border'>
+                    <div className='h-[calc(100vh-162px)] overflow-y-auto'>
                         {sortByLatestMessage(records)?.map((chat, i) => (
-                            <Link key={i} href={`/chat/${chat?._id}`}>
+                            <Link
+                                key={i}
+                                href={`/chat/${chat?._id}?tab=blocked`}
+                            >
                                 <div
                                     className={`flex items-center p-4 border-l-[2px] transition-colors duration-200 ${
                                         params?.chatid === chat?._id
-                                            ? 'bg-primary-light border-l-primary'
-                                            : 'border-l-transparent hover:bg-primary-light hover:border-l-primary'
+                                            ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
+                                            : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
                                     }`}
                                 >
                                     <div className='flex items-center w-full'>
@@ -307,7 +312,7 @@ function BlockedUser() {
                                                               ?.fullName ||
                                                           'User (deleted)'}
                                                 </div>
-                                                <span className='text-xs text-gray-500 whitespace-nowrap'>
+                                                <span className='text-xs text-gray whitespace-nowrap'>
                                                     {formatDate(
                                                         chat?.latestMessage
                                                             ?.createdAt,
@@ -344,22 +349,38 @@ function BlockedUser() {
                                                             )}
                                                         </span>
                                                     ) : (
-                                                        <>
+                                                        <p
+                                                            className={`flex flex-row items-center ${chat?.unreadCount !== 0 ? 'font-semibold text-dark-black' : 'font-normal text-gray'}`}
+                                                        >
                                                             {
                                                                 chat
                                                                     ?.latestMessage
                                                                     ?.sender
                                                                     ?.firstName
                                                             }
-                                                            :{' '}
-                                                            {getText(
-                                                                replaceMentionToNode(
-                                                                    chat
-                                                                        ?.latestMessage
-                                                                        ?.text,
-                                                                ),
-                                                            )}
-                                                        </>
+
+                                                            <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap'>
+                                                                {renderPlainText(
+                                                                    {
+                                                                        text:
+                                                                            chat
+                                                                                ?.latestMessage
+                                                                                ?.text ||
+                                                                            'New conversation',
+                                                                        textSize:
+                                                                            'text-xs',
+                                                                        textColor:
+                                                                            chat?.unreadCount >
+                                                                            0
+                                                                                ? 'text-black'
+                                                                                : 'text-gray',
+                                                                        truncate:
+                                                                            true,
+                                                                        width: 'w-full',
+                                                                    },
+                                                                )}
+                                                            </div>
+                                                        </p>
                                                     )}
                                                 </div>
 

@@ -151,8 +151,6 @@ const EventDetails = () => {
         return <div></div>;
     }
 
-    console.log(event, user, isMyEvent);
-
     return (
         <div suppressHydrationWarning>
             <GlobalModal

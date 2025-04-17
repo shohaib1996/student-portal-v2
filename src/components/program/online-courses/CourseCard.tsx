@@ -55,9 +55,6 @@ export default function CourseCard({ course }: { course: any }) {
         (state: RootState) => state.selectionModal,
     );
 
-    // Debug Log
-    console.log({ course });
-
     // Event Handlers
     const handleOpenModal = () => {
         setIsModalOpen(true);

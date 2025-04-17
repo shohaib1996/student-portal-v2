@@ -39,11 +39,6 @@ export const MENTION_MARKDOWN_TRANSFORMER: TextMatchTransformer = {
 
         const [, label, id] = match;
 
-        console.log({
-            label,
-            id,
-        });
-
         const mentionNode = $createBeautifulMentionNode('@', label, {
             id,
             label,

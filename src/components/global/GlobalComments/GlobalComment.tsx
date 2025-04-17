@@ -199,7 +199,7 @@ const GlobalComment: React.FC<GlobalCommentProps> = ({
                     toast.success('Message updated successfully');
                 })
                 .catch((err) => {
-                    console.log(err);
+                    console.error(err);
                 });
         } else {
             toast.warning('Please write something');

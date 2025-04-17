@@ -19,6 +19,7 @@ import { RangePickerCL } from '../dateRangePicker/RangePickerCL';
 import dayjs from 'dayjs';
 import CalendarHeader from '../ui/CalendarHeader';
 import CalendarPagination from '../ui/CalendarPagination';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 const AllEvents = () => {
     const [limit, setLimit] = useState(10);
@@ -183,7 +184,14 @@ const AllEvents = () => {
                                             Agenda:
                                         </span>
                                         <div className='text-xs break-all line-clamp-2 overflow-x-hidden'>
-                                            {event?.description}
+                                            {renderPlainText({
+                                                text: event.description || '',
+                                                textSize: 'text-xs',
+                                                textColor: 'text-darkg-gray',
+                                                // truncate: true,
+                                                lineClamp: 2,
+                                                width: 'w-full',
+                                            })}
                                         </div>
                                     </div>
                                     <div className='flex items-center font-medium gap-1'>

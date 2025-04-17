@@ -118,7 +118,6 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
             .replace('.00', '');
     };
 
-    console.log({ activeEnrolment });
     // Memoize the star rendering to prevent unnecessary recalculations
     const renderStars = (rating = 0) =>
         Array(5)

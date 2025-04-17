@@ -57,27 +57,12 @@ import {
 import CreateCrowd from '../Chatgroup/CreateCrowd';
 import { useDraftMessages } from '@/redux/hooks/chat/chatHooks';
 import { Chat } from '@/redux/features/chatReducer';
+import { ChatSkeletonList } from '../chat-skeleton';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 // Initialize dayjs
 dayjs.extend(relativeTime);
 dayjs.extend(isSameOrBefore);
-
-// Loading skeleton
-const ChatListSkeleton = () => (
-    <div className='space-y-3 p-3'>
-        {Array(5)
-            .fill(0)
-            .map((_, i) => (
-                <div key={i} className='flex items-center space-x-3'>
-                    <Skeleton className='h-10 w-10 rounded-full' />
-                    <div className='space-y-2 flex-1'>
-                        <Skeleton className='h-4 w-3/4 rounded-md' />
-                        <Skeleton className='h-3 w-full rounded-md' />
-                    </div>
-                </div>
-            ))}
-    </div>
-);
 
 const formatDate = (date: string | Date | undefined): string => {
     if (!date) {
@@ -566,15 +551,19 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
             {/* Chat list */}
             <div
-                className='flex-1 overflow-y-auto divide-y divide-gray-200 overflow-x-hidden'
+                className='flex-1 overflow-y-auto overflow-x-hidden'
                 ref={scrollContainerRef}
             >
                 {loading ? (
-                    <ChatListSkeleton />
+                    Array.from({ length: 10 }).map((_, index) => (
+                        <ChatSkeletonList key={index} />
+                    ))
                 ) : records.length > 0 ? (
                     records.map((chat, i) => {
+                        const isActive = selectedChatId === chat?._id;
                         const hasUnread =
                             chat?.unreadCount && chat.unreadCount > 0;
+
                         const hasMention = (() => {
                             // If there are no unread messages, return false
                             if (chat?.unreadCount === 0) {
@@ -605,26 +594,22 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                 return false;
                             });
                         })();
-                        const isMuted =
-                            chat?.myData?.notification?.isOn === false ||
-                            i % 4 === 0;
-                        const isPinned =
-                            chat?.myData?.isFavourite || i % 5 === 0;
+                        const isMuted = chat?.myData?.mute?.isMute;
+                        const isNotification = chat?.myData?.notification?.isOn;
+                        const isPinned = chat?.myData?.isFavourite;
                         const isDelivered =
-                            chat?.latestMessage?.sender?._id === user?._id &&
-                            i % 2 === 0;
+                            chat?.latestMessage?.sender?._id === user?._id;
                         const isRead =
-                            chat?.latestMessage?.sender?._id === user?._id &&
-                            i % 5 === 0;
-                        const isActive = selectedChatId === chat?._id;
+                            chat?.latestMessage?.sender?._id === user?._id;
+                        const isUnRead = chat?.unreadCount !== 0;
 
                         return (
                             <div
                                 key={chat._id || i}
-                                className={`block border-l-[2px] hover:bg-blue-700/20 cursor-pointer ${
+                                className={`block border-l-[2px] ${
                                     isActive
-                                        ? 'bg-blue-700/20 border-blue-800'
-                                        : 'border-transparent hover:border-blue-800'
+                                        ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
+                                        : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
                                 }`}
                                 onClick={() => onSelectChat(chat._id)}
                             >
@@ -827,20 +812,37 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                                             Sent a file
                                                         </span>
                                                     ) : (
-                                                        <>
+                                                        <p
+                                                            className={`flex flex-row items-center ${isUnRead ? 'font-semibold text-dark-black' : 'font-normal text-gray'}`}
+                                                        >
                                                             {chat?.latestMessage
                                                                 ?.sender
                                                                 ?._id !==
                                                             user?._id
                                                                 ? '• '
                                                                 : ''}
-                                                            {getText(
-                                                                chat
-                                                                    ?.latestMessage
-                                                                    ?.text ||
-                                                                    'New conversation',
-                                                            )}
-                                                        </>
+
+                                                            <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap'>
+                                                                {renderPlainText(
+                                                                    {
+                                                                        text:
+                                                                            chat
+                                                                                ?.latestMessage
+                                                                                ?.text ||
+                                                                            'New conversation',
+                                                                        textSize:
+                                                                            'text-xs',
+                                                                        textColor:
+                                                                            hasUnread
+                                                                                ? 'text-black'
+                                                                                : 'text-gray',
+                                                                        truncate:
+                                                                            true,
+                                                                        width: 'w-full',
+                                                                    },
+                                                                )}
+                                                            </div>
+                                                        </p>
                                                     )}
                                                 </p>
                                             </div>

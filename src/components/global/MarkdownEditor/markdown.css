@@ -1,8 +1,8 @@
 .mdxeditor-popup-container {
     @apply bg-dropdown;
 }
-.wmde-markdown a{
-    color: rgb(255, 208, 0) !important;
+.wmde-markdown a {
+    @apply !bg-blue-300 !text-primary !rounded-full !px-1 !h-[12px] !text-[12px];
 }
 ._selectTrigger_uazmk_307 {
     background-color: var(--background) !important;

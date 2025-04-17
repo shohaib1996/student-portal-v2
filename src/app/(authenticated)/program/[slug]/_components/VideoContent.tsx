@@ -41,7 +41,6 @@ const VideoContent = ({
     const programData = data?.program;
     const tabData = videoData.videoInfo?.data;
 
-    // Create tabs from provided tabData
     const tabs = tabData
         ? Object.entries(tabData).map(([key, value]) => ({
               title: key,

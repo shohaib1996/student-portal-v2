@@ -12,6 +12,7 @@ import { Button } from '../ui/button';
 import { TNote } from '@/types';
 import GlobalDeleteModal from '../global/GlobalDeleteModal';
 import { useDeleteNoteMutation } from '@/redux/api/notes/notesApi';
+import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
 
 const NotesListView = ({ data }: { data: TNote[] }) => {
     const [limit, setLimit] = useState(20);
@@ -51,7 +52,16 @@ const NotesListView = ({ data }: { data: TNote[] }) => {
                     className='md:max-w-xl max-w-md bg-foreground shadow-md max-h-80 overflow-y-auto'
                     tooltip={
                         <div className='text-dark-gray'>
-                            <MessagePreview text={row.original.description} />
+                            {renderPlainText({
+                                text:
+                                    row.original?.description ||
+                                    'New conversation',
+                                textSize: 'text-xs',
+                                textColor: 'text-darkg-gray',
+                                // truncate: true,
+                                lineClamp: 2,
+                                width: 'w-full',
+                            })}
                         </div>
                     }
                 >

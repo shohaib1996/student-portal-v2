@@ -75,7 +75,9 @@ export function BlockFormatDropDown({
         >
             <SelectTrigger className='h-8 max-h-8 w-min gap-1 bg-foreground text-dark-gray'>
                 {blockTypeToBlockName[blockType].icon}
-                <span>{blockTypeToBlockName[blockType].label}</span>
+                <span className='text-dark-gray'>
+                    {blockTypeToBlockName[blockType].label}
+                </span>
             </SelectTrigger>
             <SelectContent>
                 <SelectGroup>{children}</SelectGroup>
