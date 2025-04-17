@@ -3,7 +3,7 @@
 import type { FC } from 'react';
 import { useEffect, useRef, useState, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -263,6 +263,8 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const { user } = useAppSelector((state) => state.auth);
     console.log({ user });
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const tabParam = searchParams.get('tab') || 'chats';
     const { isLoading: isChatsLoading } = useGetChatsQuery();
     const { chats, onlineUsers, chatMessages } = useAppSelector(
         (state) => state.chat,
@@ -287,6 +289,15 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
             setRecords(sortByLatestMessage(chats).slice(0, 20)); // Load initial chats
         }
     }, [chats]);
+
+    useEffect(() => {
+        // Update active state when URL query changes
+        const tabFromUrl = searchParams.get('tab') || 'chats';
+        if (tabFromUrl !== active) {
+            setActive(tabFromUrl);
+        }
+    }, [searchParams, active]);
+
     // Handle scroll to load more chats
     const handleScroll = useCallback(() => {
         if (!scrollContainerRef.current) {
@@ -366,20 +377,29 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
         }
     }, [chats, records]);
 
-    // Add loading state handling
-    // if (isChatsLoading && chats.length === 0) {
-    //     return (
-    //         <div className='w-full h-full flex items-center justify-center'>
-    //             <div className='h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent'></div>
-    //         </div>
-    //     );
-    // }
+    const handleTabChange = useCallback(
+        (tabName: string) => {
+            // Create new URL with updated query parameter
+            const params = new URLSearchParams(searchParams.toString());
+            params.set('tab', tabName);
+
+            // Update the URL
+            router.push(`?${params.toString()}`);
+
+            // Update local state
+            setActive(tabName);
+        },
+        [router, searchParams],
+    );
     return (
         <div className='chat-nav h-full'>
             <div className='flex flex-row h-full border-r'>
                 {/* Side Navigation - Fixed */}
                 <div className='lg:hidden 3xl:block bg-primary-light p-1 border border-primary h-[calc(100vh-60px)]'>
-                    <SideNavigation active={active} setActive={setActive} />
+                    <SideNavigation
+                        active={active}
+                        setActive={handleTabChange}
+                    />
                 </div>
 
                 {/* Chat List Container or Create Crowd Interface */}
@@ -439,7 +459,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                             </DropdownMenuLabel>
                                             <DropdownMenuItem
                                                 onClick={() =>
-                                                    setActive('search')
+                                                    handleTabChange('search')
                                                 }
                                                 className='flex items-center gap-2'
                                             >
@@ -504,7 +524,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('chats')
+                                                            handleTabChange(
+                                                                'chats',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >
@@ -514,7 +536,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('crowds')
+                                                            handleTabChange(
+                                                                'crowds',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >
@@ -524,7 +548,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('unread')
+                                                            handleTabChange(
+                                                                'unread',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >
@@ -536,7 +562,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive(
+                                                            handleTabChange(
                                                                 'favourites',
                                                             )
                                                         }
@@ -548,7 +574,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('onlines')
+                                                            handleTabChange(
+                                                                'onlines',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >
@@ -560,7 +588,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive(
+                                                            handleTabChange(
                                                                 'archived',
                                                             )
                                                         }
@@ -572,7 +600,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('search')
+                                                            handleTabChange(
+                                                                'search',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >
@@ -584,7 +614,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                         .NEXT_PUBLIC_AI_BOT_ID && (
                                                         <DropdownMenuItem
                                                             onClick={() => {
-                                                                setActive('ai');
+                                                                handleTabChange(
+                                                                    'ai',
+                                                                );
                                                                 handleCreateChat(
                                                                     process.env
                                                                         .NEXT_PUBLIC_AI_BOT_ID as string,
@@ -599,7 +631,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('blocked')
+                                                            handleTabChange(
+                                                                'blocked',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >

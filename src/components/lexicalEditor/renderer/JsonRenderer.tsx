@@ -130,7 +130,7 @@ const LexicalJsonRenderer: React.FC<LexicalJsonRendererProps> = ({
     bgColor = 'background',
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
-
+    console.log({ lexicalState });
     useEffect(() => {
         if (!containerRef.current || !lexicalState) {
             return;

@@ -225,7 +225,7 @@ function OnlineSidebar() {
     const handleNavigateToChat = useCallback(
         (chatId: string) => {
             setSelectedChatId(chatId);
-            router.push(`/chat/${chatId}`);
+            router.push(`/chat/${chatId}?tab=onlines`);
         },
         [router],
     );

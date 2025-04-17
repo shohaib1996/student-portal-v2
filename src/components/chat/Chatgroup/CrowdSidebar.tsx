@@ -193,7 +193,7 @@ function CrowdSidebar() {
             </div>
 
             <div className='h-[calc(100vh-162px)] overflow-y-auto'>
-                {!isChatsLoading &&
+                {isChatsLoading &&
                     Array.from({ length: 10 }).map((_, index) => (
                         <ChatSkeletonList key={index} />
                     ))}
@@ -242,7 +242,7 @@ function CrowdSidebar() {
                     return (
                         <Link
                             key={i}
-                            href={`/chat/${chat?._id}`}
+                            href={`/chat/${chat?._id}?tab=crowds`}
                             className={`block border-l-[2px] ${
                                 isActive
                                     ? 'bg-blue-700/20 border-l-[2px] border-blue-800'

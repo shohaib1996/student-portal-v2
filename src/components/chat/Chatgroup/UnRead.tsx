@@ -252,7 +252,7 @@ function UnRead() {
                         return (
                             <Link
                                 key={i}
-                                href={`/chat/${chat?._id}`}
+                                href={`/chat/${chat?._id}?tab=unread`}
                                 className={`block border-l-[2px] ${
                                     isActive
                                         ? 'bg-blue-700/20 border-l-[2px] border-blue-800'

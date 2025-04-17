@@ -237,7 +237,10 @@ function BlockedUser() {
                 ) : records.length > 0 ? (
                     <div className='h-[calc(100vh-162px)] overflow-y-auto'>
                         {sortByLatestMessage(records)?.map((chat, i) => (
-                            <Link key={i} href={`/chat/${chat?._id}`}>
+                            <Link
+                                key={i}
+                                href={`/chat/${chat?._id}?tab=blocked`}
+                            >
                                 <div
                                     className={`flex items-center p-4 border-l-[2px] transition-colors duration-200 ${
                                         params?.chatid === chat?._id
