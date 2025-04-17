@@ -228,10 +228,11 @@ export function MarkdownEditor({
                                     // Convert to Markdown within a read callback.
                                     let markdown = '';
                                     editorState.read(() => {
-                                        markdown =
-                                            $convertToMarkdownString(
-                                                TRANSFORMERS,
-                                            );
+                                        markdown = $convertToMarkdownString(
+                                            TRANSFORMERS,
+                                            undefined,
+                                            true,
+                                        );
                                     });
 
                                     onMarkdownChange?.(markdown);
