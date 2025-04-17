@@ -97,14 +97,17 @@ const MentionPopover = ({
                     @{userName}
                 </span>
             </PopoverTrigger>
-            <PopoverContent className='w-fit p-2 bg-background' align='start'>
+            <PopoverContent
+                className='w-fit max-w-[300px] p-2 bg-background'
+                align='start'
+            >
                 {user ? (
                     <div className='flex flex-col'>
                         {/* Header with background */}
-                        <div className='bg-gradient-to-r from-primary/10 to-primary/5 p-4 relative'>
-                            <div className='flex items-start gap-4'>
+                        <div className='bg-gradient-to-r from-primary/10 to-primary/5 p-2 relative'>
+                            <div className='flex items-start gap-2'>
                                 <div className='relative'>
-                                    <Avatar className='h-16 w-16 border-2 border-background shadow-sm'>
+                                    <Avatar className='h-16 w-16 border-2 border-primary shadow-sm'>
                                         <AvatarImage
                                             src={user.avatar || '/avatar.png'}
                                             alt={user.name}
@@ -133,10 +136,10 @@ const MentionPopover = ({
                                                   : 'Offline'}
                                         </Badge> */}
                                     </div>
-                                    <p className='text-sm font-medium text-foreground/80'>
+                                    <p className='text-sm font-medium text-gray '>
                                         {user.role}
                                     </p>
-                                    <p className='text-xs text-muted-foreground flex items-center gap-1'>
+                                    <p className='text-xs text-gray flex items-center gap-1'>
                                         <Briefcase className='h-3 w-3' />
                                         {user.department}
                                     </p>
@@ -145,33 +148,33 @@ const MentionPopover = ({
                         </div>
 
                         {/* User details */}
-                        <div className='p-4 space-y-3'>
+                        <div className='p-2 space-y-2'>
                             <div className='grid grid-cols-1 gap-2 text-sm'>
-                                <div className='flex items-center gap-2 text-muted-foreground '>
+                                <div className='flex items-center gap-2 text-gray '>
                                     <MapPin className='h-3.5 w-3.5' />
                                     <span className='max-w-[250px] truncate'>
                                         {user.location}
                                     </span>
                                 </div>
-                                <div className='flex items-center gap-2 text-muted-foreground '>
+                                <div className='flex items-center gap-2 text-gray '>
                                     <Mail className='h-3.5 w-3.5' />
                                     <span className='max-w-[250px] truncate'>
                                         {user.email}
                                     </span>
                                 </div>
-                                <div className='flex items-center gap-2 text-muted-foreground '>
+                                <div className='flex items-center gap-2 text-gray '>
                                     <BookOpen className='h-3.5 w-3.5' />
                                     <span className='max-w-[250px] truncate'>
                                         {user.program}
                                     </span>
                                 </div>
-                                <div className='flex items-center gap-2 text-muted-foreground '>
+                                <div className='flex items-center gap-2 text-gray '>
                                     <CalendarDays className='h-3.5 w-3.5' />
                                     <span className='max-w-[250px] truncate'>
                                         {user.session}
                                     </span>
                                 </div>
-                                <div className='flex items-center gap-2 text-muted-foreground '>
+                                <div className='flex items-center gap-2 text-gray '>
                                     <Clock className='h-3.5 w-3.5' />
                                     <span className='max-w-[250px] truncate'>
                                         Joined {user.joinDate}
@@ -183,10 +186,10 @@ const MentionPopover = ({
                                 <>
                                     <Separator />
                                     <div>
-                                        <h4 className='text-xs font-medium text-muted-foreground mb-1'>
+                                        <h4 className='text-xs font-medium text-dark-gray mb-1'>
                                             BIO
                                         </h4>
-                                        <p className='text-sm line-clamp-3'>
+                                        <p className='text-sm line-clamp-2 text-gray'>
                                             {user.bio}
                                         </p>
                                     </div>
@@ -197,16 +200,16 @@ const MentionPopover = ({
                                 <>
                                     <Separator />
                                     <div>
-                                        <h4 className='text-xs font-medium text-muted-foreground mb-2'>
+                                        <h4 className='text-xs font-medium text-dark-gray mb-2'>
                                             SKILLS
                                         </h4>
-                                        <div className='flex flex-wrap gap-1.5'>
+                                        <div className='flex flex-wrap gap-1.5 text-gray'>
                                             {user.skills.map(
                                                 (skill: string) => (
                                                     <Badge
                                                         key={skill}
                                                         variant='secondary'
-                                                        className='text-xs'
+                                                        className='text-xs bg-foreground'
                                                     >
                                                         {skill}
                                                     </Badge>
