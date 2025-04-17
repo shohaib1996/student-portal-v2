@@ -129,7 +129,7 @@ export default function MyDocumentsPage() {
                             description: res.data.content?.description || '',
                         };
                     } catch (error) {
-                        console.log((error as Error).message);
+                        console.error((error as Error).message);
                         return { id: doc._id, description: '' };
                     }
                 },

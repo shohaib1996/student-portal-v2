@@ -92,11 +92,11 @@ const NotesGridView = ({
         </div>
     ) : (
         <div className='h-full grid lg:grid-cols-4'>
-            <div className='pe-2 lg:col-span-1 hidden lg:block h-full border-r border-forground-border'>
+            <div className='pe-2 overflow-y-auto lg:col-span-1 hidden lg:block h-full border-r border-forground-border'>
                 <h2 className='text-black font-semibold border-b border-forground-border mb-2'>
                     All Notes ({data.length})
                 </h2>
-                <div className='space-y-2 overflow-y-auto h-[calc(100%-32px)]'>
+                <div className='space-y-2 h-[calc(100%-32px)]'>
                     {data.map((note) => (
                         <div
                             key={note._id}

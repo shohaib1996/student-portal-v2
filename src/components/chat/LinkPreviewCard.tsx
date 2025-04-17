@@ -38,8 +38,6 @@ const LinkPreviewCard: React.FC<LinkPreviewCardProps> = ({ url }) => {
 
                 // Remove any surrounding quotes
                 const cleanFirstPart = firstPart.replace(/^['"]|['"]$/g, '');
-
-                console.log('Extracted URL:', cleanFirstPart);
                 return cleanFirstPart;
             }
 
@@ -49,11 +47,6 @@ const LinkPreviewCard: React.FC<LinkPreviewCardProps> = ({ url }) => {
 
         const processedUrl = extractUrl(url);
         setCleanUrl(processedUrl);
-
-        console.log({
-            originalUrl: url,
-            cleanUrl: processedUrl,
-        });
     }, [url]);
 
     useEffect(() => {
@@ -74,8 +67,6 @@ const LinkPreviewCard: React.FC<LinkPreviewCardProps> = ({ url }) => {
                     },
                     timeout: 5000,
                 });
-
-                console.log({ linkData: data });
                 setPreviewData({
                     title: data.title,
                     description: data.description,

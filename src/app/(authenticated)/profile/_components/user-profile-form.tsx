@@ -350,7 +350,7 @@ export default function UserProfileForm() {
                         .catch((err) => {
                             setUploadError(true);
                             setUploadingFiles(false);
-                            console.log(err);
+                            console.error(err);
                         });
                 }
             });
@@ -400,7 +400,7 @@ export default function UserProfileForm() {
                 toast.success('Profile updated successfully');
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
     const commingSoon = () => {

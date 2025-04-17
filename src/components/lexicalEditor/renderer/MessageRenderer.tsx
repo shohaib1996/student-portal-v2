@@ -51,7 +51,6 @@ const transformDate = (text?: string): string => {
 
 function MessageRenderer({ text, searchQuery, isUser }: MessageRendererProps) {
     const { theme } = useTheme();
-
     // Transform the text first
     const processedText = transformDate(transformMessage(text));
 

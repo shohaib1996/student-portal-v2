@@ -454,7 +454,6 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
     // Implementing handleSendMessage similar to TextEditor component
     const handleSendMessage = useCallback(
         (editorText: string) => {
-            console.log({ editorText });
             setText(editorText);
 
             // We need to ensure the text is updated before sending the message

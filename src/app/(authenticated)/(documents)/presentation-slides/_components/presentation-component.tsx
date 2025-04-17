@@ -183,7 +183,7 @@ const PresentationComponents = () => {
     ];
 
     return (
-        <div className='flex flex-col'>
+        <div className='flex flex-col pt-2'>
             {/* Header Section */}
             <GlobalHeader
                 title='Presentations & Slides'
