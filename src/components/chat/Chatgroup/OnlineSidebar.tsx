@@ -29,6 +29,7 @@ import {
 import { useAppSelector } from '@/redux/hooks';
 import { instance } from '@/lib/axios/axiosInstance';
 import { useGetOnlineUsersQuery } from '@/redux/api/chats/chatApi';
+import { ChatSkeletonList } from '../chat-skeleton';
 
 // Initialize dayjs plugins
 dayjs.extend(relativeTime);
@@ -284,27 +285,38 @@ function OnlineSidebar() {
                 value={activeTab}
                 onValueChange={setActiveTab}
             >
-                <TabsList className='grid grid-cols-2 bg-transparent'>
+                <TabsList className='grid grid-cols-2 bg-transparent px-0'>
                     <TabsTrigger
                         value='online'
-                        className={`${activeTab === 'online' ? 'border-b-[2px] border-b-primary ' : 'border-b-[2px] border-b-border'} bg-transparent rounded-none text-gray`}
+                        className={`border-b-[2px] ${
+                            activeTab === 'online'
+                                ? 'border-primary-white !text-primary-white'
+                                : 'border-foreground-border text-gray'
+                        } !bg-transparent rounded-none !shadow-none`}
                     >
                         Online Now
                     </TabsTrigger>
                     <TabsTrigger
                         value='recent'
-                        className={`${activeTab === 'recent' ? 'border-b-[2px] border-b-primary ' : 'border-b-[2px] border-b-border'} bg-transparent rounded-none text-gray`}
+                        className={`border-b-[2px] ${
+                            activeTab === 'recent'
+                                ? 'border-primary-white !text-primary-white'
+                                : 'border-foreground-border text-gray'
+                        } !bg-transparent rounded-none !shadow-none`}
                     >
                         Recent Chats
                     </TabsTrigger>
                 </TabsList>
 
                 {/* Online Now Tab */}
-                <TabsContent value='online' className='flex-1 overflow-y-auto'>
+                <TabsContent
+                    value='online'
+                    className='flex-1 overflow-y-auto -mt-1'
+                >
                     {isLoading ? (
-                        <div className='flex justify-center py-4'>
-                            <Loader2 className='h-8 w-8 animate-spin text-primary' />
-                        </div>
+                        Array.from({ length: 10 }).map((_, index) => (
+                            <ChatSkeletonList key={index} />
+                        ))
                     ) : (
                         <Suspense
                             fallback={
@@ -327,15 +339,15 @@ function OnlineSidebar() {
                                     )}
                                 </div>
                             ) : (
-                                <div className='divide-y divide-border'>
+                                <div className='h-[calc(100vh-162px)] overflow-y-auto'>
                                     {filteredOnlineUsers.map((user) => (
                                         <div
                                             key={user._id}
-                                            className={`block border-l-[2px] border-b ${
+                                            className={`block border-l-[2px] ${
                                                 selectedUserId === user._id
-                                                    ? 'bg-blue-700/20 border-blue-800'
-                                                    : 'hover:bg-blue-700/20 border-transparent hover:border-blue-800'
-                                            } cursor-pointer`}
+                                                    ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
+                                                    : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
+                                            }`}
                                             onClick={() =>
                                                 setSelectedUserId(user._id)
                                             }
@@ -396,13 +408,16 @@ function OnlineSidebar() {
                 </TabsContent>
 
                 {/* Recent Chats Tab */}
-                <TabsContent value='recent' className='flex-1 overflow-y-auto'>
+                <TabsContent
+                    value='recent'
+                    className='flex-1 overflow-y-auto -mt-1'
+                >
                     {isLoading ? (
                         <div className='space-y-2 p-2'>
                             {Array(5)
                                 .fill(0)
                                 .map((_, i) => (
-                                    <UserCardSkeleton key={i} />
+                                    <ChatSkeletonList key={i} />
                                 ))}
                         </div>
                     ) : filteredChats.length === 0 ? (
@@ -414,15 +429,15 @@ function OnlineSidebar() {
                             </p>
                         </div>
                     ) : (
-                        <div className='divide-y divide-border'>
+                        <div className='h-[calc(100vh-162px)] overflow-y-auto'>
                             {filteredChats.map((chat) => (
                                 <div
                                     key={chat._id}
                                     className={`block border-l-[2px] ${
                                         selectedChatId === chat._id
-                                            ? 'bg-blue-700/20 border-blue-800'
-                                            : 'hover:bg-blue-700/20 border-transparent hover:border-blue-800'
-                                    } cursor-pointer`}
+                                            ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
+                                            : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
+                                    }`}
                                     onClick={() =>
                                         handleNavigateToChat(chat._id)
                                     }
@@ -485,7 +500,7 @@ function OnlineSidebar() {
                                                         <Pin className='h-4 w-4 text-dark-gray rotate-45' />
                                                     )}
                                                 </div>
-                                                <span className='text-xs text-gray-500 whitespace-nowrap'>
+                                                <span className='text-xs text-gray whitespace-nowrap'>
                                                     {formatDate(
                                                         chat?.latestMessage
                                                             ?.createdAt,

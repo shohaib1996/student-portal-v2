@@ -67,8 +67,12 @@ import {
     UserMinus,
 } from 'lucide-react';
 import { useAppSelector } from '@/redux/hooks';
-import { useFindOrCreateChatMutation } from '@/redux/api/chats/chatApi';
+import {
+    useFindOrCreateChatMutation,
+    useGetChatsQuery,
+} from '@/redux/api/chats/chatApi';
 import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
+import { ChatSkeletonList } from './chat-skeleton';
 
 // Dynamic imports for better performance
 const MessagePreview = dynamic(
@@ -259,6 +263,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const { user } = useAppSelector((state) => state.auth);
     console.log({ user });
     const router = useRouter();
+    const { isLoading: isChatsLoading } = useGetChatsQuery();
     const { chats, onlineUsers, chatMessages } = useAppSelector(
         (state) => state.chat,
     );
@@ -607,7 +612,15 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                             </DropdownMenu>
                                         </div>
                                     </div>
-                                    <div className='divide-y divide-gray-200 h-[calc(100vh-162px)] overflow-y-auto'>
+                                    <div className='h-[calc(100vh-162px)] overflow-y-auto'>
+                                        {isChatsLoading &&
+                                            Array.from({ length: 10 }).map(
+                                                (_, index) => (
+                                                    <ChatSkeletonList
+                                                        key={index}
+                                                    />
+                                                ),
+                                            )}
                                         {sortByLatestMessage(records)?.map(
                                             (chat, i) => {
                                                 const isActive =
@@ -680,8 +693,8 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                         href={`/chat/${chat?._id}`}
                                                         className={`block border-l-[2px] ${
                                                             isActive
-                                                                ? 'bg-blue-700/20 border-blue-800'
-                                                                : 'hover:bg-blue-700/20 border-transparent hover:border-blue-800'
+                                                                ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
+                                                                : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
                                                         }`}
                                                         onClick={handleNavClick}
                                                     >
@@ -848,7 +861,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                             <Pin className='h-4 w-4 text-dark-gray rotate-45' />
                                                                         )}
                                                                     </div>
-                                                                    <span className='text-xs text-gray-500 whitespace-nowrap'>
+                                                                    <span className='text-xs text-gray whitespace-nowrap'>
                                                                         {formatDate(
                                                                             chat
                                                                                 ?.latestMessage
@@ -939,7 +952,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                                 textSize:
                                                                                                     'text-xs',
                                                                                                 textColor:
-                                                                                                    'text-gray-700',
+                                                                                                    hasUnread
+                                                                                                        ? 'text-black'
+                                                                                                        : 'text-gray',
                                                                                                 truncate:
                                                                                                     true,
                                                                                                 width: 'w-full',

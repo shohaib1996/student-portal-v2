@@ -37,6 +37,8 @@ import {
     useGetChatsQuery,
     useGetOnlineUsersQuery,
 } from '@/redux/api/chats/chatApi';
+import { ChatSkeletonList } from '../chat-skeleton';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 interface Message {
     _id?: string;
@@ -190,12 +192,15 @@ function CrowdSidebar() {
                 </div>
             </div>
 
-            <div className='divide-y divide-gray-200'>
+            <div className='h-[calc(100vh-162px)] overflow-y-auto'>
+                {!isChatsLoading &&
+                    Array.from({ length: 10 }).map((_, index) => (
+                        <ChatSkeletonList key={index} />
+                    ))}
                 {visibleRecords?.map((chat, i) => {
                     const isActive = params?.chatid === chat?._id;
                     const hasUnread = chat?.unreadCount > 0;
 
-                    // For demo purposes - in real app, these would come from the chat data
                     const hasMention = (() => {
                         // If there are no unread messages, return false
                         if (chat?.unreadCount === 0) {
@@ -225,16 +230,14 @@ function CrowdSidebar() {
                             return false;
                         });
                     })();
-                    const isMuted =
-                        chat?.myData?.notification?.isOn === false ||
-                        i % 4 === 0;
-                    const isPinned = chat?.myData?.isFavourite || i % 5 === 0;
+                    const isMuted = chat?.myData?.mute?.isMute;
+                    const isNotification = chat?.myData?.notification?.isOn;
+                    const isPinned = chat?.myData?.isFavourite;
                     const isDelivered =
-                        chat?.latestMessage?.sender?._id === user?._id &&
-                        i % 2 === 0;
+                        chat?.latestMessage?.sender?._id === user?._id;
                     const isRead =
-                        chat?.latestMessage?.sender?._id === user?._id &&
-                        i % 5 === 0;
+                        chat?.latestMessage?.sender?._id === user?._id;
+                    const isUnRead = chat?.unreadCount !== 0;
 
                     return (
                         <Link
@@ -242,11 +245,11 @@ function CrowdSidebar() {
                             href={`/chat/${chat?._id}`}
                             className={`block border-l-[2px] ${
                                 isActive
-                                    ? 'bg-blue-700/20 border-blue-800'
-                                    : 'hover:bg-blue-700/20 border-transparent hover:border-blue-800'
+                                    ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
+                                    : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
                             }`}
                         >
-                            <div className='flex items-start p-4 gap-3'>
+                            <div className='flex items-start p-2 gap-3'>
                                 {/* Avatar */}
                                 <div className='relative flex-shrink-0'>
                                     <Avatar className='h-10 w-10'>
@@ -315,7 +318,7 @@ function CrowdSidebar() {
                                                 )}
                                             </span>
                                         </div>
-                                        <span className='text-xs text-gray-500 whitespace-nowrap'>
+                                        <span className='text-xs text-gray whitespace-nowrap'>
                                             {formatDate(
                                                 chat?.latestMessage?.createdAt,
                                             )}
@@ -361,21 +364,33 @@ function CrowdSidebar() {
                                                         Sent a file
                                                     </span>
                                                 ) : (
-                                                    <>
+                                                    <p
+                                                        className={`flex flex-row items-center ${isUnRead ? 'font-semibold text-dark-black' : 'font-normal text-gray'}`}
+                                                    >
                                                         {chat?.latestMessage
                                                             ?.sender?._id !==
                                                         user?._id
                                                             ? '• '
                                                             : ''}
-                                                        {getText(
-                                                            replaceMentionToNode(
-                                                                chat
-                                                                    ?.latestMessage
-                                                                    ?.text ||
+
+                                                        <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap'>
+                                                            {renderPlainText({
+                                                                text:
+                                                                    chat
+                                                                        ?.latestMessage
+                                                                        ?.text ||
                                                                     'New conversation',
-                                                            ),
-                                                        )}
-                                                    </>
+                                                                textSize:
+                                                                    'text-xs',
+                                                                textColor:
+                                                                    hasUnread
+                                                                        ? 'text-black'
+                                                                        : 'text-gray',
+                                                                truncate: true,
+                                                                width: 'w-full',
+                                                            })}
+                                                        </div>
+                                                    </p>
                                                 )}
                                             </p>
                                         </div>
@@ -388,7 +403,7 @@ function CrowdSidebar() {
                                             )}
 
                                             {/* Bell icon (muted or not) */}
-                                            {isMuted && (
+                                            {!isNotification && (
                                                 <BellOff className='h-4 w-4 text-gray-400' />
                                             )}
 
