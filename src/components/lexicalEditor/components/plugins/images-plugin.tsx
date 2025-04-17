@@ -195,7 +195,6 @@ export function InsertImageUploadedDialogBody({
 
         try {
             // Check if onImageUpload is provided
-            console.log(onImageUpload);
 
             if (!onImageUpload) {
                 // Fall back to default upload handler if available
@@ -329,8 +328,6 @@ export function InsertImageDialog({
     onImageUpload?: (file: File) => Promise<any | { url: string }>;
 }): JSX.Element {
     const hasModifier = useRef(false);
-
-    console.log('onImageUpload', onImageUpload);
 
     useEffect(() => {
         hasModifier.current = false;

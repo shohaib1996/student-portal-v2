@@ -99,7 +99,7 @@ export function MyDocumentDetailsModal({
 
     // Use document from props if available, otherwise use fetched data
     const documentData = propDocument || apiDocument?.document || null;
-    console.log({ apiDocument });
+
     // Format document data to match the expected structure
     const document = documentData
         ? {

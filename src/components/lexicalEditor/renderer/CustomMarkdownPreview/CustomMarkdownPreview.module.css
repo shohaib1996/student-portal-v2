@@ -1,0 +1,46 @@
+/* CustomMarkdownPreview.module.css */
+.markdownContainer {
+    width: 100%;
+}
+
+/* Add more space between paragraphs */
+.markdownContainer p {
+    margin-bottom: 1em;
+}
+
+/* Enhanced line breaks styling */
+.lineBreaksEnhanced {
+    line-height: 1.5;
+}
+
+/* Add extra space between lines */
+.lineSpacer {
+    display: block;
+    height: 0.5em;
+}
+
+/* Style for pre blocks to maintain spacing */
+.markdownContainer pre {
+    white-space: pre-wrap;
+    margin: 1em 0;
+    padding: 1em;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+/* Style for blockquotes */
+.markdownContainer blockquote {
+    border-left: 4px solid rgba(0, 0, 0, 0.1);
+    padding-left: 1em;
+    margin-left: 0;
+    font-style: italic;
+}
+
+/* Handle dark mode */
+:global([data-color-mode='dark']) .markdownContainer blockquote {
+    border-left-color: rgba(255, 255, 255, 0.1);
+}
+
+:global([data-color-mode='dark']) .markdownContainer pre {
+    background-color: rgba(255, 255, 255, 0.05);
+}

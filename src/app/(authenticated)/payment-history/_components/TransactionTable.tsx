@@ -60,7 +60,6 @@ const TransactionTable = () => {
     }
 
     const handleModalOpen = (item: any) => {
-        console.log(item);
         if (item) {
             setItem(item);
             setOpen(true);

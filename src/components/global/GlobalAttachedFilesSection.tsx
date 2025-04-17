@@ -29,7 +29,6 @@ export function GlobalAttachedFilesSection({
             'image/svg+xml',
         ].includes(type);
     };
-    console.log({ files });
     // Function to get the appropriate icon based on file type
     const getFileIcon = (type: string) => {
         if (type === 'application/pdf') {

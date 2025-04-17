@@ -150,7 +150,6 @@ export function AddNoteModal({
             } catch (error) {
                 console.error('Failed to upload attachments:', error);
             } finally {
-                console.log('d');
                 setUploadingAttac(false);
             }
         }
@@ -239,7 +238,6 @@ export function AddNoteModal({
             } catch (error) {
                 console.error('Failed to upload thumbnail:', error);
             } finally {
-                console.log('d');
                 setUploadingThumb(false);
             }
         }

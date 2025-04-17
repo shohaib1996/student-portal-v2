@@ -416,7 +416,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
 
                                         {message?.type === 'delete' ? (
                                             <p
-                                                className={`text-xs italic ${!hideAlign && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-dark-gray'}`}
+                                                className={`text-xs italic ${!hideAlign && message?.sender?._id === user?._id ? 'text-red-400' : 'text-red-500'}`}
                                             >
                                                 This message has been deleted
                                             </p>

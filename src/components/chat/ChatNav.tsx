@@ -3,7 +3,7 @@
 import type { FC } from 'react';
 import { useEffect, useRef, useState, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -67,8 +67,12 @@ import {
     UserMinus,
 } from 'lucide-react';
 import { useAppSelector } from '@/redux/hooks';
-import { useFindOrCreateChatMutation } from '@/redux/api/chats/chatApi';
+import {
+    useFindOrCreateChatMutation,
+    useGetChatsQuery,
+} from '@/redux/api/chats/chatApi';
 import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
+import { ChatSkeletonList } from './chat-skeleton';
 
 // Dynamic imports for better performance
 const MessagePreview = dynamic(
@@ -257,12 +261,13 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const fetchingMore = false;
     const params = useParams();
     const { user } = useAppSelector((state) => state.auth);
-    console.log({ user });
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const tabParam = searchParams.get('tab') || 'chats';
+    const { isLoading: isChatsLoading } = useGetChatsQuery();
     const { chats, onlineUsers, chatMessages } = useAppSelector(
         (state) => state.chat,
     );
-    console.log({ chats });
     // Replace direct API call with RTK mutation
     const [findOrCreateChat, { isLoading: isCreatingChat }] =
         useFindOrCreateChatMutation();
@@ -275,13 +280,21 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const [createCrowdOpen, setCreateCrowdOpen] = useState<boolean>(false);
 
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-    console.log({ records });
     // Update records when chats change - now using RTK Query data
     useEffect(() => {
         if (chats && chats.length > 0) {
             setRecords(sortByLatestMessage(chats).slice(0, 20)); // Load initial chats
         }
     }, [chats]);
+
+    useEffect(() => {
+        // Update active state when URL query changes
+        const tabFromUrl = searchParams.get('tab') || 'chats';
+        if (tabFromUrl !== active) {
+            setActive(tabFromUrl);
+        }
+    }, [searchParams, active]);
+
     // Handle scroll to load more chats
     const handleScroll = useCallback(() => {
         if (!scrollContainerRef.current) {
@@ -361,20 +374,29 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
         }
     }, [chats, records]);
 
-    // Add loading state handling
-    // if (isChatsLoading && chats.length === 0) {
-    //     return (
-    //         <div className='w-full h-full flex items-center justify-center'>
-    //             <div className='h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent'></div>
-    //         </div>
-    //     );
-    // }
+    const handleTabChange = useCallback(
+        (tabName: string) => {
+            // Create new URL with updated query parameter
+            const params = new URLSearchParams(searchParams.toString());
+            params.set('tab', tabName);
+
+            // Update the URL
+            router.push(`?${params.toString()}`);
+
+            // Update local state
+            setActive(tabName);
+        },
+        [router, searchParams],
+    );
     return (
         <div className='chat-nav h-full'>
             <div className='flex flex-row h-full border-r'>
                 {/* Side Navigation - Fixed */}
                 <div className='lg:hidden 3xl:block bg-primary-light p-1 border border-primary h-[calc(100vh-60px)]'>
-                    <SideNavigation active={active} setActive={setActive} />
+                    <SideNavigation
+                        active={active}
+                        setActive={handleTabChange}
+                    />
                 </div>
 
                 {/* Chat List Container or Create Crowd Interface */}
@@ -434,7 +456,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                             </DropdownMenuLabel>
                                             <DropdownMenuItem
                                                 onClick={() =>
-                                                    setActive('search')
+                                                    handleTabChange('search')
                                                 }
                                                 className='flex items-center gap-2'
                                             >
@@ -499,7 +521,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('chats')
+                                                            handleTabChange(
+                                                                'chats',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >
@@ -509,7 +533,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('crowds')
+                                                            handleTabChange(
+                                                                'crowds',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >
@@ -519,7 +545,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('unread')
+                                                            handleTabChange(
+                                                                'unread',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >
@@ -531,7 +559,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive(
+                                                            handleTabChange(
                                                                 'favourites',
                                                             )
                                                         }
@@ -543,7 +571,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('onlines')
+                                                            handleTabChange(
+                                                                'onlines',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >
@@ -555,7 +585,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive(
+                                                            handleTabChange(
                                                                 'archived',
                                                             )
                                                         }
@@ -567,7 +597,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('search')
+                                                            handleTabChange(
+                                                                'search',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >
@@ -579,7 +611,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                         .NEXT_PUBLIC_AI_BOT_ID && (
                                                         <DropdownMenuItem
                                                             onClick={() => {
-                                                                setActive('ai');
+                                                                handleTabChange(
+                                                                    'ai',
+                                                                );
                                                                 handleCreateChat(
                                                                     process.env
                                                                         .NEXT_PUBLIC_AI_BOT_ID as string,
@@ -594,7 +628,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
 
                                                     <DropdownMenuItem
                                                         onClick={() =>
-                                                            setActive('blocked')
+                                                            handleTabChange(
+                                                                'blocked',
+                                                            )
                                                         }
                                                         className='flex items-center gap-2'
                                                     >
@@ -607,7 +643,15 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                             </DropdownMenu>
                                         </div>
                                     </div>
-                                    <div className='divide-y divide-gray-200 h-[calc(100vh-162px)] overflow-y-auto'>
+                                    <div className='h-[calc(100vh-162px)] overflow-y-auto'>
+                                        {isChatsLoading &&
+                                            Array.from({ length: 10 }).map(
+                                                (_, index) => (
+                                                    <ChatSkeletonList
+                                                        key={index}
+                                                    />
+                                                ),
+                                            )}
                                         {sortByLatestMessage(records)?.map(
                                             (chat, i) => {
                                                 const isActive =
@@ -680,8 +724,8 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                         href={`/chat/${chat?._id}`}
                                                         className={`block border-l-[2px] ${
                                                             isActive
-                                                                ? 'bg-blue-700/20 border-blue-800'
-                                                                : 'hover:bg-blue-700/20 border-transparent hover:border-blue-800'
+                                                                ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
+                                                                : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
                                                         }`}
                                                         onClick={handleNavClick}
                                                     >
@@ -848,7 +892,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                             <Pin className='h-4 w-4 text-dark-gray rotate-45' />
                                                                         )}
                                                                     </div>
-                                                                    <span className='text-xs text-gray-500 whitespace-nowrap'>
+                                                                    <span className='text-xs text-gray whitespace-nowrap'>
                                                                         {formatDate(
                                                                             chat
                                                                                 ?.latestMessage
@@ -939,7 +983,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                                 textSize:
                                                                                                     'text-xs',
                                                                                                 textColor:
-                                                                                                    'text-gray-700',
+                                                                                                    hasUnread
+                                                                                                        ? 'text-black'
+                                                                                                        : 'text-gray',
                                                                                                 truncate:
                                                                                                     true,
                                                                                                 width: 'w-full',

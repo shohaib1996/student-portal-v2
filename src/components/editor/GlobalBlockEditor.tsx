@@ -117,8 +117,6 @@ export default function GlobalBlockEditor({
 
     // Custom image upload handler
     const handleImageUpload = async (file: File) => {
-        console.log(`Uploading image: ${file.name}`);
-
         // Demo implementation
         return new Promise((resolve) => {
             setTimeout(() => {
