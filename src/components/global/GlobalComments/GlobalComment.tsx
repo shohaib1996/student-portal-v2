@@ -272,20 +272,22 @@ const GlobalComment: React.FC<GlobalCommentProps> = ({
                         alt={user?.firstName || ''}
                     />
                     <div className={`input-container bg-${bgColor}`}>
-                        <GlobalDropdown
-                            className='emoji_drop'
-                            dropdownRender={
-                                <Picker
-                                    onEmojiClick={(event) =>
-                                        setComment((prev) => prev + event.emoji)
-                                    }
-                                />
-                            }
-                        >
-                            <a onClick={(e) => e.preventDefault()}>
+                        <div>
+                            <GlobalDropdown
+                                className='emoji_drop'
+                                dropdownRender={
+                                    <Picker
+                                        onEmojiClick={(event) =>
+                                            setComment(
+                                                (prev) => prev + event.emoji,
+                                            )
+                                        }
+                                    />
+                                }
+                            >
                                 <Smile size={16} />
-                            </a>
-                        </GlobalDropdown>
+                            </GlobalDropdown>
+                        </div>
                         <textarea
                             className={`bg-${bgColor}`}
                             id={isReply ? 'reply-input' : 'base-input'}

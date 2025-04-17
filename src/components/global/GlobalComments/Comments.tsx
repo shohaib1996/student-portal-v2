@@ -143,7 +143,7 @@ const Comments = ({
                             <textarea
                                 onFocus={(e) => handleFocus(e, text)}
                                 onInput={handleResize}
-                                className={`text bg-${bgColor}`}
+                                className='text-black bg-background rounded-md p-2'
                                 defaultValue={text}
                                 autoFocus={true}
                                 onChange={(e) =>
@@ -152,11 +152,15 @@ const Comments = ({
                             ></textarea>
                             <div className='flex gap-3 update-btn'>
                                 <Button
+                                    variant='destructive'
                                     title='Cancel'
                                     type='button'
                                     onClick={() => setUpdate('')}
-                                ></Button>
+                                >
+                                    Cancel
+                                </Button>
                                 <Button
+                                    variant='default'
                                     title='Update'
                                     type='button'
                                     onClick={() =>
@@ -167,7 +171,9 @@ const Comments = ({
                                             comment: updateComment,
                                         })
                                     }
-                                ></Button>
+                                >
+                                    Update
+                                </Button>
                             </div>
                         </div>
                     ) : (

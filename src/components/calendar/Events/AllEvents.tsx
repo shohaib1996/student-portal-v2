@@ -79,7 +79,7 @@ const AllEvents = () => {
                 }
             />
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
-                <div className='grid overflow-y-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mt-2'>
+                <div className='grid overflow-y-auto grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2 mt-2'>
                     {events.map((event, i) => (
                         <div
                             key={event._id}
@@ -114,7 +114,7 @@ const AllEvents = () => {
 
                             {/* Card Content */}
                             <div className='space-y-2'>
-                                <div className='flex flex-wrap justify-between items-start'>
+                                <div className='flex flex-col md:flex-row flex-wrap justify-between items-start'>
                                     <div className='flex items-center gap-1'>
                                         <Clock
                                             size={12}
@@ -178,7 +178,7 @@ const AllEvents = () => {
                                     </div>
                                 </div>
 
-                                <div className='flex justify-between items-start'>
+                                <div className='flex flex-col md:flex-row justify-between items-start'>
                                     <div className='flex items-start gap-1'>
                                         <span className=' text-dark-gray  whitespace-break-spaces  text-xs font-semibold'>
                                             Agenda:
@@ -209,7 +209,7 @@ const AllEvents = () => {
                                     </div>
                                 </div>
 
-                                <div className='flex justify-between items-center'>
+                                <div className='flex flex-col md:flex-row justify-between items-start'>
                                     <div className='flex items-center gap-1'>
                                         <Image
                                             src='/calendar/events/meet.png'
@@ -221,7 +221,7 @@ const AllEvents = () => {
                                             href='https://meet.google.com/vtq-qjwd-lmn'
                                             target='_blank'
                                             rel='noopener noreferrer'
-                                            className='text-dark-gray font-semibold underline text-xs'
+                                            className='text-dark-gray font-semibold underline text-xs break-all line-clamp-2 overflow-ellipsis lg:max-w-64'
                                         >
                                             {event.location?.link}
                                         </a>

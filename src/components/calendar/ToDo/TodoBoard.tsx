@@ -209,7 +209,7 @@ const TodoBoard = ({ tasks, setTasks }: TProps) => {
             }}
         >
             <div className='overflow-x-auto'>
-                <div className='grid mt-2 w-full min-w-[1400px] lg:grid-cols-4 gap-2'>
+                <div className='grid mt-2 w-full lg:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-4 gap-2'>
                     {statuses.map((status, i) => (
                         <TodoColumn
                             index={i}
