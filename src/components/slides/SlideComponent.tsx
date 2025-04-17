@@ -80,6 +80,7 @@ import MessagePreview from '../lexicalEditor/renderer/MessagePreview';
 import { GlobalCommentsSection } from '../global/GlobalCommentSection';
 import GlobalComment from '../global/GlobalComments/GlobalComment';
 import { ISlideApiResponse } from '@/types';
+import { renderText } from '../lexicalEditor/renderer/renderText';
 // import GlobalComment from '@/components/common/GlobalComment/GlobalComment';
 
 // Define TypeScript interfaces
@@ -454,6 +455,18 @@ function ViewSlide({ id }: { id: string }) {
                             <span>{dayjs(selected?.updatedAt).fromNow()}</span>
                         </h2>
                     }
+                    buttons={
+                        <>
+                            <Button
+                                variant={'primary_light'}
+                                onClick={requestFullscreen}
+                                icon={<Expand size={18} />}
+                                tooltip='Full screen'
+                            >
+                                Full Screen
+                            </Button>
+                        </>
+                    }
                 />
 
                 <div className='h-full'>
@@ -533,9 +546,9 @@ function ViewSlide({ id }: { id: string }) {
 
                                 {/* Editor */}
                                 <div className='flex-1 p-2'>
-                                    <MessagePreview
-                                        text={slides[current]?.content || ''}
-                                    />
+                                    {renderText({
+                                        text: slides[current]?.content || '',
+                                    })}
                                 </div>
 
                                 {/* Footer */}
@@ -550,7 +563,7 @@ function ViewSlide({ id }: { id: string }) {
                                         </span>
                                     </div>
                                     <div className='text-sm text-primary-white'>
-                                        Web: https://www.schoolshub.ai
+                                        Web: https://www.bootcampshub.ai
                                     </div>
                                 </div>
                             </div>
