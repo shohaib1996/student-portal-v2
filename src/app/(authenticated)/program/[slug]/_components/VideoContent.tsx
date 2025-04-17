@@ -48,12 +48,6 @@ const VideoContent = ({
     }, [videoData?.item?.isPinned]);
 
     const programData = data?.program;
-    console.log({
-        item: videoData?.item,
-        videoInfo: videoData?.videoInfo,
-        isPinned,
-    });
-
     const tabData = videoData?.videoInfo?.data;
     const tabs = tabData
         ? Object.entries(tabData)?.map(([key, value]) => ({

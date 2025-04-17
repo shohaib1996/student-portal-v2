@@ -80,7 +80,6 @@ const ProposeTimeModal = ({
                                                 : new Date()
                                         }
                                         onChange={(val) => {
-                                            console.log(val);
                                             setProposeTime((prev) => ({
                                                 ...prev,
                                                 start: val?.toISOString() || '',

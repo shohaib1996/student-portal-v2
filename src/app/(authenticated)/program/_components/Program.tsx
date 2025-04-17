@@ -30,8 +30,6 @@ const Program = () => {
     const program: TProgram = myProgram?.program;
     const enrollment: TEnrollment = myProgram?.enrollment;
 
-    console.log(enrollment);
-
     if (isLoading || isProgressLoading) {
         return (
             <Card className='overflow-hidden border border-border shadow-sm mb-8'>

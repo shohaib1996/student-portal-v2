@@ -80,8 +80,6 @@ export default function MinimalEditor() {
 
     // Custom image upload handler
     const handleImageUpload = async (file: File) => {
-        console.log(`Uploading image: ${file.name}`);
-
         // Demo implementation
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -97,10 +95,6 @@ export default function MinimalEditor() {
         prompt: string,
         transformType: string,
     ) => {
-        console.log(
-            `AI Generation request: ${transformType}, prompt: ${prompt}`,
-        );
-
         // Example implementation - replace with your actual API call
         try {
             const response = await axios.post(

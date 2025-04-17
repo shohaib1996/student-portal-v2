@@ -55,7 +55,6 @@ export const renderText = ({
     if (!text) {
         return null; // Handle empty text case
     }
-    console.log({ RendereText: text });
 
     // First check if it's valid JSON
     try {
@@ -91,7 +90,6 @@ export const renderText = ({
 const checkAndRenderHtml = (text: string): React.ReactNode => {
     // Check if text contains HTML tags
     const containsHtml = /<[a-z][\s\S]*>/i.test(text);
-    console.log({ CheckText: parse(text) });
     if (containsHtml) {
         // Use html-react-parser to render HTML
         return <div className='html-content'>{parse(text)}</div>;

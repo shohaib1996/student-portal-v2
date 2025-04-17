@@ -21,9 +21,6 @@ export function CalendarSection() {
         error,
     } = useGetPortalDataQuery({ calendar: {} });
 
-    // Log the data for debugging
-    console.log('Calendar Data:', calendarData?.data?.calendar?.results);
-
     // Default stats if API call fails or is loading
     const defaultStats = {
         total: { count: 0, percentage: 0 },

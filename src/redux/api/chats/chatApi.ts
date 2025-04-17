@@ -182,6 +182,64 @@ export interface NotificationUpdateParams {
     chat: string;
     actionType: 'mutenoti' | 'unmutenoti';
 }
+export interface MentionedUserDetails {
+    success: boolean;
+    user: {
+        _id: string;
+        firstName: string;
+        lastName: string;
+        fullName: string;
+        profilePicture: string;
+        email: string;
+        lastActive: string;
+        phone?: {
+            isVerified: boolean;
+            number: string;
+            countryCode: string;
+        };
+        personalData?: {
+            address?: {
+                country: string;
+                city: string;
+                street: string;
+                postalCode: string;
+                state: string;
+            };
+            socialMedia?: {
+                facebook: string;
+                twitter: string;
+                linkedin: string;
+                instagram: string;
+                github: string;
+            };
+            resume?: string;
+            bio?: string;
+        };
+    };
+    enrollments?: Array<{
+        status: string;
+        _id: string;
+        branch: {
+            _id: string;
+            name: string;
+        };
+        program: {
+            _id: string;
+            title: string;
+        };
+        session: string;
+        id: string;
+    }>;
+    groups?: Array<{
+        activeStatus: {
+            isActive: boolean;
+            activeUntill: string;
+        };
+        description: string | null;
+        _id: string;
+        title: string;
+    }>;
+}
 
 // RTK Query API definition
 export const chatApi = baseApi.injectEndpoints({
@@ -980,6 +1038,16 @@ export const chatApi = baseApi.injectEndpoints({
                 { type: 'Chats', id: chat },
             ],
         }),
+        getMentionedUserDetails: build.query<MentionedUserDetails, string>({
+            query: (userId) => ({
+                url: `/user/details/${userId}`,
+                method: 'GET',
+            }),
+            providesTags: (result, error, userId) =>
+                result
+                    ? [{ type: 'User' as const, id: userId }]
+                    : [{ type: 'User' as const, id: userId }],
+        }),
     }),
 });
 
@@ -1000,6 +1068,7 @@ export const {
     useSearchUsersQuery,
     useCreateGroupMutation,
     useUpdateNotificationSettingsMutation,
+    useGetMentionedUserDetailsQuery,
 } = chatApi;
 
 // Socket integration with RTK Query

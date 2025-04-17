@@ -86,7 +86,6 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
             );
 
             const activeCompanyFromCookie = Cookies.get('activeCompany');
-            console.log(token, 'token');
             if (token) {
                 setIsLoading(true);
                 try {

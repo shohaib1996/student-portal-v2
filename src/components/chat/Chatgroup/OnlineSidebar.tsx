@@ -57,15 +57,12 @@ function OnlineSidebar() {
 
     const { data: onlineUsers } = useGetOnlineUsersQuery();
     const [filteredOnlineUsers, setFilteredOnlineUsers] = useState<any[]>([]);
-    console.log({ filteredOnlineUsers });
     const [filteredChats, setFilteredChats] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState<string>('recent');
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
-
-    console.log('Online Users:', onlineUsers);
 
     // Initialize filtered data
     useEffect(() => {

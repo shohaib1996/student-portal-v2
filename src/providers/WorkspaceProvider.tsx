@@ -76,8 +76,6 @@ function WorkspaceProvider({ children }: WorkspaceProviderProps) {
         return () => unsubscribe();
     }, []);
 
-    // console.log('activeCompanyId', activeCompanyId);
-
     const EmptyState = () => (
         <div className='flex flex-col items-center justify-center p-8 text-center'>
             <div className='mb-4 text-gray-400'>

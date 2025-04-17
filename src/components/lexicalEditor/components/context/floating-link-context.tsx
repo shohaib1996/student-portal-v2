@@ -18,19 +18,6 @@ export function FloatingLinkContext({
     const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
     const [editor] = useLexicalComposerContext();
 
-    //   const handleClick = (editor: LexicalEditor) => {
-    //     editor.update(() => {
-    //       const editorState = editor.getEditorState();
-    //       const jsonString = JSON.stringify(editorState);
-    //       console.log('jsonString', jsonString);
-
-    //       const htmlString = $generateHtmlFromNodes(editor, null);
-    //       console.log('htmlString', htmlString);
-    //     });
-    //   };
-
-    // handleClick(editor)
-
     return (
         <Context.Provider value={{ isLinkEditMode, setIsLinkEditMode }}>
             {children}

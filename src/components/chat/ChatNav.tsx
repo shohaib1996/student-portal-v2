@@ -261,7 +261,6 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const fetchingMore = false;
     const params = useParams();
     const { user } = useAppSelector((state) => state.auth);
-    console.log({ user });
     const router = useRouter();
     const searchParams = useSearchParams();
     const tabParam = searchParams.get('tab') || 'chats';
@@ -269,7 +268,6 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const { chats, onlineUsers, chatMessages } = useAppSelector(
         (state) => state.chat,
     );
-    console.log({ chats });
     // Replace direct API call with RTK mutation
     const [findOrCreateChat, { isLoading: isCreatingChat }] =
         useFindOrCreateChatMutation();
@@ -282,7 +280,6 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const [createCrowdOpen, setCreateCrowdOpen] = useState<boolean>(false);
 
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-    console.log({ records });
     // Update records when chats change - now using RTK Query data
     useEffect(() => {
         if (chats && chats.length > 0) {
