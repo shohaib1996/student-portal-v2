@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useGetMyDiagramQuery } from '@/redux/api/diagram/diagramApi';
 import DiagramCard from './diagram-card';
-import { GlobalPagination } from '@/components/global/global-pagination';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Eye, Grid3X3, Sheet } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -13,8 +12,10 @@ import GlobalTable, {
     TCustomColumnDef,
 } from '@/components/global/GlobalTable/GlobalTable';
 import TdDate from '@/components/global/TdDate';
-import { TdUser } from '@/components/global/TdUser';
 import { DiagramType } from '@/types/diagram';
+import { TConditions } from '@/components/global/FilterModal/QueryBuilder';
+import FilterModal from '@/components/global/FilterModal/FilterModal';
+import GlobalPagination from '@/components/global/GlobalPagination';
 export interface CreatedBy {
     profilePicture: string;
     lastName: string;
@@ -29,16 +30,21 @@ const DiagramComponent = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const currentPage = parseInt(searchParams.get('page') || '1', 10) || 1;
+    const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = Number(searchParams.get('limit')) || 10;
+    const [limit, setLimit] = useState<number>(10);
+    const [filterData, setFilterData] = useState<TConditions[]>([]);
+    const [query, setQuery] = useState('');
+    const [date, setDate] = useState('');
 
     const { data, isLoading, error, isFetching } = useGetMyDiagramQuery({
         page: currentPage,
-        limit: itemsPerPage,
+        limit: limit,
+        query,
+        createdAt: date,
     });
 
     const totalItems = data?.count || 10;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
     const myDiagrams = data?.diagrams || [];
 
     if (isLoading) {
@@ -140,6 +146,20 @@ const DiagramComponent = () => {
         },
     ];
 
+    const handleFilter = (
+        conditions: TConditions[],
+        queryObj: Record<string, string>,
+    ) => {
+        setFilterData(conditions);
+        setQuery(queryObj['query'] || '');
+        setDate(queryObj['date'] || '');
+    };
+
+    const handlePageChange = (page: number, newLimit: number) => {
+        setCurrentPage(page);
+        setLimit(newLimit);
+    };
+
     return (
         <div className=''>
             <GlobalHeader
@@ -167,9 +187,20 @@ const DiagramComponent = () => {
                             }
                             icon={<Sheet size={18} />}
                         />
-                        <Button variant='outline' size='sm'>
-                            Filters
-                        </Button>
+                        <FilterModal
+                            value={filterData}
+                            onChange={handleFilter}
+                            columns={[
+                                {
+                                    label: 'Search (Name/Creator)',
+                                    value: 'query',
+                                },
+                                {
+                                    label: 'Creation Date',
+                                    value: 'date',
+                                },
+                            ]}
+                        />
                         <Link href='/dashboard'>
                             <Button size='sm' asChild>
                                 Go to Dashboard
@@ -182,7 +213,7 @@ const DiagramComponent = () => {
 
             {viewMode === 'grid' && (
                 <div className='my-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3'>
-                    {myDiagrams.map((diagram) => (
+                    {myDiagrams.map((diagram: DiagramType) => (
                         <DiagramCard key={diagram._id} diagram={diagram} />
                     ))}
                 </div>
@@ -197,15 +228,12 @@ const DiagramComponent = () => {
                     data={myDiagrams}
                 />
             )}
+
             <GlobalPagination
                 currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                onLimitChange={(number) => {
-                    router.push(`/architecture-diagram?limit=${number}`);
-                }}
-                baseUrl='/architecture-diagram'
+                totalItems={totalItems || 0}
+                itemsPerPage={limit}
+                onPageChange={handlePageChange}
             />
         </div>
     );

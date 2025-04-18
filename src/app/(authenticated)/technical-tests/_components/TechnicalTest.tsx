@@ -90,7 +90,7 @@ const TechnicalTest = () => {
     });
 
     const assignments: Assignment[] = data?.assignments || [];
-    const totalItems = assignments.length || 0;
+    const totalItems = data?.count || 0;
     const totalPages = Math.ceil(totalItems / limit);
 
     const handleTestNowClick = (task: Assignment) => {
@@ -258,7 +258,7 @@ const TechnicalTest = () => {
                         >
                             <FileText className='h-5 w-5' />
                             <span className={isMobile ? 'text-xs' : ''}>
-                                Technical Task ({assignments.length})
+                                Technical Task ({data?.count})
                             </span>
                         </TabsTrigger>
                         <TabsTrigger
@@ -267,7 +267,7 @@ const TechnicalTest = () => {
                         >
                             <ClipboardList className='h-5 w-5' />
                             <span className={isMobile ? 'text-xs' : ''}>
-                                Assignments ({assignments.length})
+                                Assignments ({data?.count})
                             </span>
                         </TabsTrigger>
                         <TabsTrigger
@@ -288,11 +288,11 @@ const TechnicalTest = () => {
                                     <TaskCard
                                         key={index}
                                         task={{
-                                            id: assignment.id.toString(),
-                                            title: assignment.question,
-                                            marks: assignment.mark,
-                                            deadline: assignment.dueDate || '',
-                                            workshop: assignment.workshop,
+                                            id: assignment?.id?.toString(),
+                                            title: assignment?.question,
+                                            marks: assignment?.mark,
+                                            deadline: assignment?.dueDate || '',
+                                            workshop: assignment?.workshop,
                                             status: 'not_answered',
                                         }}
                                     />
@@ -318,11 +318,11 @@ const TechnicalTest = () => {
                                     <TaskCard
                                         key={index}
                                         task={{
-                                            id: assignment.id.toString(),
-                                            title: assignment.question,
-                                            marks: assignment.mark,
-                                            deadline: assignment.dueDate || '',
-                                            workshop: assignment.workshop,
+                                            id: assignment?.id?.toString(),
+                                            title: assignment?.question,
+                                            marks: assignment?.mark,
+                                            deadline: assignment?.dueDate || '',
+                                            workshop: assignment?.workshop,
                                             status: 'not_answered',
                                         }}
                                     />
@@ -367,11 +367,11 @@ const TechnicalTest = () => {
                     }}
                     mode={modalMode}
                     taskData={{
-                        id: selectedTask.id.toString(),
-                        title: selectedTask.question,
-                        marks: selectedTask.mark,
-                        deadline: selectedTask.dueDate || '',
-                        workshop: selectedTask.workshop,
+                        id: selectedTask?.id?.toString(),
+                        title: selectedTask?.question,
+                        marks: selectedTask?.mark,
+                        deadline: selectedTask?.dueDate || '',
+                        workshop: selectedTask?.workshop,
                     }}
                 />
             )}

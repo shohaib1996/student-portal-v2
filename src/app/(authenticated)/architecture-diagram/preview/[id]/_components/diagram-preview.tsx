@@ -10,6 +10,7 @@ import DiagramComponent from '@/components/global/diagram/diagram-component';
 import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
 
 import { ArrowLeft, Fullscreen, Minimize } from 'lucide-react';
+import GlobalComment from '@/components/global/GlobalComments/GlobalComment';
 
 const DiagramPreviewComponent = () => {
     const params = useParams();
@@ -28,7 +29,7 @@ const DiagramPreviewComponent = () => {
     }
 
     const currentId = params.id;
-    const diagram = data?.diagrams?.find((item) => item._id === currentId);
+    const diagram = data?.diagrams?.find((item: any) => item._id === currentId);
 
     const toggleFullScreen = () => {
         setIsFullScreen(!isFullScreen);
@@ -91,9 +92,9 @@ const DiagramPreviewComponent = () => {
                 />
             </div>
 
-            {!isFullScreen && (
+            {!isFullScreen && currentId && (
                 <div className='p-4'>
-                    <GlobalCommentsSection />
+                    <GlobalComment contentId={currentId.toString()} />
                 </div>
             )}
         </div>

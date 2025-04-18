@@ -1,6 +1,4 @@
 'use client';
-
-import { GlobalPagination } from '@/components/global/global-pagination';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useMyAudioVideoQuery } from '@/redux/api/audio-video/audioVideos';
@@ -16,14 +14,25 @@ import { useState } from 'react';
 import AudioVideosCard from './AudioVideosCard';
 import SpinIcon from '@/components/svgs/common/SpinIcon';
 import { Input } from '@/components/ui/input';
+import { TConditions } from '@/components/global/FilterModal/QueryBuilder';
+import GlobalHeader from '@/components/global/GlobalHeader';
+import FilterModal from '@/components/global/FilterModal/FilterModal';
+import GlobalPagination from '@/components/global/GlobalPagination';
 
 const AudioAndVideos = () => {
     const [isAudio, setIsAudio] = useState(true);
-
-    const ITEMS_PER_PAGE = 8;
+    const [limit, setLimit] = useState<number>(10);
+    const [filterData, setFilterData] = useState<TConditions[]>([]);
+    const [query, setQuery] = useState('');
+    const [date, setDate] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-    const { data, error, isLoading } = useMyAudioVideoQuery({});
+    const { data, error, isLoading } = useMyAudioVideoQuery({
+        page: currentPage,
+        limit: limit,
+        query,
+        createdAt: date,
+    });
 
     if (error) {
         return <p>Error</p>;
@@ -59,15 +68,49 @@ const AudioAndVideos = () => {
         : typeFilteredItems;
 
     const totalItems = filteredItems.length;
-    const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
 
     // Get current page items
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const startIndex = (currentPage - 1) * limit;
+    const endIndex = startIndex + limit;
     const currentItems = filteredItems.slice(startIndex, endIndex);
+
+    // Handle filter changes
+    const handleFilter = (
+        conditions: TConditions[],
+        queryObj: Record<string, string>,
+    ) => {
+        setFilterData(conditions);
+        setQuery(queryObj['query'] || '');
+        setDate(queryObj['date'] || '');
+    };
+
+    const handlePageChange = (page: number, newLimit: number) => {
+        setCurrentPage(page);
+        setLimit(newLimit);
+    };
 
     return (
         <div>
+            <GlobalHeader
+                title='Audio & Videos'
+                subTitle='These audios and videos only shared with you'
+                buttons={
+                    <FilterModal
+                        value={filterData}
+                        onChange={handleFilter}
+                        columns={[
+                            {
+                                label: 'Search (Name/Creator)',
+                                value: 'query',
+                            },
+                            {
+                                label: 'Creation Date',
+                                value: 'date',
+                            },
+                        ]}
+                    />
+                }
+            />
             <div className='flex flex-col sm:flex-row sm:items-center justify-between mb-4'>
                 <div className='flex items-center gap-1 mb-4 sm:mb-0'>
                     <Button
@@ -132,18 +175,12 @@ const AudioAndVideos = () => {
                 )}
 
                 {totalItems > 0 && (
-                    <div className='mt-6'>
-                        <GlobalPagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            totalItems={totalItems}
-                            itemsPerPage={ITEMS_PER_PAGE}
-                            onLimitChange={(number) => {
-                                setCurrentPage(number);
-                            }}
-                            baseUrl='/audio-videos'
-                        />
-                    </div>
+                    <GlobalPagination
+                        currentPage={currentPage}
+                        totalItems={totalItems || 0}
+                        itemsPerPage={limit}
+                        onPageChange={handlePageChange}
+                    />
                 )}
             </div>
         </div>

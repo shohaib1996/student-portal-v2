@@ -17,10 +17,7 @@ export interface MyDiagramResponse {
 
 const diagramApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
-        getMyDiagram: build.query<
-            MyDiagramResponse,
-            { page?: number; limit?: number }
-        >({
+        getMyDiagram: build.query({
             query: ({ page = 1, limit = 8 }) => ({
                 url: '/diagram/mydiagrams',
                 params: { page, limit },

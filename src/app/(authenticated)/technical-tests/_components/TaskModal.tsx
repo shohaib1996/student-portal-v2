@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -13,6 +13,9 @@ import {
 } from 'lucide-react';
 import GlobalModal from '@/components/global/GlobalModal';
 import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
+import GlobalComment from '@/components/global/GlobalComments/GlobalComment';
+import { instance } from '@/lib/axios/axiosInstance';
+import LoadingSpinner from '@/components/global/Community/LoadingSpinner/LoadingSpinner';
 
 interface TaskModalProps {
     isOpen: boolean;
@@ -39,6 +42,13 @@ export default function TaskModal({
     const [answerText, setAnswerText] = useState(
         'Bootcamps Hub is an all-in-one SaaS platform designed for high-ticket coaches and educators.',
     );
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploadFiles, setUploadFiles] = useState<string[]>([]);
+    const [uploadingFiles, setUploadingFiles] = useState(false);
+
+    const triggerFileInput = () => {
+        fileInputRef.current?.click();
+    };
 
     const handleUpdateClick = () => {
         setIsEditing(true);
@@ -51,6 +61,29 @@ export default function TaskModal({
     const handleSubmitClick = () => {
         // Here you would typically save the changes
         setIsEditing(false);
+    };
+
+    const handleUpload = (files: File) => {
+        if (files) {
+            setUploadingFiles(true);
+            const formData = new FormData();
+            formData.append('file', files);
+            instance
+                .post('/settings/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                })
+                .then((res) => {
+                    setUploadFiles((prev) => [...prev, res.data.url]);
+                    setUploadingFiles(false);
+                })
+                .catch((err) => {
+                    setUploadingFiles(false);
+                });
+        }
+    };
+
+    const handleRemoveFile = (index: number) => {
+        setUploadFiles(uploadFiles.filter((_, i) => i !== index));
     };
 
     return (
@@ -233,7 +266,7 @@ export default function TaskModal({
                         <Textarea
                             placeholder='Write here'
                             className='min-h-[200px] w-full p-3 border-border bg-background focus-visible:ring-0 rounded-md'
-                            value={mode === 'result' ? answerText : ''}
+                            value={answerText || ''}
                             onChange={(e) => setAnswerText(e.target.value)}
                         />
                     ) : (
@@ -249,15 +282,38 @@ export default function TaskModal({
                         Attached Files {mode === 'result' && '(1)'}
                     </h4>
 
-                    <div className='flex items-center gap-2 p-1'>
-                        <Button variant='outline' size='sm' className='p-2'>
-                            <Paperclip className='h-4 w-4' />
-                            Attach or drag & drop
-                            <span className='text-xs text-gray hidden md:block'>
-                                JPG, PNG, PDF, DOCS, Max 10MB
-                            </span>
-                        </Button>
-                    </div>
+                    {uploadingFiles ? (
+                        <div className='flex items-center justify-center space-x-2 text-gray text-sm'>
+                            <LoadingSpinner size={20} /> Please wait,
+                            Uploading...
+                        </div>
+                    ) : (
+                        <div className='flex items-center gap-2 p-1'>
+                            <Button
+                                variant='outline'
+                                size='sm'
+                                className='p-2'
+                                onClick={triggerFileInput}
+                            >
+                                <Paperclip className='h-4 w-4' />
+                                Attach or drag & drop
+                                <span className='text-xs text-gray hidden md:block'>
+                                    JPG, PNG, PDF, DOCS, Max 10MB
+                                </span>
+                                <input
+                                    type='file'
+                                    ref={fileInputRef}
+                                    className='hidden'
+                                    onChange={(e) =>
+                                        e.target.files &&
+                                        handleUpload(e.target.files[0])
+                                    }
+                                    multiple
+                                    disabled={uploadingFiles}
+                                />
+                            </Button>
+                        </div>
+                    )}
 
                     {mode === 'result' && (
                         <div className='flex items-center gap-2 p-2 border rounded-md bg-gray-50'>
@@ -278,7 +334,7 @@ export default function TaskModal({
                 {/* Comments or Report Issue */}
                 <div className='mt-2'>
                     <div className='mb-0'>Report an issue</div>
-                    <GlobalCommentsSection />
+                    <GlobalComment contentId={taskData?.id} />
                 </div>
             </div>
         </GlobalModal>
