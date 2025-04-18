@@ -341,7 +341,7 @@ function Archived() {
                                                     </>
                                                 )}
 
-                                                <p className='text-xs text-gray-500 truncate max-w-[80%]'>
+                                                <p className='text-xs text-gray truncate max-w-[80%]'>
                                                     {chat?.myData?.isBlocked ? (
                                                         <span className='bg-red-500 text-white text-xs px-2 py-0.5 rounded'>
                                                             Blocked
@@ -365,7 +365,7 @@ function Archived() {
                                                         <span className='italic'>
                                                             Activity message
                                                         </span>
-                                                    ) : chat.latestMessage
+                                                    ) : chat?.latestMessage
                                                           ?.files?.length >
                                                       0 ? (
                                                         <span>
@@ -373,9 +373,119 @@ function Archived() {
                                                                 ?.sender
                                                                 ?._id !==
                                                             user?._id
-                                                                ? '• '
-                                                                : ''}
-                                                            Sent a file
+                                                                ? `${chat?.latestMessage?.sender?.firstName}: `
+                                                                : 'You: '}
+                                                            {(() => {
+                                                                const files =
+                                                                    chat
+                                                                        ?.latestMessage
+                                                                        ?.files ||
+                                                                    [];
+
+                                                                // Count occurrences of each file type
+                                                                const fileTypes =
+                                                                    {
+                                                                        image: files.filter(
+                                                                            (file: {
+                                                                                type: string;
+                                                                            }) =>
+                                                                                file.type?.includes(
+                                                                                    'image/',
+                                                                                ),
+                                                                        )
+                                                                            .length,
+                                                                        video: files.filter(
+                                                                            (file: {
+                                                                                type: string;
+                                                                            }) =>
+                                                                                file.type?.includes(
+                                                                                    'video/',
+                                                                                ),
+                                                                        )
+                                                                            .length,
+                                                                        audio: files.filter(
+                                                                            (file: {
+                                                                                type: string;
+                                                                            }) =>
+                                                                                file.type?.includes(
+                                                                                    'audio/',
+                                                                                ),
+                                                                        )
+                                                                            .length,
+                                                                        other: files.filter(
+                                                                            (file: {
+                                                                                type: string;
+                                                                            }) =>
+                                                                                !file.type?.includes(
+                                                                                    'image/',
+                                                                                ) &&
+                                                                                !file.type?.includes(
+                                                                                    'video/',
+                                                                                ) &&
+                                                                                !file.type?.includes(
+                                                                                    'audio/',
+                                                                                ),
+                                                                        )
+                                                                            .length,
+                                                                    };
+
+                                                                // Create appropriate message based on file counts
+                                                                const fileMessages =
+                                                                    [];
+
+                                                                if (
+                                                                    fileTypes.image >
+                                                                    0
+                                                                ) {
+                                                                    fileMessages.push(
+                                                                        `${fileTypes.image} ${fileTypes.image === 1 ? 'image' : 'images'}`,
+                                                                    );
+                                                                }
+
+                                                                if (
+                                                                    fileTypes.video >
+                                                                    0
+                                                                ) {
+                                                                    fileMessages.push(
+                                                                        `${fileTypes.video} ${fileTypes.video === 1 ? 'video' : 'videos'}`,
+                                                                    );
+                                                                }
+
+                                                                if (
+                                                                    fileTypes.audio >
+                                                                    0
+                                                                ) {
+                                                                    fileMessages.push(
+                                                                        `${fileTypes.audio} ${fileTypes.audio === 1 ? 'audio' : 'audios'}`,
+                                                                    );
+                                                                }
+
+                                                                if (
+                                                                    fileTypes.other >
+                                                                    0
+                                                                ) {
+                                                                    fileMessages.push(
+                                                                        `${fileTypes.other} ${fileTypes.other === 1 ? 'file' : 'files'}`,
+                                                                    );
+                                                                }
+
+                                                                // Join the messages with commas and "and"
+                                                                if (
+                                                                    fileMessages.length ===
+                                                                    0
+                                                                ) {
+                                                                    return 'Sent attachment';
+                                                                } else if (
+                                                                    fileMessages.length ===
+                                                                    1
+                                                                ) {
+                                                                    return `Sent ${fileMessages[0]}`;
+                                                                } else {
+                                                                    const lastMessage =
+                                                                        fileMessages.pop();
+                                                                    return `Sent ${fileMessages.join(', ')} and ${lastMessage}`;
+                                                                }
+                                                            })()}
                                                         </span>
                                                     ) : (
                                                         <p

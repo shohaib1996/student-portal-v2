@@ -52,6 +52,7 @@ import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
 import { store } from '@/redux/store';
 import MessageRenderer from '@/components/lexicalEditor/renderer/MessageRenderer';
+import ImageSlider from '../ImageSlider';
 
 const emojies = ['👍', '😍', '❤', '😂', '🥰', '😯'];
 
@@ -73,7 +74,9 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     // Add these new state variables at the beginning of the Message component:
     const [initialReplies, setInitialReplies] = useState([]);
     const [loadingReplies, setLoadingReplies] = useState(false);
-
+    // Inside your component function, add these state variables
+    const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+    const [initialImageIndex, setInitialImageIndex] = useState(0);
     const {
         message,
         lastmessage,
@@ -399,19 +402,108 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
 
                                         {(message?.files ?? []).length > 0 &&
                                             message?.type !== 'delete' && (
-                                                <div className='flex flex-wrap gap-2 mb-2'>
-                                                    {message?.files?.map(
-                                                        (
-                                                            file: File,
-                                                            i: number,
-                                                        ) => (
-                                                            <FileCard
-                                                                file={file}
-                                                                key={i}
-                                                            />
-                                                        ),
-                                                    )}
-                                                </div>
+                                                <>
+                                                    <div
+                                                        className={`grid xl:max-w-[500px] ${message?.files.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} gap-2 mb-2`}
+                                                    >
+                                                        {message?.files
+                                                            ?.slice(
+                                                                0,
+                                                                Math.min(
+                                                                    message
+                                                                        ?.files
+                                                                        .length,
+                                                                    4,
+                                                                ),
+                                                            )
+                                                            .map(
+                                                                (
+                                                                    file: {
+                                                                        type: string;
+                                                                    },
+                                                                    i: number,
+                                                                ) => (
+                                                                    <div
+                                                                        key={i}
+                                                                        className={`relative  ${i === 3 && message?.files.length > 4 ? 'group cursor-pointer' : ''}`}
+                                                                        onClick={() => {
+                                                                            // For images, open the slider
+                                                                            if (
+                                                                                file.type?.startsWith(
+                                                                                    'image/',
+                                                                                )
+                                                                            ) {
+                                                                                setInitialImageIndex(
+                                                                                    i,
+                                                                                );
+                                                                                setImagePreviewOpen(
+                                                                                    true,
+                                                                                );
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <div className='w-full h-[150px] xl:h-[200px]  flex items-center justify-center'>
+                                                                            <FileCard
+                                                                                file={
+                                                                                    file
+                                                                                }
+                                                                            />
+                                                                        </div>
+
+                                                                        {/* Overlay for showing remaining images count */}
+                                                                        {i ===
+                                                                            3 &&
+                                                                            message
+                                                                                ?.files
+                                                                                .length >
+                                                                                4 && (
+                                                                                <div
+                                                                                    className='absolute inset-0 bg-pure-black/70 flex items-center justify-center rounded-md'
+                                                                                    onClick={(
+                                                                                        e,
+                                                                                    ) => {
+                                                                                        e.stopPropagation();
+                                                                                        setInitialImageIndex(
+                                                                                            i,
+                                                                                        );
+                                                                                        setImagePreviewOpen(
+                                                                                            true,
+                                                                                        );
+                                                                                    }}
+                                                                                >
+                                                                                    <span className='text-white text-xl font-medium'>
+                                                                                        +
+                                                                                        {message
+                                                                                            ?.files
+                                                                                            .length -
+                                                                                            4}{' '}
+                                                                                        more
+                                                                                    </span>
+                                                                                </div>
+                                                                            )}
+                                                                    </div>
+                                                                ),
+                                                            )}
+                                                    </div>
+
+                                                    {/* Image Slider for preview */}
+                                                    <ImageSlider
+                                                        isOpen={
+                                                            imagePreviewOpen
+                                                        }
+                                                        onClose={() =>
+                                                            setImagePreviewOpen(
+                                                                false,
+                                                            )
+                                                        }
+                                                        files={
+                                                            message?.files || []
+                                                        }
+                                                        initialIndex={
+                                                            initialImageIndex
+                                                        }
+                                                    />
+                                                </>
                                             )}
 
                                         {message?.type === 'delete' ? (

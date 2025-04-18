@@ -46,6 +46,7 @@ interface FileObject {
 interface FileCardProps {
     file: FileObject;
     index?: number;
+    onImageClick?: (file: FileObject) => void;
 }
 
 /**
@@ -129,7 +130,7 @@ const formatDate = (dateString?: string) => {
     return dayjs(dateString).format('MMM D, YYYY h:mm A');
 };
 
-const FileCard = ({ file, index }: FileCardProps) => {
+const FileCard = ({ file, index, onImageClick }: FileCardProps) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const iconSrc = determineIconSrc(file?.type, file?.url);
@@ -148,8 +149,11 @@ const FileCard = ({ file, index }: FileCardProps) => {
         downloadFileWithLink(file?.url, file?.name);
     };
 
-    const openPreview = () => {
-        if (isImage) {
+    const handleImageClick = () => {
+        if (isImage && onImageClick) {
+            onImageClick(file);
+        } else if (isImage) {
+            // Fallback to local preview if no external handler
             setIsPreviewOpen(true);
         }
     };
@@ -173,13 +177,13 @@ const FileCard = ({ file, index }: FileCardProps) => {
         return (
             <>
                 <div
-                    className='file_download_item w-full relative rounded-md overflow-hidden cursor-pointer'
+                    className='file_download_item w-full relative rounded-md overflow-hidden cursor-pointer h-full bg-foreground'
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    onClick={openPreview}
+                    onClick={handleImageClick}
                 >
                     {/* Image */}
-                    <div className='w-full relative'>
+                    <div className='w-full h-full relative'>
                         <img
                             className='w-full h-full object-contain'
                             src={file?.url || iconSrc || '/default_image.png'}
@@ -232,8 +236,8 @@ const FileCard = ({ file, index }: FileCardProps) => {
                     </div>
                 </div>
 
-                {/* Full Screen Preview Modal */}
-                {isPreviewOpen && (
+                {/* Full Screen Preview Modal - only used when no external handler is provided */}
+                {isPreviewOpen && !onImageClick && (
                     <div
                         className='fixed inset-0 z-50 flex items-center justify-center bg-pure-black/80'
                         onClick={closePreview}
@@ -298,32 +302,92 @@ const FileCard = ({ file, index }: FileCardProps) => {
         );
     }
 
-    // Default rendering for non-image, non-audio files (attachments)
-    return (
-        <div
-            className={`file_download_item w-full ${file?.status || ''} rounded-md border flex flex-col`}
-        >
+    // Special rendering for video files
+    if (isVideo) {
+        return (
             <div
-                className='thumb relative overflow-hidden'
-                style={{ borderRadius: '4px 4px 0 0 ' }}
+                className={`file_download_item w-full ${file?.status || ''} rounded-md border flex flex-col overflow-hidden`}
             >
-                {isVideo ? (
-                    <div className='aspect-video overflow-hidden rounded-md bg-primary-light flex items-center justify-center'>
+                <div
+                    className='thumb relative overflow-hidden'
+                    style={{ borderRadius: '4px 4px 0 0' }}
+                >
+                    <div className='aspect-video overflow-hidden rounded-t-md bg-primary-light flex items-center justify-center'>
                         <img
                             className='w-20 h-20 object-contain'
                             src='/video-icon.png'
                             alt='Video'
                         />
                     </div>
-                ) : (
-                    <div className='overflow-hidden bg-primary-light flex items-center justify-center'>
-                        <img
-                            className='w-24 h-24 object-contain'
-                            src={iconSrc || '/placeholder.svg'}
-                            alt={mime.extension(file?.type || '') || 'File'}
-                        />
+                </div>
+                <div
+                    className='flex flex-row items-center gap-1 bg-background px-2 py-1'
+                    style={{ borderRadius: '0 0 4px 4px' }}
+                >
+                    <div className='left'>
+                        <Button
+                            variant={'primary_light'}
+                            className='rounded-full h-10 w-10'
+                            onClick={handleDownload}
+                            aria-label='Download file'
+                        >
+                            <Download className='h-4 w-4 text-primary' />
+                        </Button>
                     </div>
-                )}
+                    <div className='right flex flex-col'>
+                        <p
+                            className='text-sm font-medium truncate text-black'
+                            style={{ lineHeight: 1.1 }}
+                            title={file?.name}
+                        >
+                            {file?.name || 'Unnamed video'}
+                        </p>
+                        <div className='flex flex-row gap-3 items-center justify-between'>
+                            <div className='flex items-center space-x-2'>
+                                {isUploading ? (
+                                    <Loader2 className='h-4 w-4 animate-spin text-primary' />
+                                ) : (
+                                    <span
+                                        className='text-xs text-gray'
+                                        style={{ lineHeight: 1.1 }}
+                                    >
+                                        {bytesToSize(
+                                            file?.size || file?.file?.size || 0,
+                                        )}
+                                    </span>
+                                )}
+                            </div>
+                            {file?.createdAt && (
+                                <span
+                                    className='text-xs text-gray'
+                                    style={{ lineHeight: 1.1 }}
+                                >
+                                    {formatDate(file?.createdAt)}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Default rendering for non-image, non-audio, non-video files (attachments)
+    return (
+        <div
+            className={`file_download_item w-full ${file?.status || ''} rounded-md border flex flex-col`}
+        >
+            <div
+                className='thumb relative overflow-hidden'
+                style={{ borderRadius: '4px 4px 0 0' }}
+            >
+                <div className='overflow-hidden bg-primary-light flex items-center justify-center'>
+                    <img
+                        className='w-24 h-24 object-contain'
+                        src={iconSrc || '/placeholder.svg'}
+                        alt={mime.extension(file?.type || '') || 'File'}
+                    />
+                </div>
             </div>
             <div
                 className='flex flex-row items-center gap-1 bg-background px-2 py-1'
@@ -340,14 +404,12 @@ const FileCard = ({ file, index }: FileCardProps) => {
                     </Button>
                 </div>
                 <div className='right flex flex-col'>
-                    {!isVideo && (
-                        <p
-                            className='text-xs text-gray'
-                            style={{ lineHeight: 1.1 }}
-                        >
-                            Attachment
-                        </p>
-                    )}
+                    <p
+                        className='text-xs text-gray'
+                        style={{ lineHeight: 1.1 }}
+                    >
+                        Attachment
+                    </p>
                     <p
                         className='text-sm font-medium truncate text-black'
                         style={{ lineHeight: 1.1 }}
