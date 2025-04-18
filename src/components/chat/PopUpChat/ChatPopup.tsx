@@ -97,6 +97,7 @@ const ChatPopup = () => {
             window.removeEventListener('mouseup', handleMouseUp);
         };
     }, [isDragging, handleMouseMove, handleMouseUp]);
+    const unreadChannels = chats?.filter((x) => (x.unreadCount ?? 0) > 0) || [];
     return (
         <>
             {/* Draggable Chat button */}
@@ -119,7 +120,9 @@ const ChatPopup = () => {
                             <span className='absolute h-4 w-4 rounded-full animate-ping bg-danger opacity-75'></span>
                             {/* Static dot */}
                             <span className='absolute h-4 min-w-4 max-w-fit bg-danger rounded-full flex items-center justify-center p-1 text-xs'>
-                                {unReadCount > 99 ? '99+' : unReadCount}
+                                {unreadChannels.length > 99
+                                    ? '99+'
+                                    : unreadChannels.length}
                             </span>
                         </div>
                     )}
