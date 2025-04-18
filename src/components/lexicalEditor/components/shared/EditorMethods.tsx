@@ -32,6 +32,11 @@ const EditorMethods = React.forwardRef(
         const initializedRef = React.useRef<any>(null);
 
         React.useEffect(() => {
+            console.log({
+                initialMarkdown,
+                renderedText: initializedRef.current?.renderedText,
+            });
+
             if (
                 !initializedRef.current?.isRendered ||
                 initializedRef.current?.renderedText !== initialMarkdown
