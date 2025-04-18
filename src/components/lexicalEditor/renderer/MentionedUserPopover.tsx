@@ -26,6 +26,7 @@ import {
 import { useRouter } from 'nextjs-toploader/app';
 import { toast } from 'sonner';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
+import { useAppSelector } from '@/redux/hooks';
 
 interface MentionedUserPopoverProps {
     userData: MentionedUserDetails | undefined;
@@ -65,6 +66,8 @@ const MentionedUserPopover: React.FC<MentionedUserPopoverProps> = ({
     userId,
 }) => {
     // Format date helper
+    const { user } = useAppSelector((state) => state.auth);
+    const loggedInUser = user;
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return dayjs(date).format('MMMM YYYY');
@@ -238,19 +241,21 @@ const MentionedUserPopover: React.FC<MentionedUserPopoverProps> = ({
                                                 )}
                                             </div>
                                         </div>
-                                        <GlobalTooltip
-                                            tooltip={`Click to chat with ${user.fullName}`}
-                                        >
-                                            <Button
-                                                size='icon'
-                                                className=' text-xs rounded-full !text-pure-white'
-                                                onClick={() =>
-                                                    handleCreateChat(userId)
-                                                }
+                                        {loggedInUser?._id !== user?._id && (
+                                            <GlobalTooltip
+                                                tooltip={`Click to chat with ${user.fullName}`}
                                             >
-                                                <MessageSquare />
-                                            </Button>
-                                        </GlobalTooltip>
+                                                <Button
+                                                    size='icon'
+                                                    className=' text-xs rounded-full !text-pure-white'
+                                                    onClick={() =>
+                                                        handleCreateChat(userId)
+                                                    }
+                                                >
+                                                    <MessageSquare />
+                                                </Button>
+                                            </GlobalTooltip>
+                                        )}
                                     </div>
 
                                     {/* User details */}
