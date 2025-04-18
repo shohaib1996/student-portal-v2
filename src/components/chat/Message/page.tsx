@@ -53,6 +53,7 @@ import GlobalTooltip from '@/components/global/GlobalTooltip';
 import { store } from '@/redux/store';
 import MessageRenderer from '@/components/lexicalEditor/renderer/MessageRenderer';
 import ImageSlider from '../ImageSlider';
+import MediaSlider from '../MediaSlider';
 
 const emojies = ['👍', '😍', '❤', '😂', '🥰', '😯'];
 
@@ -91,6 +92,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
         setReload,
         isAi,
         searchQuery,
+        isPopUp,
     } = props;
 
     const [creating, setCreating] = useState(false);
@@ -341,7 +343,9 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                     className={`flex mb-4 `}
                     style={{ scrollBehavior: 'smooth' }}
                 >
-                    <div className='flex max-w-full lg:max-w-[80%]'>
+                    <div
+                        className={`flex max-w-full ${!isPopUp && 'lg:max-w-[80%]'}`}
+                    >
                         <div className='flex-shrink-0 mr-2'>
                             <div
                                 className='cursor-pointer'
@@ -442,8 +446,13 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                                             }
                                                                         }}
                                                                     >
-                                                                        <div className='w-full h-[150px] xl:h-[200px]  flex items-center justify-center'>
+                                                                        <div
+                                                                            className={`w-full ${isPopUp ? 'h-[100px]' : 'h-[150px] xl:h-[200px]'}  flex items-center justify-center`}
+                                                                        >
                                                                             <FileCard
+                                                                                isPopUp={
+                                                                                    isPopUp
+                                                                                }
                                                                                 file={
                                                                                     file
                                                                                 }
@@ -487,7 +496,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                     </div>
 
                                                     {/* Image Slider for preview */}
-                                                    <ImageSlider
+                                                    <MediaSlider
                                                         isOpen={
                                                             imagePreviewOpen
                                                         }
@@ -971,7 +980,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             {emojies?.map((x, i) => (
                                                 <div
                                                     key={i}
-                                                    className={`h-8 w-8 flex items-center justify-center hover:bg-primary-light hover:border rounded-full ${x === '❤' ? 'text-red-500' : ''}`}
+                                                    className={`cursor-pointer h-8 w-8 flex items-center justify-center hover:bg-foreground hover:border rounded-full ${x === '❤' ? 'text-red-500' : ''}`}
                                                     onClick={() =>
                                                         handleReaction(
                                                             x,
@@ -986,7 +995,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         </div>
                                         {source !== 'thread' && !isAi && (
                                             <DropdownMenuItem
-                                                className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                                className='cursor-pointer flex items-center gap-2 hover:bg-background hover:text-primary-white'
                                                 onClick={handleThreadMessage}
                                             >
                                                 <Reply className='h-4 w-4' />
@@ -997,7 +1006,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             message?.sender?._id ===
                                                 user?._id && (
                                                 <DropdownMenuItem
-                                                    className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                                    className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                                     onClick={() => {
                                                         if (setEditMessage) {
                                                             setEditMessage(
@@ -1012,7 +1021,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             )}
                                         {message?.files?.length === 0 && (
                                             <DropdownMenuItem
-                                                className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                                className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                                 onClick={handleCopyClick}
                                             >
                                                 <Copy className='h-4 w-4' />
@@ -1021,7 +1030,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         )}
 
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }
@@ -1030,7 +1039,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             History
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                             onClick={() => {
                                                 handlePin(message);
                                             }}
@@ -1041,7 +1050,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 : 'Pin Message'}
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }
@@ -1050,14 +1059,14 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             Star
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                             onClick={handleForward}
                                         >
                                             <Forward className='h-4 w-4' />
                                             Forward
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }
@@ -1083,7 +1092,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 </DropdownMenuItem>
                                             )}
                                         <DropdownMenuItem
-                                            className='flex items-center gap-2 hover:bg-primary-light hover:text-primary-white border-t'
+                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white border-t'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }

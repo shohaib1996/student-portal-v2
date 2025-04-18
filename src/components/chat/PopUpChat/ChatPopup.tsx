@@ -29,6 +29,7 @@ const ChatPopup = () => {
         y: window.innerHeight - 100,
     });
     const [isDragging, setIsDragging] = useState(false);
+    const [unReadCount, setUnReadCount] = useState(0);
     const buttonRef = useRef<HTMLDivElement>(null);
 
     // Check for unread messages
@@ -38,6 +39,7 @@ const ChatPopup = () => {
             (total, chat) => total + (chat.unreadCount || 0),
             0,
         );
+        setUnReadCount(unreadCount);
         setHasUnreadMessages(unreadCount > 0);
     }, [chats]);
 
@@ -95,7 +97,6 @@ const ChatPopup = () => {
             window.removeEventListener('mouseup', handleMouseUp);
         };
     }, [isDragging, handleMouseMove, handleMouseUp]);
-
     return (
         <>
             {/* Draggable Chat button */}
@@ -117,7 +118,9 @@ const ChatPopup = () => {
                             {/* Ping animation */}
                             <span className='absolute h-4 w-4 rounded-full animate-ping bg-danger opacity-75'></span>
                             {/* Static dot */}
-                            <span className='absolute h-4 w-4 bg-danger rounded-full border-2 border-white'></span>
+                            <span className='absolute h-4 min-w-4 max-w-fit bg-danger rounded-full flex items-center justify-center p-1 text-xs'>
+                                {unReadCount > 99 ? '99+' : unReadCount}
+                            </span>
                         </div>
                     )}
                 </Button>

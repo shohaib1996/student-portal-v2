@@ -1,8 +1,8 @@
 'use client';
 
 import type React from 'react';
-import { useState } from 'react';
-import { Download, Loader2, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Download, Loader2, X, Maximize, Play } from 'lucide-react';
 import mime from 'mime-types';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
@@ -46,7 +46,9 @@ interface FileObject {
 interface FileCardProps {
     file: FileObject;
     index?: number;
+    isPopUp?: boolean;
     onImageClick?: (file: FileObject) => void;
+    onVideoClick?: (file: FileObject) => void;
 }
 
 /**
@@ -130,9 +132,20 @@ const formatDate = (dateString?: string) => {
     return dayjs(dateString).format('MMM D, YYYY h:mm A');
 };
 
-const FileCard = ({ file, index, onImageClick }: FileCardProps) => {
+const FileCard = ({
+    file,
+    index,
+    onImageClick,
+    onVideoClick,
+    isPopUp,
+}: FileCardProps) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [isFullScreen, setIsFullScreen] = useState(false);
+    const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
+    const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+    const videoRef = useRef<HTMLVideoElement>(null);
+
     const iconSrc = determineIconSrc(file?.type, file?.url);
     const fileType =
         file?.file?.type?.split('/')[0] || file?.type?.split('/')[0];
@@ -143,17 +156,61 @@ const FileCard = ({ file, index, onImageClick }: FileCardProps) => {
     const isVideo = fileType === 'video';
     const isUploading = file?.status === 'uploading';
 
+    // Generate video thumbnail
+    useEffect(() => {
+        if (isVideo && file?.url && !videoThumbnail) {
+            // Try to generate thumbnail only if we have a URL and haven't generated one yet
+            const video = document.createElement('video');
+            video.crossOrigin = 'anonymous';
+            video.src = file.url;
+            video.muted = true;
+
+            // Try to get a frame at 1 second
+            video.currentTime = 1;
+
+            video.onloadeddata = () => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const thumbnailUrl = canvas.toDataURL('image/jpeg');
+                        setVideoThumbnail(thumbnailUrl);
+                    }
+                } catch (e) {
+                    console.error('Error generating video thumbnail:', e);
+                    setVideoThumbnail(null);
+                }
+            };
+
+            video.onerror = () => {
+                console.error('Error loading video for thumbnail generation');
+                setVideoThumbnail(null);
+            };
+        }
+    }, [isVideo, file?.url, videoThumbnail]);
+
     const handleDownload = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         downloadFileWithLink(file?.url, file?.name);
     };
 
-    const handleImageClick = () => {
-        if (isImage && onImageClick) {
-            onImageClick(file);
+    const handleFullScreen = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (isVideo && videoRef.current) {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+                setIsFullScreen(false);
+            } else {
+                videoRef.current.requestFullscreen();
+                setIsFullScreen(true);
+            }
         } else if (isImage) {
-            // Fallback to local preview if no external handler
             setIsPreviewOpen(true);
         }
     };
@@ -161,6 +218,22 @@ const FileCard = ({ file, index, onImageClick }: FileCardProps) => {
     const closePreview = (e: React.MouseEvent) => {
         e.stopPropagation();
         setIsPreviewOpen(false);
+    };
+
+    const handleVideoClick = () => {
+        if (isVideo && onVideoClick) {
+            onVideoClick(file);
+        } else if (isVideo) {
+            setIsVideoPlaying(true);
+        }
+    };
+
+    const handleImageClick = () => {
+        if (isImage && onImageClick) {
+            onImageClick(file);
+        } else if (isImage) {
+            setIsPreviewOpen(true);
+        }
     };
 
     // Render audio card for audio files
@@ -199,7 +272,7 @@ const FileCard = ({ file, index, onImageClick }: FileCardProps) => {
                             <Button
                                 variant='primary_light'
                                 size='icon'
-                                className='h-8 w-8 rounded-full'
+                                className='h-7 w-7 min-w-7 rounded-full'
                                 onClick={handleDownload}
                                 aria-label='Download file'
                             >
@@ -207,7 +280,7 @@ const FileCard = ({ file, index, onImageClick }: FileCardProps) => {
                             </Button>
 
                             {/* Time */}
-                            {file?.createdAt && (
+                            {!isPopUp && file?.createdAt && (
                                 <span className='text-xs text-white px-2 py-1 rounded-md'>
                                     {formatDate(file?.createdAt)}
                                 </span>
@@ -235,69 +308,6 @@ const FileCard = ({ file, index, onImageClick }: FileCardProps) => {
                         </div>
                     </div>
                 </div>
-
-                {/* Full Screen Preview Modal - only used when no external handler is provided */}
-                {isPreviewOpen && !onImageClick && (
-                    <div
-                        className='fixed inset-0 z-50 flex items-center justify-center bg-pure-black/80'
-                        onClick={closePreview}
-                    >
-                        <div
-                            className='relative max-w-full lg:max-w-[95vw] max-h-full lg:max-h-[95vh] flex flex-col'
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {/* Top controls */}
-                            <div className='absolute top-4 right-4 z-10 flex items-center gap-4'>
-                                <Button
-                                    size='icon'
-                                    className='h-10 w-10 rounded-full'
-                                    onClick={handleDownload}
-                                    aria-label='Download file'
-                                >
-                                    <Download className='h-5 w-5 text-white' />
-                                </Button>
-                                <Button
-                                    variant='destructive'
-                                    size='icon'
-                                    className='h-10 w-10 rounded-full bg-red-600/80 text-pure-white'
-                                    onClick={closePreview}
-                                    aria-label='Close preview'
-                                >
-                                    <X className='h-5 w-5' />
-                                </Button>
-                            </div>
-
-                            {/* Image */}
-                            <div className='flex-1 overflow-auto'>
-                                <img
-                                    className='max-w-full max-h-[80vh] object-contain'
-                                    src={
-                                        file?.url ||
-                                        iconSrc ||
-                                        '/default_image.png'
-                                    }
-                                    alt={file?.name || 'Image'}
-                                />
-                            </div>
-
-                            {/* Bottom info */}
-                            <div className='bg-pure-black/80 p-4 text-white mt-2 rounded-md'>
-                                <p
-                                    className='text-lg font-medium truncate'
-                                    title={file?.name}
-                                >
-                                    {file?.name || 'Unnamed file'}
-                                </p>
-                                <p className='text-sm text-white/80'>
-                                    Size:{' '}
-                                    {bytesToSize(
-                                        file?.size || file?.file?.size || 0,
-                                    )}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </>
         );
     }
@@ -305,70 +315,102 @@ const FileCard = ({ file, index, onImageClick }: FileCardProps) => {
     // Special rendering for video files
     if (isVideo) {
         return (
-            <div
-                className={`file_download_item w-full ${file?.status || ''} rounded-md border flex flex-col overflow-hidden`}
-            >
+            <>
                 <div
-                    className='thumb relative overflow-hidden'
-                    style={{ borderRadius: '4px 4px 0 0' }}
+                    className={`file_download_item w-full h-full bg-foreground ${file?.status || ''} rounded-md border flex flex-col overflow-hidden cursor-pointer`}
+                    onClick={handleVideoClick}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
                 >
-                    <div className='aspect-video overflow-hidden rounded-t-md bg-primary-light flex items-center justify-center'>
-                        <img
-                            className='w-20 h-20 object-contain'
-                            src='/video-icon.png'
-                            alt='Video'
-                        />
-                    </div>
-                </div>
-                <div
-                    className='flex flex-row items-center gap-1 bg-background px-2 py-1'
-                    style={{ borderRadius: '0 0 4px 4px' }}
-                >
-                    <div className='left'>
-                        <Button
-                            variant={'primary_light'}
-                            className='rounded-full h-10 w-10'
-                            onClick={handleDownload}
-                            aria-label='Download file'
-                        >
-                            <Download className='h-4 w-4 text-primary' />
-                        </Button>
-                    </div>
-                    <div className='right flex flex-col'>
-                        <p
-                            className='text-sm font-medium truncate text-black'
-                            style={{ lineHeight: 1.1 }}
-                            title={file?.name}
-                        >
-                            {file?.name || 'Unnamed video'}
-                        </p>
-                        <div className='flex flex-row gap-3 items-center justify-between'>
-                            <div className='flex items-center space-x-2'>
-                                {isUploading ? (
-                                    <Loader2 className='h-4 w-4 animate-spin text-primary' />
+                    <div
+                        className='thumb relative overflow-hidden h-full'
+                        style={{ borderRadius: '4px 4px 0 0' }}
+                    >
+                        {isVideoPlaying ? (
+                            <video
+                                ref={videoRef}
+                                controls
+                                autoPlay
+                                className='w-full h-full aspect-video object-cover'
+                                src={file?.url}
+                                onEnded={() => setIsVideoPlaying(false)}
+                            >
+                                Your browser does not support video playback.
+                            </video>
+                        ) : (
+                            <div className='aspect-video w-full h-full overflow-hidden rounded-t-md bg-primary-light flex items-center justify-center relative'>
+                                {/* Video thumbnail if available */}
+                                {videoThumbnail ? (
+                                    <img
+                                        className='w-full h-full object-cover'
+                                        src={videoThumbnail}
+                                        alt='Video thumbnail'
+                                    />
                                 ) : (
-                                    <span
-                                        className='text-xs text-gray'
-                                        style={{ lineHeight: 1.1 }}
+                                    <img
+                                        className='w-20 h-20 object-contain'
+                                        src='/video-icon.png'
+                                        alt='Video'
+                                    />
+                                )}
+
+                                {/* Play button overlay */}
+                                <div className='absolute inset-0 bg-black/30 flex items-center justify-center'>
+                                    <div className='rounded-full bg-black/60 p-3'>
+                                        <Play className='h-8 w-8 text-white' />
+                                    </div>
+                                </div>
+
+                                {/* Top controls for video */}
+                                <div className='absolute top-0 left-0 right-0 p-1 flex justify-between items-center'>
+                                    {/* Download button */}
+                                    <Button
+                                        variant='primary_light'
+                                        size='icon'
+                                        className='h-8 w-8 min-w-8 rounded-full'
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDownload(e);
+                                        }}
+                                        aria-label='Download video'
                                     >
+                                        <Download className='h-4 w-4 text-primary' />
+                                    </Button>
+
+                                    {/* Time */}
+                                    {!isPopUp && file?.createdAt && (
+                                        <span className='text-xs text-white px-2 py-1 rounded-md'>
+                                            {formatDate(file?.createdAt)}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Bottom info box - shown on hover */}
+                                <div
+                                    className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-pure-black to-transparent p-2 transition-transform duration-200 ease-in-out ${
+                                        isHovered
+                                            ? 'translate-y-0'
+                                            : 'translate-y-full'
+                                    }`}
+                                >
+                                    <p
+                                        className='text-sm font-medium truncate text-pure-white mt-4'
+                                        title={file?.name}
+                                    >
+                                        {file?.name || 'Unnamed video'}
+                                    </p>
+                                    <p className='text-xs text-pure-white/80'>
+                                        Size:{' '}
                                         {bytesToSize(
                                             file?.size || file?.file?.size || 0,
                                         )}
-                                    </span>
-                                )}
+                                    </p>
+                                </div>
                             </div>
-                            {file?.createdAt && (
-                                <span
-                                    className='text-xs text-gray'
-                                    style={{ lineHeight: 1.1 }}
-                                >
-                                    {formatDate(file?.createdAt)}
-                                </span>
-                            )}
-                        </div>
+                        )}
                     </div>
                 </div>
-            </div>
+            </>
         );
     }
 

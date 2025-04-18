@@ -268,6 +268,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const { chats, onlineUsers, chatMessages } = useAppSelector(
         (state) => state.chat,
     );
+    console.log({ chats });
     // Replace direct API call with RTK mutation
     const [findOrCreateChat, { isLoading: isCreatingChat }] =
         useFindOrCreateChatMutation();
@@ -949,7 +950,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                         ?.sender
                                                                                         ?._id !==
                                                                                     user?._id
-                                                                                        ? `${chat?.latestMessage?.sender?.firstName}: `
+                                                                                        ? `${!chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
                                                                                         : 'You: '}
                                                                                     {(() => {
                                                                                         const files =

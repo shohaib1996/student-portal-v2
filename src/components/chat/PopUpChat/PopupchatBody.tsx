@@ -823,6 +823,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                 .filter((message) => message.pinnedBy)
                                 .map((message) => (
                                     <Message
+                                        isPopUp
                                         isAi={isAi}
                                         key={message._id}
                                         hideOptions={false}
@@ -981,6 +982,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
 
                                                     {/* Message component */}
                                                     <Message
+                                                        isPopUp
                                                         isAi={isAi}
                                                         key={
                                                             message._id ||
@@ -1024,6 +1026,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                             {/* AI message streaming */}
                             {aiIncomingMessage && (
                                 <Message
+                                    isPopUp
                                     key='ai-incoming-message'
                                     message={{
                                         _id: 'randomId',

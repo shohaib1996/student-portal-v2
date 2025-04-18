@@ -23,6 +23,7 @@ import {
     LogOut,
     BookOpenText,
     MessageCircle,
+    MessageCircleMore,
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -343,7 +344,7 @@ const Navbar = () => {
     // useEffect(() => {
     //     setUserOpen(false);
     // }, [pathName, router]);
-
+    const unreadChannels = chats?.filter((x) => (x.unreadCount ?? 0) > 0) || [];
     return (
         <div className='sticky top-0 z-20 flex flex-shrink-0 w-full h-[55px] box-border bg-foreground border-b border-forground-border shadow-sm'>
             <div className='flex gap-2 relative justify-between w-full h-full items-center px-2'>
@@ -402,14 +403,23 @@ const Navbar = () => {
                             Manual
                         </Link>
                     </Button> */}
-                    <Button
-                        className='rounded-full  size-9 text-dark-gray'
-                        variant={'outline'}
-                    >
-                        <Link href='/chat'>
-                            <MessageCircle size={18} />
-                        </Link>
-                    </Button>
+                    <div className='relative'>
+                        <Button
+                            className='rounded-full  size-9 text-dark-gray'
+                            variant={'outline'}
+                        >
+                            <Link href='/chat'>
+                                <MessageCircleMore size={18} />
+                            </Link>
+                        </Button>
+                        {unreadChannels.length > 0 && (
+                            <div className='absolute -top-1 -right-1 rounded-full text-xs min-w-4 max-w-fit p-1 h-4 bg-danger flex items-center justify-center'>
+                                {unreadChannels.length > 99
+                                    ? '99+'
+                                    : unreadChannels.length}
+                            </div>
+                        )}
+                    </div>
                     <Button
                         className='rounded-full  size-9 text-dark-gray'
                         variant={'outline'}

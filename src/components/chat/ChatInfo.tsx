@@ -71,6 +71,7 @@ import { instance } from '@/lib/axios/axiosInstance';
 
 interface ChatInfoProps {
     handleToggleInfo: () => void;
+    chatId?: string;
 }
 
 // User interface from Members component
@@ -96,10 +97,12 @@ const ImageUploader = ({
     onImageUpload,
     isLoading,
     previewImage,
+    chat,
 }: {
     onImageUpload: (file: File) => void;
     isLoading: boolean;
     previewImage?: string;
+    chat?: any;
 }) => {
     const [dragActive, setDragActive] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -144,14 +147,14 @@ const ImageUploader = ({
         inputRef.current?.click();
     };
 
-    return (
+    return chat?.isChannel ? (
         <div className='flex flex-col items-center justify-center w-full'>
             <div
                 className={cn(
                     'relative w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden cursor-pointer',
                     'flex flex-col items-center justify-center text-center',
                     'bg-black hover:bg-black/80 transition-all',
-                    'border-2 border-dashed border-gray-400/30',
+                    'border-2 border-dashed border-forground-border',
                     dragActive && 'border-blue-500 bg-black/70',
                 )}
                 onClick={handleClick}
@@ -214,6 +217,20 @@ const ImageUploader = ({
                 Upload JPEG/PNG/JPG image
             </p>
         </div>
+    ) : (
+        <div className='w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden'>
+            {previewImage ? (
+                <img
+                    src={previewImage}
+                    alt='Preview'
+                    className='w-full h-full object-cover'
+                />
+            ) : (
+                <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
+                    <User className='h-12 w-12 text-gray-400' />
+                </div>
+            )}
+        </div>
     );
 };
 
@@ -246,7 +263,7 @@ const resizeFile = (file: File): Promise<File> =>
         );
     });
 
-const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
+const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const params = useParams();
     const pathname = usePathname();
     const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
@@ -276,7 +293,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     const [voiceCount, setVoiceCount] = useState(0);
     const [fileCount, setFileCount] = useState(0);
     const [linksCount, setLinksCount] = useState(0);
-
+    console.log({ chat });
     // Add this useEffect to fetch all media counts when the component loads
     useEffect(() => {
         if (chat?._id) {
@@ -398,13 +415,13 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     }, [chat?._id]);
 
     useEffect(() => {
-        if (chats && params.chatid) {
-            const findChat = chats?.find(
-                (chat: any) => chat?._id === params.chatid,
+        if ((chats && params.chatid) || chatId) {
+            const findChat = chats?.find((chat: any) =>
+                chat?._id === chatId ? chatId : params.chatid,
             );
             setChat(findChat);
         }
-    }, [chats, router, params.chatid]);
+    }, [chats, router, params.chatid, chatId]);
 
     const isWoner = chat?.myData?.role === 'owner';
 
@@ -433,9 +450,11 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
     const handleUploadImage = useCallback(
         async (image: File) => {
             if (image) {
+                console.log({ image });
                 try {
                     setImageLoading(true);
                     const newFile = await resizeFile(image);
+                    console.log({});
                     const formData = new FormData();
                     formData.append('image', newFile);
                     formData.append('channel-avatar', 'chat-image');
@@ -942,6 +961,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo }) => {
                                     <div className='flex flex-col gap-2 items-center'>
                                         <div className='relative'>
                                             <ImageUploader
+                                                chat={chat}
                                                 onImageUpload={
                                                     handleUploadImage
                                                 }

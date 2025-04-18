@@ -3,10 +3,11 @@
 import type React from 'react';
 import { useEffect, useState, useRef, type ReactNode } from 'react';
 import { motion, useMotionValue, useDragControls } from 'framer-motion';
-import { X, GripVertical, Maximize2, Minimize2 } from 'lucide-react';
+import { X, GripVertical, Maximize2, Minimize2, Minus } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 interface ChatModalProps {
     children: ReactNode;
@@ -178,32 +179,47 @@ const ChatModal: React.FC<ChatModalProps> = ({
                         }}
                     >
                         <div className='flex items-center gap-1'>
-                            <Button
-                                variant='ghost'
-                                size='icon'
-                                className='h-7 w-7 rounded-full hover:bg-primary-dark bg-transparent cursor-grab active:cursor-grabbing'
-                                onPointerDown={(e) => dragControls.start(e)}
-                            >
-                                <GripVertical className='h-4 w-4 text-dark-gray' />
-                            </Button>
-                            {onMinimize && (
+                            <GlobalTooltip tooltip='Drag the modal'>
                                 <Button
                                     variant='ghost'
                                     size='icon'
-                                    onClick={onMinimize}
+                                    className='h-7 w-7 rounded-full hover:bg-primary-dark bg-transparent cursor-grab active:cursor-grabbing'
+                                    onPointerDown={(e) => dragControls.start(e)}
+                                >
+                                    <GripVertical
+                                        className='h-4 w-4 text-dark-gray'
+                                        strokeWidth={3}
+                                    />
+                                </Button>
+                            </GlobalTooltip>
+                            {onMinimize && (
+                                <GlobalTooltip tooltip='Minimize'>
+                                    <Button
+                                        variant='ghost'
+                                        size='icon'
+                                        onClick={onMinimize}
+                                        className='h-7 w-7 rounded-full hover:bg-primary-dark bg-transparent'
+                                    >
+                                        <Minus
+                                            className='h-4 w-4 text-dark-gray'
+                                            strokeWidth={3}
+                                        />
+                                    </Button>
+                                </GlobalTooltip>
+                            )}
+                            <GlobalTooltip tooltip='Close'>
+                                <Button
+                                    variant='ghost'
+                                    size='icon'
+                                    onClick={onClose}
                                     className='h-7 w-7 rounded-full hover:bg-primary-dark bg-transparent'
                                 >
-                                    <Minimize2 className='h-4 w-4 text-dark-gray' />
+                                    <X
+                                        className='h-4 w-4 text-danger'
+                                        strokeWidth={3}
+                                    />
                                 </Button>
-                            )}
-                            <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={onClose}
-                                className='h-7 w-7 rounded-full hover:bg-primary-dark bg-transparent'
-                            >
-                                <X className='h-4 w-4 text-danger' />
-                            </Button>
+                            </GlobalTooltip>
                         </div>
                     </div>
                 </div>

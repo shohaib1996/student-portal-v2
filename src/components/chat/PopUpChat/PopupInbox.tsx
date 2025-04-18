@@ -236,7 +236,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                             <Button
                                 variant='secondary'
                                 size='icon'
-                                className='border h-8 w-8'
+                                className='border h-8 w-8 bg-foreground'
                                 onClick={() =>
                                     setSearch((prev) => ({
                                         ...prev,
@@ -251,7 +251,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                             <Button
                                 variant='secondary'
                                 size='icon'
-                                className='border h-8 w-8'
+                                className='border h-8 w-8 bg-foreground'
                                 onClick={() => router.push(`/chat/${chatId}`)}
                             >
                                 <Maximize2 className='h-4 w-4' />
@@ -263,7 +263,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                     <Button
                                         variant='secondary'
                                         size='icon'
-                                        className='border h-8 w-8'
+                                        className='border h-8 w-8 bg-foreground'
                                     >
                                         <MoreVertical className='h-4 w-4' />
                                     </Button>

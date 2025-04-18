@@ -4,6 +4,8 @@ import React, { useState, useCallback, Suspense } from 'react';
 import ChatModal from './ChatModal';
 import { useChatModals } from './ChatModalsContext';
 import PopupInbox from './PopupInbox';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import ChatInfo from '../ChatInfo';
 
 // Loading fallback
 const LoadingFallback = () => (
@@ -68,6 +70,20 @@ const ChatConversationModal: React.FC<ChatConversationModalProps> = ({
                     reloading={reloading}
                 />
             </Suspense>
+            {/* Chat Info as a right-side drawer */}
+            <Sheet open={profileInfoShow} onOpenChange={setProfileInfoShow}>
+                <SheetContent
+                    className='w-full sm:min-w-[500px] sm:w-[500px] md:min-w-[600px] md:w-[600px] p-0 border-l'
+                    side='right'
+                >
+                    <Suspense fallback={<LoadingFallback />}>
+                        <ChatInfo
+                            handleToggleInfo={handleToggleProfileInfo}
+                            chatId={chatId}
+                        />
+                    </Suspense>
+                </SheetContent>
+            </Sheet>
         </ChatModal>
     );
 };

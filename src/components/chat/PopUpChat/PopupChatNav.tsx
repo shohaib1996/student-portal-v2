@@ -606,7 +606,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                         return (
                             <div
                                 key={chat._id || i}
-                                className={`block border-l-[2px] ${
+                                className={`block border-l-[2px] cursor-pointer ${
                                     isActive
                                         ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
                                         : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
