@@ -70,7 +70,7 @@ interface PlainTextProps {
 export const renderPlainText = ({
     text,
     textSize = 'text-xs',
-    textColor = 'text-gray-700',
+    textColor = 'text-gray',
     lineClamp,
     width,
     truncate = false,

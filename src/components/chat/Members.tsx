@@ -20,9 +20,9 @@ import {
     Trash2,
     VolumeX,
     Search,
-    SlidersHorizontal,
     Plus,
     ChevronDown,
+    VolumeOff,
 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -127,6 +127,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                 .post(`/chat/members/${chat?._id}`, options)
                 .then((res) => {
                     const membersData = res.data?.results || [];
+                    console.log({ membersData });
                     setMembers(membersData);
                     setFilteredMembers(membersData);
                     setIsLoading(false);
@@ -389,7 +390,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                 {/* Members list */}
                 <div
                     ref={divRef}
-                    className='max-h-[500px] overflow-y-auto space-y-0.5 !mt-0 pr-1'
+                    className='h-[calc(100vh-300px)] overflow-y-auto space-y-0.5 !mt-0 pr-1'
                     onScroll={() =>
                         handleScroll({
                             lastId: members[members?.length - 1]?._id,
@@ -427,7 +428,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                                                 src={
                                                     member?.user
                                                         .profilePicture ||
-                                                    '/chat/user.png'
+                                                    '/avatar.png'
                                                 }
                                                 alt={
                                                     member?.user?.fullName ||
@@ -514,91 +515,120 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                                         )}
                                     </div>
                                 </div>
-
-                                {['owner', 'admin', 'moderator'].includes(
-                                    chat?.myData?.role || '',
-                                ) &&
-                                    member?.user?._id !== chat?.myData?.user &&
-                                    member?.role !== 'owner' && (
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    className='h-8 w-8'
-                                                >
-                                                    <MoreVertical className='h-4 w-4' />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent
-                                                align='end'
-                                                className='w-48'
-                                            >
-                                                {['owner', 'admin'].includes(
-                                                    chat?.myData?.role || '',
-                                                ) && (
-                                                    <>
-                                                        <DropdownMenuItem
-                                                            onClick={() =>
-                                                                handleOpenRole(
-                                                                    member,
-                                                                )
-                                                            }
-                                                            className='flex items-center gap-2'
-                                                        >
-                                                            <UserPlus className='h-4 w-4' />
-                                                            <span>Role</span>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            onClick={() =>
-                                                                handleBlockOpen(
-                                                                    member,
-                                                                )
-                                                            }
-                                                            className='flex items-center gap-2'
-                                                        >
-                                                            <Ban className='h-4 w-4' />
-                                                            <span>
-                                                                {member?.isBlocked
-                                                                    ? 'Unblock'
-                                                                    : 'Block'}
-                                                            </span>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            onClick={() =>
-                                                                handleUserRemoveOpen(
-                                                                    member,
-                                                                )
-                                                            }
-                                                            className='flex items-center gap-2'
-                                                        >
-                                                            <Trash2 className='h-4 w-4' />
-                                                            <span>Remove</span>
-                                                        </DropdownMenuItem>
-                                                    </>
-                                                )}
-                                                {[
-                                                    'owner',
-                                                    'admin',
-                                                    'moderator',
-                                                ].includes(
-                                                    chat?.myData?.role || '',
-                                                ) && (
-                                                    <DropdownMenuItem
-                                                        onClick={() =>
-                                                            handleOpenMute(
-                                                                member,
-                                                            )
-                                                        }
-                                                        className='flex items-center gap-2'
-                                                    >
-                                                        <VolumeX className='h-4 w-4' />
-                                                        <span>Mute</span>
-                                                    </DropdownMenuItem>
-                                                )}
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                <div className='flex flex-row items-center gap-1'>
+                                    {member?.mute?.isMuted === true && (
+                                        <VolumeOff className='h-4 w-4 text-dark-gray' />
                                     )}
+                                    {['owner', 'admin', 'moderator'].includes(
+                                        chat?.myData?.role || '',
+                                    ) &&
+                                        member?.user?._id !==
+                                            chat?.myData?.user &&
+                                        member?.role !== 'owner' && (
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        variant='ghost'
+                                                        size='icon'
+                                                        className='h-8 w-8'
+                                                    >
+                                                        <MoreVertical className='h-4 w-4' />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent
+                                                    align='end'
+                                                    className='w-48'
+                                                >
+                                                    {[
+                                                        'owner',
+                                                        'admin',
+                                                    ].includes(
+                                                        chat?.myData?.role ||
+                                                            '',
+                                                    ) && (
+                                                        <>
+                                                            <DropdownMenuItem
+                                                                onClick={() =>
+                                                                    handleOpenRole(
+                                                                        member,
+                                                                    )
+                                                                }
+                                                                className='flex items-center gap-2'
+                                                            >
+                                                                <UserPlus className='h-4 w-4' />
+                                                                <span>
+                                                                    Role
+                                                                </span>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                onClick={() =>
+                                                                    handleBlockOpen(
+                                                                        member,
+                                                                    )
+                                                                }
+                                                                className='flex items-center gap-2'
+                                                            >
+                                                                <Ban className='h-4 w-4' />
+                                                                <span>
+                                                                    {member?.isBlocked
+                                                                        ? 'Unblock'
+                                                                        : 'Block'}
+                                                                </span>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                onClick={() =>
+                                                                    handleUserRemoveOpen(
+                                                                        member,
+                                                                    )
+                                                                }
+                                                                className='flex items-center gap-2'
+                                                            >
+                                                                <Trash2 className='h-4 w-4' />
+                                                                <span>
+                                                                    Remove
+                                                                </span>
+                                                            </DropdownMenuItem>
+                                                        </>
+                                                    )}
+                                                    {[
+                                                        'owner',
+                                                        'admin',
+                                                        'moderator',
+                                                    ].includes(
+                                                        chat?.myData?.role ||
+                                                            '',
+                                                    ) && (
+                                                        <DropdownMenuItem
+                                                            onClick={() =>
+                                                                handleOpenMute(
+                                                                    member,
+                                                                )
+                                                            }
+                                                            className='flex items-center gap-2'
+                                                        >
+                                                            {member?.mute
+                                                                ?.isMuted ===
+                                                            true ? (
+                                                                <>
+                                                                    <VolumeOff className='h-4 w-4' />
+                                                                    <span>
+                                                                        Muted
+                                                                    </span>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <VolumeX className='h-4 w-4' />
+                                                                    <span>
+                                                                        Mute
+                                                                    </span>
+                                                                </>
+                                                            )}
+                                                        </DropdownMenuItem>
+                                                    )}
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        )}
+                                </div>
                             </div>
                         ))
                     )}
@@ -606,13 +636,17 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
 
                 {/* View more button */}
                 {!isLoading && filteredMembers.length > 15 && !showAll && (
-                    <Button
-                        variant='ghost'
-                        className='w-full text-primary text-sm'
-                        onClick={() => setShowAll(true)}
-                    >
-                        View More <ChevronDown className='h-4 w-4 ml-1' />
-                    </Button>
+                    <div className='flex flex-row items-center gap-1'>
+                        <div className='h-[2px] bg-forground-border rounded-xl w-full'></div>
+                        <Button
+                            variant='ghost'
+                            className='w-fit rounded-full px-2 text-primary bg-primary-light h-6 text-xs'
+                            onClick={() => setShowAll(true)}
+                        >
+                            View More <ChevronDown className='h-4 w-4 ml-1' />
+                        </Button>
+                        <div className='h-[2px] bg-forground-border rounded-xl w-full'></div>
+                    </div>
                 )}
             </div>
 

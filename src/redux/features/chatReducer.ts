@@ -276,8 +276,10 @@ const chatSlice = createSlice({
                 counter?: number | string;
             }>,
         ) => {
+            console.log('updated latest message');
             const { chatId, latestMessage, counter } = action.payload;
             const chatIndex = state.chats.findIndex((x) => x._id === chatId);
+            console.log({ chatIndex });
             if (chatIndex !== -1) {
                 state.chats[chatIndex].latestMessage = latestMessage;
                 state.chats[chatIndex].unreadCount = counter

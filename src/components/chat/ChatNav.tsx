@@ -389,6 +389,33 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
         },
         [router, searchParams],
     );
+
+    const generateActivityText = (message: any, sender: any) => {
+        const activity = message.activity;
+        if (activity?.type === 'add') {
+            return (
+                <>
+                    {sender?._id === user?._id ? 'You' : sender?.firstName}{' '}
+                    added {message?.activity?.user?.fullName}{' '}
+                </>
+            );
+        } else if (activity?.type === 'remove') {
+            return (
+                <>
+                    {sender?._id === user?._id ? 'You' : sender?.firstName}{' '}
+                    removed {message?.activity?.user?.fullName}{' '}
+                </>
+            );
+        } else if (activity?.type === 'join') {
+            return (
+                <>{message.activity?.user?.fullName} joined in this channel </>
+            );
+        } else if (activity?.type === 'leave') {
+            return <>{message.activity?.user?.fullName} left this channel </>;
+        } else {
+            return <>Activity message</>;
+        }
+    };
     return (
         <div className='chat-nav h-full'>
             <div className='flex flex-row h-full border-r'>
@@ -928,8 +955,12 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                 ?.type ===
                                                                             'activity' ? (
                                                                                 <span className='italic'>
-                                                                                    Activity
-                                                                                    message
+                                                                                    {generateActivityText(
+                                                                                        chat?.latestMessage,
+                                                                                        chat
+                                                                                            ?.latestMessage
+                                                                                            ?.sender,
+                                                                                    )}
                                                                                 </span>
                                                                             ) : chat
                                                                                   ?.latestMessage

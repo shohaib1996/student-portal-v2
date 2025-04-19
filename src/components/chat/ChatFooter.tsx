@@ -40,6 +40,7 @@ interface ChatFooterProps {
     className?: string;
     draft?: any;
     sendTypingIndicator?: (isTyping: boolean) => void;
+    setIsAttachment?: (value: boolean) => void;
 }
 
 function MuteMessage({ muteData }: MuteMessageProps) {
@@ -79,7 +80,9 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
     isPopUp = false,
     isEdit = false,
     sendTypingIndicator,
+    setIsAttachment,
 }) => {
+    console.log({ chat });
     if (chat?.isReadOnly && chat?.myData?.role === 'member') {
         return (
             <div className='p-4 border-t border-border'>
@@ -126,6 +129,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
                                 setProfileInfoShow={setProfileInfoShow}
                                 profileInfoShow={profileInfoShow}
                                 chat={chat}
+                                setIsAttachment={setIsAttachment}
                             />
                         )}
                     </>

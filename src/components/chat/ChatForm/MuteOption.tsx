@@ -169,15 +169,15 @@ const MuteOption: React.FC<MuteOptionProps> = ({
                 handleUpdateCallback(res.data?.member);
 
                 // Update the chat data in Redux
-                if (res.data?.member?.mute) {
-                    dispatch(
-                        updateMyData({
-                            _id: chat,
-                            field: 'mute',
-                            value: res.data.member.mute,
-                        }),
-                    );
-                }
+                // if (res.data?.member?.mute) {
+                //     dispatch(
+                //         updateMyData({
+                //             _id: chat,
+                //             field: 'mute',
+                //             value: res.data.member.mute,
+                //         }),
+                //     );
+                // }
 
                 // Show appropriate toast based on the action
                 if (member?.mute?.isMuted) {

@@ -144,7 +144,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
 }) => {
     const params = useParams();
     const dispatch = useDispatch();
-
+    const [isAttachmentVisible, setIsAttachmentVisible] = useState(false);
     // Use the chatId from props if in popup mode, otherwise from URL params
     const selectedChatId = isPopup ? chatId : (params?.chatid as string);
     const [showPinnedMessages, setShowPinnedMessages] = useState(false);
@@ -1067,6 +1067,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     profileInfoShow={profileInfoShow}
                     sendTypingIndicator={sendTypingIndicator}
                     isPopUp={true}
+                    setIsAttachment={setIsAttachmentVisible}
                 />
             )}
             {showPinnedMessages && (

@@ -88,6 +88,7 @@ export default function ChatPage() {
                         <Suspense fallback={<LoadingFallback />}>
                             <ChatInfo
                                 handleToggleInfo={handleToggleProfileInfo}
+                                chatId={chatId as string}
                             />
                         </Suspense>
                     </SheetContent>

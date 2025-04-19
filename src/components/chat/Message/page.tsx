@@ -93,6 +93,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
         isAi,
         searchQuery,
         isPopUp,
+        isThread = false,
     } = props;
 
     const [creating, setCreating] = useState(false);
@@ -372,7 +373,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                 />
                             </div>
                         </div>
-                        <div className='flex flex-col'>
+                        <div className='flex flex-col w-full'>
                             <div className='flex flex-col w-full'>
                                 <div
                                     className={`rounded-lg p-2 ${
@@ -613,30 +614,31 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
 
                                 <div className='flex items-center gap-1 mt-1 relative'>
                                     {message?.type !== 'delete' &&
-                                    message?.replyCount ? (
-                                        message?.replyCount > 0 &&
-                                        !hideReplyCount && (
-                                            <div
-                                                className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer'
-                                                onClick={handleThreadMessage}
-                                            >
-                                                <span className='text-primary-white flex flex-row items-center gap-1'>
-                                                    Replies{' '}
-                                                    {message?.replyCount}{' '}
-                                                </span>
-                                                <ChevronDown className='h-3 w-3 text-gray' />
-                                            </div>
-                                        )
-                                    ) : (
-                                        <div
-                                            className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer mr-3'
-                                            onClick={handleThreadMessage}
-                                        >
-                                            <span className='text-dark-gray'>
-                                                Reply
-                                            </span>
-                                        </div>
-                                    )}
+                                    !isThread &&
+                                    message?.replyCount
+                                        ? message?.replyCount > 0 &&
+                                          !hideReplyCount && (
+                                              <div
+                                                  className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer'
+                                                  onClick={handleThreadMessage}
+                                              >
+                                                  <span className='text-primary-white flex flex-row items-center gap-1'>
+                                                      Replies{' '}
+                                                      {message?.replyCount}{' '}
+                                                  </span>
+                                                  <ChevronDown className='h-3 w-3 text-gray' />
+                                              </div>
+                                          )
+                                        : !isThread && (
+                                              <div
+                                                  className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer mr-3'
+                                                  onClick={handleThreadMessage}
+                                              >
+                                                  <span className='text-dark-gray'>
+                                                      Reply
+                                                  </span>
+                                              </div>
+                                          )}
                                     {/* Existing reactions */}
                                     {message?.reactions &&
                                         Object.keys(message?.reactions).length >
@@ -704,6 +706,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                             </div>
                             {/* replies tree ------------------------ */}
                             {message?.replyCount > 0 &&
+                                !isThread &&
                                 initialReplies.length > 0 &&
                                 source !== 'thread' && (
                                     <div className=''>

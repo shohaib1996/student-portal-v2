@@ -393,12 +393,18 @@ function FavouriteSidebar() {
                                                     ) : chat?.latestMessage
                                                           ?.files?.length >
                                                       0 ? (
-                                                        <span>
+                                                        <span
+                                                            className={` ${
+                                                                hasUnread
+                                                                    ? 'text-black'
+                                                                    : 'text-gray'
+                                                            }`}
+                                                        >
                                                             {chat?.latestMessage
                                                                 ?.sender
                                                                 ?._id !==
                                                             user?._id
-                                                                ? `${chat?.latestMessage?.sender?.firstName}: `
+                                                                ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
                                                                 : 'You: '}
                                                             {(() => {
                                                                 const files =
@@ -520,10 +526,10 @@ function FavouriteSidebar() {
                                                                 ?.sender
                                                                 ?._id !==
                                                             user?._id
-                                                                ? '• '
-                                                                : ''}
+                                                                ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
+                                                                : 'You: '}
 
-                                                            <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap'>
+                                                            <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap ml-1'>
                                                                 {renderPlainText(
                                                                     {
                                                                         text:
