@@ -288,6 +288,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const [notificationOption, setNotificationOption] = useState({
         isVisible: false,
     });
+    const [archivedConfirmOpened, setArchivedConfirmOpened] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [mediaCount, setMediaCount] = useState(0);
@@ -1447,7 +1448,11 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                                     : 'Link copied!'}
                                             </Button>
                                             <Button
-                                                onClick={handleArchive}
+                                                onClick={() =>
+                                                    setArchivedConfirmOpened(
+                                                        true,
+                                                    )
+                                                }
                                                 icon={<ArchiveRestore />}
                                                 variant={'secondary'}
                                                 className='text-start text-gray bg-background'
@@ -1552,6 +1557,25 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                 fill='#DF2B2B'
                             />
                         </svg>
+                    </div>
+                }
+                confirmIcon={<LogOut />}
+            />
+            <ConfirmModal
+                text={`Do you want to ${chat?.isArchived ? 'Retrieve' : 'Archive'} this crowd?`}
+                subtitle={
+                    chat?.isArchived
+                        ? `Retrieving this crowd will restore your access to its messages and activities.`
+                        : `Archiving this crowd will remove your access to its messages and activities.`
+                }
+                opened={archivedConfirmOpened}
+                close={() => setArchivedConfirmOpened(false)}
+                handleConfirm={handleArchive}
+                confirmText={chat?.isArchived ? 'Retrieve' : 'Archive'}
+                cancelText='Cancel'
+                icon={
+                    <div className='p-5 bg-red-500/20 rounded-full'>
+                        <ArchiveRestore className='text-danger h-12 w-12' />
                     </div>
                 }
                 confirmIcon={<LogOut />}

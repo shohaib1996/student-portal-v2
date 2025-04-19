@@ -331,7 +331,7 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
                         <Button
                             onClick={handleNext}
                             className='w-full'
-                            disabled={selectedUsers.length < 1}
+                            disabled={selectedUsers.length < 2}
                         >
                             Next
                         </Button>

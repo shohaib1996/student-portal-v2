@@ -40,6 +40,7 @@ import { updateChats, updateMembersCount } from '@/redux/features/chatReducer';
 import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '../global/GlobalTooltip';
 import AddUserModal from './AddUserModal';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 // Shared types for chat-related components
 export interface User {
@@ -114,7 +115,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
     const dispatch = useAppDispatch();
     const { user } = useAppSelector((state) => state.auth);
     const { onlineUsers } = useAppSelector((state: any) => state.chat);
-
+    console.log({ Scope: chat?.memberScope });
     const divRef = useRef<HTMLDivElement>(null);
 
     const fetchMembers = useCallback(
@@ -363,6 +364,17 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
     return (
         <>
             <div className='space-y-3'>
+                {chat.memberScope !== 'custom' && (
+                    <div className='bg-orange-500/20 w-full rounded-xl border border-orange-500 text-orange-500 py-2 px-3 flex flex-col items-center justify-center gap-2'>
+                        {/* <p className='font-semibold font-xl'>
+                            This is not a Custom Crowd
+                        </p> */}
+                        <p className='font-md'>
+                            Only Owner, Admins, moderators information will be
+                            shows below
+                        </p>
+                    </div>
+                )}
                 {/* Search and filter header */}
                 <div className='flex items-center gap-2'>
                     <div className='relative flex-1'>

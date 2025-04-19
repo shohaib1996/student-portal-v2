@@ -129,8 +129,8 @@ function sortByLatestMessage(data: any[]): any[] {
 
 function FavouriteSidebar() {
     const { user } = useAppSelector((state: any) => state.auth);
-    const { chatMessages } = useAppSelector((state) => state.chat);
-    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { chats, chatMessages } = useAppSelector((state) => state.chat);
+    const { isLoading: isChatsLoading } = useGetChatsQuery();
     const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
     const [records, setRecords] = useState<any[]>([]);
     const [favourites, setFavourites] = useState<any[]>([]);
