@@ -34,7 +34,10 @@ export default function GlobalEditor({
     pluginOptions,
 }: TProps) {
     const [editorState, setEditorState] = useState<string>(value);
-
+    const [
+        uploadUserDocumentFile,
+        { isLoading: isUploading, isError, isSuccess, data },
+    ] = useUploadUserDocumentFileMutation();
     // Define a minimal set of toolbar options
     const defaultPluginOptions: PluginOptions = {
         // Enable only essential features
@@ -89,10 +92,7 @@ export default function GlobalEditor({
             treeView: true,
         },
     };
-    const [
-        uploadUserDocumentFile,
-        { isLoading: isUploading, isError, isSuccess, data },
-    ] = useUploadUserDocumentFileMutation();
+
     // Custom image upload handler
     const handleImageUpload = async (file: File) => {
         // Demo implementation
