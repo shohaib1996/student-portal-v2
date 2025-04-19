@@ -413,7 +413,7 @@ const Navbar = () => {
                             </Link>
                         </Button>
                         {unreadChannels.length > 0 && (
-                            <div className='absolute -top-1 -right-1 rounded-full text-xs min-w-4 max-w-fit p-1 h-4 bg-danger flex items-center justify-center'>
+                            <div className='absolute -top-1 -right-1 rounded-full text-xs min-w-4 max-w-fit p-1 h-4 bg-danger flex items-center justify-center text-pure-white'>
                                 {unreadChannels.length > 99
                                     ? '99+'
                                     : unreadChannels.length}

@@ -944,13 +944,19 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                   ?.files
                                                                                   ?.length >
                                                                               0 ? (
-                                                                                <span>
+                                                                                <span
+                                                                                    className={` ${
+                                                                                        hasUnread
+                                                                                            ? 'text-black'
+                                                                                            : 'text-gray'
+                                                                                    }`}
+                                                                                >
                                                                                     {chat
                                                                                         ?.latestMessage
                                                                                         ?.sender
                                                                                         ?._id !==
                                                                                     user?._id
-                                                                                        ? `${!chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
+                                                                                        ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
                                                                                         : 'You: '}
                                                                                     {(() => {
                                                                                         const files =
@@ -1073,15 +1079,15 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                         ?.sender
                                                                                         ?._id !==
                                                                                     user?._id
-                                                                                        ? '• '
-                                                                                        : ''}
+                                                                                        ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
+                                                                                        : 'You: '}
                                                                                     {/* {getText(
                                                                                         chat
                                                                                             ?.latestMessage
                                                                                             ?.text ||
                                                                                             'New conversation',
                                                                                     )} */}
-                                                                                    <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap'>
+                                                                                    <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap ml-1'>
                                                                                         {renderPlainText(
                                                                                             {
                                                                                                 text:
