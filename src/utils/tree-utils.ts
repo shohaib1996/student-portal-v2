@@ -314,3 +314,62 @@ export const hasPinnedLessons = (chapter: TContent): boolean => {
 
     return false;
 };
+// Add a new search function to filter content based on search query
+export const searchContentTree = (
+    data: TContent[],
+    query: string,
+): TContent[] => {
+    if (!query || query.trim() === '') {
+        return data;
+    }
+
+    const normalizedQuery = query.toLowerCase().trim();
+
+    // Helper function to check if an item matches the search query
+    const itemMatches = (item: TContent): boolean => {
+        // For lessons, check title
+        if (item.type === 'lesson' && item.lesson) {
+            return item.lesson.title?.toLowerCase().includes(normalizedQuery);
+        }
+
+        // For chapters, check name
+        if (item.type === 'chapter' && item.chapter) {
+            return item.chapter.name?.toLowerCase().includes(normalizedQuery);
+        }
+
+        return false;
+    };
+
+    // Helper function to recursively search through the tree
+    const searchTree = (items: TContent[]): TContent[] => {
+        if (!items || !Array.isArray(items)) {
+            return [];
+        }
+
+        return items.reduce((result: TContent[], item) => {
+            // Check if the current item matches
+            const currentItemMatches = itemMatches(item);
+
+            // Clone the item to avoid mutating the original
+            const clonedItem = { ...item };
+
+            // If the item has children, search through them
+            if (item.children && item.children.length > 0) {
+                const matchingChildren = searchTree(item.children);
+
+                // If any children match or the current item matches, include this item
+                if (matchingChildren.length > 0 || currentItemMatches) {
+                    clonedItem.children = matchingChildren;
+                    result.push(clonedItem);
+                }
+            } else if (currentItemMatches) {
+                // If it's a leaf node and matches, include it
+                result.push(clonedItem);
+            }
+
+            return result;
+        }, []);
+    };
+
+    return searchTree(data);
+};

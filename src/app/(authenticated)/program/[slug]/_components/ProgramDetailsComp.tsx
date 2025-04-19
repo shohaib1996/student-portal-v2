@@ -158,7 +158,6 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                             isLoading: isProgramsLoading,
                             isError: false,
                             courseProgramsLoading,
-                            setFilterOption,
                         }}
                         selectedTab={selectedTab}
                         fetchedData={chaptersData}

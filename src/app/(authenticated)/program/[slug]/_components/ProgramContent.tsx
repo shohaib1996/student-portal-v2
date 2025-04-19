@@ -4,7 +4,7 @@ import { ProgramSidebar } from './ProgramSidebar';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { Search, PanelLeft, PanelLeftClose } from 'lucide-react';
+import { Search, PanelLeft, PanelLeftClose, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ContentDropDown from './ContentDropDown';
 import VideoContent from './VideoContent';
@@ -23,12 +23,6 @@ const ProgramContent = ({
         isLoading: boolean;
         isError: boolean;
         courseProgramsLoading: boolean;
-        setFilterOption: React.Dispatch<
-            React.SetStateAction<{
-                filter: string;
-                query: string;
-            }>
-        >;
     };
     refetchCourseContent: () => void;
 
@@ -39,7 +33,6 @@ const ProgramContent = ({
     const courseData = courseContentData?.course;
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [isPinnedEyeOpen, setIsPinnedEyeOpen] = useState(false);
-    const { setFilterOption } = option;
 
     // Setup form
     const form = useForm({
@@ -64,19 +57,18 @@ const ProgramContent = ({
         item: {} as TContent,
         contentId: null,
     });
-
+    const [searchInput, setSearchInput] = useState<string>('');
+    const [filterOption, setFilterOption] = useState<
+        {
+            filter: string;
+        }[]
+    >([
+        {
+            filter: '',
+        },
+    ]);
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
-    };
-
-    // Handle search form submission
-    const onSubmit = (values: { search: string }) => {
-        setFilterOption((pre: { query: string; filter: string }) => {
-            return {
-                filter: pre?.filter,
-                query: values.search,
-            };
-        });
     };
 
     // In ProgramContent.tsx
@@ -88,16 +80,6 @@ const ProgramContent = ({
     }, [refetchCourseContent]);
 
     // NEW: Function to handle progress updates
-    const handleProgressUpdate = useCallback(
-        (lessonId: string, isCompleted: boolean) => {
-            setLocalCompletionState((prevState) => {
-                const newState = new Map(prevState);
-                newState.set(lessonId, isCompleted);
-                return newState;
-            });
-        },
-        [],
-    );
 
     useEffect(() => {
         if (videoData?.isSideOpen) {
@@ -180,35 +162,25 @@ const ProgramContent = ({
                     </div>
                     <div className='flex flex-row items-start md:items-center gap-3'>
                         {/* Search Form */}
-                        <Form {...form}>
-                            <form
-                                onSubmit={form.handleSubmit(onSubmit)}
-                                className='relative text-dark-gray'
-                            >
-                                <FormField
-                                    control={form.control}
-                                    name='search'
-                                    render={({ field }) => (
-                                        <FormItem className='m-0'>
-                                            <FormControl>
-                                                <div className='relative'>
-                                                    <Search className='h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray' />
-                                                    <Input
-                                                        {...field}
-                                                        placeholder='Search chapter & modules...'
-                                                        className='pl-9 w-[280px] md:w-[300px] border-border rounded-lg text-dark-gray placeholder:text-dark-gray bg-foreground'
-                                                    />
-                                                </div>
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
+
+                        <div className='relative'>
+                            <Search className='h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray' />
+                            <Input
+                                onChange={(e) => setSearchInput(e.target.value)}
+                                placeholder='Search chapter & modules...'
+                                className='pl-9 w-[280px] md:w-[300px] border-border rounded-lg text-dark-gray placeholder:text-dark-gray bg-foreground'
+                                value={searchInput ?? ''}
+                            />
+                            {searchInput?.length > 0 && (
+                                <X
+                                    className='h-4 w-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray'
+                                    onClick={(e) => setSearchInput('')}
                                 />
-                            </form>
-                        </Form>
+                            )}
+                        </div>
 
                         <FilterProgram
-                            option={option}
-                            searchInput={form.watch('search')}
+                            filterOption={filterOption}
                             setFilterOption={setFilterOption}
                         />
                     </div>
@@ -253,6 +225,8 @@ const ProgramContent = ({
                             setVideoData={setVideoData}
                             setIsPinnedEyeOpen={setIsPinnedEyeOpen}
                             videoData={videoData}
+                            searchInput={searchInput}
+                            filterOption={filterOption}
                             // NEW: Pass progress update handler and local state
                         />
                     )}
