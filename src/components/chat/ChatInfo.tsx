@@ -264,7 +264,9 @@ const resizeFile = (file: File): Promise<File> =>
     });
 
 const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
+    console.log({ chatId });
     const params = useParams();
+    console.log({ params });
     const pathname = usePathname();
     const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const router = useRouter();
@@ -415,13 +417,19 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     }, [chat?._id]);
 
     useEffect(() => {
-        if ((chats && params.chatid) || chatId) {
-            const findChat = chats?.find((chat: any) =>
-                chat?._id === chatId ? chatId : params.chatid,
-            );
-            setChat(findChat);
+        if (chats && chats.length > 0) {
+            // Prioritize the direct prop chatId if it exists
+            if (chatId) {
+                const findChat = chats.find((c) => c?._id === chatId);
+                setChat(findChat || null);
+            }
+            // Otherwise use the URL parameter
+            else if (params.chatid) {
+                const findChat = chats.find((c) => c?._id === params.chatid);
+                setChat(findChat || null);
+            }
         }
-    }, [chats, router, params.chatid, chatId]);
+    }, [chats, chatId, params.chatid]);
 
     const isWoner = chat?.myData?.role === 'owner';
 

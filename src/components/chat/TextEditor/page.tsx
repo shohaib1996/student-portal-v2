@@ -62,6 +62,7 @@ interface TextEditorProps {
     isPopUp?: boolean;
     isEdit?: boolean;
     chat?: any;
+    setIsAttachment?: (value: boolean) => void;
 }
 
 interface UploadFile {
@@ -89,6 +90,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     profileInfoShow,
     isPopUp = false,
     isEdit = false,
+    setIsAttachment,
     chat,
 }) => {
     const { drafts } = useAppSelector((state) => state.chat);
@@ -108,12 +110,12 @@ const TextEditor: React.FC<TextEditorProps> = ({
         autoFocus: true,
         richText: true,
         checkList: true,
-        horizontalRule: true,
-        table: isPopUp ? false : true,
+        horizontalRule: false,
+        table: false,
         list: true,
         tabIndentation: false,
         draggableBlock: false,
-        images: true,
+        images: false,
         codeHighlight: true,
         autoLink: true,
         link: true,
@@ -142,9 +144,9 @@ const TextEditor: React.FC<TextEditorProps> = ({
             },
             link: true,
             clearFormatting: true,
-            horizontalRule: true,
-            image: true,
-            table: true,
+            horizontalRule: false,
+            image: false,
+            table: false,
             quote: false,
         },
 
@@ -172,11 +174,15 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const [localText, setLocalText] = useState<string>('');
     const [isSendingAudio, setIsSendingAudio] = useState<boolean>(false);
 
-    // useEffect(() => {
-    //     store.dispatch(
-    //         setDraft({ chat: chatId as string, message: localText }),
-    //     );
-    // }, [localText, chatId]);
+    useEffect(() => {
+        if (
+            localText?.length === 0 &&
+            uploadFiles?.length === 0 &&
+            setIsAttachment
+        ) {
+            setIsAttachment(true);
+        }
+    }, [localText, uploadFiles]);
 
     useEffect(() => {
         setLocalText(text);
@@ -548,7 +554,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                 <div className='border-border'>
                     {/* Uploaded files preview */}
                     {uploadFiles.length > 0 && (
-                        <div className='mb-3 flex flex-wrap gap-2'>
+                        <div className='mb-2 flex flex-row items-center gap-2 w-full overflow-x-auto pt-2'>
                             {uploadFiles.map((uploadFile, index) => (
                                 <FileItem
                                     handleRemove={() =>

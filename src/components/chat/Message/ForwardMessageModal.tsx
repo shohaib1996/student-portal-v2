@@ -93,7 +93,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
         setSending(true);
         try {
             const chatIds = selectedChats.map((chat) => chat._id);
-
+            console.log({ chatIds });
             // Call the API to forward message
             const response = await instance.post(
                 `/chat/message/forward/${message._id}`,
@@ -101,40 +101,48 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                     chatIds,
                 },
             );
-
+            console.log({ res: response.data });
             // Handle the forwarded messages
-            if (response.data && response.data.forwardedMessages) {
+            if (response.data && response.data.success === true) {
                 // Process each forwarded message through Redux
-                response.data.forwardedMessages.forEach(
-                    (forwardedMessage: any) => {
-                        // Update Redux store with the new message
-                        dispatch(
-                            pushMessage({
-                                message: forwardedMessage,
-                            }),
-                        );
+                console.log(
+                    '------------------------------------------------------',
+                );
+                // response.data.forwardedMessages.forEach(
+                //     (forwardedMessage: any) => {
+                //         // Update Redux store with the new message
+                //         dispatch(
+                //             pushMessage({
+                //                 message: forwardedMessage,
+                //             }),
+                //         );
 
-                        // Update latest message in each chat
-                        dispatch(
-                            updateLatestMessage({
-                                chatId: forwardedMessage.chat,
-                                latestMessage: forwardedMessage,
-                            }),
-                        );
+                //         // Update latest message in each chat
+                //         dispatch(
+                //             updateLatestMessage({
+                //                 chatId: forwardedMessage.chat,
+                //                 latestMessage: forwardedMessage,
+                //             }),
+                //         );
 
-                        // Join the chat room via socket if needed
-                        socket?.emit('join-chat-room', {
-                            chatId: forwardedMessage.chat,
-                        });
-                    },
+                //         // Join the chat room via socket if needed
+                //         socket?.emit('join-chat-room', {
+                //             chatId: forwardedMessage.chat,
+                //         });
+                //     },
+                // );
+                toast.success(
+                    selectedChats.length > 1
+                        ? `Message forwarded to ${selectedChats.length} chats`
+                        : 'Message forwarded successfully',
                 );
             }
 
-            toast.success(
-                selectedChats.length > 1
-                    ? `Message forwarded to ${selectedChats.length} chats`
-                    : 'Message forwarded successfully',
-            );
+            // toast.success(
+            //     selectedChats.length > 1
+            //         ? `Message forwarded to ${selectedChats.length} chats`
+            //         : 'Message forwarded successfully',
+            // );
 
             onClose();
         } catch (error) {

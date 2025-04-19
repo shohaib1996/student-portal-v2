@@ -21,6 +21,7 @@ import LinkPreviewCard from './LinkPreviewCard';
 import Link from 'next/link';
 import { useGetChatMediaQuery } from '@/redux/api/chats/chatApi';
 import MessageRenderer from '../lexicalEditor/renderer/MessageRenderer';
+import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
 
 // Initialize dayjs plugins
 dayjs.extend(relativeTime);
@@ -76,7 +77,7 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
             skip: !chat._id,
         },
     );
-
+    console.log({ links: mediaData?.medias });
     // Update all links when new data arrives
     useEffect(() => {
         if (mediaData?.medias && !isLoading) {
@@ -85,7 +86,6 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
                 ...link,
                 cleanedUrl: cleanUrl(link.url),
             }));
-
             // For the first page, replace all; for subsequent pages, append
             if (currentPage === 1) {
                 setAllLinks(processedLinks);
@@ -103,7 +103,7 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
         if (!searchQuery.trim()) {
             return allLinks;
         }
-
+        console.log({ allLinks });
         const searchLower = searchQuery.toLowerCase();
         return allLinks.filter((link) => {
             // Check sender name
@@ -130,7 +130,7 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
             );
         });
     }, [allLinks, searchQuery]);
-
+    console.log({ filteredLinks });
     // Handle search input change
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -280,11 +280,14 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
 
                             {/* Display message text if available */}
                             {link.text && (
-                                <p className='text-sm text-gray mb-2'>
-                                    <MessageRenderer
-                                        searchQuery={searchQuery}
-                                        text={link?.text || ''}
-                                    />
+                                <p className='text-sm text-gray mb-2 w-full'>
+                                    {renderPlainText({
+                                        text: link.text,
+                                        lineClamp: 2,
+                                        textColor: 'text-gray',
+                                        // truncate: true,
+                                        width: 'w-full',
+                                    })}
                                 </p>
                             )}
 

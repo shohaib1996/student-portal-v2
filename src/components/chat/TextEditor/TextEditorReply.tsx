@@ -650,7 +650,7 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                 <div className=''>
                     {/* Uploaded files preview */}
                     {uploadFiles.length > 0 && (
-                        <div className='mb-3 flex flex-wrap gap-2'>
+                        <div className='mb-2 flex flex-wrap gap-2'>
                             {uploadFiles.map((uploadFile, index) => (
                                 <FileItem
                                     handleRemove={() => handleRemoveItem(index)}
