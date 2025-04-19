@@ -39,6 +39,7 @@ export type TLesson = {
     isSpecial: boolean;
     duration: number;
     courseId?: string;
+    children?: TLesson[]; // Updated to include nested children
 };
 
 export type TChapterInfo = {
@@ -81,6 +82,7 @@ export type TChapter = {
     createdAt?: string;
     lesson?: string;
     courseId?: string;
+    children?: TContent[]; // Updated to include nested children
 };
 
 export type TContent = TChapter | TLesson;

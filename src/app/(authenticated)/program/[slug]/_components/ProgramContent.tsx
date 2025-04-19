@@ -1,5 +1,5 @@
 import { ICourseData, TContent, TCourse, TLessonInfo, TProgram } from '@/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { ProgramSidebar } from './ProgramSidebar';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -16,8 +16,6 @@ const ProgramContent = ({
     selectedTab,
     option,
     fetchedData,
-    parentId,
-    setParentId,
     courseContentData,
 }: {
     option: {
@@ -34,14 +32,10 @@ const ProgramContent = ({
 
     selectedTab: { tab: string; value: string };
     fetchedData: TContent[] | null;
-    parentId?: string | null;
-    setParentId: React.Dispatch<React.SetStateAction<string | null>>;
     courseContentData: ICourseData | undefined;
 }) => {
     const courseData = courseContentData?.course;
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [searchInput, setSearchInput] = useState('');
-
     const [isPinnedEyeOpen, setIsPinnedEyeOpen] = useState(false);
     const { setFilterOption } = option;
 
@@ -51,6 +45,11 @@ const ProgramContent = ({
             search: '',
         },
     });
+
+    // NEW: Add local completion state for instant UI updates
+    const [localCompletionState, setLocalCompletionState] = useState<
+        Map<string, boolean>
+    >(new Map());
 
     const [videoData, setVideoData] = useState<{
         videoInfo: null | TLessonInfo;
@@ -74,11 +73,21 @@ const ProgramContent = ({
             return {
                 filter: pre?.filter,
                 query: values.search,
-                pId: null,
             };
         });
-        setParentId(null);
     };
+
+    // NEW: Function to handle progress updates
+    const handleProgressUpdate = useCallback(
+        (lessonId: string, isCompleted: boolean) => {
+            setLocalCompletionState((prevState) => {
+                const newState = new Map(prevState);
+                newState.set(lessonId, isCompleted);
+                return newState;
+            });
+        },
+        [],
+    );
 
     useEffect(() => {
         if (videoData?.isSideOpen) {
@@ -190,7 +199,7 @@ const ProgramContent = ({
                         <FilterProgram
                             option={option}
                             searchInput={form.watch('search')}
-                            setParentId={setParentId}
+                            setFilterOption={setFilterOption}
                         />
                     </div>
                 </div>
@@ -198,12 +207,16 @@ const ProgramContent = ({
                 <div
                     className={`mt-common ${videoData?.isSideOpen ? 'relative grid grid-cols-1 xl:grid-cols-3 gap-common' : 'block'} `}
                 >
-                    <VideoContent
-                        videoData={videoData}
-                        setVideoData={setVideoData}
-                        isPinnedEyeOpen={isPinnedEyeOpen}
-                    />
-                    {option?.courseProgramsLoading && parentId === null ? (
+                    {videoData?.isSideOpen && (
+                        <VideoContent
+                            videoData={videoData}
+                            setVideoData={setVideoData}
+                            isPinnedEyeOpen={isPinnedEyeOpen}
+                            // NEW: Pass progress update handler
+                        />
+                    )}
+
+                    {option?.courseProgramsLoading ? (
                         <div className='flex w-full items-center justify-center py-4 text-center text-primary'>
                             <p>Loading...</p>
                             <svg
@@ -218,18 +231,17 @@ const ProgramContent = ({
                                 strokeLinejoin='round'
                                 className='animate-spin stroke-primary'
                             >
-                                <path d='M21 12a9 9 0 1 1-common.219-8.56' />
+                                <path d='M21 12a9 9 0 1 1-6.219-8.56' />
                             </svg>
                         </div>
                     ) : (
                         <ContentDropDown
                             fetchedData={fetchedData}
-                            parentId={parentId}
-                            setParentId={setParentId}
                             option={option}
                             setVideoData={setVideoData}
                             setIsPinnedEyeOpen={setIsPinnedEyeOpen}
                             videoData={videoData}
+                            // NEW: Pass progress update handler and local state
                         />
                     )}
                 </div>

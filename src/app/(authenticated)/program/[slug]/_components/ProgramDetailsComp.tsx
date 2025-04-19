@@ -1,100 +1,31 @@
 'use client';
 import { useEffect, useState } from 'react';
-import {
-    ArrowLeft,
-    Star,
-    Users,
-    Clock,
-    FileText,
-    MessageSquareCode,
-    BookmarkCheck,
-    XCircle,
-} from 'lucide-react';
+import { ArrowLeft, Clock, FileText, MessageSquareCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GlobalHeader from '@/components/global/GlobalHeader';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useMyProgramQuery } from '@/redux/api/myprogram/myprogramApi';
 import {
     useCourseContentQuery,
+    useGetAllCourseProgramsQuery,
     useGetAllCourseReviewQuery,
-    usePostCourseProgramsMutation,
 } from '@/redux/api/course/courseApi';
-import {
-    ChapterType,
-    ICourseData,
-    TChaptersResponse,
-    TContent,
-    TProgram,
-} from '@/types';
+import { ICourseData, TProgram } from '@/types';
 import ProgramContent from './ProgramContent';
 import { toast } from 'sonner';
 import ReviewModal from '@/components/shared/review-modal';
 import GlobalModal from '@/components/global/GlobalModal';
 import dayjs from 'dayjs';
 
-// Types for course data
-interface SubLesson {
-    id: string;
-    title: string;
-    date: string;
-    time: string;
-    duration: string;
-    priority: 'High' | 'Medium' | 'Low';
-    status: 'completed' | 'current' | 'upcoming';
-    tags: string[];
-}
-
-interface Lesson {
-    id: string;
-    title: string;
-    date: string;
-    time: string;
-    duration: string;
-    priority: 'High' | 'Medium' | 'Low';
-    status: 'completed' | 'current' | 'upcoming';
-    tags: string[];
-    isNew?: boolean;
-    hasContent?: boolean;
-    isFolder?: boolean;
-    subLessons?: SubLesson[];
-}
-
-interface Module {
-    id: string;
-    title: string;
-    lectures: number;
-    duration: string;
-    progress: number;
-    lessons: Lesson[];
-    isExpanded?: boolean;
-    date?: string;
-    time?: string;
-}
-
 export default function ProgramDetailsComp({ slug }: { slug: string }) {
-    const router = useRouter();
-    const [reviewOpen, setReviewOpen] = useState<boolean>(false);
-
-    // Fetch program and course data
-    const { data: myPrograms, isLoading: isProgramsLoading } =
-        useMyProgramQuery({});
-    const { data: courseContent, isLoading: isCourseContentLoading } =
-        useCourseContentQuery({ slug });
-    const [getPrograms, { isLoading: courseProgramsLoading }] =
-        usePostCourseProgramsMutation();
-
-    // Extract relevant data
-    const program: TProgram | undefined = myPrograms?.program;
-    const courseContentData: ICourseData | undefined = courseContent;
-
-    const tabs = courseContentData?.category?.categories;
-    const [parentId, setParentId] = useState<string | null>(null);
     // State for selected tab and data
     const [selectedTab, setSelectedTab] = useState({
         tab: 'Modules',
         value: 'modules',
     });
+    const router = useRouter();
+    const [reviewOpen, setReviewOpen] = useState<boolean>(false);
     const [filterOption, setFilterOption] = useState<{
         filter: string;
         query: string;
@@ -103,100 +34,33 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
         query: '',
     });
 
-    const [fetchedData, setFetchedData] = useState<TContent[] | null>(null);
-    const fetchProgramData = async (
-        parent: string | null,
-        filterBy: string,
-        queryText: string,
-    ) => {
-        try {
-            const res = (await getPrograms({
-                body: {
-                    filterBy: filterBy,
-                    parent: parent,
-                    queryText: queryText,
-                },
-                contentId: selectedTab?.value,
-                slug: slug,
-            }).unwrap()) as TChaptersResponse;
+    // Fetch program and course data
+    const { data: myPrograms, isLoading: isProgramsLoading } =
+        useMyProgramQuery({});
+    const { data: courseContent, isLoading: isCourseContentLoading } =
+        useCourseContentQuery({ slug });
 
-            if (parent) {
-                setFetchedData((prev) => {
-                    if (!prev) {
-                        return res.chapters;
-                    }
-                    return mergeChapters(prev, parent, res.chapters);
-                });
-            } else {
-                setFetchedData(res.chapters);
-            }
-        } catch (error) {
-            console.error('Error fetching program data:', error);
-        }
-    };
-
-    const mergeChapters = (
-        chapters: TContent[],
-        parentId: string | null,
-        newChapters: TContent[],
-    ): TContent[] => {
-        return chapters.map((chapter) => {
-            if (
-                chapter._id === parentId &&
-                chapter.type === ChapterType.CHAPTER
-            ) {
-                // Merge only unique chapters
-                const existingIds = new Set(
-                    chapter.chapter.children?.map((child) => child._id) || [],
-                );
-                const uniqueChapters = newChapters.filter(
-                    (newChapter) => !existingIds.has(newChapter._id),
-                );
-
-                return {
-                    ...chapter,
-                    chapter: {
-                        ...chapter.chapter,
-                        children: chapter.chapter.children
-                            ? [...chapter.chapter.children, ...uniqueChapters]
-                            : uniqueChapters,
-                    },
-                };
-            }
-            if (
-                chapter.type === ChapterType.CHAPTER &&
-                chapter.chapter.children
-            ) {
-                return {
-                    ...chapter,
-                    chapter: {
-                        ...chapter.chapter,
-                        children: mergeChapters(
-                            chapter.chapter.children,
-                            parentId,
-                            newChapters,
-                        ),
-                    },
-                };
-            }
-            return chapter;
+    // Use the single API call with filter parameters
+    const { data: programsData, isLoading: courseProgramsLoading } =
+        useGetAllCourseProgramsQuery({
+            slug: slug,
+            categoryID: selectedTab?.value,
         });
-    };
+
+    // Extract relevant data
+    const program: TProgram | undefined = myPrograms?.program;
+    const courseContentData: ICourseData | undefined = courseContent;
+    const chaptersData = programsData?.chapters;
+
+    const tabs = courseContentData?.category?.categories;
 
     useEffect(() => {
-        // setSelectedTab({tab:})
+        // Initialize first tab from available tabs if needed
         if (tabs && tabs?.length > 0 && selectedTab.value === 'modules') {
             setSelectedTab({ tab: tabs[0].name, value: tabs[0]._id });
         }
+    }, [tabs, selectedTab.value]);
 
-        if (tabs && tabs?.length > 0 && selectedTab?.value !== 'modules') {
-            fetchProgramData(
-                parentId,
-                filterOption?.filter,
-                filterOption?.query,
-            );
-        }
-    }, [parentId, tabs, selectedTab.value, slug, parentId, filterOption]);
     const commingSoon = () => {
         toast.success('Coming Soon...');
     };
@@ -237,47 +101,6 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                             </span>
                             Leave a Review
                         </Button>
-                        {/* <Button className='' onClick={commingSoon}>
-                            <span>
-                                <svg
-                                    xmlns='http://www.w3.org/2000/svg'
-                                    width='16'
-                                    height='16'
-                                    viewBox='0 0 16 16'
-                                    fill='none'
-                                >
-                                    <path
-                                        d='M10.667 2L13.3337 4.66667L10.667 7.33333'
-                                        stroke='white'
-                                        strokeWidth='1.5'
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                    />
-                                    <path
-                                        d='M13.3337 4.66602H2.66699'
-                                        stroke='white'
-                                        strokeWidth='1.5'
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                    />
-                                    <path
-                                        d='M5.33366 13.9993L2.66699 11.3327L5.33366 8.66602'
-                                        stroke='white'
-                                        strokeWidth='1.5'
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                    />
-                                    <path
-                                        d='M2.66699 11.334H13.3337'
-                                        stroke='white'
-                                        strokeWidth='1.5'
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                    />
-                                </svg>
-                            </span>
-                            Switch Program
-                        </Button> */}
                     </div>
                 }
             />
@@ -289,7 +112,6 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                         tab: tab?.name as string,
                         value: tab?._id as string,
                     });
-                    setParentId(null);
                 }}
                 className='w-full'
             >
@@ -309,31 +131,6 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                         </TabsList>
 
                         <div className='flex items-center gap-4 flex-wrap'>
-                            {/* <div className='flex items-center gap-1 text-nowrap'>
-                                <div className='flex'>
-                                    {Array.from(
-                                        {
-                                            length: Math.floor(4.9),
-                                        },
-                                        (_, i) => (
-                                            <Star
-                                                key={i}
-                                                className='h-4 w-4 fill-yellow-400 text-yellow-400'
-                                            />
-                                        ),
-                                    )}
-                                </div>
-                                <span className='text-sm font-medium'>4.9</span>
-                                <span className='text-xs text-gray'>
-                                    (128 reviews)
-                                </span>
-                            </div> */}
-                            {/* <div className='flex items-center gap-1 text-nowrap'>
-                                <Users className='h-4 w-4 text-primary' />
-                                <span className='text-sm font-medium'>
-                                    345 students
-                                </span>
-                            </div> */}
                             <div className='flex items-center gap-1 text-nowrap'>
                                 <Clock className='h-4 w-4 text-gray' />
                                 <span className='text-sm'>
@@ -346,7 +143,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                             <div className='flex items-center gap-1 text-nowrap'>
                                 <FileText className='h-4 w-4 text-primary' />
                                 <span className='text-sm font-medium'>
-                                    {fetchedData?.length || 0} modules
+                                    {chaptersData?.length || 0} modules
                                 </span>
                             </div>
                         </div>
@@ -361,9 +158,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                             setFilterOption,
                         }}
                         selectedTab={selectedTab}
-                        fetchedData={fetchedData}
-                        parentId={parentId}
-                        setParentId={setParentId}
+                        fetchedData={chaptersData}
                         courseContentData={courseContentData}
                     />
                 </TabsContent>

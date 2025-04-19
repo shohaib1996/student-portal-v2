@@ -1,8 +1,16 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TContent, TLessonInfo, TProgramMain } from '@/types';
-import { Star, Download, ChevronDown, Pin, Share, PinOff } from 'lucide-react';
+import {
+    Star,
+    Download,
+    ChevronDown,
+    Pin,
+    Share,
+    PinOff,
+    Check,
+} from 'lucide-react';
 import Image from 'next/image';
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import dayjs from 'dayjs';
@@ -11,12 +19,12 @@ import DownloadTab from './DownloadTab';
 import RatingsTab from './RatingsTab';
 import NewAddNote from './NewAddNote';
 import { useMyProgramQuery } from '@/redux/api/myprogram/myprogramApi';
-import { useTrackChapterMutation } from '@/redux/api/course/courseApi';
+import {
+    useGetSingleChapterQuery,
+    useTrackChapterMutation,
+} from '@/redux/api/course/courseApi';
 
-const VideoContent = ({
-    videoData,
-    isPinnedEyeOpen,
-}: {
+interface VideoContentProps {
     videoData: {
         videoInfo: null | TLessonInfo;
         isSideOpen: boolean;
@@ -25,19 +33,32 @@ const VideoContent = ({
     };
     refreshData?: () => void;
     setVideoData: React.Dispatch<React.SetStateAction<any>>;
-    isPinnedEyeOpen: any;
+    isPinnedEyeOpen: boolean;
+    // NEW: Add callback for progress updates
+}
+
+const VideoContent: React.FC<VideoContentProps> = ({
+    videoData,
+    refreshData,
+    setVideoData,
+    isPinnedEyeOpen,
+    // NEW: Accept progress update callback
 }) => {
     // Wait for required data
     if (!videoData || (!videoData.videoInfo && videoData.isSideOpen)) {
         return <div>Loading...</div>;
     }
 
-    console.log('VideoData:', isPinnedEyeOpen, videoData);
-
     // Retrieve program data using RTK Query
     const { data } = useMyProgramQuery<{ data: TProgramMain }>(undefined);
     const [trackChapter, { isLoading: isTracking }] = useTrackChapterMutation();
 
+    console.log(videoData);
+    const { data: singleData } = useGetSingleChapterQuery(
+        videoData?.contentId as string,
+    );
+
+    console.log({ singleData });
     const programData = data?.program;
     const tabData = videoData.videoInfo?.data;
 
@@ -49,20 +70,21 @@ const VideoContent = ({
           }))
         : [];
 
-    useEffect(() => {
-        console.log('chinging');
-    }, [isPinnedEyeOpen]);
-
     return (
         <div className={`${videoData.isSideOpen ? 'lg:col-span-2' : 'hidden'}`}>
             {videoData.videoInfo?.url && (
-                <iframe
-                    src={videoData.videoInfo.url}
-                    title='Video Content'
-                    className='aspect-video w-full rounded-lg'
-                    allowFullScreen
-                />
+                <div className='relative'>
+                    <iframe
+                        src={videoData.videoInfo.url}
+                        title='Video Content'
+                        className='aspect-video w-full rounded-lg'
+                        allowFullScreen
+                    />
+
+                    {/* NEW: Add completion button overlay */}
+                </div>
             )}
+
             {/* Video Info */}
             <div className='p-4 border-b border-border flex flex-col md:flex-row justify-between items-start md:items-center gap-2'>
                 <div>

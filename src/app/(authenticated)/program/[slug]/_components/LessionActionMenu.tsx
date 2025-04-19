@@ -29,6 +29,8 @@ const LessionActionMenu = ({
     setVideoData,
     setIsPinnedEyeOpen,
     videoData,
+    // Add new prop for updating completion in parent component
+    onProgressUpdate,
 }: {
     lessonId: string;
     courseId: string;
@@ -36,12 +38,12 @@ const LessionActionMenu = ({
     setVideoData: any;
     videoData: any;
     setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    // New prop for updating progress in ContentDropDown
+    onProgressUpdate?: (lessonId: string, isCompleted: boolean) => void;
 }) => {
     if (!item) {
         return <div>Loading...</div>;
     }
-
-    console.log({ item });
 
     const [isLoading, setIsLoading] = useState(false);
     const [isPinned, setIsPinned] = useState(item.isPinned ?? false);
@@ -61,8 +63,11 @@ const LessionActionMenu = ({
     const handleAction = async (action: string) => {
         setIsLoading(true);
         try {
-            await trackChapter({ courseId, action, chapterId: lessonId });
+            // Start optimistic UI update first
+            const isCompletingAction = action === 'complete';
+            const isUncompletingAction = action === 'incomplete';
 
+            // Update local state immediately for UI responsiveness
             const actionMap: Record<string, () => void> = {
                 focus: () => setIsFocused(true),
                 unfocus: () => setIsFocused(false),
@@ -74,11 +79,41 @@ const LessionActionMenu = ({
 
             actionMap[action]?.();
 
+            // If this is a completion action, update the parent component immediately
+            if (
+                (isCompletingAction || isUncompletingAction) &&
+                onProgressUpdate
+            ) {
+                onProgressUpdate(lessonId, isCompletingAction);
+            }
+
+            // Make the API call to update the backend
+            await trackChapter({ courseId, action, chapterId: lessonId });
+
             toast.success(
                 `${action.charAt(0).toUpperCase() + action.slice(1)} has been successful`,
             );
             setIsPinnedEyeOpen(isPinned);
         } catch (error) {
+            // If API call fails, revert the local state
+            const revertActionMap: Record<string, () => void> = {
+                focus: () => setIsFocused(false),
+                unfocus: () => setIsFocused(true),
+                pin: () => setIsPinned(false),
+                unpin: () => setIsPinned(true),
+                complete: () => setIsCompleted(false),
+                incomplete: () => setIsCompleted(true),
+            };
+
+            revertActionMap[action]?.();
+
+            // Revert the parent component state as well
+            if (action === 'complete' && onProgressUpdate) {
+                onProgressUpdate(lessonId, false);
+            } else if (action === 'incomplete' && onProgressUpdate) {
+                onProgressUpdate(lessonId, true);
+            }
+
             toast.error('Something went wrong. Please try again.');
         } finally {
             setIsLoading(false);

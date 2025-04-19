@@ -9,6 +9,21 @@ const courseApi = baseApi.injectEndpoints({
                 method: 'GET',
             }),
         }),
+        getAllCoursePrograms: build.query({
+            query: (data: { slug: string; categoryID: string }) => ({
+                url: `/course/chapterv2/mychapters/${data?.slug}/${data?.categoryID}  
+`,
+                method: 'GET',
+            }),
+        }),
+        getSingleChapter: build.query({
+            query: (chapterID: string) => ({
+                url: `/course/chapterv2/get-single/chapter/${chapterID}   
+`,
+                method: 'GET',
+            }),
+        }),
+
         courseContent: build.query({
             query: (data: { slug: string }) => ({
                 url: `course/contentv2/${data?.slug}`,
@@ -90,4 +105,6 @@ export const {
     useSubmitReviewMutation,
     useTrackChapterMutation,
     useGetAllCourseReviewQuery,
+    useGetAllCourseProgramsQuery,
+    useGetSingleChapterQuery,
 } = courseApi;
