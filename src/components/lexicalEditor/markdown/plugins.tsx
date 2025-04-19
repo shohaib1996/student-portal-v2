@@ -339,9 +339,9 @@ export function Plugins({
                 {pluginOptions.history !== false && <HistoryPlugin />}
 
                 {/* <PageBreakPlugin /> */}
-                {pluginOptions.draggableBlock !== false && (
+                {/* {pluginOptions.draggableBlock !== false && (
                     <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
-                )}
+                )} */}
                 <KeywordsPlugin />
                 <EmojisPlugin />
                 {pluginOptions.images !== false && <ImagesPlugin />}

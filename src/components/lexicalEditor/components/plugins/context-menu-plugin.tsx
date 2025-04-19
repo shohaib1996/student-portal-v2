@@ -124,6 +124,9 @@ export function ContextMenuPlugin(): JSX.Element {
             new ContextMenuOption(`Delete Node`, {
                 onSelect: (_node) => {
                     const selection = $getSelection();
+
+                    console.log({ selection });
+
                     if ($isRangeSelection(selection)) {
                         const currentNode = selection.anchor.getNode();
                         const ancestorNodeWithRootAsParent = currentNode
@@ -131,6 +134,12 @@ export function ContextMenuPlugin(): JSX.Element {
                             .at(-2);
 
                         ancestorNodeWithRootAsParent?.remove();
+                    } else {
+                        //handle node deletion
+                        const root = selection?.getNodes().at(-1);
+                        if (root) {
+                            root.remove();
+                        }
                     }
                 },
             }),

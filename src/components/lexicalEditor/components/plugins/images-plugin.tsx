@@ -348,10 +348,16 @@ export function InsertImageDialog({
     return (
         <Tabs defaultValue='url'>
             <TabsList className='w-full'>
-                <TabsTrigger value='url' className='w-full'>
+                <TabsTrigger
+                    value='url'
+                    className='w-full text-dark dark:text-white'
+                >
                     URL
                 </TabsTrigger>
-                <TabsTrigger value='file' className='w-full'>
+                <TabsTrigger
+                    value='file'
+                    className='w-full text-dark dark:text-white'
+                >
                     File
                 </TabsTrigger>
             </TabsList>
