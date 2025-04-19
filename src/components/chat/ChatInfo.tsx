@@ -264,7 +264,9 @@ const resizeFile = (file: File): Promise<File> =>
     });
 
 const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
+    console.log({ chatId });
     const params = useParams();
+    console.log({ params });
     const pathname = usePathname();
     const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const router = useRouter();
@@ -286,6 +288,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const [notificationOption, setNotificationOption] = useState({
         isVisible: false,
     });
+    const [archivedConfirmOpened, setArchivedConfirmOpened] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [mediaCount, setMediaCount] = useState(0);
@@ -415,13 +418,19 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     }, [chat?._id]);
 
     useEffect(() => {
-        if ((chats && params.chatid) || chatId) {
-            const findChat = chats?.find((chat: any) =>
-                chat?._id === chatId ? chatId : params.chatid,
-            );
-            setChat(findChat);
+        if (chats && chats.length > 0) {
+            // Prioritize the direct prop chatId if it exists
+            if (chatId) {
+                const findChat = chats.find((c) => c?._id === chatId);
+                setChat(findChat || null);
+            }
+            // Otherwise use the URL parameter
+            else if (params.chatid) {
+                const findChat = chats.find((c) => c?._id === params.chatid);
+                setChat(findChat || null);
+            }
         }
-    }, [chats, router, params.chatid, chatId]);
+    }, [chats, chatId, params.chatid]);
 
     const isWoner = chat?.myData?.role === 'owner';
 
@@ -1439,7 +1448,11 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                                     : 'Link copied!'}
                                             </Button>
                                             <Button
-                                                onClick={handleArchive}
+                                                onClick={() =>
+                                                    setArchivedConfirmOpened(
+                                                        true,
+                                                    )
+                                                }
                                                 icon={<ArchiveRestore />}
                                                 variant={'secondary'}
                                                 className='text-start text-gray bg-background'
@@ -1544,6 +1557,25 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                 fill='#DF2B2B'
                             />
                         </svg>
+                    </div>
+                }
+                confirmIcon={<LogOut />}
+            />
+            <ConfirmModal
+                text={`Do you want to ${chat?.isArchived ? 'Retrieve' : 'Archive'} this crowd?`}
+                subtitle={
+                    chat?.isArchived
+                        ? `Retrieving this crowd will restore your access to its messages and activities.`
+                        : `Archiving this crowd will remove your access to its messages and activities.`
+                }
+                opened={archivedConfirmOpened}
+                close={() => setArchivedConfirmOpened(false)}
+                handleConfirm={handleArchive}
+                confirmText={chat?.isArchived ? 'Retrieve' : 'Archive'}
+                cancelText='Cancel'
+                icon={
+                    <div className='p-5 bg-red-500/20 rounded-full'>
+                        <ArchiveRestore className='text-danger h-12 w-12' />
                     </div>
                 }
                 confirmIcon={<LogOut />}

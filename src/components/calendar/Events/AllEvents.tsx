@@ -187,7 +187,7 @@ const AllEvents = () => {
                                             {renderPlainText({
                                                 text: event.description || '',
                                                 textSize: 'text-xs',
-                                                textColor: 'text-darkg-gray',
+                                                textColor: 'text-dark-gray',
                                                 // truncate: true,
                                                 lineClamp: 2,
                                                 width: 'w-full',

@@ -129,8 +129,8 @@ function sortByLatestMessage(data: any[]): any[] {
 
 function FavouriteSidebar() {
     const { user } = useAppSelector((state: any) => state.auth);
-    const { chatMessages } = useAppSelector((state) => state.chat);
-    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { chats, chatMessages } = useAppSelector((state) => state.chat);
+    const { isLoading: isChatsLoading } = useGetChatsQuery();
     const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
     const [records, setRecords] = useState<any[]>([]);
     const [favourites, setFavourites] = useState<any[]>([]);
@@ -393,12 +393,18 @@ function FavouriteSidebar() {
                                                     ) : chat?.latestMessage
                                                           ?.files?.length >
                                                       0 ? (
-                                                        <span>
+                                                        <span
+                                                            className={` ${
+                                                                hasUnread
+                                                                    ? 'text-black'
+                                                                    : 'text-gray'
+                                                            }`}
+                                                        >
                                                             {chat?.latestMessage
                                                                 ?.sender
                                                                 ?._id !==
                                                             user?._id
-                                                                ? `${chat?.latestMessage?.sender?.firstName}: `
+                                                                ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
                                                                 : 'You: '}
                                                             {(() => {
                                                                 const files =
@@ -520,10 +526,10 @@ function FavouriteSidebar() {
                                                                 ?.sender
                                                                 ?._id !==
                                                             user?._id
-                                                                ? '• '
-                                                                : ''}
+                                                                ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
+                                                                : 'You: '}
 
-                                                            <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap'>
+                                                            <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap ml-1'>
                                                                 {renderPlainText(
                                                                     {
                                                                         text:

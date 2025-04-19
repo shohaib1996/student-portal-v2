@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
 import { instance } from '@/lib/axios/axiosInstance';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 interface Message {
     _id: string;
@@ -101,7 +102,7 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
                                 </span>
                             </div>
                         )}
-                        <div className='flex flex-col bg-primary-light rounded-xl border border-blue-500/20 p-2 w-full'>
+                        <div className='flex flex-col bg-primary-light rounded-xl border border-blue-500/20 p-2 w-[calc(100%-53px)]'>
                             <div className='flex items-center gap-1'>
                                 <span className='font-semibold text-black'>
                                     {selectedMessage?.sender?.fullName ||
@@ -113,8 +114,15 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
                                     )}
                                 </span>
                             </div>
-                            <p className='textb-black'>
-                                {selectedMessage?.text || ''}
+                            <p className='text-black'>
+                                {renderPlainText({
+                                    text: selectedMessage?.text || '',
+                                    textSize: 'text-xs',
+                                    textColor: 'text-dark-gray',
+                                    // truncate: true,
+                                    lineClamp: 2,
+                                    // width: 'w-[calc(100%-10px)]',
+                                })}
                             </p>
                         </div>
                     </div>

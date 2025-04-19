@@ -1,8 +1,16 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TContent, TLessonInfo, TProgramMain } from '@/types';
-import { Star, Download, ChevronDown, Pin, Share, PinOff } from 'lucide-react';
+import {
+    Star,
+    Download,
+    ChevronDown,
+    Pin,
+    Share,
+    PinOff,
+    Check,
+} from 'lucide-react';
 import Image from 'next/image';
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import dayjs from 'dayjs';
@@ -11,12 +19,12 @@ import DownloadTab from './DownloadTab';
 import RatingsTab from './RatingsTab';
 import NewAddNote from './NewAddNote';
 import { useMyProgramQuery } from '@/redux/api/myprogram/myprogramApi';
-import { useTrackChapterMutation } from '@/redux/api/course/courseApi';
+import {
+    useGetSingleChapterQuery,
+    useTrackChapterMutation,
+} from '@/redux/api/course/courseApi';
 
-const VideoContent = ({
-    videoData,
-    isPinnedEyeOpen,
-}: {
+interface VideoContentProps {
     videoData: {
         videoInfo: null | TLessonInfo;
         isSideOpen: boolean;
@@ -25,18 +33,32 @@ const VideoContent = ({
     };
     refreshData?: () => void;
     setVideoData: React.Dispatch<React.SetStateAction<any>>;
-    isPinnedEyeOpen: any;
+    isPinnedEyeOpen: boolean;
+    setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    // Add callback for progress updates
+    onProgressUpdate?: (lessonId: string, isCompleted: boolean) => void;
+}
+
+const VideoContent: React.FC<VideoContentProps> = ({
+    videoData,
+    refreshData,
+    setVideoData,
+    isPinnedEyeOpen,
+    setIsPinnedEyeOpen,
+    onProgressUpdate,
 }) => {
     // Wait for required data
     if (!videoData || (!videoData.videoInfo && videoData.isSideOpen)) {
         return <div>Loading...</div>;
     }
 
-    console.log('VideoData:', isPinnedEyeOpen, videoData);
-
     // Retrieve program data using RTK Query
     const { data } = useMyProgramQuery<{ data: TProgramMain }>(undefined);
     const [trackChapter, { isLoading: isTracking }] = useTrackChapterMutation();
+
+    const { data: singleData } = useGetSingleChapterQuery(
+        videoData?.contentId as string,
+    );
 
     const programData = data?.program;
     const tabData = videoData.videoInfo?.data;
@@ -49,20 +71,95 @@ const VideoContent = ({
           }))
         : [];
 
-    useEffect(() => {
-        console.log('chinging');
-    }, [isPinnedEyeOpen]);
+    // Function to handle pin/unpin
+    const handlePinToggle = useCallback(async () => {
+        if (!videoData.contentId) {
+            return;
+        }
+
+        const action = isPinnedEyeOpen ? 'unpin' : 'pin';
+        const newPinStatus = !isPinnedEyeOpen;
+
+        try {
+            // Update local state immediately (optimistic update)
+            setVideoData(
+                (prev: {
+                    videoInfo: null | TLessonInfo;
+                    isSideOpen: boolean;
+                    item: TContent;
+                    contentId: string | null;
+                }) => ({
+                    ...prev,
+                    item: {
+                        ...prev.item,
+                        isPinned: newPinStatus,
+                    },
+                }),
+            );
+
+            // Update the pin status in parent component
+            setIsPinnedEyeOpen(newPinStatus);
+
+            // Make API call
+            const courseId = videoData.item?.myCourse?.course;
+            if (courseId) {
+                await trackChapter({
+                    courseId,
+                    action,
+                    chapterId: videoData.contentId,
+                });
+
+                // This will cause the tree to refresh and update the LessonActionMenu
+                if (refreshData) {
+                    refreshData();
+                }
+
+                toast.success(
+                    `${action.charAt(0).toUpperCase() + action.slice(1)} has been successful`,
+                );
+            }
+        } catch (error) {
+            // Revert on error
+            setVideoData(
+                (prev: {
+                    videoInfo: null | TLessonInfo;
+                    isSideOpen: boolean;
+                    item: TContent;
+                    contentId: string | null;
+                }) => ({
+                    ...prev,
+                    item: {
+                        ...prev.item,
+                        isPinned: isPinnedEyeOpen,
+                    },
+                }),
+            );
+            setIsPinnedEyeOpen(isPinnedEyeOpen);
+
+            toast.error('Something went wrong. Please try again.');
+        }
+    }, [
+        videoData,
+        isPinnedEyeOpen,
+        setVideoData,
+        setIsPinnedEyeOpen,
+        trackChapter,
+        refreshData,
+    ]);
 
     return (
         <div className={`${videoData.isSideOpen ? 'lg:col-span-2' : 'hidden'}`}>
             {videoData.videoInfo?.url && (
-                <iframe
-                    src={videoData.videoInfo.url}
-                    title='Video Content'
-                    className='aspect-video w-full rounded-lg'
-                    allowFullScreen
-                />
+                <div className='relative'>
+                    <iframe
+                        src={videoData.videoInfo.url}
+                        title='Video Content'
+                        className='aspect-video w-full rounded-lg'
+                        allowFullScreen
+                    />
+                </div>
             )}
+
             {/* Video Info */}
             <div className='p-4 border-b border-border flex flex-col md:flex-row justify-between items-start md:items-center gap-2'>
                 <div>
@@ -102,13 +199,23 @@ const VideoContent = ({
                     </div>
                 </div>
                 <div className='flex items-center gap-2'>
-                    {/* Pin Icon only, no functionality */}
-                    <Pin
-                        className={cn(
-                            'h-4 w-4 stroke-gray',
-                            isPinnedEyeOpen && 'stroke-primary',
-                        )}
-                    />
+                    {/* Pin/Unpin with clickable functionality */}
+                    <button
+                        onClick={handlePinToggle}
+                        className='flex items-center gap-1 text-gray hover:text-primary-white cursor-pointer'
+                    >
+                        <Pin
+                            className={cn(
+                                'h-4 w-4',
+                                isPinnedEyeOpen
+                                    ? 'stroke-primary'
+                                    : 'stroke-gray',
+                            )}
+                        />
+                        <span className='text-sm'>
+                            {isPinnedEyeOpen ? 'Unpin' : 'Pin'}
+                        </span>
+                    </button>
 
                     <button
                         onClick={() =>

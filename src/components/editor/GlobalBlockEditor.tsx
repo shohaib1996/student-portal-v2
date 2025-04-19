@@ -8,6 +8,8 @@ import {
     MentionMenu,
     MentionMenuItem,
 } from '../lexicalEditor/components/editor-ui/MentionMenu';
+import { instance } from '@/lib/axios/axiosInstance';
+import { useUploadUserDocumentFileMutation } from '@/redux/api/documents/documentsApi';
 
 type TProps = {
     value: string;
@@ -31,6 +33,11 @@ export default function GlobalBlockEditor({
     const [editorState, setEditorState] = useState<SerializedEditorState>(
         value ? JSON.parse(value) : '',
     );
+
+    const [
+        uploadUserDocumentFile,
+        { isLoading: isUploading, isError, isSuccess, data },
+    ] = useUploadUserDocumentFileMutation();
 
     useEffect(() => {
         if (value) {
@@ -115,58 +122,72 @@ export default function GlobalBlockEditor({
         },
     };
 
+
     // Custom image upload handler
     const handleImageUpload = async (file: File) => {
         // Demo implementation
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    url: URL.createObjectURL(file),
-                });
-            }, 1000);
-        });
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await uploadUserDocumentFile(formData).unwrap();
+            return {
+                url: response?.fileUrl,
+            };
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            throw error;
+        }
+
+        // return new Promise((resolve) => {
+        //     setTimeout(() => {
+        //         resolve({
+        //             url: URL.createObjectURL(file),
+        //         });
+        //     }, 1000);
+        // });
     };
 
     // Handle AI text generation
-    const handleAIGeneration = async (
-        prompt: string,
-        transformType: string,
-    ) => {
-        console.log(
-            `AI Generation request: ${transformType}, prompt: ${prompt}`,
-        );
+    // const handleAIGeneration = async (
+    //     prompt: string,
+    //     transformType: string,
+    // ) => {
+    //     console.log(
+    //         `AI Generation request: ${transformType}, prompt: ${prompt}`,
+    //     );
 
-        // Example implementation - replace with your actual API call
-        try {
-            const response = await axios.post(
-                'https://staging-api.bootcampshub.ai/api/organization/integration/generate-text',
-                { prompt },
-                {
-                    headers: {
-                        authorization:
-                            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGVmNjc2NjY5ZWFmNjM3MGMxMTQyOWMiLCJlbWFpbCI6IjE4Nm1kc2hpbXVsQGdtYWlsLmNvbSIsImJyYW5jaCI6IjY0ZmNiNGU4OTQ0Y2YyMTVkOGQzMmY5NSIsIm9yZ2FuaXphdGlvbiI6IjY0ZmNiMmU2MGQyZjg3N2FhY2NiM2IyNiIsInNvdXJjZSI6ImJyYW5jaCIsImZpcnN0TmFtZSI6IkFzaHJhZnVsIiwibGFzdE5hbWUiOiJJc2xhbSIsInByb2ZpbGVQaWN0dXJlIjoiaHR0cHM6Ly90czR1cG9ydGFsLWFsbC1maWxlcy11cGxvYWQubnljMy5kaWdpdGFsb2NlYW5zcGFjZXMuY29tLzE3MTkzODA2Nzg2MTEtU2NyZWVuc2hvdC0yMDI0IiwiaWF0IjoxNzQ0MDU1MzI4LCJleHAiOjE3NDQ2NjAxMjh9.8T76uwuBuKr_qOCnKAe0b-npvE44RxlvlIbkSVKYxRI',
-                        branch: '64fcb4e8944cf215d8d32f95',
-                    },
-                },
-            );
+    //     // Example implementation - replace with your actual API call
+    //     try {
+    //         const response = await axios.post(
+    //             'https://staging-api.bootcampshub.ai/api/organization/integration/generate-text',
+    //             { prompt },
+    //             {
+    //                 headers: {
+    //                     authorization:
+    //                         'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGVmNjc2NjY5ZWFmNjM3MGMxMTQyOWMiLCJlbWFpbCI6IjE4Nm1kc2hpbXVsQGdtYWlsLmNvbSIsImJyYW5jaCI6IjY0ZmNiNGU4OTQ0Y2YyMTVkOGQzMmY5NSIsIm9yZ2FuaXphdGlvbiI6IjY0ZmNiMmU2MGQyZjg3N2FhY2NiM2IyNiIsInNvdXJjZSI6ImJyYW5jaCIsImZpcnN0TmFtZSI6IkFzaHJhZnVsIiwibGFzdE5hbWUiOiJJc2xhbSIsInByb2ZpbGVQaWN0dXJlIjoiaHR0cHM6Ly90czR1cG9ydGFsLWFsbC1maWxlcy11cGxvYWQubnljMy5kaWdpdGFsb2NlYW5zcGFjZXMuY29tLzE3MTkzODA2Nzg2MTEtU2NyZWVuc2hvdC0yMDI0IiwiaWF0IjoxNzQ0MDU1MzI4LCJleHAiOjE3NDQ2NjAxMjh9.8T76uwuBuKr_qOCnKAe0b-npvE44RxlvlIbkSVKYxRI',
+    //                     branch: '64fcb4e8944cf215d8d32f95',
+    //                 },
+    //             },
+    //         );
 
-            const data = await response.data;
+    //         const data = await response.data;
 
-            if (data.success) {
-                return { text: data.text, success: true };
-            } else {
-                console.error('AI generation failed:', data.error);
-                return { text: '', success: false, error: data.error };
-            }
-        } catch (error) {
-            console.error('Error calling AI generation API:', error);
-            return {
-                text: '',
-                success: false,
-                error: 'Failed to connect to AI service',
-            };
-        }
-    };
+    //         if (data.success) {
+    //             return { text: data.text, success: true };
+    //         } else {
+    //             console.error('AI generation failed:', data.error);
+    //             return { text: '', success: false, error: data.error };
+    //         }
+    //     } catch (error) {
+    //         console.error('Error calling AI generation API:', error);
+    //         return {
+    //             text: '',
+    //             success: false,
+    //             error: 'Failed to connect to AI service',
+    //         };
+    //     }
+    // };
 
     // Custom mention search handler
     const handleMentionSearch = async (
@@ -180,16 +201,21 @@ export default function GlobalBlockEditor({
         // You can customize this to fetch from your own API
 
         const searchQuery = query || '';
-        const response = await fetch(
-            `https://jsonplaceholder.typicode.com/users?trigger=${trigger}&query=${searchQuery}`,
-        );
-        const data = await response.json();
+
+        const response = await instance.post('/user/filter', {
+            query: searchQuery,
+        });
+        const data = response.data?.users;
 
         return data?.map(
-            (x: { name: string; id: string | number; avatar: string }) => ({
-                value: x?.name,
-                id: x?.id,
-                avatar: x?.avatar || `https://placehold.co/400`,
+            (x: {
+                fullName: string;
+                _id: string | number;
+                profilePicture: string;
+            }) => ({
+                value: x?.fullName,
+                id: x?._id,
+                avatar: x?.profilePicture || `https://placehold.co/400`,
             }),
         );
     };
@@ -214,7 +240,7 @@ export default function GlobalBlockEditor({
             pluginOptions={defaultPluginOptions}
             maxLength={maxLength}
             onImageUpload={handleImageUpload}
-            onAIGeneration={handleAIGeneration}
+            // onAIGeneration={handleAIGeneration}
             onMentionSearch={handleMentionSearch}
             mentionMenu={MentionMenu}
             mentionMenuItem={MentionMenuItem}

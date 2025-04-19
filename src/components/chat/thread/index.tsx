@@ -164,6 +164,7 @@ const Thread: React.FC<ThreadProps> = ({
                     <div className='flex-1 overflow-y-auto py-2'>
                         <div className='mb-2'>
                             <Message
+                                isThread={true}
                                 message={message}
                                 hideOptions={true}
                                 hideReplyCount={true}
@@ -199,6 +200,7 @@ const Thread: React.FC<ThreadProps> = ({
                                                         index;
                                                     return (
                                                         <Message
+                                                            isThread
                                                             key={
                                                                 message._id ||
                                                                 index
