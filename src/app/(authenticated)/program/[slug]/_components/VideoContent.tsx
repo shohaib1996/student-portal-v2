@@ -61,7 +61,9 @@ const VideoContent: React.FC<VideoContentProps> = ({
     );
 
     const programData = data?.program;
-    const tabData = videoData.videoInfo?.data;
+
+    console.log({ singleData });
+    const tabData = singleData?.chapter?.lesson?.data;
 
     const tabs = tabData
         ? Object.entries(tabData).map(([key, value]) => ({
@@ -202,13 +204,16 @@ const VideoContent: React.FC<VideoContentProps> = ({
                     {/* Pin/Unpin with clickable functionality */}
                     <button
                         onClick={handlePinToggle}
-                        className='flex items-center gap-1 text-gray hover:text-primary-white cursor-pointer'
+                        className={cn(
+                            'flex items-center gap-1 text-gray hover:text-primary-white cursor-pointer group',
+                            isPinnedEyeOpen ? 'stroke-primary' : 'stroke-gray',
+                        )}
                     >
                         <Pin
                             className={cn(
-                                'h-4 w-4',
+                                'h-4 w-4 group-hover:stroke-primary',
                                 isPinnedEyeOpen
-                                    ? 'stroke-primary'
+                                    ? 'stroke-primary '
                                     : 'stroke-gray',
                             )}
                         />
@@ -444,13 +449,15 @@ const VideoContent: React.FC<VideoContentProps> = ({
                                             value={tab.title}
                                             className='mt-0'
                                         >
-                                            {tab.data && (
-                                                <div className='py-2 px-2'>
-                                                    <p className='whitespace-pre-line text-sm font-semibold text-gray'>
-                                                        {tab.data}
-                                                    </p>
-                                                </div>
-                                            )}
+                                            <>
+                                                {tab.data && (
+                                                    <div className='py-2 px-2'>
+                                                        <p className='whitespace-pre-line text-sm font-semibold text-gray'>
+                                                            {tab.data as any}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </>
                                         </TabsContent>
                                     ))}
                                 </Tabs>

@@ -1,31 +1,25 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import type React from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from '@/components/ui/accordion';
-import {
-    File,
-    Folder,
-    Play,
-    ChevronDown,
-    MoreVertical,
-    Pin,
-} from 'lucide-react';
+import { File, Folder, Play, MoreVertical } from 'lucide-react';
 import Link from 'next/link';
-import { ChapterType, TContent, TLessonInfo } from '@/types';
+import { ChapterType, type TContent, type TLessonInfo } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import LessionActionMenu from './LessionActionMenu';
 import {
     buildContentTree,
-    calculateProgress,
     getTotalDuration,
     countLessons,
+    searchContentTree,
 } from '@/utils/tree-utils';
 import LecturesSvg from '@/components/svgs/common/LecturesSvg';
 import MemoizedLoadingIndicator from '@/components/svgs/common/LoadingIndicator';
@@ -46,15 +40,11 @@ interface ContentDropDownProps {
         isLoading: boolean;
         isError: boolean;
         courseProgramsLoading: boolean;
-        setFilterOption: React.Dispatch<
-            React.SetStateAction<{
-                filter: string;
-                query: string;
-            }>
-        >;
     };
     setVideoData: React.Dispatch<React.SetStateAction<VideoDataType>>;
     setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    searchInput: string;
+    filterOption: { filter: string }[];
 }
 
 const ContentDropDown: React.FC<ContentDropDownProps> = ({
@@ -63,6 +53,9 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
     videoData,
     setIsPinnedEyeOpen,
     option,
+
+    searchInput,
+    filterOption,
 }) => {
     // Keep track of expanded chapters
     const [expandedChapters, setExpandedChapters] = useState<Set<string>>(
@@ -76,12 +69,22 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         Map<string, boolean>
     >(new Map());
 
+    console.log('treeData', treeData.slice(0, 10));
+
+    console.log({ filterOption });
     useEffect(() => {
         if (fetchedData && fetchedData.length > 0) {
             try {
                 // Use the fixed buildContentTree function
                 const tree = buildContentTree(fetchedData);
-                setTreeData(tree);
+
+                // Apply search filtering if there's a search query
+                if (searchInput && searchInput.trim() !== '') {
+                    const filteredTree = searchContentTree(tree, searchInput);
+                    setTreeData(filteredTree);
+                } else {
+                    setTreeData(tree);
+                }
             } catch (error) {
                 console.error('Error building content tree:', error);
                 setTreeData([]);
@@ -89,7 +92,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         } else {
             setTreeData([]);
         }
-    }, [fetchedData]);
+    }, [fetchedData, searchInput]); // Add searchInput as a dependency
 
     // NEW: Function to handle lesson completion updates
     const handleProgressUpdate = useCallback(
@@ -413,6 +416,10 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                                         height='13'
                                                         viewBox='0 0 12 13'
                                                         fill='none'
+                                                        stroke='#5C5958'
+                                                        strokeWidth='1.2'
+                                                        strokeLinecap='round'
+                                                        strokeLinejoin='round'
                                                     >
                                                         <path
                                                             d='M11 6.5C11 9.26 8.76 11.5 6 11.5C3.24 11.5 1 9.26 1 6.5C1 3.74 3.24 1.5 6 1.5C8.76 1.5 11 3.74 11 6.5Z'
@@ -535,6 +542,37 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
             </Accordion>
         </div>
     );
+};
+
+const filterContent = (
+    treeData: TContent[],
+    filterOption: { filter: string }[],
+): TContent[] => {
+    if (!filterOption || filterOption.length === 0) {
+        return treeData;
+    }
+
+    const filteredTree = treeData.map((item) => {
+        if (item.type === ChapterType.CHAPTER && item.children) {
+            const filteredChildren = filterContent(item.children, filterOption);
+            return { ...item, children: filteredChildren };
+        }
+
+        const matchesFilter = filterOption.every((filterObj) => {
+            const filterValue = filterObj.filter.toLowerCase();
+            if (item.type === ChapterType.LESSON && item.lesson) {
+                return item.lesson.title.toLowerCase().includes(filterValue);
+            }
+            if (item.type === ChapterType.CHAPTER && item.chapter) {
+                return item.chapter.name.toLowerCase().includes(filterValue);
+            }
+            return false;
+        });
+
+        return matchesFilter ? item : null;
+    });
+
+    return filteredTree.filter(Boolean) as TContent[];
 };
 
 export default ContentDropDown;
