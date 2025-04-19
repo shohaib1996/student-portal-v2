@@ -33,9 +33,9 @@ export function DraggableBlockPlugin({
             menuComponent={
                 <div
                     ref={menuRef}
-                    className='draggable-block-menu absolute left-0 top-0 cursor-grab rounded-sm px-[1px] py-0.5 opacity-0 will-change-transform hover:bg-gray-100 active:cursor-grabbing'
+                    className='draggable-block-menu absolute left-0 top-0 cursor-grab rounded-sm px-[1px] py-0.5 opacity-0 will-change-transform hover:bg-gray-100 active:cursor-grabbing mr-2'
                 >
-                    <GripVerticalIcon className='size-4 opacity-30' />
+                    <GripVerticalIcon className='size-4 opacity-30 ' />
                 </div>
             }
             targetLineComponent={

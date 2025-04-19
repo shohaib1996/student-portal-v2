@@ -93,6 +93,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
         isAi,
         searchQuery,
         isPopUp,
+        isThread = false,
     } = props;
 
     const [creating, setCreating] = useState(false);
@@ -372,7 +373,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                 />
                             </div>
                         </div>
-                        <div className='flex flex-col'>
+                        <div className='flex flex-col w-full'>
                             <div className='flex flex-col w-full'>
                                 <div
                                     className={`rounded-lg p-2 ${
@@ -447,7 +448,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                                         }}
                                                                     >
                                                                         <div
-                                                                            className={`w-full ${isPopUp ? 'h-[100px]' : 'h-[150px] xl:h-[200px]'}  flex items-center justify-center`}
+                                                                            className={`w-full ${isPopUp ? (file?.type.startsWith('audio') ? 'h-full' : 'h-[100px]') : file?.type.startsWith('audio') ? 'h-full' : 'h-[150px] xl:h-[200px]'}  flex items-center justify-center`}
                                                                         >
                                                                             <FileCard
                                                                                 isPopUp={
@@ -613,30 +614,31 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
 
                                 <div className='flex items-center gap-1 mt-1 relative'>
                                     {message?.type !== 'delete' &&
-                                    message?.replyCount ? (
-                                        message?.replyCount > 0 &&
-                                        !hideReplyCount && (
-                                            <div
-                                                className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer'
-                                                onClick={handleThreadMessage}
-                                            >
-                                                <span className='text-primary-white flex flex-row items-center gap-1'>
-                                                    Replies{' '}
-                                                    {message?.replyCount}{' '}
-                                                </span>
-                                                <ChevronDown className='h-3 w-3 text-gray' />
-                                            </div>
-                                        )
-                                    ) : (
-                                        <div
-                                            className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer mr-3'
-                                            onClick={handleThreadMessage}
-                                        >
-                                            <span className='text-dark-gray'>
-                                                Reply
-                                            </span>
-                                        </div>
-                                    )}
+                                    !isThread &&
+                                    message?.replyCount
+                                        ? message?.replyCount > 0 &&
+                                          !hideReplyCount && (
+                                              <div
+                                                  className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer'
+                                                  onClick={handleThreadMessage}
+                                              >
+                                                  <span className='text-primary-white flex flex-row items-center gap-1'>
+                                                      Replies{' '}
+                                                      {message?.replyCount}{' '}
+                                                  </span>
+                                                  <ChevronDown className='h-3 w-3 text-gray' />
+                                              </div>
+                                          )
+                                        : !isThread && (
+                                              <div
+                                                  className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer mr-3'
+                                                  onClick={handleThreadMessage}
+                                              >
+                                                  <span className='text-dark-gray'>
+                                                      Reply
+                                                  </span>
+                                              </div>
+                                          )}
                                     {/* Existing reactions */}
                                     {message?.reactions &&
                                         Object.keys(message?.reactions).length >
@@ -704,6 +706,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                             </div>
                             {/* replies tree ------------------------ */}
                             {message?.replyCount > 0 &&
+                                !isThread &&
                                 initialReplies.length > 0 &&
                                 source !== 'thread' && (
                                     <div className=''>
@@ -995,7 +998,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         </div>
                                         {source !== 'thread' && !isAi && (
                                             <DropdownMenuItem
-                                                className='cursor-pointer flex items-center gap-2 hover:bg-background hover:text-primary-white'
+                                                className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
                                                 onClick={handleThreadMessage}
                                             >
                                                 <Reply className='h-4 w-4' />
@@ -1006,7 +1009,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             message?.sender?._id ===
                                                 user?._id && (
                                                 <DropdownMenuItem
-                                                    className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                                    className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
                                                     onClick={() => {
                                                         if (setEditMessage) {
                                                             setEditMessage(
@@ -1021,7 +1024,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             )}
                                         {message?.files?.length === 0 && (
                                             <DropdownMenuItem
-                                                className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                                className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
                                                 onClick={handleCopyClick}
                                             >
                                                 <Copy className='h-4 w-4' />
@@ -1030,7 +1033,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         )}
 
                                         <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }
@@ -1039,7 +1042,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             History
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
                                             onClick={() => {
                                                 handlePin(message);
                                             }}
@@ -1050,7 +1053,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 : 'Pin Message'}
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }
@@ -1059,14 +1062,14 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             Star
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
                                             onClick={handleForward}
                                         >
                                             <Forward className='h-4 w-4' />
                                             Forward
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white'
+                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }
@@ -1080,7 +1083,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 user?._id &&
                                             !isAi && (
                                                 <DropdownMenuItem
-                                                    className='flex items-center gap-2 hover:bg-primary-light !text-red-500'
+                                                    className='flex items-center gap-2 hover:!bg-foreground !text-red-500'
                                                     onClick={() =>
                                                         handleDeleteMessage(
                                                             message,
@@ -1092,7 +1095,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 </DropdownMenuItem>
                                             )}
                                         <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:bg-primary-light hover:text-primary-white border-t'
+                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white border-t'
                                             onClick={() =>
                                                 toast.info('Coming soon!')
                                             }

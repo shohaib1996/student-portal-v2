@@ -33,6 +33,8 @@ import {
 import EditMessageModal from '../Message/EditMessageModal';
 import { TypingData } from '@/helper/socketHandler';
 import ForwardMessageModal from '../Message/ForwardMessageModal';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
+import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 interface ChatMessage {
     _id: string;
@@ -144,7 +146,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
 }) => {
     const params = useParams();
     const dispatch = useDispatch();
-
+    const [isAttachmentVisible, setIsAttachmentVisible] = useState(false);
     // Use the chatId from props if in popup mode, otherwise from URL params
     const selectedChatId = isPopup ? chatId : (params?.chatid as string);
     const [showPinnedMessages, setShowPinnedMessages] = useState(false);
@@ -720,9 +722,8 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                                     )}
                                             </AvatarFallback>
                                         </Avatar>
-
-                                        <span className='font-medium text-sm max-w-[150px] truncate'>
-                                            {
+                                        <GlobalTooltip
+                                            tooltip={
                                                 messages
                                                     .filter(
                                                         (message) =>
@@ -738,7 +739,27 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                                             ).getTime(),
                                                     )[0]?.pinnedBy?.fullName
                                             }
-                                        </span>
+                                        >
+                                            <span className='font-medium text-sm max-w-[150px] truncate'>
+                                                {
+                                                    messages
+                                                        .filter(
+                                                            (message) =>
+                                                                message.pinnedBy,
+                                                        )
+                                                        .sort(
+                                                            (a, b) =>
+                                                                new Date(
+                                                                    b.createdAt as string,
+                                                                ).getTime() -
+                                                                new Date(
+                                                                    a.createdAt as string,
+                                                                ).getTime(),
+                                                        )[0]?.pinnedBy
+                                                        ?.firstName
+                                                }
+                                            </span>
+                                        </GlobalTooltip>
 
                                         <span className='text-xs text-gray w-[50px]'>
                                             {dayjs(
@@ -760,27 +781,8 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                         </span>
 
                                         <div className='flex-1 truncate text-sm text-gray ml-2 max-w-[calc(100%-200px)]'>
-                                            {/* <MessagePreview
-                                                searchQuery={searchQuery}
-                                                text={
-                                                    messages
-                                                        .filter(
-                                                            (message) =>
-                                                                message.pinnedBy,
-                                                        )
-                                                        .sort(
-                                                            (a, b) =>
-                                                                new Date(
-                                                                    b.createdAt,
-                                                                ).getTime() -
-                                                                new Date(
-                                                                    a.createdAt,
-                                                                ).getTime(),
-                                                        )[0]?.text
-                                                }
-                                            /> */}
-                                            {
-                                                messages
+                                            {(() => {
+                                                const pinnedMessages = messages
                                                     .filter(
                                                         (message) =>
                                                             message.pinnedBy,
@@ -793,8 +795,30 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                                             new Date(
                                                                 a.createdAt as string,
                                                             ).getTime(),
-                                                    )[0]?.text
-                                            }
+                                                    );
+
+                                                const latestPinned =
+                                                    pinnedMessages[0];
+
+                                                if (
+                                                    latestPinned?.files
+                                                        ?.length > 0
+                                                ) {
+                                                    return (
+                                                        <span className='text-xs text-black'>
+                                                            📎 Pinned Media
+                                                        </span>
+                                                    );
+                                                }
+
+                                                return renderPlainText({
+                                                    text: latestPinned?.text as string,
+                                                    textSize: 'text-xs',
+                                                    textColor: 'text-black',
+                                                    width: 'w-full',
+                                                    lineClamp: 1,
+                                                });
+                                            })()}
                                         </div>
 
                                         <Pin className='h-4 w-4 text-dark-gray rotate-45 ml-2 flex-shrink-0' />
@@ -1067,36 +1091,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     profileInfoShow={profileInfoShow}
                     sendTypingIndicator={sendTypingIndicator}
                     isPopUp={true}
-                />
-            )}
-            {showPinnedMessages && (
-                <div className='w-full items-center justify-center flex border-t pt-2 mt-2'>
-                    <Button
-                        onClick={() => setShowPinnedMessages(false)}
-                        className='w-fit px-10'
-                        variant={'destructive'}
-                    >
-                        Exit Pin Mode
-                    </Button>
-                </div>
-            )}
-
-            {/* Thread modal */}
-            {threadMessage && (
-                <Thread
-                    chat={chat}
-                    handleClose={() => setThreadMessage(null)}
-                    message={threadMessage}
-                    setEditMessage={setEditMessage}
-                />
-            )}
-
-            {/* Edit message modal */}
-            {editMessage && chat && (
-                <EditMessageModal
-                    chat={chat}
-                    selectedMessage={editMessage}
-                    handleCloseEdit={() => setEditMessage(null)}
+                    setIsAttachment={setIsAttachmentVisible}
                 />
             )}
             {forwardMessage && (

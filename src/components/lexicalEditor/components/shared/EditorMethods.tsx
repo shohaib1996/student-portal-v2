@@ -32,14 +32,14 @@ const EditorMethods = React.forwardRef(
         const initializedRef = React.useRef<any>(null);
 
         React.useEffect(() => {
-            console.log({
-                initialMarkdown,
-                renderedText: initializedRef.current?.renderedText,
-            });
+            // console.log({
+            //     initialMarkdown,
+            //     renderedText: initializedRef.current?.renderedText,
+            // });
 
             if (
-                !initializedRef.current?.isRendered ||
-                initializedRef.current?.renderedText !== initialMarkdown
+                !initializedRef.current?.isRendered
+                // initializedRef.current?.renderedText !== initialMarkdown
             ) {
                 editor.update(() => {
                     if (initialMarkdown) {
@@ -47,6 +47,8 @@ const EditorMethods = React.forwardRef(
                         $convertFromMarkdownString(
                             initialMarkdown,
                             transformers,
+                            undefined,
+                            true,
                         );
 
                         // Move selection to the end of the editor content
@@ -55,11 +57,11 @@ const EditorMethods = React.forwardRef(
                     }
                 });
                 initializedRef.current = {
-                    isRendered: true,
+                    isRendered: Boolean(initialMarkdown),
                     renderedText: initialMarkdown,
                 };
             }
-        }, [editor, initialMarkdown, transformers]);
+        }, [transformers, initialMarkdown, editor]);
 
         React.useEffect(() => {
             if (editor && initialHtml) {

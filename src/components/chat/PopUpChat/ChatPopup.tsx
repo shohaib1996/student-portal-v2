@@ -10,6 +10,7 @@ import ChatListModal from './ChatListModal';
 import ChatConversationModal from './ChatConversationModal';
 import MinimizedChatTabs from './MinimizedChatTabs';
 import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
+import { useAppSelector } from '@/redux/hooks';
 
 // Loading fallback
 const LoadingFallback = () => (
@@ -21,7 +22,8 @@ const LoadingFallback = () => (
 const ChatPopup = () => {
     const { isListOpen, openModals, openListModal, closeListModal } =
         useChatModals();
-    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    // const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { chats = [] } = useAppSelector((state) => state.chat);
     const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
 
     // State for button position

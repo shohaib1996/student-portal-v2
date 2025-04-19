@@ -21,6 +21,7 @@ import { useDispatch } from 'react-redux';
 import { updateLatestMessage, pushMessage } from '@/redux/features/chatReducer';
 import { socket } from '@/helper/socketManager';
 import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 interface ForwardMessageModalProps {
     isOpen: boolean;
@@ -38,7 +39,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
     const [selectedChats, setSelectedChats] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [sending, setSending] = useState(false);
-
+    console.log({ message });
     // Get chats from Redux store
     const { chats } = useAppSelector((state) => state.chat);
     const { user } = useAppSelector((state) => state.auth);
@@ -93,7 +94,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
         setSending(true);
         try {
             const chatIds = selectedChats.map((chat) => chat._id);
-
+            console.log({ chatIds });
             // Call the API to forward message
             const response = await instance.post(
                 `/chat/message/forward/${message._id}`,
@@ -101,40 +102,45 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                     chatIds,
                 },
             );
-
             // Handle the forwarded messages
-            if (response.data && response.data.forwardedMessages) {
+            if (response.data && response.data.success === true) {
                 // Process each forwarded message through Redux
-                response.data.forwardedMessages.forEach(
-                    (forwardedMessage: any) => {
-                        // Update Redux store with the new message
-                        dispatch(
-                            pushMessage({
-                                message: forwardedMessage,
-                            }),
-                        );
 
-                        // Update latest message in each chat
-                        dispatch(
-                            updateLatestMessage({
-                                chatId: forwardedMessage.chat,
-                                latestMessage: forwardedMessage,
-                            }),
-                        );
+                // response.data.forwardedMessages.forEach(
+                //     (forwardedMessage: any) => {
+                //         // Update Redux store with the new message
+                //         dispatch(
+                //             pushMessage({
+                //                 message: forwardedMessage,
+                //             }),
+                //         );
 
-                        // Join the chat room via socket if needed
-                        socket?.emit('join-chat-room', {
-                            chatId: forwardedMessage.chat,
-                        });
-                    },
+                //         // Update latest message in each chat
+                //         dispatch(
+                //             updateLatestMessage({
+                //                 chatId: forwardedMessage.chat,
+                //                 latestMessage: forwardedMessage,
+                //             }),
+                //         );
+
+                //         // Join the chat room via socket if needed
+                //         socket?.emit('join-chat-room', {
+                //             chatId: forwardedMessage.chat,
+                //         });
+                //     },
+                // );
+                toast.success(
+                    selectedChats.length > 1
+                        ? `Message forwarded to ${selectedChats.length} chats`
+                        : 'Message forwarded successfully',
                 );
             }
 
-            toast.success(
-                selectedChats.length > 1
-                    ? `Message forwarded to ${selectedChats.length} chats`
-                    : 'Message forwarded successfully',
-            );
+            // toast.success(
+            //     selectedChats.length > 1
+            //         ? `Message forwarded to ${selectedChats.length} chats`
+            //         : 'Message forwarded successfully',
+            // );
 
             onClose();
         } catch (error) {
@@ -188,39 +194,73 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
     const renderMessagePreview = () => {
         if (message?.files && message.files.length > 0) {
             return (
-                <div className='flex items-center gap-1 p-2 bg-background rounded-md mb-2 shadow-md border'>
-                    <div className='w-12 h-12 bg-foreground rounded-md overflow-hidden flex-shrink-0'>
-                        {message.files[0].type.startsWith('image/') ? (
-                            <img
-                                src={message.files[0].url || '/placeholder.svg'}
-                                alt='Attachment'
-                                className='w-full h-full object-cover'
-                            />
-                        ) : (
-                            <div className='w-full h-full flex items-center justify-center text-xs text-gray'>
-                                File
-                            </div>
-                        )}
+                <div
+                    className={`flex ${message.files[0].type.startsWith('audio/') ? 'flex-col items-start' : 'flex-row items-center'} gap-1 p-2 bg-background rounded-md mb-2 shadow-md border`}
+                >
+                    <div
+                        className={`h-12 ${message.files[0].type.startsWith('audio/') ? 'w-full' : 'w-12 bg-foreground '} rounded-md overflow-hidden flex-shrink-0`}
+                    >
+                        {message.files[0] ? (
+                            message.files[0].type.startsWith('image/') ? (
+                                <img
+                                    src={
+                                        message.files[0].url ||
+                                        '/placeholder.svg'
+                                    }
+                                    alt='Image preview'
+                                    className='w-full h-full object-cover'
+                                />
+                            ) : message.files[0].type.startsWith('audio/') ? (
+                                <audio
+                                    controls
+                                    className='w-full rounded-md'
+                                    style={{
+                                        minHeight: '40px',
+                                        height: '40px',
+                                    }}
+                                >
+                                    <source
+                                        src={message.files[0].url}
+                                        type={message.files[0].type}
+                                    />
+                                    Your browser does not support the audio
+                                    element.
+                                </audio>
+                            ) : message.files[0].type.startsWith('video/') ? (
+                                <video
+                                    src={message.files[0].url}
+                                    className='w-full h-full object-cover'
+                                    controls
+                                />
+                            ) : (
+                                <div className='w-full h-full flex items-center justify-center text-xs text-muted-foreground'>
+                                    📎
+                                </div>
+                            )
+                        ) : null}
                     </div>
+
                     <div className='flex-1 min-w-0'>
                         <p className='text-sm font-medium'>
-                            {message.files[0].type.startsWith('image/')
+                            {message.files[0]?.type.startsWith('image/')
                                 ? 'Image'
-                                : 'File'}
+                                : message.files[0]?.type.startsWith('audio/')
+                                  ? 'Audio'
+                                  : message.files[0]?.type.startsWith('video/')
+                                    ? 'Video'
+                                    : 'Attachment'}
                         </p>
-                        <p className='text-xs text-gray truncate'>
-                            {message.text || 'No caption'}
+                        <p className='text-xs text-muted-foreground truncate'>
+                            {renderPlainText({
+                                text: message.text || '',
+                                textSize: 'text-xs',
+                                textColor: 'text-dark-gray',
+                                // truncate: true,
+                                lineClamp: 2,
+                                width: 'w-full',
+                            }) || 'No caption'}
                         </p>
                     </div>
-                    <button
-                        className='bg-danger p-1 rounded-full'
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onClose();
-                        }}
-                    >
-                        <X size={16} className='text-pure-white' />
-                    </button>
                 </div>
             );
         }

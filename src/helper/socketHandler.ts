@@ -94,6 +94,15 @@ const setupSocketListeners = (api?: any): (() => void) => {
     socket.on('newmessage', (data: MessageData) => {
         const isSoundOnOrOff = store.getState()?.notification?.isSoundOnOrOff;
 
+        if (data.message.forwardedFrom) {
+            store.dispatch(
+                updateLatestMessage({
+                    chatId: data?.message?.chat,
+                    latestMessage: data.message,
+                    counter: 1,
+                }),
+            );
+        }
         if (data.message?.sender?._id !== user._id) {
             updateStatus(data?.message?._id, 'delivered');
             store.dispatch(

@@ -23,6 +23,7 @@ import { instance } from '@/lib/axios/axiosInstance';
 import Thread from './thread';
 import EditMessageModal from './Message/EditMessageModal';
 import ForwardMessageModal from './Message/ForwardMessageModal';
+import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
 
 interface ChatMessage {
     _id: string;
@@ -522,12 +523,38 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                                             ).getTime(),
                                                     )[0];
 
-                                                // Check if text exists
-                                                if (pinnedMessage?.text) {
-                                                    return pinnedMessage.text;
-                                                } else {
+                                                if (!pinnedMessage) {
+                                                    return null;
+                                                }
+
+                                                // If there are files, show pinned media
+                                                if (
+                                                    pinnedMessage.files &&
+                                                    pinnedMessage.files.length >
+                                                        0
+                                                ) {
                                                     return '📎 Pinned Media';
                                                 }
+
+                                                // If there's text, show the text
+                                                if (pinnedMessage.text) {
+                                                    return (
+                                                        <p>
+                                                            {renderPlainText({
+                                                                text: pinnedMessage.text,
+                                                                textSize:
+                                                                    'text-xs',
+                                                                textColor:
+                                                                    'text-black',
+                                                                width: 'w-full',
+                                                                lineClamp: 1,
+                                                            })}
+                                                        </p>
+                                                    );
+                                                }
+
+                                                // Default fallback
+                                                return '📎 Pinned conversation';
                                             })()}
                                         </div>
 

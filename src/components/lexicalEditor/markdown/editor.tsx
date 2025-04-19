@@ -196,11 +196,7 @@ export function MarkdownEditor({
                         : {}),
                 }}
             >
-                <TooltipProvider
-                // initialMarkdown={initialMarkdown}
-                // transformers={TRANSFORMERS}
-                // editorRef={editorRef}
-                >
+                <TooltipProvider>
                     <EditorMethods
                         initialMarkdown={initialMarkdown}
                         transformers={TRANSFORMERS}
