@@ -10,7 +10,7 @@ import {
     Check,
 } from 'lucide-react';
 import Image from 'next/image';
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import dayjs from 'dayjs';
@@ -34,7 +34,9 @@ interface VideoContentProps {
     refreshData?: () => void;
     setVideoData: React.Dispatch<React.SetStateAction<any>>;
     isPinnedEyeOpen: boolean;
-    // NEW: Add callback for progress updates
+    setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    // Add callback for progress updates
+    onProgressUpdate?: (lessonId: string, isCompleted: boolean) => void;
 }
 
 const VideoContent: React.FC<VideoContentProps> = ({
@@ -42,7 +44,8 @@ const VideoContent: React.FC<VideoContentProps> = ({
     refreshData,
     setVideoData,
     isPinnedEyeOpen,
-    // NEW: Accept progress update callback
+    setIsPinnedEyeOpen,
+    onProgressUpdate,
 }) => {
     // Wait for required data
     if (!videoData || (!videoData.videoInfo && videoData.isSideOpen)) {
@@ -53,12 +56,10 @@ const VideoContent: React.FC<VideoContentProps> = ({
     const { data } = useMyProgramQuery<{ data: TProgramMain }>(undefined);
     const [trackChapter, { isLoading: isTracking }] = useTrackChapterMutation();
 
-    console.log(videoData);
     const { data: singleData } = useGetSingleChapterQuery(
         videoData?.contentId as string,
     );
 
-    console.log({ singleData });
     const programData = data?.program;
     const tabData = videoData.videoInfo?.data;
 
@@ -70,6 +71,82 @@ const VideoContent: React.FC<VideoContentProps> = ({
           }))
         : [];
 
+    // Function to handle pin/unpin
+    const handlePinToggle = useCallback(async () => {
+        if (!videoData.contentId) {
+            return;
+        }
+
+        const action = isPinnedEyeOpen ? 'unpin' : 'pin';
+        const newPinStatus = !isPinnedEyeOpen;
+
+        try {
+            // Update local state immediately (optimistic update)
+            setVideoData(
+                (prev: {
+                    videoInfo: null | TLessonInfo;
+                    isSideOpen: boolean;
+                    item: TContent;
+                    contentId: string | null;
+                }) => ({
+                    ...prev,
+                    item: {
+                        ...prev.item,
+                        isPinned: newPinStatus,
+                    },
+                }),
+            );
+
+            // Update the pin status in parent component
+            setIsPinnedEyeOpen(newPinStatus);
+
+            // Make API call
+            const courseId = videoData.item?.myCourse?.course;
+            if (courseId) {
+                await trackChapter({
+                    courseId,
+                    action,
+                    chapterId: videoData.contentId,
+                });
+
+                // This will cause the tree to refresh and update the LessonActionMenu
+                if (refreshData) {
+                    refreshData();
+                }
+
+                toast.success(
+                    `${action.charAt(0).toUpperCase() + action.slice(1)} has been successful`,
+                );
+            }
+        } catch (error) {
+            // Revert on error
+            setVideoData(
+                (prev: {
+                    videoInfo: null | TLessonInfo;
+                    isSideOpen: boolean;
+                    item: TContent;
+                    contentId: string | null;
+                }) => ({
+                    ...prev,
+                    item: {
+                        ...prev.item,
+                        isPinned: isPinnedEyeOpen,
+                    },
+                }),
+            );
+            setIsPinnedEyeOpen(isPinnedEyeOpen);
+
+            toast.error('Something went wrong. Please try again.');
+        }
+    }, [
+        videoData,
+        isPinnedEyeOpen,
+        setVideoData,
+        setIsPinnedEyeOpen,
+        trackChapter,
+        refreshData,
+    ]);
+
     return (
         <div className={`${videoData.isSideOpen ? 'lg:col-span-2' : 'hidden'}`}>
             {videoData.videoInfo?.url && (
@@ -80,8 +157,6 @@ const VideoContent: React.FC<VideoContentProps> = ({
                         className='aspect-video w-full rounded-lg'
                         allowFullScreen
                     />
-
-                    {/* NEW: Add completion button overlay */}
                 </div>
             )}
 
@@ -124,13 +199,23 @@ const VideoContent: React.FC<VideoContentProps> = ({
                     </div>
                 </div>
                 <div className='flex items-center gap-2'>
-                    {/* Pin Icon only, no functionality */}
-                    <Pin
-                        className={cn(
-                            'h-4 w-4 stroke-gray',
-                            isPinnedEyeOpen && 'stroke-primary',
-                        )}
-                    />
+                    {/* Pin/Unpin with clickable functionality */}
+                    <button
+                        onClick={handlePinToggle}
+                        className='flex items-center gap-1 text-gray hover:text-primary-white cursor-pointer'
+                    >
+                        <Pin
+                            className={cn(
+                                'h-4 w-4',
+                                isPinnedEyeOpen
+                                    ? 'stroke-primary'
+                                    : 'stroke-gray',
+                            )}
+                        />
+                        <span className='text-sm'>
+                            {isPinnedEyeOpen ? 'Unpin' : 'Pin'}
+                        </span>
+                    </button>
 
                     <button
                         onClick={() =>

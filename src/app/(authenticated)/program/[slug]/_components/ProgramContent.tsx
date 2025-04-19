@@ -17,6 +17,7 @@ const ProgramContent = ({
     option,
     fetchedData,
     courseContentData,
+    refetchCourseContent,
 }: {
     option: {
         isLoading: boolean;
@@ -29,6 +30,7 @@ const ProgramContent = ({
             }>
         >;
     };
+    refetchCourseContent: () => void;
 
     selectedTab: { tab: string; value: string };
     fetchedData: TContent[] | null;
@@ -76,6 +78,14 @@ const ProgramContent = ({
             };
         });
     };
+
+    // In ProgramContent.tsx
+    const refreshData = useCallback(() => {
+        // If you're using React Query or RTK Query, use their refetch methods
+        if (refetchCourseContent) {
+            refetchCourseContent();
+        }
+    }, [refetchCourseContent]);
 
     // NEW: Function to handle progress updates
     const handleProgressUpdate = useCallback(
@@ -212,6 +222,8 @@ const ProgramContent = ({
                             videoData={videoData}
                             setVideoData={setVideoData}
                             isPinnedEyeOpen={isPinnedEyeOpen}
+                            setIsPinnedEyeOpen={setIsPinnedEyeOpen}
+                            refreshData={refreshData}
                             // NEW: Pass progress update handler
                         />
                     )}

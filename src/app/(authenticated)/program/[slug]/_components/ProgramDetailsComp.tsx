@@ -41,11 +41,14 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
         useCourseContentQuery({ slug });
 
     // Use the single API call with filter parameters
-    const { data: programsData, isLoading: courseProgramsLoading } =
-        useGetAllCourseProgramsQuery({
-            slug: slug,
-            categoryID: selectedTab?.value,
-        });
+    const {
+        data: programsData,
+        isLoading: courseProgramsLoading,
+        refetch: refetchCourseContent,
+    } = useGetAllCourseProgramsQuery({
+        slug: slug,
+        categoryID: selectedTab?.value,
+    });
 
     // Extract relevant data
     const program: TProgram | undefined = myPrograms?.program;
@@ -160,6 +163,7 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                         selectedTab={selectedTab}
                         fetchedData={chaptersData}
                         courseContentData={courseContentData}
+                        refetchCourseContent={refetchCourseContent}
                     />
                 </TabsContent>
             </Tabs>

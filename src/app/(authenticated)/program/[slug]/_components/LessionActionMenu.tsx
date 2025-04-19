@@ -29,7 +29,6 @@ const LessionActionMenu = ({
     setVideoData,
     setIsPinnedEyeOpen,
     videoData,
-    // Add new prop for updating completion in parent component
     onProgressUpdate,
 }: {
     lessonId: string;
@@ -38,12 +37,13 @@ const LessionActionMenu = ({
     setVideoData: any;
     videoData: any;
     setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    // New prop for updating progress in ContentDropDown
     onProgressUpdate?: (lessonId: string, isCompleted: boolean) => void;
 }) => {
     if (!item) {
         return <div>Loading...</div>;
     }
+
+    console.log({ videoData });
 
     const [isLoading, setIsLoading] = useState(false);
     const [isPinned, setIsPinned] = useState(item.isPinned ?? false);
@@ -58,6 +58,13 @@ const LessionActionMenu = ({
         setIsPinned(item.isPinned ?? false);
         setIsCompleted(item.isCompleted ?? false);
         setIsFocused(item.isFocused ?? false);
+
+        if (!videoData?.item?.isPinned) {
+            setIsPinned(false);
+        }
+        if (videoData?.item?.isPinned) {
+            setIsPinned(true);
+        }
     }, [item.isPinned, item.isCompleted, item.isFocused]);
 
     const handleAction = async (action: string) => {
@@ -66,13 +73,45 @@ const LessionActionMenu = ({
             // Start optimistic UI update first
             const isCompletingAction = action === 'complete';
             const isUncompletingAction = action === 'incomplete';
+            const isPinningAction = action === 'pin';
+            const isUnpinningAction = action === 'unpin';
 
             // Update local state immediately for UI responsiveness
             const actionMap: Record<string, () => void> = {
                 focus: () => setIsFocused(true),
                 unfocus: () => setIsFocused(false),
-                pin: () => setIsPinned(true),
-                unpin: () => setIsPinned(false),
+                pin: () => {
+                    setIsPinned(true);
+                    // Update pin status in VideoContent component
+                    setIsPinnedEyeOpen(true);
+
+                    // Update the videoData if this is the current active item
+                    if (videoData?.contentId === lessonId) {
+                        setVideoData((prev: any) => ({
+                            ...prev,
+                            item: {
+                                ...prev.item,
+                                isPinned: true,
+                            },
+                        }));
+                    }
+                },
+                unpin: () => {
+                    setIsPinned(false);
+                    // Update pin status in VideoContent component
+                    setIsPinnedEyeOpen(false);
+
+                    // Update the videoData if this is the current active item
+                    if (videoData?.contentId === lessonId) {
+                        setVideoData((prev: any) => ({
+                            ...prev,
+                            item: {
+                                ...prev.item,
+                                isPinned: false,
+                            },
+                        }));
+                    }
+                },
                 complete: () => setIsCompleted(true),
                 incomplete: () => setIsCompleted(false),
             };
@@ -93,14 +132,41 @@ const LessionActionMenu = ({
             toast.success(
                 `${action.charAt(0).toUpperCase() + action.slice(1)} has been successful`,
             );
-            setIsPinnedEyeOpen(isPinned);
         } catch (error) {
             // If API call fails, revert the local state
             const revertActionMap: Record<string, () => void> = {
                 focus: () => setIsFocused(false),
                 unfocus: () => setIsFocused(true),
-                pin: () => setIsPinned(false),
-                unpin: () => setIsPinned(true),
+                pin: () => {
+                    setIsPinned(false);
+                    setIsPinnedEyeOpen(false);
+
+                    // Revert videoData if needed
+                    if (videoData?.contentId === lessonId) {
+                        setVideoData((prev: any) => ({
+                            ...prev,
+                            item: {
+                                ...prev.item,
+                                isPinned: false,
+                            },
+                        }));
+                    }
+                },
+                unpin: () => {
+                    setIsPinned(true);
+                    setIsPinnedEyeOpen(true);
+
+                    // Revert videoData if needed
+                    if (videoData?.contentId === lessonId) {
+                        setVideoData((prev: any) => ({
+                            ...prev,
+                            item: {
+                                ...prev.item,
+                                isPinned: true,
+                            },
+                        }));
+                    }
+                },
                 complete: () => setIsCompleted(false),
                 incomplete: () => setIsCompleted(true),
             };

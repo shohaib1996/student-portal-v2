@@ -295,12 +295,6 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                         </div>
 
                                         <div className='flex items-center gap-1'>
-                                            {item.isPinned && (
-                                                <Pin
-                                                    size={16}
-                                                    className='text-primary'
-                                                />
-                                            )}
                                             <LessionActionMenu
                                                 videoData={videoData}
                                                 item={item}
