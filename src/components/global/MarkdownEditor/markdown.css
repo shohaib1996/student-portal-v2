@@ -11,3 +11,74 @@
 ._contentEditable_uazmk_379 {
     @apply h-40;
 }
+/* -------------- New Updates for showing list styles -------------- */
+/* Add these styles to your global CSS file */
+
+.message-preview ul {
+    list-style-type: disc;
+    list-style-position: outside;
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+.message-preview ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+.message-preview li {
+    margin: 0.25rem 0;
+    display: list-item;
+}
+
+/* For Markdown Preview component */
+.wmde-markdown ul {
+    list-style-type: disc !important;
+    list-style-position: outside !important;
+    padding-left: 1.5rem !important;
+    margin: 0.5rem 0 !important;
+}
+
+.wmde-markdown ol {
+    list-style-type: decimal !important;
+    list-style-position: outside !important;
+    padding-left: 1.5rem !important;
+    margin: 0.5rem 0 !important;
+}
+
+.wmde-markdown li {
+    margin: 0.25rem 0 !important;
+    display: list-item !important;
+}
+
+/* Apply proper styles to nested lists */
+.message-preview ul ul,
+.message-preview ol ol,
+.message-preview ol ul,
+.message-preview ul ol,
+.wmde-markdown ul ul,
+.wmde-markdown ol ol,
+.wmde-markdown ol ul,
+.wmde-markdown ul ol {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Fix for Lexical Editor's list rendering */
+.lexical-list-item {
+    display: list-item !important;
+}
+
+.lexical-list-item::marker {
+    font-weight: bold;
+}
+
+/* Ensure list styles appear in dark mode */
+.dark .message-preview ul,
+.dark .message-preview ol,
+.dark .wmde-markdown ul,
+.dark .wmde-markdown ol {
+    color: inherit;
+}

@@ -193,7 +193,7 @@ const TechnicalTest = () => {
                         variant='default'
                         disabled={false}
                         onClick={() => handleTestNowClick(row.original)}
-                        className='hover:bg-primary-light rounded-md px-3.5 py-2.5 h-auto w-full'
+                        className='hover:bg-primary-light rounded-md px-3.5 py-2.5 h-auto w-fit'
                     >
                         {isMobile ? 'Test' : 'Test Now'}{' '}
                         <span className='ml-1'>→</span>
@@ -202,8 +202,8 @@ const TechnicalTest = () => {
                         size='sm'
                         disabled={false}
                         onClick={() => handleSeeResultClick(row.original)}
-                        variant='ghost'
-                        className='rounded-md px-3.5 py-2 h-auto flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-gray w-full'
+                        variant='primary_light'
+                        className='rounded-md px-3.5 py-2 h-auto flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-gray w-fit'
                     >
                         <Eye className='h-5 w-5' />
                         {!isMobile && 'See Result'}
@@ -254,7 +254,7 @@ const TechnicalTest = () => {
                     >
                         <TabsTrigger
                             value='tasks'
-                            className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent shadow-none'
+                            className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent !shadow-none'
                         >
                             <FileText className='h-5 w-5' />
                             <span className={isMobile ? 'text-xs' : ''}>
@@ -263,7 +263,7 @@ const TechnicalTest = () => {
                         </TabsTrigger>
                         <TabsTrigger
                             value='assignments'
-                            className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent shadow-none'
+                            className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent !shadow-none'
                         >
                             <ClipboardList className='h-5 w-5' />
                             <span className={isMobile ? 'text-xs' : ''}>
@@ -272,7 +272,7 @@ const TechnicalTest = () => {
                         </TabsTrigger>
                         <TabsTrigger
                             value='questions'
-                            className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent shadow-none'
+                            className='data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-b-primary-white rounded-none data-[state=active]:bg-transparent !shadow-none'
                         >
                             <MessageCircleQuestion className='h-5 w-5' />
                             <span className={isMobile ? 'text-xs' : ''}>

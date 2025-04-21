@@ -107,7 +107,6 @@ const Inbox: React.FC<InboxProps> = ({
     const handleSearchSubmit = useCallback(() => {
         setFinalQuery(search.query);
     }, [search.query]);
-
     useEffect(() => {
         if (chat?._id) {
             dispatch(markRead({ chatId: chat._id }));
@@ -125,7 +124,7 @@ const Inbox: React.FC<InboxProps> = ({
                 isFavourite: value,
             };
 
-            axios
+            instance
                 .put('/chat/favourite', data)
                 .then((res: any) => {
                     toast.success(
@@ -201,7 +200,9 @@ const Inbox: React.FC<InboxProps> = ({
                                     height={40}
                                     src={
                                         chat?.isChannel
-                                            ? chat?.avatar || '/group.jpg'
+                                            ? chat?.avatar !== 'undefined'
+                                                ? chat?.avatar
+                                                : '/group.jpg'
                                             : chat?.otherUser?.profilePicture ||
                                               '/avatar.png'
                                     }

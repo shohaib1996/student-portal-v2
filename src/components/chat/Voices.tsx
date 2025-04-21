@@ -1,9 +1,9 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { Loader2, Search, ChevronDown, SlidersHorizontal } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import AudioCard from './TextEditor/AudioCard';
@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useGetChatMediaQuery } from '@/redux/api/chats/chatApi';
+import GlobalPagination from '@/components/global/GlobalPagination';
 
 // Initialize dayjs plugins
 dayjs.extend(relativeTime);
@@ -26,12 +27,20 @@ interface VoicesProps {
 const Voices: React.FC<VoicesProps> = ({ chat }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [allMedias, setAllMedias] = useState<any[]>([]);
-    const [hasMoreToFetch, setHasMoreToFetch] = useState(true);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [debouncedQuery, setDebouncedQuery] = useState('');
     const divRef = useRef<HTMLDivElement>(null);
-    const pageLimit = 10; // Audio files per page
 
-    // Use RTK Query hook to fetch all media data
+    // Debounce search query
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQuery(searchQuery);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    // Use RTK Query hook to fetch media data with server-side filtering and pagination
     const {
         data: mediaData,
         isLoading,
@@ -42,8 +51,8 @@ const Voices: React.FC<VoicesProps> = ({ chat }) => {
             chatId: chat._id,
             type: 'voice',
             page: currentPage,
-            limit: pageLimit,
-            // We'll handle the search filtering client-side
+            limit: itemsPerPage,
+            query: debouncedQuery, // Pass the query to the server
         },
         {
             // Only fetch if chat ID exists
@@ -51,54 +60,16 @@ const Voices: React.FC<VoicesProps> = ({ chat }) => {
         },
     );
 
-    // Update all medias when new data arrives
-    useEffect(() => {
-        if (mediaData?.medias && !isLoading) {
-            // For the first page, replace all; for subsequent pages, append
-            if (currentPage === 1) {
-                setAllMedias(mediaData.medias);
-            } else {
-                setAllMedias((prev) => [...prev, ...mediaData.medias]);
-            }
-
-            // Update has more flag
-            setHasMoreToFetch(currentPage < mediaData.totalPages);
-        }
-    }, [mediaData, isLoading, currentPage]);
-
-    // Apply filtering for both sender name and text content
-    const filteredMedias = useMemo(() => {
-        if (!searchQuery.trim()) {
-            return allMedias;
-        }
-
-        const searchLower = searchQuery.toLowerCase();
-        return allMedias.filter((media) => {
-            // Check sender name
-            const firstName = media.sender?.firstName || '';
-            const lastName = media.sender?.lastName || '';
-            const fullName = `${firstName} ${lastName}`.trim().toLowerCase();
-            const hasNameMatch = fullName.includes(searchLower);
-
-            // Check media text
-            const text = media.text?.toLowerCase() || '';
-            const hasTextMatch = text.includes(searchLower);
-
-            // Return true if either matches
-            return hasNameMatch || hasTextMatch;
-        });
-    }, [allMedias, searchQuery]);
-
     // Handle search input change
     const handleSearch = (query: string) => {
         setSearchQuery(query);
+        setCurrentPage(1); // Reset to first page when search changes
     };
 
-    // Load more audio files
-    const loadMoreAudio = () => {
-        if (hasMoreToFetch && !isFetching) {
-            setCurrentPage((prev) => prev + 1);
-        }
+    // Page change handler for pagination
+    const handlePageChange = (page: number, limit: number) => {
+        setCurrentPage(page);
+        setItemsPerPage(limit);
     };
 
     // Error handling
@@ -109,7 +80,7 @@ const Voices: React.FC<VoicesProps> = ({ chat }) => {
         }
     }, [error]);
 
-    // Reset search and reload first page
+    // Reset search
     const handleClearSearch = () => {
         setSearchQuery('');
     };
@@ -128,17 +99,9 @@ const Voices: React.FC<VoicesProps> = ({ chat }) => {
         }
     };
 
-    const isLoadingMore = isFetching && !isLoading;
-
-    // Should show "View More" button if there are more items on the server
-    // and either no search is happening, or search has results
-    const showViewMoreButton =
-        hasMoreToFetch &&
-        (!searchQuery || (searchQuery && filteredMedias.length > 0));
-
     // Render content conditionally
     const renderContent = () => {
-        if (isLoading && allMedias.length === 0) {
+        if (isLoading) {
             return (
                 <div className='flex justify-center items-center py-16'>
                     <Loader2 className='h-8 w-8 text-primary animate-spin' />
@@ -146,18 +109,18 @@ const Voices: React.FC<VoicesProps> = ({ chat }) => {
             );
         }
 
-        if (filteredMedias.length === 0) {
+        if (!mediaData?.medias || mediaData.medias.length === 0) {
             return (
                 <div className='flex justify-center items-center flex-col py-16'>
                     <div className='rounded-full bg-background p-4 mb-4'>
                         <Search className='h-8 w-8 text-gray' />
                     </div>
                     <h4 className='text-center text-gray font-medium'>
-                        {searchQuery
-                            ? `No audio files found for "${searchQuery}"`
+                        {debouncedQuery
+                            ? `No audio files found for "${debouncedQuery}"`
                             : 'No audio files available'}
                     </h4>
-                    {searchQuery && (
+                    {debouncedQuery && (
                         <Button
                             variant='ghost'
                             className='mt-2 text-blue-600 hover:text-blue-700'
@@ -172,7 +135,7 @@ const Voices: React.FC<VoicesProps> = ({ chat }) => {
 
         return (
             <div className='space-y-2'>
-                {filteredMedias.map((media, i) => (
+                {mediaData.medias.map((media, i) => (
                     <div
                         key={media._id || i}
                         className='bg-primary-light rounded-lg border shadow-sm overflow-hidden'
@@ -238,7 +201,7 @@ const Voices: React.FC<VoicesProps> = ({ chat }) => {
                     <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
                     <Input
                         type='search'
-                        placeholder='Search by sender name or text...'
+                        placeholder='Search by filename or text...'
                         className='pl-10 py-2 pr-4 w-full border bg-background rounded-md focus:border-primary-light focus:ring-primary-light'
                         value={searchQuery}
                         onChange={(e) => handleSearch(e.target.value)}
@@ -248,34 +211,18 @@ const Voices: React.FC<VoicesProps> = ({ chat }) => {
 
             {/* Main content area with audio files */}
             <div ref={divRef} className='relative'>
-                {renderContent()}
+                <div className='h-[calc(100vh-250px)] overflow-y-auto border-b border-forground-border'>
+                    {renderContent()}
+                </div>
 
-                {/* View More button */}
-                {showViewMoreButton && (
-                    <div className='mt-2'>
-                        <div className='flex fex-row items-center gap-1 pb-2 pt-2 relative z-10'>
-                            <div className='h-[2px] bg-border w-full'></div>
-                            <Button
-                                variant='primary_light'
-                                className='h-7 rounded-full'
-                                onClick={loadMoreAudio}
-                                disabled={isLoadingMore}
-                            >
-                                {isLoadingMore ? (
-                                    <>
-                                        <Loader2 className='h-4 w-4 mr-1 animate-spin' />
-                                        Loading...
-                                    </>
-                                ) : (
-                                    <>
-                                        View More
-                                        <ChevronDown className='h-4 w-4' />
-                                    </>
-                                )}
-                            </Button>
-                            <div className='h-[2px] bg-border w-full'></div>
-                        </div>
-                    </div>
+                {/* Pagination component */}
+                {!isLoading && mediaData && mediaData.totalCount > 0 && (
+                    <GlobalPagination
+                        totalItems={mediaData.totalCount}
+                        itemsPerPage={itemsPerPage}
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                    />
                 )}
             </div>
         </div>

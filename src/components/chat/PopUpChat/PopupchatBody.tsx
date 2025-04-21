@@ -761,7 +761,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                             </span>
                                         </GlobalTooltip>
 
-                                        <span className='text-xs text-gray w-[50px]'>
+                                        <span className='text-xs text-gray w-fit'>
                                             {dayjs(
                                                 messages
                                                     .filter(

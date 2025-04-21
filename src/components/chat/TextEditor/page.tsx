@@ -117,7 +117,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         draggableBlock: false,
         images: false,
         codeHighlight: true,
-        autoLink: true,
+        autoLink: false,
         link: true,
         componentPicker: true,
         contextMenu: true,

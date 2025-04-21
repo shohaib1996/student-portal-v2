@@ -438,11 +438,12 @@ export function UploadedDocumentDetailsModal({
                             </div>
 
                             {/* Two-column layout */}
-                            <div className='flex flex-col lg:flex-row gap-8'>
+                            <div className='flex flex-col-reverse lg:flex-row gap-8'>
                                 {/* Left column - Content */}
                                 <div
                                     className='w-full lg:w-2/3'
                                     ref={contentRef}
+                                    style={{ maxWidth: 'calc(100vw - 40px)' }}
                                 >
                                     <div className='prose prose-gray max-w-none dark:prose-invert'>
                                         {renderText({
@@ -636,20 +637,18 @@ export function UploadedDocumentDetailsModal({
                                 </div>
                                 <div
                                     id='related-docs-slider'
-                                    className='flex overflow-x-auto space-x-4 pb-4 hide-scrollbar w-full'
+                                    className='flex overflow-x-auto space-x-4 pb-4 hide-scrollbar'
                                     style={{
                                         scrollBehavior: 'smooth',
                                         scrollbarWidth: 'none',
                                         msOverflowStyle: 'none',
+                                        maxWidth: 'calc(100vw - 40px)',
                                     }}
                                 >
                                     {relatedDocuments?.map((doc, i) => (
                                         <Card
-                                            className='overflow-hidden flex-shrink-0'
+                                            className='overflow-hidden flex-shrink-0 w-[300px] lg:w-[calc(100%/2-16px)] xl:w-[calc(100%/3-16px)]'
                                             key={i}
-                                            style={{
-                                                width: 'calc(100% / 3 - 16px)',
-                                            }}
                                         >
                                             <div className='cursor-pointer'>
                                                 <div className='relative'>

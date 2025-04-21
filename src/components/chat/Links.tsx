@@ -1,27 +1,19 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import {
-    Loader2,
-    Search,
-    ChevronDown,
-    SlidersHorizontal,
-    LinkIcon,
-    ExternalLink,
-} from 'lucide-react';
+import { Loader2, Search, LinkIcon, ExternalLink } from 'lucide-react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { Badge } from '@/components/ui/badge';
 import LinkPreviewCard from './LinkPreviewCard';
 import Link from 'next/link';
 import { useGetChatMediaQuery } from '@/redux/api/chats/chatApi';
-import MessageRenderer from '../lexicalEditor/renderer/MessageRenderer';
 import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
+import GlobalPagination from '@/components/global/GlobalPagination';
 
 // Initialize dayjs plugins
 dayjs.extend(relativeTime);
@@ -53,94 +45,49 @@ const cleanUrl = (inputUrl: string) => {
 
 const Links: React.FC<LinksProps> = ({ chat }) => {
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedQuery, setDebouncedQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [allLinks, setAllLinks] = useState<any[]>([]);
-    const [hasMoreToFetch, setHasMoreToFetch] = useState(true);
+    const [itemsPerPage, setItemsPerPage] = useState(12);
     const divRef = useRef<HTMLDivElement>(null);
-    const pageLimit = 12; // Links per page
 
-    // Use RTK Query hook to fetch all media data
+    // Set up debounced search query to prevent excessive API calls
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQuery(searchQuery);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    // Use RTK Query hook to fetch media data with server-side filtering
     const {
         data: mediaData,
         isLoading,
-        isFetching,
         error,
     } = useGetChatMediaQuery(
         {
             chatId: chat._id,
             type: 'link',
             page: currentPage,
-            limit: pageLimit,
+            limit: itemsPerPage,
+            query: debouncedQuery, // Send the query to the server
         },
         {
             // Only fetch if chat ID exists
             skip: !chat._id,
         },
     );
-    console.log({ links: mediaData?.medias });
-    // Update all links when new data arrives
-    useEffect(() => {
-        if (mediaData?.medias && !isLoading) {
-            // Process URLs in the incoming data
-            const processedLinks = mediaData.medias.map((link) => ({
-                ...link,
-                cleanedUrl: cleanUrl(link.url),
-            }));
-            // For the first page, replace all; for subsequent pages, append
-            if (currentPage === 1) {
-                setAllLinks(processedLinks);
-            } else {
-                setAllLinks((prev) => [...prev, ...processedLinks]);
-            }
 
-            // Update has more flag
-            setHasMoreToFetch(currentPage < mediaData.totalPages);
-        }
-    }, [mediaData, isLoading, currentPage]);
-
-    // Apply comprehensive filtering for sender name, URL, and text/title
-    const filteredLinks = useMemo(() => {
-        if (!searchQuery.trim()) {
-            return allLinks;
-        }
-        console.log({ allLinks });
-        const searchLower = searchQuery.toLowerCase();
-        return allLinks.filter((link) => {
-            // Check sender name
-            const firstName = link.sender?.firstName || '';
-            const lastName = link.sender?.lastName || '';
-            const fullName = `${firstName} ${lastName}`.trim().toLowerCase();
-            const hasNameMatch = fullName.includes(searchLower);
-
-            // Check link URL
-            const url = link.cleanedUrl?.toLowerCase() || '';
-            const hasUrlMatch = url.includes(searchLower);
-
-            // Check link title/name
-            const name = link.name?.toLowerCase() || '';
-            const hasNameUrlMatch = name.includes(searchLower);
-
-            // Check message text
-            const text = link.text?.toLowerCase() || '';
-            const hasTextMatch = text.includes(searchLower);
-
-            // Return true if any field matches
-            return (
-                hasNameMatch || hasUrlMatch || hasNameUrlMatch || hasTextMatch
-            );
-        });
-    }, [allLinks, searchQuery]);
-    console.log({ filteredLinks });
     // Handle search input change
     const handleSearch = (query: string) => {
         setSearchQuery(query);
+        setCurrentPage(1); // Reset to first page when search changes
     };
 
-    // Load more links
-    const loadMoreLinks = () => {
-        if (hasMoreToFetch && !isFetching) {
-            setCurrentPage((prev) => prev + 1);
-        }
+    // Page change handler for pagination
+    const handlePageChange = (page: number, limit: number) => {
+        setCurrentPage(page);
+        setItemsPerPage(limit);
     };
 
     // Error handling
@@ -154,39 +101,6 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
     // Clear search and reset
     const handleClearSearch = () => {
         setSearchQuery('');
-    };
-
-    // Get user role badge - can be enabled when role/type data is available
-    const getUserRoleBadge = (type?: string) => {
-        switch (type) {
-            case 'admin':
-                return (
-                    <Badge
-                        variant='outline'
-                        className='bg-blue-50 text-blue-700 border-blue-200 text-xs'
-                    >
-                        Admin
-                    </Badge>
-                );
-            case 'marketing':
-                return (
-                    <Badge
-                        variant='outline'
-                        className='bg-green-50 text-green-700 border-green-200 text-xs'
-                    >
-                        Marketing
-                    </Badge>
-                );
-            default:
-                return (
-                    <Badge
-                        variant='outline'
-                        className='bg-gray-50 text-gray-700 border-gray-200 text-xs'
-                    >
-                        Member
-                    </Badge>
-                );
-        }
     };
 
     // Format date for display
@@ -207,17 +121,17 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
         }
     };
 
-    const isLoadingMore = isFetching && !isLoading;
-
-    // Should show "View More" button if there are more items on the server
-    // and either no search is happening, or search has results
-    const showViewMoreButton =
-        hasMoreToFetch &&
-        (!searchQuery || (searchQuery && filteredLinks.length > 0));
+    // Process links to clean URLs
+    const processedLinks = mediaData?.medias
+        ? mediaData.medias.map((link) => ({
+              ...link,
+              cleanedUrl: cleanUrl(link.url),
+          }))
+        : [];
 
     // Render content conditionally
     const renderContent = () => {
-        if (isLoading && allLinks.length === 0) {
+        if (isLoading) {
             return (
                 <div className='flex justify-center items-center py-16'>
                     <Loader2 className='h-8 w-8 text-blue-600 animate-spin' />
@@ -225,18 +139,18 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
             );
         }
 
-        if (filteredLinks.length === 0) {
+        if (!processedLinks || processedLinks.length === 0) {
             return (
                 <div className='flex justify-center items-center flex-col py-16'>
                     <div className='rounded-full bg-background p-4 mb-4'>
                         <LinkIcon className='h-8 w-8 text-gray' />
                     </div>
                     <h4 className='text-center text-gray font-medium'>
-                        {searchQuery
-                            ? `No links found for "${searchQuery}"`
+                        {debouncedQuery
+                            ? `No links found for "${debouncedQuery}"`
                             : 'No links available'}
                     </h4>
-                    {searchQuery && (
+                    {debouncedQuery && (
                         <Button
                             variant='ghost'
                             className='mt-2 text-blue-600 hover:text-blue-700'
@@ -251,7 +165,7 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
 
         return (
             <div className='flex flex-col gap-4'>
-                {filteredLinks.map((link, i) => (
+                {processedLinks.map((link, i) => (
                     <div key={link._id || i} className='flex flex-row gap-2'>
                         <Image
                             src={link.sender?.profilePicture || '/avatar.png'}
@@ -269,10 +183,6 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
                                     {`${link.sender?.firstName || ''} ${link.sender?.lastName || ''}`.trim() ||
                                         'Unknown User'}
                                 </div>
-                                {/* User role badge can be uncommented when the data includes role/type */}
-                                {/* <div className='ml-2'>
-                                    {getUserRoleBadge(link.sender?.type)}
-                                </div> */}
                                 <div className='name max-w-200 truncate text-gray text-xs'>
                                     {formatDate(link.createdAt)}
                                 </div>
@@ -285,7 +195,6 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
                                         text: link.text,
                                         lineClamp: 2,
                                         textColor: 'text-gray',
-                                        // truncate: true,
                                         width: 'w-full',
                                     })}
                                 </p>
@@ -318,7 +227,7 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
                     <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
                     <Input
                         type='search'
-                        placeholder='Search by sender, link URL, title, or message...'
+                        placeholder='Search by link text'
                         className='pl-8 py-2 pr-4 w-full border bg-background rounded-md focus:border-primary-light focus:ring-primary-light'
                         value={searchQuery}
                         onChange={(e) => handleSearch(e.target.value)}
@@ -328,34 +237,18 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
 
             {/* Main content area with links */}
             <div ref={divRef} className='relative'>
-                {renderContent()}
+                <div className='h-[calc(100vh-250px)] overflow-y-auto border-b border-forground-border'>
+                    {renderContent()}
+                </div>
 
-                {/* View More button */}
-                {showViewMoreButton && (
-                    <div className='relative mt-2'>
-                        <div className='flex flex-row items-center gap-1 pb-2 pt-2 relative z-10'>
-                            <div className='w-full h-[2px] bg-border'></div>
-                            <Button
-                                variant='primary_light'
-                                className='h-7 rounded-full'
-                                onClick={loadMoreLinks}
-                                disabled={isLoadingMore}
-                            >
-                                {isLoadingMore ? (
-                                    <>
-                                        <Loader2 className='h-4 w-4 mr-1 animate-spin' />
-                                        Loading...
-                                    </>
-                                ) : (
-                                    <>
-                                        View More
-                                        <ChevronDown className='h-4 w-4' />
-                                    </>
-                                )}
-                            </Button>
-                            <div className='w-full h-[2px] bg-border'></div>
-                        </div>
-                    </div>
+                {/* Pagination component */}
+                {!isLoading && mediaData && mediaData.totalCount > 0 && (
+                    <GlobalPagination
+                        totalItems={mediaData.totalCount}
+                        itemsPerPage={itemsPerPage}
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                    />
                 )}
             </div>
         </div>

@@ -66,7 +66,16 @@ import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import NotificationOptionModal from './ChatForm/NotificationModal';
 import ReportModal from './ChatForm/ReportModal';
-import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
+import {
+    ChatMember,
+    useArchiveChannelMutation,
+    useGetChatMediaCountsQuery,
+    useGetChatMembersQuery,
+    useGetChatsQuery,
+    useLeaveChannelMutation,
+    useUpdateChannelInfoMutation,
+    useUploadChannelAvatarMutation,
+} from '@/redux/api/chats/chatApi';
 import { instance } from '@/lib/axios/axiosInstance';
 
 interface ChatInfoProps {
@@ -264,11 +273,10 @@ const resizeFile = (file: File): Promise<File> =>
     });
 
 const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
-    console.log({ chatId });
     const params = useParams();
-    console.log({ params });
     const pathname = usePathname();
-    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { chats } = useAppSelector((state) => state.chat);
+    const { isLoading: isChatsLoading } = useGetChatsQuery();
     const router = useRouter();
     const dispatch = useDispatch();
     const [copied, setCopied] = useState(false);
@@ -276,9 +284,8 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const [opened, setOpened] = useState(false);
     const [imageLoading, setImageLoading] = useState(false);
     const [isUpdateVisible, setIsUpdateVisible] = useState(false);
-    const [members, setMembers] = useState<Member[]>([]);
-    const [ownerMember, setOwnerMember] = useState<Member | null>(null);
-    const [loadingMembers, setLoadingMembers] = useState(false);
+    const [members, setMembers] = useState<ChatMember[]>([]);
+    const [ownerMember, setOwnerMember] = useState<ChatMember | null>(null);
     const { user } = useSelector((s: any) => s.auth);
     const [isUpdating, setIsUpdating] = useState(false);
     const [updateField, setUpdateField] = useState('');
@@ -296,7 +303,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const [voiceCount, setVoiceCount] = useState(0);
     const [fileCount, setFileCount] = useState(0);
     const [linksCount, setLinksCount] = useState(0);
-    console.log({ chat });
     // Add this useEffect to fetch all media counts when the component loads
     useEffect(() => {
         if (chat?._id) {
@@ -363,59 +369,35 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
             setDescriptionValue(chat.description);
         }
     }, [chat?.description]);
-    // const { chatMessages, chats, onlineUsers } = useAppSelector(
-    //     (state: any) => state.chat,
-    // );
+
+    const { data: membersData, isLoading: loadingMembers } =
+        useGetChatMembersQuery(
+            { chatId: chat?._id || '', limit: 50 },
+            { skip: !chat?._id },
+        );
 
     useEffect(() => {
-        if (chat?._id) {
-            setLoadingMembers(true);
-            instance
-                .post(`/chat/members/${chat?._id}`, { limit: 50 })
-                .then((res) => {
-                    const membersList = res.data?.results || [];
-                    setMembers(membersList);
-                    // Find owner among members
-                    const owner = membersList.find(
-                        (m: Member) => m.role === 'owner',
-                    );
-                    if (owner) {
-                        setOwnerMember(owner);
-                    }
-                    setLoadingMembers(false);
-                })
-                .catch((err) => {
-                    console.error(err);
-                    toast.error(
-                        err?.response?.data?.error || 'Error fetching members',
-                    );
-                    setLoadingMembers(false);
-                });
+        if (membersData?.results) {
+            setMembers(membersData.results);
+            // Find owner among members
+            const owner = membersData.results.find((m) => m.role === 'owner');
+            if (owner) {
+                setOwnerMember(owner);
+            }
         }
-    }, [chat]);
+    }, [membersData]);
 
+    const { data: mediaCounts } = useGetChatMediaCountsQuery(chat?._id || '', {
+        skip: !chat?._id,
+    });
     useEffect(() => {
-        if (chat?._id) {
-            instance
-                .get(`/chat/media-counts/${chat?._id}`)
-                .then((res) => {
-                    setChat((prev: any) => ({
-                        ...prev,
-                        imagesCount: res.data.imagesCount || 0,
-                        voiceCount: res.data.voiceCount || 0,
-                    }));
-                })
-                .catch((err) => {
-                    console.error('Error fetching media counts:', err);
-                    // Set default values if the API fails
-                    setChat((prev: any) => ({
-                        ...prev,
-                        imagesCount: prev?.imagesCount || 0,
-                        voiceCount: prev?.voiceCount || 0,
-                    }));
-                });
+        if (mediaCounts) {
+            setImagesCount(mediaCounts.imagesCount || 0);
+            setVoiceCount(mediaCounts.voiceCount || 0);
+            setFileCount(mediaCounts.fileCount || 0);
+            setLinksCount(mediaCounts.linksCount || 0);
         }
-    }, [chat?._id]);
+    }, [mediaCounts]);
 
     useEffect(() => {
         if (chats && chats.length > 0) {
@@ -456,32 +438,29 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
             });
     }, [pathname]);
 
+    const [uploadAvatar] = useUploadChannelAvatarMutation();
+    const [updateChannel] = useUpdateChannelInfoMutation();
+
     const handleUploadImage = useCallback(
         async (image: File) => {
-            if (image) {
-                console.log({ image });
+            if (image && chat?._id) {
                 try {
                     setImageLoading(true);
                     const newFile = await resizeFile(image);
-                    console.log({});
                     const formData = new FormData();
                     formData.append('image', newFile);
                     formData.append('channel-avatar', 'chat-image');
 
-                    const response = await instance.post(
-                        '/settings/watermark-image',
-                        formData,
-                    );
-                    const url = response.data.url;
-                    const data = {
-                        avatar: url,
-                    };
-                    const updateRes = await instance.patch(
-                        `/chat/channel/update/${chat?._id}`,
-                        data,
-                    );
+                    const response = await uploadAvatar({
+                        chatId: chat._id,
+                        image: formData,
+                    }).unwrap();
+                    const url = response.url;
 
-                    dispatch(updateChats(updateRes?.data?.channel));
+                    await updateChannel({
+                        chatId: chat._id,
+                        data: { avatar: url },
+                    }).unwrap();
 
                     // Update local state with new avatar
                     setChat((prev: any) => ({
@@ -490,84 +469,87 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                     }));
 
                     toast.success('Channel image updated successfully');
-                    setImageLoading(false);
                 } catch (error: any) {
                     console.error(error);
-                    toast.error(
-                        error?.response?.data?.error || 'Error uploading image',
-                    );
+                    toast.error(error?.data?.error || 'Error uploading image');
+                } finally {
                     setImageLoading(false);
                 }
             }
         },
-        [chat, dispatch],
+        [chat, uploadAvatar, updateChannel],
     );
+
+    // Replace handleArchive with this:
+    const [archiveChannel] = useArchiveChannelMutation();
 
     const handleArchive = useCallback(() => {
-        instance
-            .patch(`/chat/channel/archive/${chat?._id}`, {
-                isArchived: !chat?.isArchived,
+        if (chat?._id) {
+            archiveChannel({
+                chatId: chat._id,
+                isArchived: !chat.isArchived,
             })
-            .then((res) => {
-                if (res.data.success) {
-                    dispatch(
-                        updateChats({ ...chat, isArchived: !chat?.isArchived }),
+                .unwrap()
+                .then(() => {
+                    toast.success(
+                        `The group has been successfully ${chat.isArchived ? 'retrieved' : 'archived'}.`,
                     );
-                    toast.success('The group has been successfully archived.');
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-                toast.error(
-                    error?.response?.data?.error || 'Error archiving group',
-                );
-            });
-    }, [chat, dispatch]);
+                })
+                .catch((error) => {
+                    console.error(error);
+                    toast.error(error?.data?.error || 'Error archiving group');
+                });
+        }
+    }, [chat, archiveChannel]);
+
+    // Replace handleLeave with this:
+    const [leaveChannel] = useLeaveChannelMutation();
 
     const handleLeave = useCallback(() => {
-        instance
-            .patch(`/chat/channel/leave/${chat?._id}`)
-            .then((res) => {
-                dispatch(removeChat(chat?._id));
-                router.push('/chat');
-            })
-            .catch((err) => {
-                toast.error(
-                    err?.response?.data?.error || 'Error leaving group',
-                );
-            });
-    }, [chat, dispatch, router]);
-
-    const handleInlineUpdate = useCallback(
-        (value: any, field: any) => {
-            setIsUpdating(true);
-            setUpdateField(field);
-
-            const data = { [field]: value };
-
-            instance
-                .patch(`/chat/channel/update/${chat?._id}`, data)
-                .then((res) => {
-                    dispatch(updateChats(res?.data?.channel));
-                    setChat((prev: any) => ({ ...prev, [field]: value }));
-                    toast.success(
-                        `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`,
-                    );
-                    setIsUpdating(false);
-                    setUpdateField('');
+        if (chat?._id) {
+            leaveChannel(chat._id)
+                .unwrap()
+                .then(() => {
+                    dispatch(removeChat(chat._id));
+                    router.push('/chat');
                 })
                 .catch((err) => {
-                    setIsUpdating(false);
-                    setUpdateField('');
-                    toast.error(
-                        err?.response?.data?.error ||
-                            `Failed to update ${field}`,
-                    );
+                    toast.error(err?.data?.error || 'Error leaving group');
                 });
-        },
-        [chat, dispatch],
-    );
+        }
+    }, [chat, leaveChannel, dispatch, router]);
 
+    // Replace handleInlineUpdate with this:
+    const handleInlineUpdate = useCallback(
+        (value: any, field: any) => {
+            if (chat?._id) {
+                setIsUpdating(true);
+                setUpdateField(field);
+
+                updateChannel({
+                    chatId: chat._id,
+                    data: { [field]: value },
+                })
+                    .unwrap()
+                    .then((response) => {
+                        setChat((prev: any) => ({ ...prev, [field]: value }));
+                        toast.success(
+                            `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`,
+                        );
+                    })
+                    .catch((err) => {
+                        toast.error(
+                            err?.data?.error || `Failed to update ${field}`,
+                        );
+                    })
+                    .finally(() => {
+                        setIsUpdating(false);
+                        setUpdateField('');
+                    });
+            }
+        },
+        [chat, updateChannel],
+    );
     // Update the description section in ChatInfo component
 
     // First, modify the InlineTextEdit component to support the new layout:

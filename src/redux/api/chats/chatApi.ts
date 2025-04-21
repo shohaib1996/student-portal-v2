@@ -12,6 +12,7 @@ import {
     updateChatInStorage,
     isDataStale,
 } from '@/utils/chatLocalStorage';
+import { tagTypes } from '../tagType/tagTypes';
 
 // Define types
 export interface ChatMessage {
@@ -240,7 +241,38 @@ export interface MentionedUserDetails {
         title: string;
     }>;
 }
+// Add these types to your existing types section in chatApi.ts
+export interface MembersParams {
+    chatId: string;
+    limit?: number;
+    page?: number;
+    query?: string;
+    lastId?: string;
+}
 
+export interface ChatMember {
+    _id: string;
+    user: any;
+    role: string;
+    notification: {
+        isOn: boolean;
+    };
+    mute: {
+        isMuted: boolean;
+    };
+}
+
+export interface MembersResponse {
+    results: ChatMember[];
+    pagination: {
+        total: number;
+        currentPage: number;
+        totalPages: number;
+        hasNext: boolean;
+        hasPrev: boolean;
+        limit: number;
+    };
+}
 // RTK Query API definition
 export const chatApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
@@ -867,9 +899,8 @@ export const chatApi = baseApi.injectEndpoints({
         }),
 
         // Add this to your chatApi endpoints
-        // Inside the `endpoints: (build) => ({...` block
         getChatMedia: build.query<MediaResponse, MediaParams>({
-            query: ({ chatId, type, page = 1, limit = 50, query }) => {
+            query: ({ chatId, type, page = 1, limit = 5, query }) => {
                 // Build query parameters
                 let queryParams = `?page=${page}&limit=${limit}`;
                 if (type) {
@@ -1048,6 +1079,192 @@ export const chatApi = baseApi.injectEndpoints({
                     ? [{ type: 'User' as const, id: userId }]
                     : [{ type: 'User' as const, id: userId }],
         }),
+        // In your chatApi.ts file
+        getChatMembers: build.query<MembersResponse, MembersParams>({
+            query: ({ chatId, limit = 15, page = 1, query }) => {
+                const data: any = {
+                    limit,
+                    page,
+                };
+
+                if (query) {
+                    data.query = query;
+                }
+
+                return {
+                    url: `/chat/members/${chatId}`,
+                    method: 'POST',
+                    data,
+                };
+            },
+            // No need for transformResponse since the API response structure is fine
+            keepUnusedDataFor: 300,
+            providesTags: (result, error, { chatId }) =>
+                result
+                    ? [
+                          ...result.results.map(({ _id }) => ({
+                              type: tagTypes.members,
+                              id: _id,
+                          })),
+                          { type: tagTypes.members, id: chatId },
+                      ]
+                    : [{ type: tagTypes.members, id: chatId }],
+        }),
+        // Add these to your chatApi endpoints object
+        getChatMediaCounts: build.query<
+            {
+                imagesCount: number;
+                voiceCount: number;
+                fileCount: number;
+                linksCount: number;
+            },
+            string
+        >({
+            query: (chatId) => ({
+                url: `/chat/media-counts/${chatId}`,
+                method: 'GET',
+            }),
+            providesTags: (result, error, chatId) => [
+                { type: tagTypes.mediaCounts, id: chatId },
+            ],
+        }),
+
+        updateChannelInfo: build.mutation<
+            { channel: ChatData },
+            {
+                chatId: string;
+                data: Partial<{
+                    name: string;
+                    description: string;
+                    isPublic: boolean;
+                    isReadOnly: boolean;
+                    avatar: string;
+                }>;
+            }
+        >({
+            query: ({ chatId, data }) => ({
+                url: `/chat/channel/update/${chatId}`,
+                method: 'PATCH',
+                data,
+            }),
+            // Optimistically update UI
+            async onQueryStarted(
+                { chatId, data },
+                { dispatch, queryFulfilled },
+            ) {
+                const patchResult = dispatch(
+                    chatApi.util.updateQueryData(
+                        'getChats',
+                        undefined,
+                        (draft) => {
+                            const chatToUpdate = draft.find(
+                                (c) => c._id === chatId,
+                            );
+                            if (chatToUpdate) {
+                                Object.assign(chatToUpdate, data);
+                                // Update in local storage
+                                updateChatInStorage(chatToUpdate);
+                            }
+                        },
+                    ),
+                );
+
+                try {
+                    const { data: response } = await queryFulfilled;
+                    // Update with server response if needed
+                    if (response.channel) {
+                        dispatch(
+                            chatApi.util.updateQueryData(
+                                'getChats',
+                                undefined,
+                                (draft) => {
+                                    const chatToUpdate = draft.find(
+                                        (c) => c._id === chatId,
+                                    );
+                                    if (chatToUpdate) {
+                                        Object.assign(
+                                            chatToUpdate,
+                                            response.channel,
+                                        );
+                                        // Update in local storage
+                                        updateChatInStorage(chatToUpdate);
+                                    }
+                                },
+                            ),
+                        );
+                    }
+                } catch {
+                    patchResult.undo();
+                }
+            },
+            invalidatesTags: (result, error, { chatId }) => [
+                { type: 'Chats', id: chatId },
+                { type: 'Chats', id: 'LIST' },
+            ],
+        }),
+
+        archiveChannel: build.mutation<
+            { success: boolean },
+            { chatId: string; isArchived: boolean }
+        >({
+            query: ({ chatId, isArchived }) => ({
+                url: `/chat/channel/archive/${chatId}`,
+                method: 'PATCH',
+                data: { isArchived },
+            }),
+            // Optimistically update UI
+            async onQueryStarted(
+                { chatId, isArchived },
+                { dispatch, queryFulfilled },
+            ) {
+                const patchResult = dispatch(
+                    chatApi.util.updateQueryData(
+                        'getChats',
+                        undefined,
+                        (draft) => {
+                            const chatToUpdate = draft.find(
+                                (c) => c._id === chatId,
+                            );
+                            if (chatToUpdate) {
+                                chatToUpdate.isArchived = isArchived;
+                                // Update in local storage
+                                updateChatInStorage(chatToUpdate);
+                            }
+                        },
+                    ),
+                );
+
+                try {
+                    await queryFulfilled;
+                } catch {
+                    patchResult.undo();
+                }
+            },
+            invalidatesTags: (result, error, { chatId }) => [
+                { type: 'Chats', id: chatId },
+                { type: 'Chats', id: 'LIST' },
+            ],
+        }),
+
+        leaveChannel: build.mutation<void, string>({
+            query: (chatId) => ({
+                url: `/chat/channel/leave/${chatId}`,
+                method: 'PATCH',
+            }),
+            // We don't need optimistic updates here as we'll redirect after leaving
+            invalidatesTags: [{ type: 'Chats', id: 'LIST' }],
+        }),
+
+        uploadChannelAvatar: build.mutation<
+            { url: string },
+            { chatId: string; image: FormData }
+        >({
+            query: ({ image }) => ({
+                url: '/settings/watermark-image',
+                method: 'POST',
+                data: image,
+            }),
+        }),
     }),
 });
 
@@ -1069,6 +1286,12 @@ export const {
     useCreateGroupMutation,
     useUpdateNotificationSettingsMutation,
     useGetMentionedUserDetailsQuery,
+    useGetChatMembersQuery,
+    useGetChatMediaCountsQuery,
+    useUpdateChannelInfoMutation,
+    useArchiveChannelMutation,
+    useLeaveChannelMutation,
+    useUploadChannelAvatarMutation,
 } = chatApi;
 
 // Socket integration with RTK Query

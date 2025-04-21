@@ -28,6 +28,7 @@ import { useMyAudioVideoQuery } from '@/redux/api/audio-video/audioVideos';
 import GlobalModal from '@/components/global/GlobalModal';
 import GlobalComment from '@/components/global/GlobalComments/GlobalComment';
 import { toast } from 'sonner';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 // Define the media item type if not already defined
 type TMediaItem = {
@@ -69,6 +70,7 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
     const { data, isLoading } = useMyAudioVideoQuery({});
     const relatedVideos = data?.medias || [];
     // Update current media when media prop changes
+    console.log({ relatedVideos });
     useEffect(() => {
         setCurrentMedia(media);
     }, [media]);
@@ -312,31 +314,46 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                     </p>
                 </div>
             </div>
+            {/* Replace the navigation buttons section in the customTitle with
+            this code: */}
             <div className='flex items-center gap-2'>
-                <Button
-                    variant='outline'
-                    size='sm'
-                    className='text-xs h-8 hidden sm:flex'
-                    onClick={handlePreviousVideo}
-                    disabled={isPreviousDisabled}
-                >
-                    <ArrowLeft className='h-3 w-3 mr-1' /> Previous
-                </Button>
-                <Button
-                    variant='outline'
-                    size='sm'
-                    className='text-xs h-8 hidden sm:flex'
-                    onClick={handleNextVideo}
-                    disabled={isNextDisabled}
-                >
-                    Next <ArrowRight className='h-3 w-3 ml-1' />
-                </Button>
-                {/* <Button size='sm' className='text-xs h-8'>
-                    Save & Close
-                </Button> */}
+                {!isPreviousDisabled && (
+                    <Button
+                        variant='outline'
+                        size='sm'
+                        className='text-xs h-8 hidden sm:flex'
+                        onClick={handlePreviousVideo}
+                    >
+                        <ArrowLeft className='h-3 w-3 mr-1' /> Previous
+                    </Button>
+                )}
+                {!isNextDisabled && (
+                    <Button
+                        variant='outline'
+                        size='sm'
+                        className='text-xs h-8 hidden sm:flex'
+                        onClick={handleNextVideo}
+                    >
+                        Next <ArrowRight className='h-3 w-3 ml-1' />
+                    </Button>
+                )}
             </div>
         </div>
     );
+
+    const isValidUrl = (url: string) => {
+        try {
+            new URL(url);
+            // Additional checks for common video platforms
+            return (
+                url.match(
+                    /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com|wistia\.com|fast\.wistia\.net|sproutvideo\.com|vidyard\.com|loom\.com|streamable\.com|dailymotion\.com|dai\.ly|facebook\.com|fb\.watch)/i,
+                ) !== null
+            );
+        } catch (e) {
+            return false;
+        }
+    };
     return (
         <GlobalModal
             open={showModal}
@@ -347,24 +364,36 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
             allowFullScreen={true}
         >
             <div className='flex flex-col lg:flex-row gap-3 w-full'>
-                <div className='flex flex-col w-full lg:w-3/4 h-full bg-background rounded-lg border'>
+                <div className='flex flex-col w-full lg:w-3/4 h-full bg-background rounded-lg border mt-2'>
                     {/* Media Player */}
                     {currentMedia?.mediaType === 'video' ? (
                         /* Video Player */
-                        <div className=''>
+                        <div className='p-2'>
                             {currentMedia.url ? (
-                                // <video
-                                //     ref={videoRef}
-                                //     src={currentMedia.url}
-                                //     className='w-full h-full rounded-lg'
-                                //     onTimeUpdate={handleTimeUpdate}
-                                //     onLoadedMetadata={handleLoadedMetadata}
-                                //     onClick={togglePlay}
-                                // />
-                                <iframe
-                                    className='aspect-video w-full rounded-lg -mt-5'
-                                    src={currentMedia?.url}
-                                ></iframe>
+                                isValidUrl(currentMedia.url) ? (
+                                    <iframe
+                                        className='aspect-video w-full rounded-lg -mt-5'
+                                        src={currentMedia?.url}
+                                        sandbox='allow-same-origin allow-scripts'
+                                        referrerPolicy='no-referrer'
+                                        loading='lazy'
+                                    ></iframe>
+                                ) : (
+                                    <div className='aspect-video w-full rounded-lg flex items-center justify-center bg-gray-900'>
+                                        <div className='text-center p-4'>
+                                            <div className='mb-4'>
+                                                <FileText className='h-12 w-12 mx-auto text-gray-400' />
+                                            </div>
+                                            <h3 className='text-white font-medium'>
+                                                Invalid Video URL
+                                            </h3>
+                                            <p className='text-gray-400 text-sm mt-2'>
+                                                The video URL is invalid or
+                                                cannot be displayed
+                                            </p>
+                                        </div>
+                                    </div>
+                                )
                             ) : (
                                 <div className='w-full h-full flex items-center justify-center bg-gray-900 rounded-lg'>
                                     <Image
@@ -655,7 +684,11 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                                             Description
                                         </h3>
                                         <p className='text-sm text-gray'>
-                                            {currentMedia.description ||
+                                            {renderPlainText({
+                                                text: currentMedia.description as string,
+                                                textColor: 'text-gray',
+                                                truncate: true,
+                                            }) ||
                                                 'Bootcamp is an all-in-one SaaS platform designed for high-ticket coaches and educators. It empowers you to launch, manage, and scale premium boot camps without relying on fragmented tools like Udemy or Skillshare.'}
                                         </p>
                                     </div>

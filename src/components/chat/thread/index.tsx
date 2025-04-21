@@ -141,6 +141,7 @@ const Thread: React.FC<ThreadProps> = ({
         // You can implement the typing indicator logic here
         setIsTyping(isTyping);
     };
+
     return (
         message && (
             <Sheet
@@ -152,7 +153,7 @@ const Thread: React.FC<ThreadProps> = ({
                     }
                 }}
             >
-                <SheetContent className='p-1 w-full sm:max-w-md md:max-w-lg lg:max-w-xl overflow-hidden flex flex-col'>
+                <SheetContent className='p-1 w-full sm:max-w-md md:max-w-lg lg:max-w-xl overflow-hidden flex flex-col bg-foreground'>
                     <SheetHeader className='border-b px-4 py-2'>
                         <div className='flex justify-between items-center'>
                             <SheetTitle className='text-dark-gray'>

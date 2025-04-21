@@ -201,12 +201,12 @@ const DiagramComponent = () => {
                                 },
                             ]}
                         />
-                        <Link href='/dashboard'>
+                        {/* <Link href='/dashboard'>
                             <Button size='sm' asChild>
                                 Go to Dashboard
                                 <ChevronRight className='h-4 w-4' />
                             </Button>
-                        </Link>
+                        </Link> */}
                     </div>
                 }
             />

@@ -1,13 +1,14 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { Loader2, Search, ChevronDown, SlidersHorizontal } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useGetChatMediaQuery } from '@/redux/api/chats/chatApi';
+import GlobalPagination from '@/components/global/GlobalPagination'; // Import pagination component
 
 interface ImagesProps {
     chat: {
@@ -21,11 +22,20 @@ interface ImagesProps {
 const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [allMedias, setAllMedias] = useState<any[]>([]);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
     const divRef = useRef<HTMLDivElement>(null);
-    const [hasMoreToFetch, setHasMoreToFetch] = useState(true);
+    const [debouncedQuery, setDebouncedQuery] = useState('');
 
-    // Use RTK Query hook to fetch all media data without filtering
+    // Debounce search query
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQuery(searchQuery);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    // Use RTK Query hook with server-side pagination and filtering
     const {
         data: mediaData,
         isLoading,
@@ -36,7 +46,8 @@ const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
             chatId: chat._id,
             type: 'image',
             page: currentPage,
-            limit: 20,
+            limit: itemsPerPage,
+            query: debouncedQuery, // Use the debounced query value
         },
         {
             // Only fetch if chat ID exists
@@ -44,50 +55,23 @@ const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
         },
     );
 
-    // Update all medias when new data arrives
+    // Update media count when data changes
     useEffect(() => {
-        if (mediaData?.medias && !isLoading) {
-            // For the first page, replace all; for subsequent pages, append
-            if (currentPage === 1) {
-                setAllMedias(mediaData.medias);
-            } else {
-                setAllMedias((prev) => [...prev, ...mediaData.medias]);
-            }
-
-            // Update has more flag
-            setHasMoreToFetch(currentPage < mediaData.totalPages);
-
-            // Update media count in parent component (total unfiltered count)
+        if (mediaData?.totalCount !== undefined) {
             setMediaCount(mediaData.totalCount);
         }
-    }, [mediaData, isLoading, currentPage, setMediaCount]);
-
-    // Apply the name filter
-    const filteredMedias = useMemo(() => {
-        if (!searchQuery.trim()) {
-            return allMedias;
-        }
-
-        const searchLower = searchQuery.toLowerCase();
-        return allMedias.filter((media) => {
-            const firstName = media.sender?.firstName || '';
-            const lastName = media.sender?.lastName || '';
-            const fullName = `${firstName} ${lastName}`.trim().toLowerCase();
-
-            return fullName.includes(searchLower);
-        });
-    }, [allMedias, searchQuery]);
+    }, [mediaData, setMediaCount]);
 
     // Handle search input change
     const handleSearch = (query: string) => {
         setSearchQuery(query);
+        setCurrentPage(1); // Reset to first page when search changes
     };
 
-    // Load more images
-    const loadMoreImages = () => {
-        if (hasMoreToFetch && !isFetching) {
-            setCurrentPage((prev) => prev + 1);
-        }
+    // Page change handler for pagination
+    const handlePageChange = (page: number, limit: number) => {
+        setCurrentPage(page);
+        setItemsPerPage(limit);
     };
 
     // Error handling
@@ -98,11 +82,9 @@ const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
         }
     }, [error]);
 
-    const isLoadingMore = isFetching && !isLoading;
-
     // Render content conditionally
     const renderContent = () => {
-        if (isLoading && allMedias.length === 0) {
+        if (isLoading) {
             return (
                 <div className='flex justify-center items-center py-16'>
                     <Loader2 className='h-8 w-8 text-blue-600 animate-spin' />
@@ -110,18 +92,18 @@ const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
             );
         }
 
-        if (filteredMedias.length === 0) {
+        if (!mediaData?.medias || mediaData.medias.length === 0) {
             return (
                 <div className='flex justify-center items-center flex-col py-16'>
                     <div className='rounded-full bg-background p-4 mb-4'>
                         <Search className='h-8 w-8 text-gray' />
                     </div>
                     <h4 className='text-center text-gray font-medium'>
-                        {searchQuery
-                            ? `No images found for sender "${searchQuery}"`
+                        {debouncedQuery
+                            ? `No images found matching "${debouncedQuery}"`
                             : 'No images available'}
                     </h4>
-                    {searchQuery && (
+                    {debouncedQuery && (
                         <Button
                             variant='ghost'
                             className='mt-2 text-blue-600 hover:text-blue-700'
@@ -137,9 +119,9 @@ const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
         }
 
         return (
-            <div className='h-[calc(100vh-200px)] overflow-y-auto'>
+            <>
                 <div className='grid grid-cols-2 md:grid-cols-3 gap-2'>
-                    {filteredMedias.map((media, i) => (
+                    {mediaData.medias.map((media, i) => (
                         <div
                             key={media._id || i}
                             className='h-[180px] w-full relative aspect-square overflow-hidden rounded-md border bg-gray'
@@ -195,16 +177,9 @@ const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
                         </div>
                     ))}
                 </div>
-            </div>
+            </>
         );
     };
-
-    // Determine if we need to show the "View More" button
-    // We should show it if there are more items to fetch from API or if the user is filtering
-    const showViewMore =
-        hasMoreToFetch &&
-        // Only show when not filtering, or when filtering and there are filtered results
-        (!searchQuery || (searchQuery && filteredMedias.length > 0));
 
     return (
         <div className='w-full'>
@@ -214,7 +189,7 @@ const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
                     <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
                     <Input
                         type='search'
-                        placeholder='Filter by sender name...'
+                        placeholder='Search by message or file name'
                         className='pl-8 py-2 pr-4 w-full border bg-background rounded-md focus:border-blue-500 focus:ring-blue-500'
                         value={searchQuery}
                         onChange={(e) => handleSearch(e.target.value)}
@@ -224,33 +199,18 @@ const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
 
             {/* Main content area with images */}
             <div ref={divRef} className='relative'>
-                {renderContent()}
+                <div className='h-[calc(100vh-250px)] overflow-y-auto border-b border-forground-border'>
+                    {renderContent()}
+                </div>
 
-                {/* Gradient overlay and View More button container */}
-                {showViewMore && (
-                    <div className='relative mt-2'>
-                        <div className='absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-black dark:from-gray-950 to-transparent'></div>
-                        <div className='flex justify-center pb-4 pt-8 relative z-10'>
-                            <Button
-                                variant='outline'
-                                className='flex items-center gap-1 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700'
-                                onClick={loadMoreImages}
-                                disabled={isLoadingMore}
-                            >
-                                {isLoadingMore ? (
-                                    <>
-                                        <Loader2 className='h-4 w-4 mr-1 animate-spin' />
-                                        Loading...
-                                    </>
-                                ) : (
-                                    <>
-                                        View More
-                                        <ChevronDown className='h-4 w-4' />
-                                    </>
-                                )}
-                            </Button>
-                        </div>
-                    </div>
+                {/* Pagination component */}
+                {!isLoading && mediaData && mediaData.totalCount > 0 && (
+                    <GlobalPagination
+                        totalItems={mediaData.totalCount}
+                        itemsPerPage={itemsPerPage}
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                    />
                 )}
             </div>
         </div>

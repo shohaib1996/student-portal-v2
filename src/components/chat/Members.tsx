@@ -21,7 +21,6 @@ import {
     VolumeX,
     Search,
     Plus,
-    ChevronDown,
     VolumeOff,
 } from 'lucide-react';
 import {
@@ -40,7 +39,17 @@ import { updateChats, updateMembersCount } from '@/redux/features/chatReducer';
 import { instance } from '@/lib/axios/axiosInstance';
 import GlobalTooltip from '../global/GlobalTooltip';
 import AddUserModal from './AddUserModal';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { chatApi, useGetChatMembersQuery } from '@/redux/api/chats/chatApi';
+import { tagTypes } from '@/redux/api/tagType/tagTypes';
+import GlobalPagination from '../global/GlobalPagination';
+
+interface ChatMember {
+    _id: string;
+    user: any;
+    role: string;
+    mute?: Mute;
+    isBlocked?: boolean;
+}
 
 // Shared types for chat-related components
 export interface User {
@@ -60,17 +69,6 @@ export interface Mute {
 export interface Notification {
     isOn?: boolean;
     dateUntil?: string;
-}
-
-export interface Member {
-    _id: string;
-    user: User;
-    role?: string;
-    isBlocked?: boolean;
-    isMuted?: boolean;
-    muteExpires?: string;
-    mute?: Mute;
-    notification?: Notification;
 }
 
 export interface Chat {
@@ -97,120 +95,73 @@ interface MembersProps {
 dayjs.extend(relativeTime);
 
 const Members: React.FC<MembersProps> = ({ chat }) => {
-    const [members, setMembers] = useState<Member[]>([]);
-    const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [members, setMembers] = useState<ChatMember[]>([]);
+    const [filteredMembers, setFilteredMembers] = useState<ChatMember[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedMute, setSelectedMute] = useState<Member | null>(null);
-    const [selectedRole, setSelectedRole] = useState<Member | null>(null);
-    const [selectedBlock, setSelectedBlock] = useState<Member | null>(null);
-    const [selectedRemoveUser, setSelectedRemoveUser] = useState<Member | null>(
-        null,
-    );
+    const [selectedMute, setSelectedMute] = useState<ChatMember | null>(null);
+    const [selectedRole, setSelectedRole] = useState<ChatMember | null>(null);
+    const [selectedBlock, setSelectedBlock] = useState<ChatMember | null>(null);
+    const [selectedRemoveUser, setSelectedRemoveUser] =
+        useState<ChatMember | null>(null);
     const [creating, setCreating] = useState(false);
-    const [showAll, setShowAll] = useState(false);
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(15);
+    const [totalItems, setTotalItems] = useState(0);
+
     const router = useRouter();
 
     // Redux state and dispatch
     const dispatch = useAppDispatch();
     const { user } = useAppSelector((state) => state.auth);
     const { onlineUsers } = useAppSelector((state: any) => state.chat);
-    console.log({ Scope: chat?.memberScope });
+
     const divRef = useRef<HTMLDivElement>(null);
 
-    const fetchMembers = useCallback(
-        (options: { limit: number; lastId?: string }) => {
-            if (!chat?._id) {
-                return;
-            }
-            setIsLoading(true);
-            instance
-                .post(`/chat/members/${chat?._id}`, options)
-                .then((res) => {
-                    const membersData = res.data?.results || [];
-                    console.log({ membersData });
-                    setMembers(membersData);
-                    setFilteredMembers(membersData);
-                    setIsLoading(false);
-                })
-                .catch((err) => {
-                    setIsLoading(false);
-                    console.error(err);
-                    toast.error(
-                        err?.response?.data?.error || 'Failed to fetch members',
-                    );
-                });
+    // Get members data with RTK Query
+    const {
+        data: membersData,
+        isLoading,
+        isFetching,
+    } = useGetChatMembersQuery(
+        {
+            chatId: chat?._id,
+            limit: itemsPerPage,
+            page: currentPage,
+            query: searchQuery,
         },
-        [chat],
+        {
+            skip: !chat?._id,
+            refetchOnMountOrArgChange: true, // Important for returning to the page
+        },
     );
 
-    const handleScroll = useCallback(
-        ({ lastId }: { lastId?: string }) => {
-            const div = divRef.current;
-
-            if (
-                div &&
-                div.scrollTop + div.clientHeight >= div.scrollHeight - 1
-            ) {
-                instance
-                    .post(`/chat/members/${chat?._id}`, { lastId, limit: 50 })
-                    .then((res) => {
-                        const newMembers = res.data?.results || [];
-                        setMembers((prev) => [...prev, ...newMembers]);
-
-                        // Also update filtered members if search is active
-                        if (searchQuery) {
-                            const newFiltered = newMembers.filter(
-                                (member: any) =>
-                                    member.user.fullName
-                                        ?.toLowerCase()
-                                        .includes(searchQuery.toLowerCase()),
-                            );
-                            setFilteredMembers((prev) => [
-                                ...prev,
-                                ...newFiltered,
-                            ]);
-                        } else {
-                            setFilteredMembers((prev) => [
-                                ...prev,
-                                ...newMembers,
-                            ]);
-                        }
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                        toast.error(
-                            err?.response?.data?.error ||
-                                'Failed to load more members',
-                        );
-                    });
-            }
-        },
-        [chat, searchQuery],
-    );
-
+    // Update state when data is received
     useEffect(() => {
-        if (chat) {
-            fetchMembers({ limit: 50 });
+        if (membersData) {
+            setMembers(membersData.results || []);
+            setFilteredMembers(membersData.results || []);
+            setTotalItems(membersData.pagination?.total || 0);
         }
-    }, [chat, fetchMembers]);
+    }, [membersData]);
+
+    // Handle page changes
+    const handlePageChange = (page: number, limit: number) => {
+        setCurrentPage(page);
+        setItemsPerPage(limit);
+    };
 
     // Search functionality
     useEffect(() => {
-        if (searchQuery.trim() === '') {
-            setFilteredMembers(members);
-        } else {
-            const filtered = members.filter((member) =>
-                member.user.fullName
-                    ?.toLowerCase()
-                    .includes(searchQuery.toLowerCase()),
-            );
-            setFilteredMembers(filtered);
+        if (searchQuery.trim() !== '') {
+            // Reset to first page when search changes
+            setCurrentPage(1);
         }
-    }, [searchQuery, members]);
+    }, [searchQuery]);
 
     const handleRemoveUser = useCallback(
-        (member: Member) => {
+        (member: ChatMember) => {
             const data = {
                 member,
             };
@@ -245,22 +196,35 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
         [chat, dispatch],
     );
 
-    const handleUpdateCallback = useCallback((member: any) => {
-        const updateMembersList = (list: Member[]) => {
-            const arr = [...list];
-            const index = arr.findIndex((x) => x._id === member?._id);
+    const handleUpdateCallback = useCallback(
+        (updatedMember: any) => {
+            // Update in local state
+            const updateMembersList = (list: ChatMember[]) => {
+                const arr = [...list];
+                const index = arr.findIndex(
+                    (x) => x._id === updatedMember?._id,
+                );
 
-            if (index !== -1) {
-                arr[index] = { ...arr[index], ...member };
-                return arr;
-            }
-            return list;
-        };
+                if (index !== -1) {
+                    arr[index] = { ...arr[index], ...updatedMember };
+                    return arr;
+                }
+                return list;
+            };
 
-        setMembers(updateMembersList);
-        setFilteredMembers(updateMembersList);
-        setSelectedMute(null);
-    }, []);
+            setMembers(updateMembersList);
+            setFilteredMembers(updateMembersList);
+            setSelectedMute(null);
+
+            // Invalidate cache for this chat's members
+            dispatch(
+                chatApi.util.invalidateTags([
+                    { type: tagTypes.members, id: chat?._id },
+                ]),
+            );
+        },
+        [dispatch, chat?._id],
+    );
 
     // Modal states
     const [chatRoleOpened, setChatRoleOpened] = useState(false);
@@ -273,12 +237,12 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
         setChatRoleOpened(false);
     }, []);
 
-    const handleOpenRole = useCallback((member: Member) => {
+    const handleOpenRole = useCallback((member: ChatMember) => {
         setSelectedRole(member);
         setChatRoleOpened(true);
     }, []);
 
-    const handleOpenMute = useCallback((member: Member) => {
+    const handleOpenMute = useCallback((member: ChatMember) => {
         setSelectedMute(member);
         setMuteOptionOpened(true);
     }, []);
@@ -288,7 +252,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
         setMuteOptionOpened(false);
     }, []);
 
-    const handleBlockOpen = useCallback((member: Member) => {
+    const handleBlockOpen = useCallback((member: ChatMember) => {
         setSelectedBlock(member);
         setUserBlockOpened(true);
     }, []);
@@ -298,7 +262,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
         setUserBlockOpened(false);
     }, []);
 
-    const handleUserRemoveOpen = useCallback((member: Member) => {
+    const handleUserRemoveOpen = useCallback((member: ChatMember) => {
         setUserRemoveOpened(true);
         setSelectedRemoveUser(member);
     }, []);
@@ -342,11 +306,6 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
         [router, dispatch],
     );
 
-    // Display limited members or all based on showAll state
-    const displayMembers = showAll
-        ? filteredMembers
-        : filteredMembers.slice(0, 15);
-
     // Skeleton loading component
     const MemberSkeleton = () => (
         <div className='flex items-center justify-between p-3 border-b border-border'>
@@ -366,9 +325,6 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
             <div className='space-y-3'>
                 {chat.memberScope !== 'custom' && (
                     <div className='bg-orange-500/20 w-full rounded-xl border border-orange-500 text-orange-500 py-2 px-3 flex flex-col items-center justify-center gap-2'>
-                        {/* <p className='font-semibold font-xl'>
-                            This is not a Custom Crowd
-                        </p> */}
                         <p className='font-md'>
                             Only Owner, Admins, moderators information will be
                             shows below
@@ -402,12 +358,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                 {/* Members list */}
                 <div
                     ref={divRef}
-                    className='h-[calc(100vh-300px)] overflow-y-auto space-y-0.5 !mt-0 pr-1'
-                    onScroll={() =>
-                        handleScroll({
-                            lastId: members[members?.length - 1]?._id,
-                        })
-                    }
+                    className='h-[calc(100vh-250px)] overflow-y-auto space-y-0.5 !mt-0 pr-1 border-b border-forground-border'
                 >
                     {isLoading ? (
                         // Skeleton loading state
@@ -423,10 +374,10 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                             </h2>
                         </div>
                     ) : (
-                        displayMembers.map((member, i) => (
+                        filteredMembers.map((member, i) => (
                             <div
                                 key={i}
-                                className={`flex items-center justify-between py-2 px-1 ${i !== displayMembers?.length - 1 && 'border-b'} pb-2`}
+                                className={`flex items-center justify-between py-2 px-1 ${i !== filteredMembers.length - 1 && 'border-b'} pb-2`}
                             >
                                 <div className='flex items-center gap-3'>
                                     <div
@@ -565,7 +516,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                                                                         member,
                                                                     )
                                                                 }
-                                                                className='flex items-center gap-2'
+                                                                className='flex items-center gap-2 hover:bg-background cursor-pointer'
                                                             >
                                                                 <UserPlus className='h-4 w-4' />
                                                                 <span>
@@ -578,7 +529,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                                                                         member,
                                                                     )
                                                                 }
-                                                                className='flex items-center gap-2'
+                                                                className='flex items-center gap-2 hover:bg-background cursor-pointer'
                                                             >
                                                                 <Ban className='h-4 w-4' />
                                                                 <span>
@@ -593,7 +544,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                                                                         member,
                                                                     )
                                                                 }
-                                                                className='flex items-center gap-2'
+                                                                className='flex items-center gap-2 hover:bg-background cursor-pointer'
                                                             >
                                                                 <Trash2 className='h-4 w-4' />
                                                                 <span>
@@ -616,7 +567,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                                                                     member,
                                                                 )
                                                             }
-                                                            className='flex items-center gap-2'
+                                                            className='flex items-center gap-2 hover:bg-background cursor-pointer'
                                                         >
                                                             {member?.mute
                                                                 ?.isMuted ===
@@ -646,19 +597,14 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                     )}
                 </div>
 
-                {/* View more button */}
-                {!isLoading && filteredMembers.length > 15 && !showAll && (
-                    <div className='flex flex-row items-center gap-1'>
-                        <div className='h-[2px] bg-forground-border rounded-xl w-full'></div>
-                        <Button
-                            variant='ghost'
-                            className='w-fit rounded-full px-2 text-primary bg-primary-light h-6 text-xs'
-                            onClick={() => setShowAll(true)}
-                        >
-                            View More <ChevronDown className='h-4 w-4 ml-1' />
-                        </Button>
-                        <div className='h-[2px] bg-forground-border rounded-xl w-full'></div>
-                    </div>
+                {/* Pagination component */}
+                {!isLoading && membersData?.pagination && (
+                    <GlobalPagination
+                        totalItems={totalItems}
+                        itemsPerPage={membersData.pagination.limit}
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                    />
                 )}
             </div>
 

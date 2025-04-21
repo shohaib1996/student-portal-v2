@@ -311,9 +311,13 @@ export function DocumentAndLabsDetailsModal({
                         </div>
 
                         {/* Two-column layout */}
-                        <div className='flex flex-col lg:flex-row gap-8'>
+                        <div className='flex flex-col-reverse lg:flex-row gap-8'>
                             {/* Left column - Content */}
-                            <div className='w-full lg:w-2/3' ref={contentRef}>
+                            <div
+                                className='w-full lg:w-2/3'
+                                style={{ maxWidth: 'calc(100vw - 40px)' }}
+                                ref={contentRef}
+                            >
                                 {isLoading && !documentData ? (
                                     <div className='space-y-4'>
                                         <Skeleton className='h-6 w-3/4' />
@@ -643,21 +647,19 @@ export function DocumentAndLabsDetailsModal({
                                     </div>
                                     <div
                                         id='related-docs-slider'
-                                        className='flex overflow-x-auto space-x-4 pb-4 hide-scrollbar w-full'
+                                        className='flex overflow-x-auto space-x-4 pb-4 hide-scrollbar'
                                         style={{
                                             scrollBehavior: 'smooth',
                                             scrollbarWidth: 'none',
                                             msOverflowStyle: 'none',
+                                            maxWidth: 'calc(100vw - 40px)',
                                         }}
                                     >
                                         {relatedDocuments.map(
                                             (relatedDoc: any, i: number) => (
                                                 <Card
-                                                    className='overflow-hidden flex-shrink-0'
+                                                    className='overflow-hidden flex-shrink-0 w-[300px] lg:w-[calc(100%/2-16px)] xl:w-[calc(100%/3-16px)]'
                                                     key={i}
-                                                    style={{
-                                                        width: 'calc(100% / 3 - 16px)',
-                                                    }}
                                                 >
                                                     <div
                                                         className='cursor-pointer'

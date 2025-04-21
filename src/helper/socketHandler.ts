@@ -92,6 +92,7 @@ const setupSocketListeners = (api?: any): (() => void) => {
     });
 
     socket.on('newmessage', (data: MessageData) => {
+        console.log('newmessage', data);
         const isSoundOnOrOff = store.getState()?.notification?.isSoundOnOrOff;
 
         if (data.message.forwardedFrom) {
@@ -130,6 +131,25 @@ const setupSocketListeners = (api?: any): (() => void) => {
                 }),
             );
             store.dispatch(updateRepliesCount({ message: data.message }));
+        }
+        // for activity message
+        if (data?.message?.type === 'activity') {
+            store.dispatch(
+                updateLatestMessage({
+                    chatId:
+                        typeof data.chat === 'string'
+                            ? data.chat
+                            : data.chat?._id || '',
+                    latestMessage: data.message,
+                    counter: 1,
+                }),
+            );
+            store.dispatch(updateRepliesCount({ message: data.message }));
+            store.dispatch(
+                pushMessage({
+                    message: data.message,
+                }),
+            );
         }
     });
 

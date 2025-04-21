@@ -82,7 +82,6 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
     sendTypingIndicator,
     setIsAttachment,
 }) => {
-    console.log({ chat });
     if (chat?.isReadOnly && chat?.myData?.role === 'member') {
         return (
             <div className='p-4 border-t border-border'>

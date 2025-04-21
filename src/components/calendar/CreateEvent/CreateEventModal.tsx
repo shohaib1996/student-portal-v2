@@ -229,7 +229,7 @@ const CreateEventModal = () => {
     useEffect(() => {
         const errors = Object.values(eventForm.formState?.errors);
         const todoErrors = Object.values(todoForm.formState?.errors);
-        console.error(errors);
+        // console.error(errors);
         if (errors.length > 0) {
             if (eventForm.formState.errors.recurrence?.endRecurrence) {
                 toast.error(

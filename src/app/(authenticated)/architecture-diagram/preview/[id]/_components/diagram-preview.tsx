@@ -50,7 +50,7 @@ const DiagramPreviewComponent = () => {
         : {};
 
     return (
-        <div>
+        <div className='mt-3'>
             {!isFullScreen && (
                 <div className='flex items-center gap-1 mb-3 border-b pb-2'>
                     <Link href='/architecture-diagram'>
@@ -94,7 +94,10 @@ const DiagramPreviewComponent = () => {
 
             {!isFullScreen && currentId && (
                 <div className='p-4'>
-                    <GlobalComment contentId={currentId.toString()} />
+                    <GlobalComment
+                        contentId={currentId.toString()}
+                        bgColor='foreground'
+                    />
                 </div>
             )}
         </div>

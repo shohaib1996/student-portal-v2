@@ -73,7 +73,7 @@ export default function MyDocumentsPage() {
         priority,
         createdAt: date,
     });
-
+    console.log({ data });
     // Update URL when view mode changes
     useEffect(() => {
         const params = new URLSearchParams(searchParams.toString());
@@ -484,12 +484,14 @@ export default function MyDocumentsPage() {
                         />
                     </div>
                 )}
-
+                {/* Update the GlobalPagination component call */}
                 {allDocuments.length > 0 && (
                     <GlobalPagination
-                        currentPage={currentPage}
-                        totalItems={data?.count || 0}
-                        itemsPerPage={limit}
+                        currentPage={
+                            data?.pagination?.currentPage || currentPage
+                        }
+                        totalItems={data?.pagination?.total || 0}
+                        itemsPerPage={data?.pagination?.limit || limit}
                         onPageChange={handlePageChange}
                     />
                 )}

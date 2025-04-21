@@ -115,7 +115,6 @@ const ChatBody: React.FC<ChatBodyProps> = ({
         fetchedMore,
         drafts,
     } = useAppSelector((state) => state.chat);
-
     const [count, setCount] = useState(0);
     const messages = chatMessages[params?.chatid as string] || [];
 
@@ -487,7 +486,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                             }
                                         </span>
 
-                                        <span className='text-xs text-gray w-[80px]'>
+                                        <span className='text-xs text-gray w-fit'>
                                             {dayjs(
                                                 messages
                                                     .filter(

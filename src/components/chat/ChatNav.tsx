@@ -268,7 +268,6 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     const { chats, onlineUsers, chatMessages } = useAppSelector(
         (state) => state.chat,
     );
-    console.log({ chats });
     // Replace direct API call with RTK mutation
     const [findOrCreateChat, { isLoading: isCreatingChat }] =
         useFindOrCreateChatMutation();
@@ -287,7 +286,6 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
             setRecords(sortByLatestMessage(chats).slice(0, 20)); // Load initial chats
         }
     }, [chats]);
-    console.log({ records });
     useEffect(() => {
         // Update active state when URL query changes
         const tabFromUrl = searchParams.get('tab') || 'chats';

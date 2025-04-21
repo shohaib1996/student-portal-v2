@@ -140,13 +140,13 @@ const AudioAndVideos = () => {
                     </Button>
                 </div>
 
-                <div className='relative w-full sm:w-64 md:w-80'>
+                <div className='relative w-full sm:w-64 md:w-80 h-12 flex items-center justify-center'>
                     <Input
                         type='text'
                         placeholder='Search media...'
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className='pl-10'
+                        className='pl-8 bg-foreground'
                     />
                     <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
                 </div>

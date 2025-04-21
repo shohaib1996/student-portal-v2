@@ -299,7 +299,7 @@ export function UploadDocumentModal({
             <DialogContent className='h-screen min-w-full overflow-y-auto p-0'>
                 <div className='flex h-full flex-col'>
                     {/* Header */}
-                    <div className='sticky top-0 z-10 flex items-center justify-between border-b bg-background p-4'>
+                    <div className='sticky top-0 flex flex-col lg:flex-row gap-2 lg:gap-0 lg:items-center lg:justify-between border-b bg-background p-4 z-20'>
                         <div className='flex items-center gap-2'>
                             <Button
                                 variant='outline'
@@ -311,7 +311,7 @@ export function UploadDocumentModal({
                             </Button>
                             <div>
                                 <h1 className='text-xl font-semibold'>
-                                    Add New Document
+                                    Add New Document kghkj
                                 </h1>
                                 <p className='text-sm text-muted-foreground'>
                                     Fill out the form to add new document
@@ -386,7 +386,13 @@ export function UploadDocumentModal({
                                                             className='h-[80vh] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0'
                                                             {...field}
                                                         /> */}
-                                                        <div className='h-[80vh]'>
+                                                        <div
+                                                            className='h-[80vh] !max-w-[calc(100vw-40px)]'
+                                                            style={{
+                                                                maxWidth:
+                                                                    'calc(100vw-40px)',
+                                                            }}
+                                                        >
                                                             <GlobalEditor
                                                                 value={
                                                                     field.value ||

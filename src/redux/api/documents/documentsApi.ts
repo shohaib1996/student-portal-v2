@@ -51,6 +51,14 @@ export interface MyDocumentResponse {
     documents: MyDocument[];
     success: boolean;
     count: number;
+    pagination?: {
+        currentPage: number;
+        hasNext: boolean;
+        hasPrev: boolean;
+        limit: number;
+        total: number;
+        totalPages: number;
+    };
 }
 
 interface UploadDoc {
