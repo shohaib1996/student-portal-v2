@@ -77,6 +77,7 @@ import {
     useUploadChannelAvatarMutation,
 } from '@/redux/api/chats/chatApi';
 import { instance } from '@/lib/axios/axiosInstance';
+import { loadChats } from '@/actions/initialActions';
 
 interface ChatInfoProps {
     handleToggleInfo: () => void;
@@ -491,6 +492,8 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
             })
                 .unwrap()
                 .then(() => {
+                    dispatch(loadChats() as any);
+                    setArchivedConfirmOpened(false);
                     toast.success(
                         `The group has been successfully ${chat.isArchived ? 'retrieved' : 'archived'}.`,
                     );
@@ -512,6 +515,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                 .then(() => {
                     dispatch(removeChat(chat._id));
                     router.push('/chat');
+                    dispatch(loadChats() as any);
                 })
                 .catch((err) => {
                     toast.error(err?.data?.error || 'Error leaving group');

@@ -128,9 +128,9 @@ const formatDate = (date: string | Date | undefined): string => {
 };
 
 function CrowdSidebar() {
-    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { isLoading: isChatsLoading } = useGetChatsQuery();
     const { data: onlineUsers = [] } = useGetOnlineUsersQuery();
-    const { chatMessages } = useAppSelector((state) => state.chat);
+    const { chats, chatMessages } = useAppSelector((state) => state.chat);
     const { user } = useAppSelector((state: any) => state.auth);
     const [records, setRecords] = useState<any[]>([]);
     const [channels, setChannels] = useState<any[]>([]);
@@ -193,10 +193,10 @@ function CrowdSidebar() {
             </div>
 
             <div className='h-[calc(100vh-162px)] overflow-y-auto'>
-                {isChatsLoading &&
+                {/* {isChatsLoading &&
                     Array.from({ length: 10 }).map((_, index) => (
                         <ChatSkeletonList key={index} />
-                    ))}
+                    ))} */}
                 {visibleRecords?.map((chat, i) => {
                     const isActive = params?.chatid === chat?._id;
                     const hasUnread = chat?.unreadCount > 0;

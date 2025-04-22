@@ -38,7 +38,7 @@ export const MentionMenu = forwardRef<any, BeautifulMentionsMenuProps>(
                     scrollbarWidth: 'thin',
                     msOverflowStyle: 'none',
                 }}
-                className='absolute z-[9999] top-6 m-0 min-w-[14rem] max-h-[200px] overflow-y-auto overflow-x-hidden rounded-md border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-50 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95'
+                className='absolute z-[9999] -top-36 m-0 min-w-[14rem] max-h-[200px] overflow-y-auto overflow-x-hidden rounded-md border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-50 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95'
                 {...other}
             />
         );

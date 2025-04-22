@@ -101,7 +101,8 @@ function formatDate(date: string | Date | undefined): string {
 }
 
 function Archived() {
-    const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
+    const { chats } = useAppSelector((state) => state.chat);
+    const { isLoading: isChatsLoading } = useGetChatsQuery();
     const { user } = useAppSelector((state: any) => state.auth);
     const { onlineUsers, chatMessages } = useAppSelector((state) => state.chat);
     const [records, setRecords] = useState<any[]>([]);
@@ -142,8 +143,7 @@ function Archived() {
     useEffect(() => {
         setIsLoading(true);
         try {
-            const archivedChannels =
-                chats?.filter((x: ChatData) => x?.isArchived) || [];
+            const archivedChannels = chats?.filter((x) => x?.isArchived) || [];
             setChannels(archivedChannels);
             setRecords(archivedChannels);
         } catch (error) {
@@ -180,10 +180,10 @@ function Archived() {
                 </div>
             ) : (
                 <div className='h-[calc(100vh-162px)] overflow-y-auto'>
-                    {isChatsLoading &&
+                    {/* {isChatsLoading &&
                         Array.from({ length: 10 }).map((_, index) => (
                             <ChatSkeletonList key={index} />
-                        ))}
+                        ))} */}
                     {visibleRecords?.map((chat, i) => {
                         const isActive = params?.chatid === chat?._id;
                         const hasUnread = chat?.unreadCount > 0;
@@ -542,7 +542,8 @@ function Archived() {
                                                 )}
 
                                                 {/* Unread indicator */}
-                                                {hasUnread &&
+                                                {chat.unreadCount !== 0 &&
+                                                    hasUnread &&
                                                     chat?.latestMessage?.sender
                                                         ?._id !== user?._id && (
                                                         <span className='flex-shrink-0 h-5 w-5 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-medium'>

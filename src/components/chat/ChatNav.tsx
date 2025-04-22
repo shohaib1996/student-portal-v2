@@ -670,14 +670,14 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                         </div>
                                     </div>
                                     <div className='h-[calc(100vh-162px)] overflow-y-auto'>
-                                        {isChatsLoading &&
+                                        {/* {isChatsLoading &&
                                             Array.from({ length: 10 }).map(
                                                 (_, index) => (
                                                     <ChatSkeletonList
                                                         key={index}
                                                     />
                                                 ),
-                                            )}
+                                            )} */}
                                         {sortByLatestMessage(records)?.map(
                                             (chat, i) => {
                                                 const isActive =

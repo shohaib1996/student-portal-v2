@@ -226,7 +226,7 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
                 dispatch(updateChats(res?.data?.chat));
                 dispatch(updateLatestMessage(res?.data?.chat));
                 handleCreateChat(res?.data?.chat._id);
-                loadChats();
+                dispatch(loadChats() as any);
                 onClose();
             })
             .catch((err) => {

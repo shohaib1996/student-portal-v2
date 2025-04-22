@@ -166,9 +166,14 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                     height={40}
                                     src={
                                         chat?.isChannel
-                                            ? chat?.avatar || '/group.jpg'
-                                            : chat?.otherUser?.profilePicture ||
-                                              '/avatar.png'
+                                            ? chat?.avatar !== 'undefined'
+                                                ? chat?.avatar
+                                                : '/group.jpg'
+                                            : chat?.otherUser
+                                                    ?.profilePicture !==
+                                                'undefined'
+                                              ? chat?.otherUser?.profilePicture
+                                              : '/avatar.png'
                                     }
                                     onClick={handleToggleInfo}
                                     className='cursor-pointer object-cover border shadow-md rounded-full bg-primary h-10 w-10 min-w-10'

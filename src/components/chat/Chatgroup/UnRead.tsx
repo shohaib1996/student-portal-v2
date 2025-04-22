@@ -203,10 +203,10 @@ function UnRead() {
                 </div>
             ) : (
                 <div className='h-[calc(100vh-162px)] overflow-y-auto'>
-                    {isChatsLoading &&
+                    {/* {isChatsLoading &&
                         Array.from({ length: 10 }).map((_, index) => (
                             <ChatSkeletonList key={index} />
-                        ))}
+                        ))} */}
                     {visibleRecords?.map((chat, i) => {
                         const isActive = params?.chatid === chat?._id;
                         const hasUnread = chat?.unreadCount > 0;
@@ -563,7 +563,8 @@ function UnRead() {
                                                 )}
 
                                                 {/* Unread indicator */}
-                                                {hasUnread &&
+                                                {chat.unreadCount !== 0 &&
+                                                    hasUnread &&
                                                     chat?.latestMessage?.sender
                                                         ?._id !== user?._id && (
                                                         <span className='flex-shrink-0 h-5 w-5 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-medium'>

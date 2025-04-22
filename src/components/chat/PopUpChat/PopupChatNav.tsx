@@ -1007,7 +1007,8 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                                 )}
 
                                                 {/* Unread indicator */}
-                                                {hasUnread &&
+                                                {chat.unreadCount !== 0 &&
+                                                    hasUnread &&
                                                     chat?.latestMessage?.sender
                                                         ?._id !== user?._id && (
                                                         <span className='flex-shrink-0 h-5 w-5 bg-primary rounded-full flex items-center justify-center text-[10px] text-white font-medium'>
