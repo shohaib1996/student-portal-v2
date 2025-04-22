@@ -440,9 +440,8 @@ export const chatApi = baseApi.injectEndpoints({
                 }
             },
             // Invalidate relevant cache tags
-            invalidatesTags: (result, error, { messageId }) => [
-                { type: 'Messages' as const, id: messageId },
-            ],
+            invalidatesTags: (result, error, { messageId }) =>
+                result ? [{ type: 'Messages' as const, id: messageId }] : [],
         }),
 
         // Fetch all chats
@@ -763,13 +762,16 @@ export const chatApi = baseApi.injectEndpoints({
                     patchResult.undo();
                 }
             },
-            invalidatesTags: (result, error, { chat, parentMessage }) => [
-                { type: 'Messages' as const, id: chat },
-                // Only invalidate chat list if it's a top-level message
-                ...(parentMessage
-                    ? []
-                    : [{ type: 'Chats' as const, id: 'LIST' }]),
-            ],
+            invalidatesTags: (result, error, { chat, parentMessage }) =>
+                result
+                    ? [
+                          { type: 'Messages' as const, id: chat },
+                          // Only invalidate chat list if it's a top-level message
+                          ...(parentMessage
+                              ? []
+                              : [{ type: 'Chats' as const, id: 'LIST' }]),
+                      ]
+                    : [],
         }),
 
         // Update message status (delivered, read)
@@ -779,9 +781,8 @@ export const chatApi = baseApi.injectEndpoints({
                 method: 'PATCH',
                 data: { status },
             }),
-            invalidatesTags: (result, error, { messageId }) => [
-                { type: 'Messages', id: messageId },
-            ],
+            invalidatesTags: (result, error, { messageId }) =>
+                result ? [{ type: 'Messages', id: messageId }] : [],
         }),
 
         // Mark chat as read
@@ -816,9 +817,8 @@ export const chatApi = baseApi.injectEndpoints({
                     patchResult.undo();
                 }
             },
-            invalidatesTags: (result, error, chatId) => [
-                { type: 'Chats', id: chatId },
-            ],
+            invalidatesTags: (result, error, chatId) =>
+                result ? [{ type: 'Chats', id: chatId }] : [],
         }),
 
         // Toggle favorite/pin status
@@ -857,9 +857,8 @@ export const chatApi = baseApi.injectEndpoints({
                     patchResult.undo();
                 }
             },
-            invalidatesTags: (result, error, { chat }) => [
-                { type: 'Chats', id: chat },
-            ],
+            invalidatesTags: (result, error, { chat }) =>
+                result ? [{ type: 'Chats', id: chat }] : [],
         }),
 
         // Create or find a direct chat with another user
@@ -895,7 +894,8 @@ export const chatApi = baseApi.injectEndpoints({
                     console.error('Error in findOrCreateChat:', error);
                 }
             },
-            invalidatesTags: [{ type: 'Chats', id: 'LIST' }],
+            invalidatesTags: (result) =>
+                result ? [{ type: 'Chats', id: 'LIST' }] : [],
         }),
 
         // Add this to your chatApi endpoints
@@ -984,7 +984,8 @@ export const chatApi = baseApi.injectEndpoints({
                     console.error('Error in createGroup:', error);
                 }
             },
-            invalidatesTags: [{ type: 'Chats', id: 'LIST' }],
+            invalidatesTags: (result) =>
+                result ? [{ type: 'Chats', id: 'LIST' }] : [],
         }),
 
         // Add this to the chatApi endpoints
@@ -1065,9 +1066,8 @@ export const chatApi = baseApi.injectEndpoints({
                     patchResult.undo();
                 }
             },
-            invalidatesTags: (result, error, { chat }) => [
-                { type: 'Chats', id: chat },
-            ],
+            invalidatesTags: (result, error, { chat }) =>
+                result ? [{ type: 'Chats', id: chat }] : [],
         }),
         getMentionedUserDetails: build.query<MentionedUserDetails, string>({
             query: (userId) => ({
@@ -1075,9 +1075,7 @@ export const chatApi = baseApi.injectEndpoints({
                 method: 'GET',
             }),
             providesTags: (result, error, userId) =>
-                result
-                    ? [{ type: 'User' as const, id: userId }]
-                    : [{ type: 'User' as const, id: userId }],
+                result ? [{ type: 'User' as const, id: userId }] : [],
         }),
         // In your chatApi.ts file
         getChatMembers: build.query<MembersResponse, MembersParams>({
@@ -1124,9 +1122,8 @@ export const chatApi = baseApi.injectEndpoints({
                 url: `/chat/media-counts/${chatId}`,
                 method: 'GET',
             }),
-            providesTags: (result, error, chatId) => [
-                { type: tagTypes.mediaCounts, id: chatId },
-            ],
+            providesTags: (result, error, chatId) =>
+                result ? [{ type: tagTypes.mediaCounts, id: chatId }] : [],
         }),
 
         updateChannelInfo: build.mutation<
@@ -1197,10 +1194,13 @@ export const chatApi = baseApi.injectEndpoints({
                     patchResult.undo();
                 }
             },
-            invalidatesTags: (result, error, { chatId }) => [
-                { type: 'Chats', id: chatId },
-                { type: 'Chats', id: 'LIST' },
-            ],
+            invalidatesTags: (result, error, { chatId }) =>
+                result
+                    ? [
+                          { type: 'Chats', id: chatId },
+                          { type: 'Chats', id: 'LIST' },
+                      ]
+                    : [],
         }),
 
         archiveChannel: build.mutation<
@@ -1240,10 +1240,13 @@ export const chatApi = baseApi.injectEndpoints({
                     patchResult.undo();
                 }
             },
-            invalidatesTags: (result, error, { chatId }) => [
-                { type: 'Chats', id: chatId },
-                { type: 'Chats', id: 'LIST' },
-            ],
+            invalidatesTags: (result, error, { chatId }) =>
+                result
+                    ? [
+                          { type: 'Chats', id: chatId },
+                          { type: 'Chats', id: 'LIST' },
+                      ]
+                    : [],
         }),
 
         leaveChannel: build.mutation<void, string>({
@@ -1252,7 +1255,8 @@ export const chatApi = baseApi.injectEndpoints({
                 method: 'PATCH',
             }),
             // We don't need optimistic updates here as we'll redirect after leaving
-            invalidatesTags: [{ type: 'Chats', id: 'LIST' }],
+            invalidatesTags: (result) =>
+                result ? [{ type: 'Chats', id: 'LIST' }] : [],
         }),
 
         uploadChannelAvatar: build.mutation<
