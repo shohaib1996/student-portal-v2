@@ -427,7 +427,7 @@ const Inbox: React.FC<InboxProps> = ({
 
                     {/* Search box appears when search.isOpen is true */}
                     {search.isOpen && (
-                        <div className='absolute top-[60px] left-0 right-0 bg-background p-2 shadow-md z-10 flex items-center gap-2'>
+                        <div className='bg-background p-2 shadow-md z-10 flex items-center gap-2 mb-2'>
                             <div className='relative w-full'>
                                 <Input
                                     type='text'
@@ -488,6 +488,7 @@ const Inbox: React.FC<InboxProps> = ({
                             reloading={reloading}
                             isAi={isAi}
                             searchQuery={finalQuery}
+                            setFinalQuery={() => resetSearch()}
                         />
                     )}
                 </div>

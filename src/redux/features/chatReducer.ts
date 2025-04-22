@@ -440,6 +440,8 @@ const chatSlice = createSlice({
             }>,
         ) => {
             const { message } = action.payload;
+            console.log({ action });
+            console.log({ message });
             const chatId = message.chat;
             const messagesArray = state.chatMessages[chatId] || [];
 

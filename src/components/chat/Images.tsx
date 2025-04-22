@@ -3,7 +3,15 @@
 import type React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { Loader2, Search } from 'lucide-react';
+import {
+    Loader2,
+    Search,
+    Maximize2,
+    X,
+    ChevronLeft,
+    ChevronRight,
+    Fullscreen,
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -19,12 +27,28 @@ interface ImagesProps {
     setMediaCount: (count: number) => void;
 }
 
+interface Media {
+    _id: string;
+    url: string;
+    sender?: {
+        firstName?: string;
+        lastName?: string;
+        profilePicture?: string;
+    };
+    createdAt?: string;
+}
+
 const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const divRef = useRef<HTMLDivElement>(null);
     const [debouncedQuery, setDebouncedQuery] = useState('');
+
+    // State for full-screen preview
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [currentImage, setCurrentImage] = useState<Media | null>(null);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
     // Debounce search query
     useEffect(() => {
@@ -82,6 +106,75 @@ const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
         }
     }, [error]);
 
+    // Open full-screen preview
+    const openPreview = (media: Media, index: number) => {
+        setCurrentImage(media);
+        setCurrentIndex(index);
+        setPreviewOpen(true);
+
+        // Add class to body to prevent scrolling
+        document.body.classList.add('overflow-hidden');
+    };
+
+    // Close full-screen preview
+    const closePreview = () => {
+        setPreviewOpen(false);
+        setCurrentImage(null);
+
+        // Remove class from body to allow scrolling again
+        document.body.classList.remove('overflow-hidden');
+    };
+
+    // Navigate to previous image
+    const prevImage = () => {
+        if (!mediaData?.medias) {
+            return;
+        }
+
+        const newIndex =
+            currentIndex > 0 ? currentIndex - 1 : mediaData.medias.length - 1;
+        setCurrentIndex(newIndex);
+        setCurrentImage(mediaData.medias[newIndex]);
+    };
+
+    // Navigate to next image
+    const nextImage = () => {
+        if (!mediaData?.medias) {
+            return;
+        }
+
+        const newIndex =
+            currentIndex < mediaData.medias.length - 1 ? currentIndex + 1 : 0;
+        setCurrentIndex(newIndex);
+        setCurrentImage(mediaData.medias[newIndex]);
+    };
+
+    // Handle keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!previewOpen) {
+                return;
+            }
+
+            switch (e.key) {
+                case 'ArrowLeft':
+                    prevImage();
+                    break;
+                case 'ArrowRight':
+                    nextImage();
+                    break;
+                case 'Escape':
+                    closePreview();
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [previewOpen, currentIndex]);
+
     // Render content conditionally
     const renderContent = () => {
         if (isLoading) {
@@ -124,30 +217,41 @@ const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
                     {mediaData.medias.map((media, i) => (
                         <div
                             key={media._id || i}
-                            className='h-[180px] w-full relative aspect-square overflow-hidden rounded-md border bg-gray'
+                            className='h-[180px] w-full relative aspect-square overflow-hidden rounded-md border bg-foreground group'
                         >
                             <img
                                 className='w-full h-full object-cover'
-                                src={media?.url || '/placeholder-image.png'}
+                                src={media?.url || '/default_image.png'}
                                 alt={`Media ${i + 1}`}
                                 loading='lazy'
                             />
 
+                            {/* View icon overlay on hover */}
+                            <div className='absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center'>
+                                <button
+                                    className='bg-pure-white/80 p-2 rounded-full hover:bg-pure-white transition-colors'
+                                    onClick={() => openPreview(media, i)}
+                                    aria-label='View full screen'
+                                >
+                                    <Fullscreen className='h-5 w-5 text-gray-800' />
+                                </button>
+                            </div>
+
                             {/* User info with gradient background */}
-                            <div className='absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-pure-black to-transparent p-2 flex items-end'>
+                            <div className='absolute bottom-0 left-0 right-0 h-[60px] flex items-end'>
                                 <div className='flex items-center gap-2 text-white'>
                                     <Avatar className='h-8 w-8 border border-white/30'>
                                         <AvatarImage
                                             src={
                                                 media.sender?.profilePicture ||
-                                                '/placeholder-avatar.png'
+                                                '/avatar.png'
                                             }
                                             alt={
                                                 `${media.sender?.firstName || ''} ${media.sender?.lastName || ''}`.trim() ||
                                                 'User'
                                             }
                                         />
-                                        <AvatarFallback className='bg-primary text-white'>
+                                        <AvatarFallback className=' text-white'>
                                             {media.sender?.firstName?.charAt(
                                                 0,
                                             ) || 'U'}
@@ -213,6 +317,82 @@ const Images: React.FC<ImagesProps> = ({ chat, setMediaCount }) => {
                     />
                 )}
             </div>
+
+            {/* Full-screen image preview modal */}
+            {previewOpen && currentImage && (
+                <div className='fixed inset-0 z-50 bg-pure-black flex items-center justify-center'>
+                    {/* Close button */}
+                    <Button
+                        className='absolute top-4 right-4 bg-danger h-10 w-10 p-2 rounded-full  transition-colors z-10'
+                        onClick={closePreview}
+                        aria-label='Close preview'
+                    >
+                        <X className='h-6 w-6 text-white' />
+                    </Button>
+
+                    {/* Navigation buttons */}
+                    <Button
+                        className='absolute left-4 bg-primary h-10 w-10 p-2 rounded-full  transition-colors z-10'
+                        onClick={prevImage}
+                        aria-label='Previous image'
+                    >
+                        <ChevronLeft className='h-6 w-6 text-white' />
+                    </Button>
+
+                    <Button
+                        className='absolute right-4 bg-primary h-10 w-10 p-2 rounded-full  transition-colors z-10'
+                        onClick={nextImage}
+                        aria-label='Next image'
+                    >
+                        <ChevronRight className='h-6 w-6 text-white' />
+                    </Button>
+
+                    {/* Image container */}
+                    <div className='w-full h-full flex items-center justify-center p-4'>
+                        <img
+                            src={currentImage.url || '/placeholder.svg'}
+                            alt='Full-screen preview'
+                            className='max-h-full max-w-full object-contain'
+                        />
+                    </div>
+
+                    {/* Image info footer */}
+                    <div className='absolute bottom-0 left-0 right-0 bg-black/70 p-4 text-white'>
+                        <div className='flex items-center gap-3'>
+                            <Avatar className='h-10 w-10 border border-white/30'>
+                                <AvatarImage
+                                    src={
+                                        currentImage.sender?.profilePicture ||
+                                        '/avatar.png'
+                                    }
+                                    alt={
+                                        `${currentImage.sender?.firstName || ''} ${currentImage.sender?.lastName || ''}`.trim() ||
+                                        'User'
+                                    }
+                                />
+                                <AvatarFallback className='bg-primary text-white'>
+                                    {currentImage.sender?.firstName?.charAt(
+                                        0,
+                                    ) || 'U'}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <div className='font-medium'>
+                                    {`${currentImage.sender?.firstName || ''} ${currentImage.sender?.lastName || ''}`.trim() ||
+                                        'Unknown User'}
+                                </div>
+                                <div className='text-sm text-white/70'>
+                                    {currentImage.createdAt
+                                        ? new Date(
+                                              currentImage.createdAt,
+                                          ).toLocaleString()
+                                        : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

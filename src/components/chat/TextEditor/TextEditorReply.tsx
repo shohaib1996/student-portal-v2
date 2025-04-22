@@ -100,15 +100,15 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
         autoFocus: true,
         richText: true,
         checkList: true,
-        horizontalRule: true,
-        table: true,
+        horizontalRule: false,
+        table: false,
         list: true,
         tabIndentation: false,
         draggableBlock: false,
-        images: true,
+        images: false,
         codeHighlight: true,
-        autoLink: true,
-        link: true,
+        autoLink: false,
+        link: false,
         componentPicker: true,
         contextMenu: true,
         dragDropPaste: true,
@@ -132,11 +132,11 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                 underline: true,
                 strikethrough: true,
             },
-            link: true,
+            link: false,
             clearFormatting: true,
-            horizontalRule: true,
-            image: true,
-            table: true,
+            horizontalRule: false,
+            image: false,
+            table: false,
             quote: false,
         },
 
@@ -151,7 +151,6 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
             treeView: true,
         },
     };
-
     // Set initial text when selected message changes
     useEffect(() => {
         if (selectedMessage) {

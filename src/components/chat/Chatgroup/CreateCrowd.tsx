@@ -31,6 +31,10 @@ import { instance } from '@/lib/axios/axiosInstance';
 import { TdUser } from '@/components/global/TdUser';
 import Image from 'next/image';
 import { MDXEditorMethods } from '@mdxeditor/editor';
+import { useFindOrCreateChatMutation } from '@/redux/api/chats/chatApi';
+import { updateChats, updateLatestMessage } from '@/redux/features/chatReducer';
+import { useAppDispatch } from '@/redux/hooks';
+import { loadChats } from '@/actions/initialActions';
 
 interface User {
     _id: string;
@@ -48,12 +52,14 @@ interface CreateCrowdProps {
 
 const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
     const router = useRouter();
+    const [findOrCreateChat, { isLoading: isCreatingChat }] =
+        useFindOrCreateChatMutation();
     const searchRef = useRef<HTMLInputElement>(null);
     const descriptionRef = useRef<MDXEditorMethods>(null);
     const [step, setStep] = useState<number>(1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isUserLoading, setIsUserLoading] = useState<boolean>(false);
-
+    const dispatch = useAppDispatch();
     // Form data
     const [name, setName] = useState<string>('');
     const [description, setDescription] = useState<string>('');
@@ -86,6 +92,20 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
         }
     }, [isOpen]);
 
+    // Handle create chat with RTK mutation
+    const handleCreateChat = useCallback(
+        (id: string) => {
+            findOrCreateChat(id)
+                .unwrap()
+                .then((res) => {
+                    router.push(`/chat/${res.chat._id}`);
+                })
+                .catch((err) => {
+                    toast.error(err?.data?.error || 'Failed to create chat');
+                });
+        },
+        [findOrCreateChat, router],
+    );
     // Handle avatar upload
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -202,7 +222,11 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
             .post('/chat/channel/create', data)
             .then((res) => {
                 toast.success('Crowd created successfully');
-                router.push(`/chat/${res.data.chat._id}`);
+                // router.push(`/chat/${res.data.chat._id}`);
+                dispatch(updateChats(res?.data?.chat));
+                dispatch(updateLatestMessage(res?.data?.chat));
+                handleCreateChat(res?.data?.chat._id);
+                loadChats();
                 onClose();
             })
             .catch((err) => {

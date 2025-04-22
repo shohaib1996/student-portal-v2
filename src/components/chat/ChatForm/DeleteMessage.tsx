@@ -9,6 +9,11 @@ import Image from 'next/image';
 import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
 import { instance } from '@/lib/axios/axiosInstance';
 import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
+import { useAppDispatch } from '@/redux/hooks';
+import {
+    updateLatestMessage,
+    updateMessage,
+} from '@/redux/features/chatReducer';
 
 interface Message {
     _id: string;
@@ -28,16 +33,24 @@ interface DeleteMessageProps {
     opened: boolean;
     close: () => void;
     selectedMessage: Message | null;
+    onDelete?: () => void;
 }
 
 const DeleteMessage: React.FC<DeleteMessageProps> = ({
     opened,
     close,
     selectedMessage,
+    onDelete,
 }) => {
     const [isDeleting, setIsDeleting] = useState(false);
+    const dispatch = useAppDispatch();
+
+    // In DeleteMessage.tsx, modify the handleDeleteMsg function:
 
     const handleDeleteMsg = () => {
+        if (onDelete) {
+            onDelete();
+        }
         if (!selectedMessage) {
             return;
         }
@@ -46,6 +59,38 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
         instance
             .delete(`/chat/delete/message/${selectedMessage?._id}`)
             .then((res) => {
+                console.log({ DeleteMessageResponse: res?.data?.message });
+
+                // First update the message in the thread
+                dispatch(
+                    updateMessage({
+                        message: {
+                            ...selectedMessage,
+                            chat: selectedMessage.chat,
+                            type: 'delete',
+                            text: '',
+                            status: 'sent',
+                            createdAt: String(selectedMessage.createdAt),
+                        },
+                    }),
+                );
+
+                // Also update the latest message in the chat to ensure it's reflected in the inbox
+                dispatch(
+                    updateLatestMessage({
+                        chatId: selectedMessage.chat,
+                        latestMessage: {
+                            ...selectedMessage,
+                            type: 'delete',
+                            text: '',
+                            status: 'sent',
+                            _id: selectedMessage._id,
+                            chat: selectedMessage.chat,
+                            createdAt: String(selectedMessage.createdAt),
+                        },
+                    }),
+                );
+
                 toast.success('Message deleted successfully');
                 setIsDeleting(false);
                 close();
@@ -57,7 +102,6 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
                 );
             });
     };
-
     // Format time from the message timestamp
     const formatTime = (timestamp: string | number) => {
         if (!timestamp) {

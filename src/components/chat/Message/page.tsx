@@ -54,6 +54,7 @@ import { store } from '@/redux/store';
 import MessageRenderer from '@/components/lexicalEditor/renderer/MessageRenderer';
 import ImageSlider from '../ImageSlider';
 import MediaSlider from '../MediaSlider';
+import { set } from 'lodash';
 
 const emojies = ['👍', '😍', '❤', '😂', '🥰', '😯'];
 
@@ -74,6 +75,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
     // Add these new state variables at the beginning of the Message component:
     const [initialReplies, setInitialReplies] = useState([]);
+    console.log('initialRepiles', initialReplies);
     const [loadingReplies, setLoadingReplies] = useState(false);
     // Inside your component function, add these state variables
     const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
@@ -98,7 +100,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
 
     const [creating, setCreating] = useState(false);
     const [fileType, setFileType] = useState(message?.files?.[0]?.type);
-
+    const [isReplyDeleted, setIsReplyDeleted] = useState(false);
     const router = useRouter();
     const dispatch = useDispatch();
 
@@ -111,6 +113,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
         // Only fetch if the message has replies and we're not in the thread view
         if (message?.replyCount > 0 && source !== 'thread') {
             setLoadingReplies(true);
+            setIsReplyDeleted(false);
             instance
                 .post(`/chat/messages`, {
                     page: 1,
@@ -127,7 +130,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                     console.error('Failed to fetch initial replies', err);
                 });
         }
-    }, [message?._id, message?.replyCount, source]);
+    }, [message?._id, message?.replyCount, source, isReplyDeleted]);
 
     const handleCopyClick = () => {
         if ((message?.files ?? []).length > 0) {
@@ -637,7 +640,8 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                   <ChevronDown className='h-3 w-3 text-gray' />
                                               </div>
                                           )
-                                        : !isThread && (
+                                        : !isThread &&
+                                          message?.type !== 'delete' && (
                                               <div
                                                   className='flex items-center gap-1 p-0 h-auto text-xs cursor-pointer mr-3'
                                                   onClick={handleThreadMessage}
@@ -676,16 +680,18 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         )}
 
                                     {/* Smile-Plus Icon */}
-                                    <div
-                                        className='h-7 w-7 flex items-center justify-center p-1 rounded-full bg-secondary border cursor-pointer'
-                                        onClick={() =>
-                                            setIsEmojiPickerOpen(
-                                                !isEmojiPickerOpen,
-                                            )
-                                        }
-                                    >
-                                        <SmilePlus className='h-4 w-4' />
-                                    </div>
+                                    {message?.type !== 'delete' && (
+                                        <div
+                                            className='h-7 w-7 flex items-center justify-center p-1 rounded-full bg-secondary border cursor-pointer'
+                                            onClick={() =>
+                                                setIsEmojiPickerOpen(
+                                                    !isEmojiPickerOpen,
+                                                )
+                                            }
+                                        >
+                                            <SmilePlus className='h-4 w-4' />
+                                        </div>
+                                    )}
 
                                     {/* Emoji List */}
                                     {isEmojiPickerOpen && (
@@ -713,7 +719,8 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                 </div>
                             </div>
                             {/* replies tree ------------------------ */}
-                            {message?.replyCount > 0 &&
+                            {message?.type !== 'delete' &&
+                                message?.replyCount > 0 &&
                                 !isThread &&
                                 initialReplies.length > 0 &&
                                 source !== 'thread' && (
@@ -1135,6 +1142,9 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                         selectedMessage={deleteMessage}
                         opened={chatDelOpened}
                         close={() => setChatDelOpened(false)}
+                        onDelete={() => {
+                            setIsReplyDeleted(true);
+                        }}
                     />
                 </DialogContent>
             </Dialog>

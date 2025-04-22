@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ChatFooter, { type ChatData } from './ChatFooter';
 import Cookies from 'js-cookie';
-import { Loader2, Pin } from 'lucide-react';
+import { Loader2, Pin, SearchIcon } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import {
     markRead,
@@ -54,6 +54,7 @@ interface ChatBodyProps {
     setProfileInfoShow: (show: boolean) => void;
     profileInfoShow: boolean;
     setReloading: (reloading: boolean) => void;
+    setFinalQuery?: () => void;
     reloading: boolean;
     searchQuery?: string;
 }
@@ -103,6 +104,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     setReloading,
     reloading,
     searchQuery,
+    setFinalQuery,
 }) => {
     const params = useParams();
     const dispatch = useDispatch();
@@ -620,7 +622,29 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                 messages?.length === 0 &&
                                 chat && (
                                     <div className='p-2.5 text-center flex flex-col items-center gap-2.5'>
-                                        {chat?.isChannel ? (
+                                        {/* No results message when searching */}
+                                        {searchQuery &&
+                                        messages.length === 0 &&
+                                        !isLoading ? (
+                                            <div className='flex flex-col items-center justify-center h-[50vh] p-4 text-center'>
+                                                <SearchIcon className='h-12 w-12 text-muted-foreground mb-2' />
+                                                <h3 className='text-lg font-medium'>
+                                                    No messages found
+                                                </h3>
+                                                <p className='text-muted-foreground'>
+                                                    {`We couldn't find any messages matching "${searchQuery}"`}
+                                                </p>
+                                                <Button
+                                                    variant='outline'
+                                                    className='mt-4'
+                                                    onClick={() => {
+                                                        setFinalQuery?.();
+                                                    }}
+                                                >
+                                                    Clear search
+                                                </Button>
+                                            </div>
+                                        ) : chat?.isChannel ? (
                                             <>
                                                 <Avatar className='h-[50px] w-[50px]'>
                                                     <AvatarImage
