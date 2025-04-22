@@ -68,6 +68,7 @@ import dayjs from 'dayjs';
 import { instance } from '@/lib/axios/axiosInstance';
 import { setUser } from '@/redux/features/auth/authReducer';
 import { useUpdateUserInfoMutation } from '@/redux/api/user/userApi';
+import { useRouter } from 'next/navigation';
 
 // Form validation schema
 const FormSchema = z.object({
@@ -191,18 +192,30 @@ export default function UserProfileForm() {
     const { user } = useAppSelector((state) => state.auth);
     const [updateUserInfo, { isLoading: isUpdating }] =
         useUpdateUserInfoMutation();
-
+    const router = useRouter();
     // Form state
     const [date, setDate] = useState(new Date(2000, 0, 1));
     const [memberSince, setMemberSince] = useState(
         user?.createdAt ? new Date(user.createdAt) : new Date(2010, 0, 12),
     );
-    const [streetCharCount, setStreetCharCount] = useState(640);
-    const [cityCharCount, setCityCharCount] = useState(835);
-    const [aboutCharCount, setAboutCharCount] = useState(834);
-    const [phoneNumber, setPhoneNumber] = useState<string>(
-        typeof user?.phone === 'string' ? user.phone : '919876543210',
-    );
+
+    // These state variables don't need to be updated on every keystroke
+    const maxStreetChars = 640;
+    const maxCityChars = 835;
+    const maxAboutChars = 834;
+
+    // Phone number state management
+    const [phoneNumber, setPhoneNumber] = useState<string>(() => {
+        if (typeof user?.phone === 'string') {
+            return user.phone;
+        }
+        if (typeof user?.phone?.number === 'string') {
+            return user.phone.number;
+        }
+        return '919876543210';
+    });
+
+    // File upload state
     const [files, setFiles] = useState<File[]>([]);
     const [uploadFiles, setUploadFiles] = useState<string[]>([]);
     const [resumeFiledText, setResumeFiledText] = useState('Upload Resume');
@@ -220,7 +233,12 @@ export default function UserProfileForm() {
             education: user?.education || 'bachelors',
             email: user?.email || 'johndoe123@gmail.com',
             phone:
-                typeof user?.phone === 'string' ? user.phone : '919876543210',
+                typeof user?.phone === 'string'
+                    ? user.phone
+                    : typeof user?.phone?.number === 'string'
+                      ? user.phone.number
+                      : '919876543210',
+
             street: user?.personalData?.address?.street || '',
             city: user?.personalData?.address?.city || '',
             state: user?.personalData?.address?.state || '',
@@ -261,9 +279,11 @@ export default function UserProfileForm() {
                 education: user.education || 'bachelors',
                 email: user.email || 'johndoe123@gmail.com',
                 phone:
-                    typeof user.phone === 'string'
+                    typeof user?.phone === 'string'
                         ? user.phone
-                        : '919876543210',
+                        : typeof user?.phone?.number === 'string'
+                          ? user?.phone.countryCode + user.phone.number
+                          : '919876543210',
                 street: user.personalData?.address?.street || '',
                 city: user.personalData?.address?.city || '',
                 state: user.personalData?.address?.state || '',
@@ -299,14 +319,20 @@ export default function UserProfileForm() {
                     ? new Date(user.createdAt)
                     : new Date(2010, 0, 12),
             );
-            setPhoneNumber((user.phone || '919876543210') as string);
+            setPhoneNumber(
+                (typeof user?.phone === 'string'
+                    ? user.phone
+                    : typeof user?.phone?.number === 'string'
+                      ? user.phone.number
+                      : '919876543210') as string,
+            );
 
             setResumeFiledText(
                 resumeNameFormater(user.personalData?.resume || '') ||
                     'Upload Resume',
             );
         }
-    }, [user, form.reset]);
+    }, [user]);
 
     const handleUpload = (sfiles: FileList | null) => {
         if (sfiles) {
@@ -326,6 +352,7 @@ export default function UserProfileForm() {
                 }
                 return allowedExtensions.includes(extension);
             });
+
             filteredFiles.forEach((file) => {
                 const exist = files.find((f) => file.name === f.name);
                 if (!exist) {
@@ -360,12 +387,7 @@ export default function UserProfileForm() {
     // Handle date changes
     useEffect(() => {
         form.setValue('dateOfBirth', date);
-    }, [date, form.setValue]);
-
-    // Handle resume file selection
-    interface ResumeChangeEvent extends React.ChangeEvent<HTMLInputElement> {
-        target: HTMLInputElement & { files: FileList };
-    }
+    }, [date, form]);
 
     // Handle form submission
     const onSubmit = async (data: any) => {
@@ -398,16 +420,26 @@ export default function UserProfileForm() {
             if (res?.data?.success) {
                 dispatch(setUser(res?.data?.user));
                 toast.success('Profile updated successfully');
+                router.push('/dashboard');
             }
         } catch (err) {
             console.error(err);
         }
     };
+
     const commingSoon = () => {
         toast.success('Coming Soon...');
     };
 
     const uploadRef = useRef<HTMLInputElement>(null);
+
+    // Calculate character counts just when rendering
+    const getStreetCharCount = () =>
+        maxStreetChars - (form.watch('street')?.length || 0);
+    const getCityCharCount = () =>
+        maxCityChars - (form.watch('city')?.length || 0);
+    const getAboutCharCount = () =>
+        maxAboutChars - (form.watch('about')?.length || 0);
 
     return (
         <div className='max-w-[1200px] mx-auto'>
@@ -696,10 +728,7 @@ export default function UserProfileForm() {
                                                 <FormControl>
                                                     <div className='relative'>
                                                         <PhoneInput
-                                                            country={'us'}
-                                                            value={
-                                                                phoneNumber as string
-                                                            }
+                                                            value={field.value}
                                                             onChange={(
                                                                 phone,
                                                             ) => {
@@ -865,19 +894,10 @@ export default function UserProfileForm() {
                                                     <Input
                                                         placeholder='Enter street address'
                                                         {...field}
-                                                        onChange={(e) => {
-                                                            field.onChange(e);
-                                                            setStreetCharCount(
-                                                                640 -
-                                                                    e.target
-                                                                        .value
-                                                                        .length,
-                                                            );
-                                                        }}
                                                     />
                                                 </FormControl>
                                                 <div className='absolute right-3 top-9 bg-orange-500 text-white text-xs px-1 rounded'>
-                                                    {streetCharCount}
+                                                    {getStreetCharCount()}
                                                 </div>
                                                 <FormMessage />
                                             </FormItem>
@@ -899,19 +919,10 @@ export default function UserProfileForm() {
                                                     <Input
                                                         placeholder='Enter city'
                                                         {...field}
-                                                        onChange={(e) => {
-                                                            field.onChange(e);
-                                                            setCityCharCount(
-                                                                835 -
-                                                                    e.target
-                                                                        .value
-                                                                        .length,
-                                                            );
-                                                        }}
                                                     />
                                                 </FormControl>
                                                 <div className='absolute right-3 top-9 bg-orange-500 text-white text-xs px-1 rounded'>
-                                                    {cityCharCount}
+                                                    {getCityCharCount()}
                                                 </div>
                                                 <FormMessage />
                                             </FormItem>
@@ -1103,19 +1114,10 @@ export default function UserProfileForm() {
                                                         className='min-h-[150px] bg-background'
                                                         placeholder='Write about yourself'
                                                         {...field}
-                                                        onChange={(e) => {
-                                                            field.onChange(e);
-                                                            setAboutCharCount(
-                                                                834 -
-                                                                    e.target
-                                                                        .value
-                                                                        .length,
-                                                            );
-                                                        }}
                                                     />
                                                 </FormControl>
                                                 <div className='absolute right-3 bottom-3 bg-orange-500 text-white text-xs px-1 rounded'>
-                                                    {aboutCharCount}
+                                                    {getAboutCharCount()}
                                                 </div>
                                                 <FormMessage />
                                             </FormItem>
