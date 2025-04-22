@@ -1,21 +1,24 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import {
-    X,
-    ChevronLeft,
-    ChevronRight,
-    Paperclip,
-    Send,
-    ImageIcon,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Building } from 'lucide-react';
 import GlobalModal from '@/components/global/GlobalModal';
-import { GlobalCommentsSection } from '@/components/global/GlobalCommentSection';
 import GlobalComment from '@/components/global/GlobalComments/GlobalComment';
+import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
+import type { StatusType } from './status-badge';
+import dayjs from 'dayjs';
+import { toast } from 'sonner';
 import { instance } from '@/lib/axios/axiosInstance';
-import LoadingSpinner from '@/components/global/Community/LoadingSpinner/LoadingSpinner';
+import GlobalEditor from '@/components/editor/GlobalEditor';
+import UploadAttatchment from '@/components/global/UploadAttatchment/UploadAttatchment';
+
+type TAttatchment = {
+    name: string;
+    type: string;
+    size: number;
+    url: string;
+};
 
 interface TaskModalProps {
     isOpen: boolean;
@@ -27,7 +30,17 @@ interface TaskModalProps {
         marks: number;
         deadline: string;
         workshop: string;
+        status?: StatusType;
+        obtainedMark?: number;
+        category?: string;
+        attachments?: string[];
     };
+    handleUpdateDiscussions?: (discussions: any[], id: string) => void;
+    update?: (answer: any, id: string) => void;
+    handleNext?: (current: number) => void;
+    handleprevious?: (current: number) => void;
+    current?: number;
+    assignments?: any[];
 }
 
 export default function TaskModal({
@@ -35,56 +48,124 @@ export default function TaskModal({
     onClose,
     mode,
     taskData,
+    handleUpdateDiscussions,
+    update,
+    handleNext,
+    handleprevious,
+    current = 0,
+    assignments = [],
 }: TaskModalProps) {
-    const [currentQuestion, setCurrentQuestion] = useState(1);
-    const totalQuestions = 50;
-    const [isEditing, setIsEditing] = useState(false);
-    const [answerText, setAnswerText] = useState(
-        'Bootcamps Hub is an all-in-one SaaS platform designed for high-ticket coaches and educators.',
-    );
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [uploadFiles, setUploadFiles] = useState<string[]>([]);
-    const [uploadingFiles, setUploadingFiles] = useState(false);
+    const [answerText, setAnswerText] = useState('');
+    const [comment, setComment] = useState('');
+    const [attachments, setAttachments] = useState<TAttatchment[]>([]);
 
-    const triggerFileInput = () => {
-        fileInputRef.current?.click();
-    };
-
-    const handleUpdateClick = () => {
-        setIsEditing(true);
-    };
-
-    const handleCancelClick = () => {
-        setIsEditing(false);
-    };
-
-    const handleSubmitClick = () => {
-        // Here you would typically save the changes
-        setIsEditing(false);
-    };
-
-    const handleUpload = (files: File) => {
-        if (files) {
-            setUploadingFiles(true);
-            const formData = new FormData();
-            formData.append('file', files);
-            instance
-                .post('/settings/upload', formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                })
-                .then((res) => {
-                    setUploadFiles((prev) => [...prev, res.data.url]);
-                    setUploadingFiles(false);
-                })
-                .catch((err) => {
-                    setUploadingFiles(false);
-                });
+    // Load answer if available
+    useEffect(() => {
+        if (taskData && taskData.status) {
+            setAnswerText(
+                taskData.status === 'not_answered' ? '' : taskData.status,
+            );
+        } else {
+            setAnswerText('');
         }
+
+        // Convert string array to TAttatchment array
+        if (
+            taskData &&
+            taskData.attachments &&
+            taskData.attachments.length > 0
+        ) {
+            const formattedAttachments = taskData.attachments.map((url) => {
+                const fileName = url
+                    .substring(url.lastIndexOf('/') + 1)
+                    .replace(/^\d+-/, '');
+                const fileType = getFileTypeFromUrl(url);
+                return {
+                    name: fileName,
+                    type: fileType,
+                    size: 0, // We don't have size information from the URL
+                    url: url,
+                };
+            });
+            setAttachments(formattedAttachments);
+        } else {
+            setAttachments([]);
+        }
+    }, [taskData]);
+
+    // Helper function to determine file type from URL
+    const getFileTypeFromUrl = (url: string): string => {
+        const extension = url.split('.').pop()?.toLowerCase() || '';
+        if (['jpg', 'jpeg', 'png'].includes(extension)) {
+            return `image/${extension}`;
+        } else if (extension === 'pdf') {
+            return 'application/pdf';
+        } else if (['doc', 'docx'].includes(extension)) {
+            return 'application/msword';
+        }
+        return 'application/octet-stream';
     };
 
-    const handleRemoveFile = (index: number) => {
-        setUploadFiles(uploadFiles.filter((_, i) => i !== index));
+    const handleSubmit = () => {
+        const data = {
+            answer: answerText,
+            attachments: attachments.map((attachment) => attachment.url),
+            assignment: taskData.id,
+        };
+
+        instance
+            .post('/assignment/submitanswer', data)
+            .then((res) => {
+                toast.success('Updated');
+                if (update) {
+                    update(res.data.answer, taskData.id);
+                }
+                onClose();
+            })
+            .catch((err) => {
+                console.log(err);
+                toast.error(
+                    err?.response?.data?.error || 'Something went wrong',
+                );
+            });
     };
+
+    const handleComment = () => {
+        if (taskData.status === 'not_answered') {
+            return toast.error("You haven't answered it yet!");
+        }
+
+        if (!comment) {
+            return toast.error('Please write something');
+        }
+
+        const data = {
+            text: comment,
+        };
+
+        instance
+            .post(`/assignment/reply/${taskData.id}`, data)
+            .then((res) => {
+                if (handleUpdateDiscussions) {
+                    handleUpdateDiscussions(res.data.discussions, taskData.id);
+                }
+                setComment('');
+            })
+            .catch((err) => {
+                toast.error(
+                    err?.response?.data?.error || 'Something went wrong',
+                );
+                console.log(err);
+            });
+    };
+
+    const handleAttachmentsChange = (newAttachments: TAttatchment[]) => {
+        setAttachments(newAttachments);
+    };
+
+    const isDeadlinePassed = taskData.deadline
+        ? dayjs(taskData.deadline).isBefore(dayjs())
+        : false;
 
     return (
         <GlobalModal
@@ -102,134 +183,127 @@ export default function TaskModal({
                         <h2 className='font-medium text-lg'>Technical Test</h2>
                         <p className='text-sm text-gray'>
                             {mode === 'test'
-                                ? 'Course Payment Invoice'
-                                : 'Get Ready to Begin Your Technical Test'}
+                                ? 'Get Ready to Begin Your Technical Test'
+                                : 'View Your Test Results'}
                         </p>
                     </div>
                 </div>
             }
             buttons={
                 <div className='flex flex-col md:flex-row items-center gap-2'>
-                    <Button size='sm' className='gap-1'>
+                    <Button
+                        size='sm'
+                        className='gap-1'
+                        onClick={() =>
+                            handleprevious && handleprevious(current || 0)
+                        }
+                        disabled={current === 0}
+                    >
                         <ChevronLeft className='h-4 w-4' />
-                        Previous
+                        Prev
                     </Button>
 
-                    <Button variant='outline' size='sm' className='gap-1'>
-                        Next
-                        <ChevronRight className='h-4 w-4' />
-                    </Button>
+                    {current < assignments.length - 1 && (
+                        <Button
+                            variant='outline'
+                            size='sm'
+                            className='gap-1'
+                            onClick={() =>
+                                handleNext && handleNext(current || 0)
+                            }
+                        >
+                            Next
+                            <ChevronRight className='h-4 w-4' />
+                        </Button>
+                    )}
 
                     {mode === 'test' ? (
                         <>
-                            <Button variant='outline' size='sm'>
-                                Cancel
-                            </Button>
-                            <Button size='sm'>
+                            <Button
+                                size='sm'
+                                onClick={handleSubmit}
+                                disabled={
+                                    !answerText.trim() || isDeadlinePassed
+                                }
+                            >
                                 Submit
                                 <ChevronRight className='h-4 w-4 ml-1' />
                             </Button>
                         </>
                     ) : (
-                        <>
-                            {isEditing ? (
-                                <>
-                                    <Button
-                                        variant='outline'
-                                        size='sm'
-                                        onClick={handleCancelClick}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        size='sm'
-                                        onClick={handleSubmitClick}
-                                    >
-                                        Submit
-                                        <ChevronRight className='h-4 w-4 ml-1' />
-                                    </Button>
-                                </>
-                            ) : (
-                                <Button size='sm' onClick={handleUpdateClick}>
-                                    Update
-                                </Button>
-                            )}
-                        </>
+                        <Button
+                            size='sm'
+                            onClick={handleSubmit}
+                            disabled={
+                                taskData.status === 'accepted' ||
+                                isDeadlinePassed
+                            }
+                        >
+                            Update
+                        </Button>
                     )}
                 </div>
             }
         >
             <div className='flex flex-col'>
                 {/* Question */}
-                <div className='flex justify-between items-center gap-2 mt-2.5 bg-primary-light py-1 px-4 border-l-4 border-l-primary-white border-primary-white border rounded-r-md'>
+                <div className='flex justify-between items-center gap-2 mt-2.5 bg-primary-light py-1 px-4 border-l-4 border-l-primary border-primary border rounded-r-md'>
                     <h3 className='text-lg font-medium line-clamp-1'>
-                        How does using object-fit enhance the responsiveness of
-                        images in a design?
+                        {taskData.title}
                     </h3>
                     <div className='flex items-center gap-1.5'>
                         <p className='text-nowrap'>ID: #{taskData.id}</p>
-                        <p className='text-nowrap bg-foreground rounded-full text-base px-2.5 py-1'>
-                            {currentQuestion} of {totalQuestions}
-                        </p>
+                        {assignments.length > 0 && (
+                            <p className='text-nowrap bg-foreground rounded-full text-base px-2.5 py-1'>
+                                {(current || 0) + 1} of {assignments.length}
+                            </p>
+                        )}
                     </div>
                 </div>
 
                 {/* Task Info */}
                 <div className=''>
                     <div className='flex items-center gap-2 my-2'>
-                        <span className='bg-primary-light text-primary-white border border-primary-white rounded-full px-2 py-1 text-sm font-medium'>
-                            Technical Test
+                        <span className='bg-primary-light text-primary-white border border-primary rounded-full px-2 py-1 text-sm font-medium'>
+                            Technical {taskData.category || 'Test'}
                         </span>
                         <span className='bg-amber-200 dark:bg-background rounded-full border border-amber-400 px-2 py-1 text-amber-600 dark:text-white font-medium text-sm'>
                             {taskData.marks} marks
                         </span>
+                        {taskData.obtainedMark !== undefined && (
+                            <span className='bg-green-200 dark:bg-background rounded-full border border-green-400 px-2 py-1 text-green-600 dark:text-white font-medium text-sm'>
+                                Obtained: {taskData.obtainedMark}
+                            </span>
+                        )}
                     </div>
 
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                        <div className='flex items-center gap-2 border-dashed border border-gray-200 p-2 rounded-md'>
-                            <div className='bg-pink-100 dark:bg-background p-2 rounded-full'>
-                                <svg
-                                    className='w-5 h-5 text-pink-500'
-                                    fill='none'
-                                    viewBox='0 0 24 24'
-                                    stroke='currentColor'
-                                >
-                                    <path
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                        strokeWidth={2}
-                                        d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
-                                    />
-                                </svg>
+                        <div className='flex items-center gap-2 bg-background p-2 rounded-md'>
+                            <div className='bg-pink-500/30 p-2 rounded-full'>
+                                <Calendar className='h-5 w-5 text-pink-500' />
                             </div>
                             <div>
                                 <p className='text-sm text-gray'>Deadline</p>
                                 <p className='font-medium'>
-                                    {taskData.deadline}
+                                    {formatDateToCustomString(
+                                        taskData.deadline,
+                                        false,
+                                    )}
                                 </p>
                             </div>
                         </div>
 
-                        <div className='flex items-center gap-2 border-dashed border border-gray-200 p-2 rounded-md'>
-                            <div className='bg-green-100 dark:bg-background p-2 rounded-full'>
-                                <svg
-                                    className='w-5 h-5 text-green-500'
-                                    fill='none'
-                                    viewBox='0 0 24 24'
-                                    stroke='currentColor'
-                                >
-                                    <path
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                        strokeWidth={2}
-                                        d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'
-                                    />
-                                </svg>
+                        <div className='flex items-center gap-2 bg-background p-2 rounded-md'>
+                            <div className='bg-green-500/30 p-2 rounded-full'>
+                                <Building className='h-5 w-5 text-green-500' />
                             </div>
                             <div>
                                 <p className='text-sm text-gray'>Workshop</p>
                                 <p className='font-medium'>
-                                    {taskData.workshop}
+                                    {formatDateToCustomString(
+                                        taskData.workshop,
+                                        false,
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -237,20 +311,14 @@ export default function TaskModal({
                 </div>
 
                 {/* Description */}
-                <div className='my-2 bg-foreground px-2.5 py-2'>
+                <div className='my-2 bg-background rounded-md px-2.5 py-2'>
                     <div className='flex gap-2'>
                         <div className='mt-1'>
                             <div className='w-4 h-4 rounded-full bg-primary'></div>
                         </div>
                         <div>
                             <h4 className='font-medium'>Description</h4>
-                            <p className='text-gray'>
-                                Bootcamps Hub is an all-in-one SaaS platform
-                                designed for high-ticket coaches and educators.
-                                It empowers you to launch, manage, and scale
-                                premium boot camps without relying on fragmented
-                                tools like Udemy or Skillshare.
-                            </p>
+                            <p className='text-gray'>{taskData.title}</p>
                         </div>
                     </div>
                 </div>
@@ -262,80 +330,109 @@ export default function TaskModal({
                         <span className='text-red-500'>*</span>
                     </div>
 
-                    {mode === 'test' || (mode === 'result' && isEditing) ? (
-                        <Textarea
-                            placeholder='Write here'
-                            className='min-h-[200px] w-full p-3 border-border bg-background focus-visible:ring-0 rounded-md'
-                            value={answerText || ''}
-                            onChange={(e) => setAnswerText(e.target.value)}
+                    <div className='min-h-[200px] w-full rounded-md border border-border'>
+                        <GlobalEditor
+                            value={answerText}
+                            onChange={setAnswerText}
+                            height='200px'
+                            placeholder='Write your answer here'
+                            className={`${taskData.status === 'accepted' || isDeadlinePassed ? 'pointer-events-none opacity-70' : ''} bg-background`}
+                            pluginOptions={{
+                                // Main plugin options
+                                history: true,
+                                autoFocus: true,
+                                richText: true,
+                                checkList: true,
+                                horizontalRule: false,
+                                table: false,
+                                list: true,
+                                tabIndentation: false,
+                                draggableBlock: false,
+                                images: false,
+                                codeHighlight: true,
+                                autoLink: false,
+                                link: false,
+                                componentPicker: true,
+                                contextMenu: true,
+                                dragDropPaste: true,
+                                emojiPicker: true,
+                                floatingLinkEditor: true,
+                                floatingTextFormat: false,
+                                maxIndentLevel: true,
+                                beautifulMentions: true,
+                                showToolbar: true,
+                                showBottomBar: false,
+                                quote: false,
+
+                                // Toolbar-specific options
+                                toolbar: {
+                                    history: false,
+                                    blockFormat: false,
+                                    codeLanguage: true,
+                                    fontFormat: {
+                                        bold: true,
+                                        italic: true,
+                                        underline: true,
+                                        strikethrough: true,
+                                    },
+                                    clearFormatting: true,
+                                    horizontalRule: false,
+                                    image: false,
+                                    table: false,
+                                    quote: false,
+                                },
+
+                                actionBar: {
+                                    maxLength: true,
+                                    characterLimit: true,
+                                    counter: true,
+                                    speechToText: true,
+                                    editModeToggle: true,
+                                    clearEditor: true,
+                                    treeView: true,
+                                },
+                            }}
+                            maxLength={5000}
                         />
-                    ) : (
-                        <div className='min-h-[200px] w-full p-3 border rounded-md bg-white'>
-                            {answerText}
+                    </div>
+
+                    {isDeadlinePassed && (
+                        <div className='mt-2 p-2 bg-red-500/10 border border-danger rounded-md text-danger text-sm'>
+                            Due date (
+                            {dayjs(taskData.deadline).format('DD MMM YYYY')})
+                            expired
+                        </div>
+                    )}
+
+                    {taskData.status === 'accepted' && (
+                        <div className='mt-2 p-2 bg-green-50 border border-green-200 rounded-md text-green-600 text-sm'>
+                            This answer is already accepted
                         </div>
                     )}
                 </div>
 
-                {/* Attached Files */}
-                <div className='mt-2 border border-foreground rounded-md'>
-                    <h4 className='font-medium border-b border-foreground p-1'>
-                        Attached Files {mode === 'result' && '(1)'}
+                {/* Attached Files - Using UploadAttachment component */}
+                <div className='mt-2 bg-background rounded-md'>
+                    <h4 className='font-medium border-b border-forground-border p-1 px-2'>
+                        Attached Files{' '}
+                        {attachments.length > 0 && `(${attachments.length})`}
                     </h4>
 
-                    {uploadingFiles ? (
-                        <div className='flex items-center justify-center space-x-2 text-gray text-sm'>
-                            <LoadingSpinner size={20} /> Please wait,
-                            Uploading...
-                        </div>
-                    ) : (
-                        <div className='flex items-center gap-2 p-1'>
-                            <Button
-                                variant='outline'
-                                size='sm'
-                                className='p-2'
-                                onClick={triggerFileInput}
-                            >
-                                <Paperclip className='h-4 w-4' />
-                                Attach or drag & drop
-                                <span className='text-xs text-gray hidden md:block'>
-                                    JPG, PNG, PDF, DOCS, Max 10MB
-                                </span>
-                                <input
-                                    type='file'
-                                    ref={fileInputRef}
-                                    className='hidden'
-                                    onChange={(e) =>
-                                        e.target.files &&
-                                        handleUpload(e.target.files[0])
-                                    }
-                                    multiple
-                                    disabled={uploadingFiles}
-                                />
-                            </Button>
-                        </div>
-                    )}
-
-                    {mode === 'result' && (
-                        <div className='flex items-center gap-2 p-2 border rounded-md bg-gray-50'>
-                            <div className='bg-gray-200 p-2 rounded'>
-                                <ImageIcon className='h-4 w-4 text-gray' />
-                            </div>
-                            <span className='text-sm'>
-                                Group - image 2025-03...
-                            </span>
-                            <span className='text-xs text-gray'>123 KB</span>
-                            <button className='ml-auto text-red-500'>
-                                <X className='h-4 w-4' />
-                            </button>
-                        </div>
-                    )}
+                    <div
+                        className={
+                            taskData.status === 'accepted' || isDeadlinePassed
+                                ? 'opacity-50 pointer-events-none p-2 pt-0'
+                                : ' p-2 pt-0'
+                        }
+                    >
+                        <UploadAttatchment
+                            attachments={attachments}
+                            onChange={handleAttachmentsChange}
+                        />
+                    </div>
                 </div>
 
-                {/* Comments or Report Issue */}
-                <div className='mt-2'>
-                    <div className='mb-0'>Report an issue</div>
-                    <GlobalComment contentId={taskData?.id} />
-                </div>
+                <GlobalComment contentId={taskData?.id} />
             </div>
         </GlobalModal>
     );

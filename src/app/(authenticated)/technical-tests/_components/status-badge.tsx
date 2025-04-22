@@ -2,7 +2,12 @@ import type React from 'react';
 import { CheckCircle2, Clock, MessageSquare, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type StatusType = 'not_answered' | 'rejected' | 'pending' | 'completed';
+export type StatusType =
+    | 'not_answered'
+    | 'rejected'
+    | 'pending'
+    | 'completed'
+    | 'accepted';
 
 type StatusConfig = {
     label: string;
@@ -11,12 +16,12 @@ type StatusConfig = {
 };
 
 type StatusBadgeProps = {
-    status: StatusType;
+    status: string; // Changed from StatusType to string to accept any status value
     className?: string;
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-    const statusConfig: Record<StatusType, StatusConfig> = {
+    const statusConfig: Record<string, StatusConfig> = {
         not_answered: {
             label: 'Not Answer',
             icon: MessageSquare,
@@ -37,9 +42,22 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
             icon: CheckCircle2,
             className: 'bg-green-50 text-green-700 border-green-100',
         },
+        accepted: {
+            label: 'Accepted',
+            icon: CheckCircle2,
+            className: 'bg-green-50 text-green-700 border-green-100',
+        },
     };
 
-    const config = statusConfig[status];
+    // Default configuration for unknown status values
+    const defaultConfig: StatusConfig = {
+        label: status || 'Unknown',
+        icon: MessageSquare,
+        className: 'bg-gray-50 text-gray-700 border-gray-100',
+    };
+
+    // Use the config for the status if it exists, otherwise use the default config
+    const config = statusConfig[status] || defaultConfig;
     const Icon = config.icon;
 
     return (
