@@ -1,7 +1,7 @@
 'use client';
-import { store } from '@/redux/store';
+import { RootState, store } from '@/redux/store';
 import Link from 'next/link';
-import React from 'react';
+import React, { use } from 'react';
 import { Button } from '../ui/button';
 import { Bell, CalendarClock } from 'lucide-react';
 import Image from 'next/image';
@@ -15,6 +15,8 @@ import { TNotification } from '@/types/notification';
 import { useMyProgramQuery } from '@/redux/api/myprogram/myprogramApi';
 import { TProgram } from '@/types';
 import { useRouter } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateNotification } from '@/redux/features/notificationReducer';
 dayjs.extend(relativeTime);
 
 const NotificationMenu = () => {
@@ -97,7 +99,12 @@ const NotificationMenu = () => {
     };
 
     const { data: notiData } = useGetAllNotificationsQuery(undefined);
-    const notifications = (notiData?.notifications as TNotification[]) || [];
+    // const notifications = (notiData?.notifications as TNotification[]) || [];
+    const dispatch = useDispatch();
+
+    const { notifications, unReadNotification } = useSelector(
+        (state: RootState) => state.notification,
+    );
 
     const handleReadAllNotification = async () => {
         await store
@@ -114,6 +121,13 @@ const NotificationMenu = () => {
             await store.dispatch(
                 notificationApi.endpoints.markRead.initiate(noti._id) as any,
             );
+            store.dispatch(
+                updateNotification({
+                    ...noti,
+                    opened: true,
+                }),
+            );
+
             router.push(
                 generateNotificationUrl(
                     noti.notificationType as string,
@@ -138,7 +152,7 @@ const NotificationMenu = () => {
             dropdownRender={
                 <div className='space-y-2 px-2 py-2'>
                     {notifications && notifications.length > 0 ? (
-                        notifications.map((noti) => (
+                        notifications.map((noti: any) => (
                             <div
                                 key={noti._id}
                                 onClick={() => notificationMarkRead(noti)}
@@ -210,12 +224,20 @@ const NotificationMenu = () => {
                 </div>
             }
         >
-            <Button
-                icon={<Bell size={18} />}
-                className='rounded-full text-dark-gray'
-                variant={'outline'}
-                size={'icon'}
-            ></Button>
+            <div className='relative'>
+                <Button
+                    icon={<Bell size={18} />}
+                    className='rounded-full text-dark-gray'
+                    variant={'outline'}
+                    size={'icon'}
+                ></Button>
+
+                {unReadNotification && unReadNotification > 0 && (
+                    <div className='absolute -top-1 -right-1 rounded-full text-xs min-w-4 max-w-fit p-1 h-4 bg-danger flex items-center justify-center text-pure-white'>
+                        {unReadNotification > 99 ? '99+' : unReadNotification}
+                    </div>
+                )}
+            </div>
         </GlobalDropdown>
     );
 };

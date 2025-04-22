@@ -420,6 +420,8 @@ const Navbar = () => {
                             </div>
                         )}
                     </div>
+
+                    <NotificationMenu />
                     <Button
                         className='rounded-full  size-9 text-dark-gray'
                         variant={'outline'}
