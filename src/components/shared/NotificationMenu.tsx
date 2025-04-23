@@ -232,11 +232,11 @@ const NotificationMenu = () => {
                     size={'icon'}
                 ></Button>
 
-                {unReadNotification && unReadNotification > 0 && (
+                {unReadNotification && unReadNotification > 0 ? (
                     <div className='absolute -top-1 -right-1 rounded-full text-xs min-w-4 max-w-fit p-1 h-4 bg-danger flex items-center justify-center text-pure-white'>
                         {unReadNotification > 99 ? '99+' : unReadNotification}
                     </div>
-                )}
+                ):""}
             </div>
         </GlobalDropdown>
     );
