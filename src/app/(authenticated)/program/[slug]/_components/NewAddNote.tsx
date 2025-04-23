@@ -1,15 +1,18 @@
 'use client';
 
 import GlobalBlockEditor from '@/components/editor/GlobalBlockEditor';
+import { renderText } from '@/components/lexicalEditor/renderer/renderText';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
     useAddNoteMutation,
+    useDeleteNoteMutation,
     useGetSingleNoteQuery,
     useUpdateNoteMutation,
 } from '@/redux/api/notes/notesApi';
-import { FileText } from 'lucide-react';
+import { TNote } from '@/types';
+import { FileText, Pencil } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 
@@ -23,10 +26,11 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
         isLoading: isLoadingNote,
         refetch, // Add refetch function to manually refresh data
     } = useGetSingleNoteQuery(contentId);
-    const note = noteData?.note;
+    const note: TNote = noteData?.note;
 
     const [updateNote, { isLoading: isUpdating }] = useUpdateNoteMutation();
     const [addNote, { isLoading: isCreating }] = useAddNoteMutation();
+    const [deleteNote, { isLoading: isDeleting }] = useDeleteNoteMutation();
 
     // Set initial form values when note data is loaded or when entering edit mode
     useEffect(() => {
@@ -35,6 +39,14 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
             setDescription(note.description || '');
         }
     }, [note, isEdit]);
+
+    const handleDeleteNote = async () => {
+        try {
+            const res = await deleteNote(note._id).unwrap();
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -78,25 +90,6 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
         }
     };
 
-    // Function to render the note content
-    const renderNoteContent = () => {
-        if (!note?.description) {
-            return 'There is no note content';
-        }
-
-        try {
-            // Attempt to parse and extract text for display
-            const content = JSON.parse(note.description);
-            // This is a simplified example - adjust based on your actual content structure
-            if (content?.root?.children?.[0]?.children?.[0]?.text) {
-                return content.root.children[0].children[0].text;
-            }
-            return 'Note content available (rich format)';
-        } catch (error) {
-            return note.description; // Fallback to raw content if parsing fails
-        }
-    };
-
     // Display when there's no data
     const renderEmptyState = () => (
         <div className='flex flex-col items-center justify-center p-8 bg-muted/20 rounded-lg text-center'>
@@ -122,22 +115,32 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
 
     return (
         <div>
-            <div className='flex items-center justify-end'>
-                {!isEdit && note && (
-                    <Button onClick={() => setIsEdit(true)}>
-                        <FileText className='mr-2' />
-                        Edit
-                    </Button>
-                )}
-            </div>
-
             {!isEdit ? (
                 note ? (
-                    <div className='bg-primary-foreground p-4 rounded-lg mt-2'>
-                        <p className='font-semibold text-lg mb-2'>
-                            {note.title || 'Untitled Note'}
-                        </p>
-                        <p>{renderNoteContent()}</p>
+                    <div className='bg-primary-light dark:bg-background p-4 rounded-lg mt-2'>
+                        <div className='flex gap-2 w-full'>
+                            <p className='font-semibold text-2xl mb-2'>
+                                Title: {note.title || 'Untitled Note'}
+                            </p>
+                            <Button
+                                icon={<Pencil size={14} />}
+                                onClick={() => setIsEdit(true)}
+                                variant={'secondary'}
+                                size={'sm'}
+                                className='ml-auto'
+                            >
+                                Edit
+                            </Button>
+                            <Button
+                                icon={<Pencil size={14} />}
+                                onClick={handleDeleteNote}
+                                variant={'delete_button'}
+                                size={'sm'}
+                            ></Button>
+                        </div>
+                        <div className='text-dark-gray'>
+                            {renderText({ text: note?.description })}
+                        </div>
                     </div>
                 ) : (
                     renderEmptyState()
@@ -147,7 +150,7 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
                     onSubmit={handleSubmit}
                     className='border border-border p-4 rounded-md space-y-4 mt-4'
                 >
-                    <div>
+                    <div className='space-y-2'>
                         <Label htmlFor='note-title'>Title</Label>
                         <Input
                             id='note-title'
@@ -158,7 +161,7 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
                         />
                     </div>
 
-                    <div>
+                    <div className='space-y-2 h-[50vh]'>
                         <Label>Note Content</Label>
                         <GlobalBlockEditor
                             value={description}
@@ -166,7 +169,7 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
                         />
                     </div>
 
-                    <div className='flex justify-end space-x-2'>
+                    <div className='flex justify-end pt-3 space-x-2'>
                         <Button
                             type='button'
                             variant='outline'

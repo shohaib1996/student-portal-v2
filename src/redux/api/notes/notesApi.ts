@@ -5,9 +5,10 @@ import { tagTypes } from '../tagType/tagTypes';
 const notesApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getNotes: build.query({
-            query: () => ({
+            query: (params: any) => ({
                 url: '/content/note/mynotes',
                 method: 'GET',
+                params,
             }),
             providesTags: [tagTypes.notes],
         }),
