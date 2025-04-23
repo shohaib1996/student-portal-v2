@@ -119,7 +119,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     } = useAppSelector((state) => state.chat);
     const [count, setCount] = useState(0);
     const messages = chatMessages[params?.chatid as string] || [];
-
+    console.log({ messages });
     const draft = drafts?.find((f) => f.chat === params?.chatid);
 
     const [hasMore, setHasMore] = useState(true);
@@ -155,22 +155,18 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                 } else {
                     setHasMore(true);
                 }
-                setRefIndex(messages?.length > 15 ? 15 : messages?.length - 1);
                 setIsFetching(false);
-                setRefIndex(15);
 
-                if (lastMessageRef.current) {
-                    lastMessageRef.current.scrollIntoView({
-                        behavior: 'instant',
-                        block: 'center',
-                        inline: 'nearest',
-                    });
+                // Scroll to the top of the newly fetched messages
+                if (chatContainerRef.current) {
+                    const newMessagesHeight = res.data.messages.length * 100; // Approximate height of new messages
+                    chatContainerRef.current.scrollTop += newMessagesHeight;
                 }
             })
             .catch((err) => {
                 setIsFetching(false);
-                if (err?.response) {
-                    setError(err.response?.data);
+                if (err?.response?.data) {
+                    setError(err.response.data);
                 }
             });
     };
@@ -189,6 +185,26 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     const [refIndex, setRefIndex] = useState<number>(15);
     const bottomTextRef = useRef<any | null>(null);
     const [reload, setReload] = useState<number>(0);
+
+    // Modified useEffect for refIndex
+    useEffect(() => {
+        if (initialLoaded && messages?.length > 0) {
+            setRefIndex(
+                messages.length > 15 && fetchedMore ? 15 : messages.length - 1,
+            );
+        }
+    }, [messages, fetchedMore, initialLoaded]);
+
+    // Modified useEffect for scrolling to last message
+    useEffect(() => {
+        if (initialLoaded && lastMessageRef.current && !fetchedMore) {
+            lastMessageRef.current.scrollIntoView({
+                behavior: 'instant',
+                block: 'end',
+                inline: 'nearest',
+            });
+        }
+    }, [messages, initialLoaded, fetchedMore]);
 
     useEffect(() => {
         setInitalLoaded(false);
@@ -234,14 +250,16 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const lastMessageRef = useRef<HTMLDivElement>(null);
 
-    // Fetch messages in the background without showing loading state
+    // Modified useEffect for fetching initial messages
     useEffect(() => {
         if (params?.chatid) {
-            setIsBackground(true);
+            setIsFetching(true);
+            setIsLoading(true);
+            setError(null);
             dispatch(setCurrentPage(1));
             setCount(0);
             const options = {
-                page: currentPage,
+                page: 1,
                 chat: params?.chatid,
                 limit,
                 query: searchQuery || '',
@@ -249,6 +267,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
             instance
                 .post(`/chat/messages`, options)
                 .then((res) => {
+                    setIsLoading(false);
                     setCount(res.data.count);
                     dispatch(
                         updateChatMessages({
@@ -262,18 +281,21 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     } else {
                         setHasMore(true);
                     }
-                    dispatch(markRead({ chatId: params?.chatid as string }));
-                    setIsBackground(false);
+                    if (params?.chatid) {
+                        dispatch(markRead({ chatId: params.chatid as string }));
+                    }
+                    setIsFetching(false);
                 })
                 .catch((err) => {
-                    if (err && err.response) {
-                        setError(err?.response?.data?.error);
+                    setIsLoading(false);
+                    if (err?.response?.data?.error) {
+                        setError(err.response.data.error);
                     }
                     setInitalLoaded(true);
-                    setIsBackground(false);
+                    setIsFetching(false);
                 });
         }
-    }, [params?.chatid, reload, searchQuery, dispatch, currentPage, limit]);
+    }, [params?.chatid, reload, searchQuery]);
 
     interface SentCallbackObject {
         action: string;
@@ -381,23 +403,6 @@ const ChatBody: React.FC<ChatBodyProps> = ({
 
     const prevTriggerRef = React.useRef('');
 
-    useEffect(() => {
-        if (lastMessageRef.current) {
-            lastMessageRef.current.scrollIntoView({
-                behavior: 'instant',
-                block: 'end',
-                inline: 'nearest',
-            });
-        }
-        const messageKey =
-            messages?.length > 0 ? messages[messages.length - 1]?._id : 'empty';
-        const triggerKey = `${messageKey}-${reload}`;
-        if (prevTriggerRef.current !== triggerKey) {
-            prevTriggerRef.current = triggerKey;
-            setReloading(!reloading);
-        }
-    }, [messages, reload, setReloading, reloading]);
-
     const [isTyping, setIsTyping] = useState<boolean>(false);
 
     // Function to send typing indicator
@@ -409,7 +414,9 @@ const ChatBody: React.FC<ChatBodyProps> = ({
         <>
             {/* Pinned Messages Bar */}
             {!showPinnedMessages &&
-                messages.filter((message) => message.pinnedBy).length > 0 && (
+                messages.filter(
+                    (message) => message.pinnedBy && message?.type !== 'delete',
+                ).length > 0 && (
                     <div
                         className='w-full shadow-lg bg-foreground border shadow-ms cursor-pointer'
                         onClick={() => setShowPinnedMessages(true)}
@@ -579,7 +586,11 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     {showPinnedMessages ? (
                         <div className='p-4'>
                             {messages
-                                .filter((message) => message.pinnedBy)
+                                .filter(
+                                    (message) =>
+                                        message.pinnedBy &&
+                                        message?.type !== 'delete',
+                                )
                                 .map((message) => (
                                     <Message
                                         isAi={isAi}

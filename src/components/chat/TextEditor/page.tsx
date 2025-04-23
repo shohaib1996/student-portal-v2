@@ -491,13 +491,26 @@ const TextEditor: React.FC<TextEditorProps> = ({
         );
         const data = res.data?.results;
 
-        return data?.map(
+        const mappedData = data?.map(
             (x: { user: any; id: string | number; avatar: string }) => ({
                 value: `${x?.user?.firstName} ${x?.user?.lastName}`,
                 id: String(x?.user?._id),
                 avatar: x?.user?.profilePicture || `https://placehold.co/400`,
             }),
         );
+
+        const finalMentionData = [
+            {
+                value: 'everyone',
+                id: 'everyone',
+                avatar: 'https://placehold.co/400',
+            },
+            ...mappedData,
+        ];
+
+        console.log('Final mention data:', finalMentionData);
+
+        return finalMentionData;
     };
 
     return (
@@ -589,7 +602,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                                 ? '89px'
                                                 : isEdit
                                                   ? '250px'
-                                                  : '100px'
+                                                  : '130px'
                                         }
                                         initialMarkdown={text}
                                         onMarkdownChange={handleOnChange}
@@ -608,27 +621,37 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                     className={`flex items-center justify-between ${isPopUp ? 'px-1' : 'px-2'}`}
                                 >
                                     <div className='flex items-center gap-1'>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <button className='p-2 rounded-full hover:bg-muted transition-colors'>
-                                                    <Paperclip className='h-5 w-5 text-muted-foreground' />
-                                                </button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent
-                                                side='top'
-                                                align='start'
-                                            >
-                                                <DropdownMenuItem
-                                                    className='flex items-center gap-2 cursor-pointer'
-                                                    onClick={
-                                                        handleMenuItemClick
-                                                    }
-                                                >
-                                                    <ImageIcon size={16} />
-                                                    Photos & Videos
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        {!uploadFiles.some((file) =>
+                                            file.type?.startsWith('audio/'),
+                                        ) &&
+                                            !isVoiceRecordVisible &&
+                                            !isSendingAudio && (
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger
+                                                        asChild
+                                                    >
+                                                        <button className='p-2 rounded-full hover:bg-muted transition-colors'>
+                                                            <Paperclip className='h-5 w-5 text-muted-foreground' />
+                                                        </button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent
+                                                        side='top'
+                                                        align='start'
+                                                    >
+                                                        <DropdownMenuItem
+                                                            className='flex items-center gap-2 cursor-pointer'
+                                                            onClick={
+                                                                handleMenuItemClick
+                                                            }
+                                                        >
+                                                            <ImageIcon
+                                                                size={16}
+                                                            />
+                                                            Photos & Videos
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            )}
 
                                         {localText?.length === 0 &&
                                         uploadFiles?.length === 0 ? (

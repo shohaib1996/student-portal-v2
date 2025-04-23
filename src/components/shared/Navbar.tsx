@@ -209,8 +209,8 @@ const Navbar = () => {
     }
     if (navigations.myPurchasedItem) {
         permissions.push({
-            route: '/program/online-courses',
-            label: 'Online Courses',
+            route: '/program/my-enrolments',
+            label: 'My Enrolments',
             id: 'myPurchasedItem',
         });
     }

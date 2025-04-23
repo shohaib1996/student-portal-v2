@@ -18,11 +18,9 @@ import {
     updateChatMessages,
     setMessageCount,
     setTyping,
-    updateMessageStatus,
 } from '@/redux/features/chatReducer';
 import { useAppSelector } from '@/redux/hooks';
 import { instance } from '@/lib/axios/axiosInstance';
-import Thread from '../thread';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
     joinChatRoom,
@@ -30,8 +28,6 @@ import {
     connectSocket,
     sendTypingEvent,
 } from '@/helper/socketManager';
-import EditMessageModal from '../Message/EditMessageModal';
-import { TypingData } from '@/helper/socketHandler';
 import ForwardMessageModal from '../Message/ForwardMessageModal';
 import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
@@ -202,6 +198,18 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
     const [forwardMessage, setForwardMessage] = useState<ChatMessage | null>(
         null,
     );
+
+    useEffect(() => {
+        // Check if there are files in the current chat
+        const currentDraft = drafts?.find(
+            (draft) => draft.chat === selectedChatId,
+        );
+        const hasFiles =
+            currentDraft?.uploadFiles && currentDraft.uploadFiles.length > 0;
+
+        // Update attachment visibility based on files presence
+        setIsAttachmentVisible(!!hasFiles);
+    }, [drafts, selectedChatId]);
 
     // Initialize socket connection and join chat room
     useEffect(() => {
@@ -658,72 +666,35 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
             }),
         );
     };
+
     const bottomTextRef = useRef<any | null>(null);
 
+    const hasPinnedMessages =
+        messages.filter((message) => message.pinnedBy).length > 0;
+
     return (
-        <>
-            {!showPinnedMessages &&
-                messages.filter((message) => message.pinnedBy).length > 0 && (
-                    <div
-                        className='w-full shadow-lg bg-foreground border shadow-ms cursor-pointer'
-                        onClick={() => setShowPinnedMessages(true)}
-                    >
-                        <div className='container mx-auto flex items-center p-2'>
-                            <div className='flex items-center gap-2 w-full'>
-                                <span className=' text-primary flex items-center justify-center text-xs font-medium'>
-                                    {
-                                        messages.filter(
-                                            (message) => message.pinnedBy,
-                                        ).length
-                                    }
-                                </span>
+        <div className='flex flex-col h-full'>
+            {/* Pinned Messages Section */}
+            {!showPinnedMessages && hasPinnedMessages && (
+                <div
+                    className='w-full shadow-lg bg-foreground border shadow-ms cursor-pointer'
+                    onClick={() => setShowPinnedMessages(true)}
+                >
+                    <div className='container mx-auto flex items-center p-2'>
+                        <div className='flex items-center gap-2 w-full'>
+                            <span className='text-primary flex items-center justify-center text-xs font-medium'>
+                                {hasPinnedMessages
+                                    ? messages.filter(
+                                          (message) => message.pinnedBy,
+                                      ).length
+                                    : 0}
+                            </span>
 
-                                {messages.filter((message) => message.pinnedBy)
-                                    .length > 0 && (
-                                    <>
-                                        <Avatar className='h-6 w-6'>
-                                            <AvatarImage
-                                                src={
-                                                    messages
-                                                        .filter(
-                                                            (message) =>
-                                                                message.pinnedBy,
-                                                        )
-                                                        .sort(
-                                                            (a, b) =>
-                                                                new Date(
-                                                                    b.createdAt as string,
-                                                                ).getTime() -
-                                                                new Date(
-                                                                    a.createdAt as string,
-                                                                ).getTime(),
-                                                        )[0]?.pinnedBy
-                                                        ?.profilePicture
-                                                }
-                                                alt='User'
-                                            />
-                                            <AvatarFallback>
-                                                {messages
-                                                    .filter(
-                                                        (message) =>
-                                                            message.pinnedBy,
-                                                    )
-                                                    .sort(
-                                                        (a, b) =>
-                                                            new Date(
-                                                                b.createdAt as string,
-                                                            ).getTime() -
-                                                            new Date(
-                                                                a.createdAt as string,
-                                                            ).getTime(),
-                                                    )[0]
-                                                    ?.pinnedBy?.firstName?.charAt(
-                                                        0,
-                                                    )}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <GlobalTooltip
-                                            tooltip={
+                            {hasPinnedMessages && (
+                                <>
+                                    <Avatar className='h-6 w-6'>
+                                        <AvatarImage
+                                            src={
                                                 messages
                                                     .filter(
                                                         (message) =>
@@ -737,32 +708,52 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                                             new Date(
                                                                 a.createdAt as string,
                                                             ).getTime(),
-                                                    )[0]?.pinnedBy?.fullName
+                                                    )[0]?.pinnedBy
+                                                    ?.profilePicture ||
+                                                '/placeholder.svg'
                                             }
-                                        >
-                                            <span className='font-medium text-sm max-w-[150px] truncate'>
-                                                {
-                                                    messages
-                                                        .filter(
-                                                            (message) =>
-                                                                message.pinnedBy,
-                                                        )
-                                                        .sort(
-                                                            (a, b) =>
-                                                                new Date(
-                                                                    b.createdAt as string,
-                                                                ).getTime() -
-                                                                new Date(
-                                                                    a.createdAt as string,
-                                                                ).getTime(),
-                                                        )[0]?.pinnedBy
-                                                        ?.firstName
-                                                }
-                                            </span>
-                                        </GlobalTooltip>
-
-                                        <span className='text-xs text-gray w-fit'>
-                                            {dayjs(
+                                            alt='User'
+                                        />
+                                        <AvatarFallback>
+                                            {messages
+                                                .filter(
+                                                    (message) =>
+                                                        message.pinnedBy,
+                                                )
+                                                .sort(
+                                                    (a, b) =>
+                                                        new Date(
+                                                            b.createdAt as string,
+                                                        ).getTime() -
+                                                        new Date(
+                                                            a.createdAt as string,
+                                                        ).getTime(),
+                                                )[0]
+                                                ?.pinnedBy?.firstName?.charAt(
+                                                    0,
+                                                )}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <GlobalTooltip
+                                        tooltip={
+                                            messages
+                                                .filter(
+                                                    (message) =>
+                                                        message.pinnedBy,
+                                                )
+                                                .sort(
+                                                    (a, b) =>
+                                                        new Date(
+                                                            b.createdAt as string,
+                                                        ).getTime() -
+                                                        new Date(
+                                                            a.createdAt as string,
+                                                        ).getTime(),
+                                                )[0]?.pinnedBy?.fullName
+                                        }
+                                    >
+                                        <span className='font-medium text-sm max-w-[150px] truncate'>
+                                            {
                                                 messages
                                                     .filter(
                                                         (message) =>
@@ -776,63 +767,82 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                                             new Date(
                                                                 a.createdAt as string,
                                                             ).getTime(),
-                                                    )[0]?.createdAt,
-                                            ).format('h:mm A')}
+                                                    )[0]?.pinnedBy?.firstName
+                                            }
                                         </span>
+                                    </GlobalTooltip>
 
-                                        <div className='flex-1 truncate text-sm text-gray ml-2 max-w-[calc(100%-200px)]'>
-                                            {(() => {
-                                                const pinnedMessages = messages
-                                                    .filter(
-                                                        (message) =>
-                                                            message.pinnedBy,
-                                                    )
-                                                    .sort(
-                                                        (a, b) =>
-                                                            new Date(
-                                                                b.createdAt as string,
-                                                            ).getTime() -
-                                                            new Date(
-                                                                a.createdAt as string,
-                                                            ).getTime(),
-                                                    );
+                                    <span className='text-xs text-gray w-fit'>
+                                        {dayjs(
+                                            messages
+                                                .filter(
+                                                    (message) =>
+                                                        message.pinnedBy,
+                                                )
+                                                .sort(
+                                                    (a, b) =>
+                                                        new Date(
+                                                            b.createdAt as string,
+                                                        ).getTime() -
+                                                        new Date(
+                                                            a.createdAt as string,
+                                                        ).getTime(),
+                                                )[0]?.createdAt,
+                                        ).format('h:mm A')}
+                                    </span>
 
-                                                const latestPinned =
-                                                    pinnedMessages[0];
+                                    <div className='flex-1 truncate text-sm text-gray ml-2 max-w-[calc(100%-200px)]'>
+                                        {(() => {
+                                            const pinnedMessages = messages
+                                                .filter(
+                                                    (message) =>
+                                                        message.pinnedBy,
+                                                )
+                                                .sort(
+                                                    (a, b) =>
+                                                        new Date(
+                                                            b.createdAt as string,
+                                                        ).getTime() -
+                                                        new Date(
+                                                            a.createdAt as string,
+                                                        ).getTime(),
+                                                );
 
-                                                if (
-                                                    latestPinned?.files
-                                                        ?.length > 0
-                                                ) {
-                                                    return (
-                                                        <span className='text-xs text-black'>
-                                                            📎 Pinned Media
-                                                        </span>
-                                                    );
-                                                }
+                                            const latestPinned =
+                                                pinnedMessages[0];
 
-                                                return renderPlainText({
-                                                    text: latestPinned?.text as string,
-                                                    textSize: 'text-xs',
-                                                    textColor: 'text-black',
-                                                    width: 'w-full',
-                                                    lineClamp: 1,
-                                                });
-                                            })()}
-                                        </div>
+                                            if (
+                                                latestPinned?.files?.length > 0
+                                            ) {
+                                                return (
+                                                    <span className='text-xs text-black'>
+                                                        📎 Pinned Media
+                                                    </span>
+                                                );
+                                            }
 
-                                        <Pin className='h-4 w-4 text-dark-gray rotate-45 ml-2 flex-shrink-0' />
-                                    </>
-                                )}
-                            </div>
+                                            return renderPlainText({
+                                                text: latestPinned?.text as string,
+                                                textSize: 'text-xs',
+                                                textColor: 'text-black',
+                                                width: 'w-full',
+                                                lineClamp: 1,
+                                            });
+                                        })()}
+                                    </div>
+
+                                    <Pin className='h-4 w-4 text-dark-gray rotate-45 ml-2 flex-shrink-0' />
+                                </>
+                            )}
                         </div>
                     </div>
-                )}
-            <div
-                className={`scrollbar-container ${messages.filter((message) => message.pinnedBy).length > 0 ? 'h-[calc(100%-104px)]' : 'h-[calc(100%-127px)]'} pl-2`}
-            >
+                </div>
+            )}
+
+            {/* Messages Section - Takes all remaining space */}
+            <div className='flex-grow overflow-hidden pl-2'>
                 <div
-                    className='h-full overflow-y-auto'
+                    className='h-full overflow-y-auto !overflow-x-hidden'
                     id='chat-body-id'
                     onScroll={handleScroll}
                     ref={chatContainerRef}
@@ -892,7 +902,10 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                         <>
                                             <Avatar className='h-[50px] w-[50px]'>
                                                 <AvatarImage
-                                                    src={chat?.avatar}
+                                                    src={
+                                                        chat?.avatar ||
+                                                        '/placeholder.svg'
+                                                    }
                                                     alt={chat?.name}
                                                 />
                                                 <AvatarFallback>
@@ -913,7 +926,8 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                                 <AvatarImage
                                                     src={
                                                         chat?.otherUser
-                                                            ?.profilePicture
+                                                            ?.profilePicture ||
+                                                        '/placeholder.svg'
                                                     }
                                                     alt={`${chat?.otherUser?.firstName} ${chat?.otherUser?.lastName}`}
                                                 />
@@ -1044,9 +1058,6 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                 </>
                             )}
 
-                            {/* Typing indicator */}
-                            {/* {renderTypingIndicator()} */}
-
                             {/* AI message streaming */}
                             {aiIncomingMessage && (
                                 <Message
@@ -1080,20 +1091,23 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                 </div>
             </div>
 
-            {/* Chat footer */}
+            {/* Chat footer - Takes its natural height */}
             {!showPinnedMessages && !(chat?.myData?.isBlocked || error) && (
-                <ChatFooter
-                    chat={chat as ChatData}
-                    className={`chat_${chat?._id}`}
-                    draft={draft}
-                    onSentCallback={onSentCallback}
-                    setProfileInfoShow={setProfileInfoShow}
-                    profileInfoShow={profileInfoShow}
-                    sendTypingIndicator={sendTypingIndicator}
-                    isPopUp={true}
-                    setIsAttachment={setIsAttachmentVisible}
-                />
+                <div className='flex-shrink-0'>
+                    <ChatFooter
+                        chat={chat as ChatData}
+                        className={`chat_${chat?._id}`}
+                        draft={draft}
+                        onSentCallback={onSentCallback}
+                        setProfileInfoShow={setProfileInfoShow}
+                        profileInfoShow={profileInfoShow}
+                        sendTypingIndicator={sendTypingIndicator}
+                        isPopUp={true}
+                        setIsAttachment={setIsAttachmentVisible}
+                    />
+                </div>
             )}
+
             {forwardMessage && (
                 <ForwardMessageModal
                     isOpen={!!forwardMessage}
@@ -1142,7 +1156,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     }
                 }
             `}</style>
-        </>
+        </div>
     );
 };
 

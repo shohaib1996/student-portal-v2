@@ -198,7 +198,7 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
     }, [recordedAudio]);
 
     return (
-        <div className='flex w-full items-center justify-center gap-2.5'>
+        <div className='flex w-full items-center justify-center gap-2.5 py-2 px-4 bg-background'>
             {/* Recording indicator with pink pulse animation */}
             {isRecording && (
                 <div className='min-w-[150px] flex items-center gap-2'>

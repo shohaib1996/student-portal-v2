@@ -16,12 +16,12 @@ interface PaginationProps {
 
 const GlobalPagination: React.FC<PaginationProps> = ({
     totalItems,
-    itemsPerPage,
+    itemsPerPage = 10,
     onPageChange,
     currentPage: page,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const options = [5, 10, 20, 50];
+    const options = [5, 10, 15, 20, 50];
     const [currentPage, setCurrentPage] = useState(page);
     const [limit, setLimit] = useState(itemsPerPage);
 
@@ -105,6 +105,9 @@ const GlobalPagination: React.FC<PaginationProps> = ({
                                 </SelectItem>
                                 <SelectItem className='min-w-[70px]' value='10'>
                                     10 / Page
+                                </SelectItem>
+                                <SelectItem className='min-w-[70px]' value='15'>
+                                    15 / Page
                                 </SelectItem>
                                 <SelectItem className='min-w-[70px]' value='20'>
                                     20 / Page
@@ -193,6 +196,7 @@ const GlobalPagination: React.FC<PaginationProps> = ({
                         <SelectContent className='min-w-0'>
                             <SelectItem value='5'>5 / Page </SelectItem>
                             <SelectItem value='10'>10 / Page </SelectItem>
+                            <SelectItem value='15'>15 / Page </SelectItem>
                             <SelectItem value='20'>20 / Page </SelectItem>
                             <SelectItem value='50'>50 / Page </SelectItem>
                         </SelectContent>

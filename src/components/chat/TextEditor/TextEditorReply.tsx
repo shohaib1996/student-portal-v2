@@ -693,27 +693,37 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                                 {/* Action buttons */}
                                 <div className='flex items-center justify-between px-2'>
                                     <div className='flex items-center gap-1'>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <button className='p-2 rounded-full hover:bg-muted transition-colors'>
-                                                    <Paperclip className='h-5 w-5 text-muted-foreground' />
-                                                </button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent
-                                                side='top'
-                                                align='start'
-                                            >
-                                                <DropdownMenuItem
-                                                    className='flex items-center gap-2 cursor-pointer'
-                                                    onClick={
-                                                        handleMenuItemClick
-                                                    }
-                                                >
-                                                    <ImageIcon size={16} />
-                                                    Photos & Videos
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        {!uploadFiles.some((file) =>
+                                            file.type?.startsWith('audio/'),
+                                        ) &&
+                                            !isVoiceRecordVisible &&
+                                            !isSendingAudio && (
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger
+                                                        asChild
+                                                    >
+                                                        <button className='p-2 rounded-full hover:bg-muted transition-colors'>
+                                                            <Paperclip className='h-5 w-5 text-muted-foreground' />
+                                                        </button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent
+                                                        side='top'
+                                                        align='start'
+                                                    >
+                                                        <DropdownMenuItem
+                                                            className='flex items-center gap-2 cursor-pointer'
+                                                            onClick={
+                                                                handleMenuItemClick
+                                                            }
+                                                        >
+                                                            <ImageIcon
+                                                                size={16}
+                                                            />
+                                                            Photos & Videos
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            )}
 
                                         {text?.length === 0 &&
                                         uploadFiles?.length === 0 ? (

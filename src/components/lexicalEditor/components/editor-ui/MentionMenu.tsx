@@ -25,7 +25,7 @@ export const MentionMenu = forwardRef<any, BeautifulMentionsMenuProps>(
                     <div className='flex items-center gap-2 px-1 py-1.5'>
                         <Loader2 className='h-4 w-4 animate-spin text-muted-foreground' />
                         <span className='text-sm text-muted-foreground'>
-                            Loading suggestions...
+                            Loading users...
                         </span>
                     </div>
                 </div>
@@ -37,8 +37,9 @@ export const MentionMenu = forwardRef<any, BeautifulMentionsMenuProps>(
                 style={{
                     scrollbarWidth: 'thin',
                     msOverflowStyle: 'none',
+                    top: '-230px',
                 }}
-                className='absolute z-[9999] -top-36 m-0 min-w-[14rem] max-h-[200px] overflow-y-auto overflow-x-hidden rounded-md border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-50 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95'
+                className='absolute z-[9999] m-0 min-w-[14rem] max-h-[200px] overflow-y-auto overflow-x-hidden rounded-md border bg-foreground p-1.5 text-popover-foreground shadow-lg animate-in fade-in-50 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95'
                 {...other}
             />
         );
