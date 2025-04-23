@@ -387,6 +387,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                 <CreateCrowd
                     isOpen={createCrowdOpen}
                     onClose={() => setCreateCrowdOpen(false)}
+                    isPopup={true}
                 />
             </div>
         );

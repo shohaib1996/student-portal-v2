@@ -56,16 +56,16 @@ interface GetCommunityPostsParams {
 // }
 
 export const loadChats = (): AppThunk => {
-    return (dispatch) => {
-        instance
-            .get('/chat/mychats')
-            .then((res) => {
-                dispatch(setChats(res.data.chats));
-            })
-            .catch((err) => {
-                console.error(err);
-                toast.error(err?.response?.data?.error);
-            });
+    return async (dispatch) => {
+        console.log('Load chats called ------------');
+        try {
+            const res = await instance.get('/chat/mychats');
+            console.log('dispatching the chats ------------');
+            dispatch(setChats(res.data.chats));
+        } catch (err: any) {
+            console.error(err);
+            toast.error(err?.response?.data?.error);
+        }
     };
 };
 

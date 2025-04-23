@@ -136,7 +136,14 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
             refetchOnMountOrArgChange: true, // Important for returning to the page
         },
     );
-
+    const handleUserAdded = useCallback(() => {
+        // Invalidate cache to refetch members
+        dispatch(
+            chatApi.util.invalidateTags([
+                { type: tagTypes.members, id: chat?._id },
+            ]),
+        );
+    }, [dispatch, chat?._id]);
     // Update state when data is received
     useEffect(() => {
         if (membersData) {
@@ -184,7 +191,9 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                         }),
                     );
 
-                    toast.success('Member removed successfully');
+                    toast.success(
+                        `${member?.user?.fullName || 'User'} is removed from the crowd`,
+                    );
                 })
                 .catch((err) => {
                     console.error(err);
@@ -598,14 +607,14 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                 </div>
 
                 {/* Pagination component */}
-                {!isLoading && membersData?.pagination && (
-                    <GlobalPagination
-                        totalItems={totalItems}
-                        itemsPerPage={membersData.pagination.limit}
-                        currentPage={currentPage}
-                        onPageChange={handlePageChange}
-                    />
-                )}
+                {/* {!isLoading && membersData?.pagination && ( */}
+                <GlobalPagination
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
+                />
+                {/* )} */}
             </div>
 
             {/* Modals */}
@@ -620,6 +629,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                 channel={chat}
                 opened={opened}
                 handleCancel={() => setOpened(false)}
+                onUserAdded={handleUserAdded}
             />
             <MuteOption
                 opened={muteOptionOpened}

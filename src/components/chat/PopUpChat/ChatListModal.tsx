@@ -30,7 +30,7 @@ const ChatListModal: React.FC<ChatListModalProps> = ({ position }) => {
             width={360}
             maxWidth={500}
         >
-            <div className='flex flex-col h-[100vh-300px]'>
+            <div className='flex flex-col h-full'>
                 <div
                     className={`flex-1 ${overflow ? 'overflow-y-auto overflow-x-hidden' : 'overflow-hidden'}`}
                 >
