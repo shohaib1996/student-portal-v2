@@ -491,13 +491,26 @@ const TextEditor: React.FC<TextEditorProps> = ({
         );
         const data = res.data?.results;
 
-        return data?.map(
+        const mappedData = data?.map(
             (x: { user: any; id: string | number; avatar: string }) => ({
                 value: `${x?.user?.firstName} ${x?.user?.lastName}`,
                 id: String(x?.user?._id),
                 avatar: x?.user?.profilePicture || `https://placehold.co/400`,
             }),
         );
+
+        const finalMentionData = [
+            {
+                value: 'everyone',
+                id: 'everyone',
+                avatar: 'https://placehold.co/400',
+            },
+            ...mappedData,
+        ];
+
+        console.log('Final mention data:', finalMentionData);
+
+        return finalMentionData;
     };
 
     return (

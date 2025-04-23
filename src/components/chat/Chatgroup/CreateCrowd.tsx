@@ -58,6 +58,7 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
         useFindOrCreateChatMutation();
     const searchRef = useRef<HTMLInputElement>(null);
     const descriptionRef = useRef('');
+    const avatarUrlRef = useRef<string | null>(null);
     const [step, setStep] = useState<number>(1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isUserLoading, setIsUserLoading] = useState<boolean>(false);
@@ -110,6 +111,7 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
         },
         [findOrCreateChat, router],
     );
+
     // Handle avatar upload
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -162,6 +164,107 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
         setSelectedUsers((prev) => prev.filter((user) => user._id !== userId));
     }, []);
 
+    useEffect(() => {
+        descriptionRef.current = description;
+    }, [description]);
+
+    // Reset state when modal opens/closes
+    useEffect(() => {
+        if (!isOpen) {
+            // Wait for animation to complete before resetting
+            const timer = setTimeout(() => {
+                setStep(1);
+                setSelectedUsers([]);
+                setName('');
+                setDescription('');
+                setIsPublic(true);
+                setIsReadOnly(false);
+                setAvatarFile(null);
+                setAvatarPreview(null);
+                avatarUrlRef.current = null; // Reset avatar URL ref
+            }, 300);
+            return () => clearTimeout(timer);
+        } else {
+            // Load initial users
+            handleSearchUser('');
+        }
+    }, [isOpen]);
+
+    // Handle avatar upload
+    const uploadAvatar = useCallback(async (file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+            const response = await instance.post('/chat/file', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            const url = response?.data?.file?.location;
+            avatarUrlRef.current = url; // Update ref with uploaded URL
+            return url;
+        } catch (error: any) {
+            throw new Error(
+                error?.response?.data?.error || 'Failed to upload avatar',
+            );
+        }
+    }, []);
+
+    // Create crowd with avatar upload
+    const handleCreateCrowd = useCallback(async () => {
+        if (selectedUsers.length < 2) {
+            toast.error('Please select at least 2 users');
+            return;
+        }
+
+        if (!name.trim()) {
+            toast.error('Name is required');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            // Upload avatar if a file is selected
+            if (avatarFile) {
+                const uploadedUrl = await uploadAvatar(avatarFile);
+                avatarUrlRef.current = uploadedUrl; // Ensure ref is updated
+            }
+
+            const userIds = selectedUsers.map((user) => user._id);
+            const data = {
+                name,
+                description: descriptionRef.current || '',
+                users: userIds,
+                isReadOnly,
+                isPublic,
+                avatar: avatarUrlRef.current || null, // Use ref for avatar URL
+            };
+
+            const res = await instance.post('/chat/channel/create', data);
+            toast.success('Crowd created successfully');
+            dispatch(updateChats(res?.data?.chat));
+            dispatch(updateLatestMessage(res?.data?.chat));
+            handleCreateChat(res?.data?.chat._id);
+            dispatch(loadChats() as any);
+            onClose();
+        } catch (err: any) {
+            toast.error(err?.response?.data?.error || 'Failed to create crowd');
+            console.error('Error creating crowd:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [
+        name,
+        description,
+        isPublic,
+        isReadOnly,
+        selectedUsers,
+        avatarFile,
+        router,
+        onClose,
+        dispatch,
+        handleCreateChat,
+    ]);
     // Handle next step
     const handleNext = useCallback(() => {
         if (step === 1) {
@@ -178,15 +281,8 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
                 return;
             }
             handleCreateCrowd();
-            // const latestDescription =
-            //     descriptionRef.current?.getMarkdown() || '';
-            // setDescription(latestDescription);
-
-            // setTimeout(() => {
-            //     handleCreateCrowd();
-            // }, 10);
         }
-    }, [step, selectedUsers, name]);
+    }, [step, selectedUsers, name, handleCreateCrowd]);
     // Handle back
     const handleBack = useCallback(() => {
         if (step > 1) {
@@ -195,64 +291,6 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
             onClose();
         }
     }, [step, onClose]);
-    console.log('Description right before API call:', description);
-    console.log('Description type:', typeof description);
-    useEffect(() => {
-        descriptionRef.current = description;
-    }, [description]);
-    // Create crowd with direct markdown editor content retrieval
-    const handleCreateCrowd = useCallback(() => {
-        if (selectedUsers.length < 2) {
-            toast.error('Please select at least 2 users');
-            return;
-        }
-
-        if (!name.trim()) {
-            toast.error('Name is required');
-            return;
-        }
-
-        setIsLoading(true);
-        console.log({ description });
-        const userIds = selectedUsers.map((user) => user._id);
-        const data = {
-            name,
-            description: descriptionRef.current || '',
-            users: userIds,
-            isReadOnly,
-            isPublic,
-            avatar: avatarUrl || null,
-        };
-        console.log('Payload being sent:', data);
-        instance
-            .post('/chat/channel/create', data)
-            .then((res) => {
-                toast.success('Crowd created successfully');
-                // router.push(`/chat/${res.data.chat._id}`);
-                dispatch(updateChats(res?.data?.chat));
-                dispatch(updateLatestMessage(res?.data?.chat));
-                handleCreateChat(res?.data?.chat._id);
-                dispatch(loadChats() as any);
-                onClose();
-            })
-            .catch((err) => {
-                toast.error(
-                    err?.response?.data?.error || 'Failed to create crowd',
-                );
-                console.error('Error creating crowd:', err);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    }, [
-        name,
-        description,
-        isPublic,
-        isReadOnly,
-        selectedUsers,
-        router,
-        onClose,
-    ]);
 
     // Render content based on current step
     const renderContent = () => {
@@ -504,7 +542,7 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
                                 onChange={(e) => setName(e.target.value)}
                                 maxLength={40}
                                 required
-                                className='bg-foreground'
+                                className='bg-background'
                             />
                         </div>
 
@@ -521,7 +559,7 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
                                         setDescription(value);
                                         descriptionRef.current = value;
                                     }}
-                                    className='w-full min-h-[150px] bg-background-foreground'
+                                    className='w-full min-h-[150px] bg-background'
                                     placeholder='Enter description'
                                 />
                             </div>
@@ -537,7 +575,7 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
                                 }
                                 className='flex gap-4'
                             >
-                                <div className='flex items-center space-x-2 border rounded-md p-2 flex-1 bg-foreground'>
+                                <div className='flex items-center space-x-2 border rounded-md p-2 flex-1 bg-background'>
                                     <RadioGroupItem
                                         value='public'
                                         id='public'
@@ -549,7 +587,7 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
                                         Public
                                     </Label>
                                 </div>
-                                <div className='flex items-center space-x-2 border rounded-md p-2 flex-1 bg-foreground'>
+                                <div className='flex items-center space-x-2 border rounded-md p-2 flex-1 bg-background'>
                                     <RadioGroupItem
                                         value='private'
                                         id='private'
@@ -574,7 +612,7 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
                                 }
                                 className='flex gap-4'
                             >
-                                <div className='flex items-center space-x-2 border rounded-md p-2 flex-1 bg-foreground'>
+                                <div className='flex items-center space-x-2 border rounded-md p-2 flex-1 bg-background'>
                                     <RadioGroupItem value='yes' id='yes' />
                                     <Label
                                         htmlFor='yes'
@@ -583,7 +621,7 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
                                         Yes
                                     </Label>
                                 </div>
-                                <div className='flex items-center space-x-2 border rounded-md p-2 flex-1 bg-foreground'>
+                                <div className='flex items-center space-x-2 border rounded-md p-2 flex-1 bg-background'>
                                     <RadioGroupItem value='no' id='no' />
                                     <Label
                                         htmlFor='no'
