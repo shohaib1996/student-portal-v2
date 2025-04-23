@@ -523,7 +523,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
         }
     }, [chat, leaveChannel, dispatch, router]);
 
-    // Replace handleInlineUpdate with this:
     const handleInlineUpdate = useCallback(
         (value: any, field: any) => {
             if (chat?._id) {
@@ -537,9 +536,27 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                     .unwrap()
                     .then((response) => {
                         setChat((prev: any) => ({ ...prev, [field]: value }));
-                        toast.success(
-                            `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`,
-                        );
+
+                        // Better success messages based on field and value
+                        if (field === 'isPublic') {
+                            toast.success(
+                                `Crowd type updated to ${value ? 'Public' : 'Private'}`,
+                            );
+                        } else if (field === 'isReadOnly') {
+                            toast.success(
+                                `Read-only mode ${value ? 'enabled' : 'disabled'}`,
+                            );
+                        } else if (field === 'name') {
+                            toast.success('Crowd name updated successfully');
+                        } else if (field === 'description') {
+                            toast.success(
+                                'Crowd description updated successfully',
+                            );
+                        } else {
+                            toast.success(
+                                `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`,
+                            );
+                        }
                     })
                     .catch((err) => {
                         toast.error(

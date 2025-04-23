@@ -35,6 +35,7 @@ import { useFindOrCreateChatMutation } from '@/redux/api/chats/chatApi';
 import { updateChats, updateLatestMessage } from '@/redux/features/chatReducer';
 import { useAppDispatch } from '@/redux/hooks';
 import { loadChats } from '@/actions/initialActions';
+import GlobalEditor from '@/components/editor/GlobalEditor';
 
 interface User {
     _id: string;
@@ -47,15 +48,16 @@ interface User {
 
 interface CreateCrowdProps {
     isOpen: boolean;
+    isPopup?: boolean;
     onClose: () => void;
 }
 
-const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
+const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
     const router = useRouter();
     const [findOrCreateChat, { isLoading: isCreatingChat }] =
         useFindOrCreateChatMutation();
     const searchRef = useRef<HTMLInputElement>(null);
-    const descriptionRef = useRef<MDXEditorMethods>(null);
+    const descriptionRef = useRef('');
     const [step, setStep] = useState<number>(1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isUserLoading, setIsUserLoading] = useState<boolean>(false);
@@ -70,7 +72,8 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+    console.log({ CrowdDescription: description });
     // Reset state when modal opens/closes
     useEffect(() => {
         if (!isOpen) {
@@ -98,6 +101,7 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
             findOrCreateChat(id)
                 .unwrap()
                 .then((res) => {
+                    console.log('Chat created:', res);
                     router.push(`/chat/${res.chat._id}`);
                 })
                 .catch((err) => {
@@ -173,14 +177,14 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
                 toast.error('Crowd name is required');
                 return;
             }
+            handleCreateCrowd();
+            // const latestDescription =
+            //     descriptionRef.current?.getMarkdown() || '';
+            // setDescription(latestDescription);
 
-            const latestDescription =
-                descriptionRef.current?.getMarkdown() || '';
-            setDescription(latestDescription);
-
-            setTimeout(() => {
-                handleCreateCrowd();
-            }, 10);
+            // setTimeout(() => {
+            //     handleCreateCrowd();
+            // }, 10);
         }
     }, [step, selectedUsers, name]);
     // Handle back
@@ -191,11 +195,13 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
             onClose();
         }
     }, [step, onClose]);
-
+    console.log('Description right before API call:', description);
+    console.log('Description type:', typeof description);
+    useEffect(() => {
+        descriptionRef.current = description;
+    }, [description]);
     // Create crowd with direct markdown editor content retrieval
     const handleCreateCrowd = useCallback(() => {
-        const currentDescription = descriptionRef.current?.getMarkdown() || '';
-
         if (selectedUsers.length < 2) {
             toast.error('Please select at least 2 users');
             return;
@@ -207,17 +213,17 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
         }
 
         setIsLoading(true);
-
+        console.log({ description });
         const userIds = selectedUsers.map((user) => user._id);
-
         const data = {
             name,
-            description: currentDescription,
+            description: descriptionRef.current || '',
             users: userIds,
             isReadOnly,
             isPublic,
+            avatar: avatarUrl || null,
         };
-
+        console.log('Payload being sent:', data);
         instance
             .post('/chat/channel/create', data)
             .then((res) => {
@@ -238,7 +244,15 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [name, isPublic, isReadOnly, selectedUsers, router, onClose]);
+    }, [
+        name,
+        description,
+        isPublic,
+        isReadOnly,
+        selectedUsers,
+        router,
+        onClose,
+    ]);
 
     // Render content based on current step
     const renderContent = () => {
@@ -259,7 +273,7 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
 
                     {/* Selected users */}
                     {selectedUsers.length > 0 && (
-                        <div className='flex flex-wrap gap-2 border-b m-2 pb-2'>
+                        <div className='flex flex-wrap gap-1 border-b border-forground-border m-2 pb-2 max-h-[200px] overflow-y-auto'>
                             {selectedUsers.map((user) => (
                                 <Badge
                                     key={user._id}
@@ -332,10 +346,10 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
                                     .map((user) => (
                                         <div
                                             key={user?._id}
-                                            className='flex items-center justify-between py-2'
+                                            className='flex items-center justify-between py-2 cursor-pointer'
                                             onClick={() => handleAddUser(user)}
                                         >
-                                            <div className='flex items-center gap-3'>
+                                            <div className='flex items-center gap-3 cursor-pointer'>
                                                 <TdUser user={user} />
                                             </div>
                                         </div>
@@ -500,15 +514,14 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
                                 Description
                             </Label>
                             <div className='w-full'>
-                                <MarkdownEditor
-                                    ref={descriptionRef}
-                                    className='w-full min-h-[150px] bg-background-foreground'
-                                    markdown={description}
-                                    onChange={() => {
-                                        const value =
-                                            descriptionRef.current?.getMarkdown();
-                                        setDescription(value || '');
+                                <GlobalEditor
+                                    // ref={descriptionRef}
+                                    value={description}
+                                    onChange={(value) => {
+                                        setDescription(value);
+                                        descriptionRef.current = value;
                                     }}
+                                    className='w-full min-h-[150px] bg-background-foreground'
                                     placeholder='Enter description'
                                 />
                             </div>
@@ -612,7 +625,13 @@ const CreateCrowd = ({ isOpen, onClose }: CreateCrowdProps) => {
         }
     };
 
-    return <div className='h-[calc(100vh-60px)] w-full'>{renderContent()}</div>;
+    return (
+        <div
+            className={`${isPopup ? 'h-full' : 'h-[calc(100vh-60px)]'} w-full`}
+        >
+            {renderContent()}
+        </div>
+    );
 };
 
 export default CreateCrowd;

@@ -75,7 +75,6 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
     // Add these new state variables at the beginning of the Message component:
     const [initialReplies, setInitialReplies] = useState([]);
-    console.log('initialRepiles', initialReplies);
     const [loadingReplies, setLoadingReplies] = useState(false);
     // Inside your component function, add these state variables
     const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
@@ -1022,7 +1021,16 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         )}
                                         {!hideAlign &&
                                             message?.sender?._id ===
-                                                user?._id && (
+                                                user?._id &&
+                                            (message?.text ||
+                                                (message?.files?.length > 0 &&
+                                                    !(
+                                                        message?.files
+                                                            ?.length === 1 &&
+                                                        message?.files[0]?.type?.startsWith(
+                                                            'audio/',
+                                                        )
+                                                    ))) && (
                                                 <DropdownMenuItem
                                                     className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
                                                     onClick={() => {

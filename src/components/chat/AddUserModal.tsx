@@ -39,9 +39,15 @@ interface AddUserModalProps {
     opened: boolean;
     handleCancel: () => void;
     channel: Channel;
+    onUserAdded?: () => void;
 }
 
-function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
+function AddUserModal({
+    opened,
+    handleCancel,
+    channel,
+    onUserAdded,
+}: AddUserModalProps) {
     const searchRef = useRef<HTMLInputElement>(null);
     const [searchedUser, setSearchedUser] = useState<User[]>([]);
     const [isUserLoading, setIsUserLoading] = useState(false);
@@ -91,7 +97,8 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
             instance
                 .patch(`/chat/channel/adduser/${channel._id}`, data)
                 .then((res) => {
-                    toast.success('Added successfully');
+                    const newUser = searchedUser.find((u) => u._id === userId);
+                    toast.success(`${newUser?.fullName || 'User'} is added`);
                     setAddingList((prev) => prev.filter((id) => id !== userId));
                     dispatch(
                         updateMembersCount({
@@ -99,7 +106,20 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
                             membersCount: channel.membersCount + 1,
                         }),
                     );
+                    if (newUser) {
+                        setAddedUsers((prev) => [
+                            ...prev,
+                            {
+                                user: {
+                                    _id: userId,
+                                    fullName: newUser.fullName,
+                                    profilePicture: newUser.profilePicture,
+                                },
+                            },
+                        ]);
+                    }
                     setUsers((prev) => [...prev, { user: { _id: userId } }]);
+                    onUserAdded?.();
                 })
                 .catch((err) => {
                     setAddingList((prev) => prev.filter((id) => id !== userId));
@@ -108,7 +128,7 @@ function AddUserModal({ opened, handleCancel, channel }: AddUserModalProps) {
                     );
                 });
         },
-        [channel, dispatch],
+        [channel, dispatch, searchedUser, onUserAdded],
     );
 
     const handleSearchUser = useCallback(

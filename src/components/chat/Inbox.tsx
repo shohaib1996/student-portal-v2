@@ -37,7 +37,7 @@ import {
 // Import directly instead of using lazy loading to avoid the initial loading state
 import ChatBody from './ChatBody';
 import { EventPopoverTrigger } from '../calendar/CreateEvent/EventPopover';
-import instance from '@/utils/storage';
+import { instance } from '@/lib/axios/axiosInstance';
 
 dayjs.extend(relativeTime);
 

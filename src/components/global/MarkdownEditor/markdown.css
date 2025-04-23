@@ -82,3 +82,65 @@
 .dark .wmde-markdown ol {
     color: inherit;
 }
+
+/* ------------------- markdown editor's list styles ------------------- */
+
+/* Base styling for all lists */
+.ContentEditable__root ul,
+.ContentEditable__root ol {
+    margin-left: 20px !important;
+    display: block !important;
+}
+
+/* Unordered list styles */
+.ContentEditable__root ul {
+    list-style-type: disc !important; /* Default bullet style */
+}
+
+.ContentEditable__root ul.checkbox {
+    list-style-type: none !important;
+}
+
+.ContentEditable__root ul.checkbox li::before {
+    content: '☐' !important;
+    margin-right: 5px !important;
+    display: inline-block !important;
+}
+
+.ContentEditable__root ul.checkbox li.checked::before {
+    content: '☑' !important;
+}
+
+.ContentEditable__root ul.circle {
+    list-style-type: circle !important;
+}
+
+.ContentEditable__root ul.square {
+    list-style-type: square !important;
+}
+
+/* Ordered list styles */
+.ContentEditable__root ol {
+    list-style-type: decimal !important; /* Default number style */
+}
+
+.ContentEditable__root ol.upper-alpha {
+    list-style-type: upper-alpha !important;
+}
+
+.ContentEditable__root ol.lower-alpha {
+    list-style-type: lower-alpha !important;
+}
+
+.ContentEditable__root ol.upper-roman {
+    list-style-type: upper-roman !important;
+}
+
+.ContentEditable__root ol.lower-roman {
+    list-style-type: lower-roman !important;
+}
+
+/* Ensure list items display properly */
+.ContentEditable__root li {
+    display: list-item !important;
+}
