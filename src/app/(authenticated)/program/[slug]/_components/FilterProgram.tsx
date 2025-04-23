@@ -9,58 +9,95 @@ interface FilterOption {
     id: string;
     label: string;
     checked: boolean;
-    value: string;
+    property: string; // The actual property name in the data
+    value: any; // The value to check for
+}
+
+// Fixed props interface for FilterProgram
+interface FilterProgramProps {
+    setFilterOption: React.Dispatch<
+        React.SetStateAction<Array<{ property: string; value: any }>>
+    >;
+    filterOption: Array<{ property: string; value: any }>;
 }
 
 const FilterProgram = ({
     setFilterOption,
     filterOption,
-}: {
-    setFilterOption: React.Dispatch<React.SetStateAction<{ filter: string }[]>>;
-    filterOption: { filter: string }[];
-}) => {
+}: FilterProgramProps) => {
     const [isOpen, setIsOpen] = React.useState(false);
 
+    // Updated filters to match the JSON data structure
     const [filters, setFilters] = React.useState<FilterOption[]>([
-        { id: 'all', label: 'All', value: '', checked: true },
-        { id: 'focused', label: 'Focused', value: 'focused', checked: false },
-        { id: 'pinned', label: 'Pinned', value: 'pinned', checked: false },
+        { id: 'all', label: 'All', property: '', value: '', checked: true },
         {
-            id: 'newContents',
-            label: 'New Contents',
-            value: 'newly updated',
+            id: 'focused',
+            label: 'Focused',
+            property: 'isFocused',
+            value: true,
+            checked: false,
+        },
+        {
+            id: 'pinned',
+            label: 'Pinned',
+            property: 'isPinned',
+            value: true,
             checked: false,
         },
         {
             id: 'completed',
             label: 'Completed',
-            value: 'completed',
+            property: 'isCompleted',
+            value: true,
             checked: false,
         },
         {
             id: 'incomplete',
             label: 'Incomplete',
-            value: 'incomplete',
+            property: 'isCompleted',
+            value: false,
             checked: false,
         },
-        { id: 'summary', label: 'Summary', value: 'summary', checked: false },
-        { id: 'share', label: 'Share', value: 'share', checked: false },
+        {
+            id: 'locked',
+            label: 'Locked',
+            property: 'isLocked',
+            value: true,
+            checked: false,
+        },
+        {
+            id: 'special',
+            label: 'Special',
+            property: 'isSpecial',
+            value: true,
+            checked: false,
+        },
+        {
+            id: 'free',
+            label: 'Free Content',
+            property: 'chapter.isFree',
+            value: true,
+            checked: false,
+        },
         {
             id: 'highPriority',
             label: 'High Priority',
-            value: 'highPriority',
+            property: 'priority',
+            value: 3,
             checked: false,
         },
         {
             id: 'mediumPriority',
             label: 'Medium Priority',
-            value: 'mediumPriority',
+            property: 'priority',
+            value: 2,
             checked: false,
         },
         {
             id: 'lowPriority',
             label: 'Low Priority',
-            value: 'lowPriority',
+            property: 'priority',
+            value: 1,
             checked: false,
         },
     ]);
@@ -107,10 +144,16 @@ const FilterProgram = ({
         const activeFilters = filters.filter(
             (f) => f.checked && f.id !== 'all',
         );
+
         if (activeFilters.length === 0) {
-            setFilterOption([{ filter: '' }]);
+            setFilterOption([]);
         } else {
-            setFilterOption(activeFilters.map((f) => ({ filter: f.value })));
+            setFilterOption(
+                activeFilters.map((f) => ({
+                    property: f.property,
+                    value: f.value,
+                })),
+            );
         }
     }, [filters, setFilterOption]);
 
@@ -155,7 +198,7 @@ const FilterProgram = ({
                                 <div
                                     key={filter.id}
                                     className={cn(
-                                        'flex items-center space-x-2 p-2 rounded-md',
+                                        'flex items-center space-x-2 p-2 rounded-md cursor-pointer',
                                         filter.checked
                                             ? 'bg-primary-light text-primary-white'
                                             : 'hover:bg-foreground',
@@ -190,7 +233,7 @@ const FilterProgram = ({
                                     </div>
                                     <span
                                         className={cn(
-                                            'text-sm cursor-pointer',
+                                            'text-sm',
                                             filter.checked
                                                 ? 'text-primary-white font-medium'
                                                 : 'text-dark-gray',

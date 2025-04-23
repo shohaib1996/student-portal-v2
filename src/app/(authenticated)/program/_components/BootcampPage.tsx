@@ -189,7 +189,8 @@ const ProgramStats = ({
                         </div>
                         <div>
                             <p className='text-sm text-black'>
-                                {item?.category?.name || 'Category'}
+                                {item?.category?.name + ' & Lessons' ||
+                                    'Category'}
                             </p>
                             <h4 className='text-xl font-semibold'>
                                 {item?.totalItems || 0}

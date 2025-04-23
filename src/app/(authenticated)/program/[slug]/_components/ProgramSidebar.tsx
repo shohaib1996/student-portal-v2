@@ -15,20 +15,26 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { TBootcampResult, TProgram } from '@/types';
+import { ChapterData, TBootcampResult, TProgram } from '@/types';
 import { useGetPortalDataQuery } from '@/redux/api/dashboard/calendarApi';
 import FocusedIcon from '@/components/svgs/common/FocusedIcon';
 
 interface CourseSidebarProps {
     courseData: TProgram;
     onToggle?: () => void;
+    fetchedData: ChapterData[] | undefined;
 }
 
-export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
+export function ProgramSidebar({
+    courseData,
+    onToggle,
+    fetchedData,
+}: CourseSidebarProps) {
     const [showCompleted, setShowCompleted] = useState(true);
     const { data, isLoading, error } = useGetPortalDataQuery({ bootcamp: {} });
     const bootcamp: TBootcampResult[] = data?.data?.bootcamp?.results;
 
+    console.log({ bootcamp, courseData, fetchedData });
     const totalCompleted = bootcamp?.reduce(
         (acc, curr) => acc + Number(curr.completedItems),
         0,
@@ -56,6 +62,21 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                 100,
         ),
     };
+
+    // Alternatively, count all priorities in a single pass
+    const priorityCounts = fetchedData?.reduce(
+        (acc, cur) => {
+            if (cur.priority === 3) {
+                acc.high += 1;
+            } else if (cur.priority === 2) {
+                acc.medium += 1;
+            } else if (cur.priority === 1) {
+                acc.low += 1;
+            }
+            return acc;
+        },
+        { high: 0, medium: 0, low: 0 },
+    ) || { high: 0, medium: 0, low: 0 };
 
     return (
         <div className='overflow-y-auto w-full pr-2'>
@@ -171,7 +192,7 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         {newData?.totalPinned}
                     </span>
                 </div>
-                {/* <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
+                <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
                     <div className='flex items-center gap-1 text-sm text-dark-gray'>
                         <div>
                             <Image
@@ -184,11 +205,10 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         <span className=''>High Priority</span>
                     </div>
                     <span className='text-sm text-black'>
-                        12
-                        {courseData?.priorities?.high}
+                        {priorityCounts?.high || 0}
                     </span>
-                </div> */}
-                {/* <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
+                </div>
+                <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
                     <div className='flex items-center gap-1 text-sm text-dark-gray'>
                         <div>
                             <Image
@@ -201,11 +221,10 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         <span className=''>Medium Priority</span>
                     </div>
                     <span className='text-sm text-black'>
-                        {courseData?.priorities?.medium}
-                        10
+                        {priorityCounts?.medium || 0}
                     </span>
-                </div> */}
-                {/* <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
+                </div>
+                <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
                     <div className='flex items-center gap-1 text-sm text-dark-gray'>
                         <div>
                             <Image
@@ -218,9 +237,9 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         <span className=''>Low Priority</span>
                     </div>
                     <span className='text-sm text-black'>
-                        {courseData?.priorities?.low}3
+                        {priorityCounts?.low || 0}
                     </span>
-                </div> */}
+                </div>
             </div>
 
             <Separator className='my-2 bg-border' />
@@ -301,28 +320,28 @@ export function ProgramSidebar({ courseData, onToggle }: CourseSidebarProps) {
                         </div>
                         <div className='space-y-1'>
                             <h4 className='text-sm font-medium text-black'>
-                                {courseData?.focusedLesson?.title}
+                                {courseData?.focusedLesson?.title}dfdfd
                             </h4>
                             <div className='flex items-center gap-2 text-xs text-gray'>
                                 <div className='flex items-center gap-1'>
                                     <Calendar className='h-4 w-4 text-dark-gray' />
                                     <span>
-                                        {courseData?.focusedLesson?.date}
+                                        {courseData?.focusedLesson?.date}xxx
                                     </span>
                                 </div>
                                 <div className='flex items-center gap-1'>
                                     <Clock className='h-4 w-4 text-dark-gray' />
                                     <span>
-                                        {courseData?.focusedLesson?.time}
+                                        {courseData?.focusedLesson?.time}xx
                                     </span>
                                 </div>
                                 <span className=''>
-                                    {courseData?.focusedLesson?.duration}
+                                    {courseData?.focusedLesson?.duration}xxx
                                 </span>
                             </div>
                         </div>
                         <Badge className='text-red-600 border-red-600 text-[10px] font-medium px-1 border bg-transparent'>
-                            {courseData?.focusedLesson?.tags[0]}
+                            {courseData?.focusedLesson?.tags[0]}xxx
                         </Badge>
                     </div>
                     <Separator className='my-2.5' />

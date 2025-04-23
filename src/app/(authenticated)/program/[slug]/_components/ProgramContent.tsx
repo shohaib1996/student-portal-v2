@@ -1,4 +1,11 @@
-import { ICourseData, TContent, TCourse, TLessonInfo, TProgram } from '@/types';
+import {
+    ICourseData,
+    TContent,
+    TCourse,
+    TLessonInfo,
+    TProgram,
+    ChapterData,
+} from '@/types';
 import { useEffect, useState, useCallback } from 'react';
 import { ProgramSidebar } from './ProgramSidebar';
 import { Input } from '@/components/ui/input';
@@ -9,8 +16,6 @@ import { Button } from '@/components/ui/button';
 import ContentDropDown from './ContentDropDown';
 import VideoContent from './VideoContent';
 import FilterProgram from './FilterProgram';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
 
 const ProgramContent = ({
     selectedTab,
@@ -18,6 +23,8 @@ const ProgramContent = ({
     fetchedData,
     courseContentData,
     refetchCourseContent,
+    setFilterOption,
+    filterOption,
 }: {
     option: {
         isLoading: boolean;
@@ -25,21 +32,22 @@ const ProgramContent = ({
         courseProgramsLoading: boolean;
     };
     refetchCourseContent: () => void;
-
     selectedTab: { tab: string; value: string };
-    fetchedData: TContent[] | null;
+    fetchedData: ChapterData[] | undefined;
     courseContentData: ICourseData | undefined;
+    setFilterOption: React.Dispatch<
+        React.SetStateAction<Array<{ property: string; value: any }>>
+    >;
+    filterOption: Array<{ property: string; value: any }>;
 }) => {
     const courseData = courseContentData?.course;
+
+    console.log({ courseData });
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [isPinnedEyeOpen, setIsPinnedEyeOpen] = useState(false);
 
-    // Setup form
-    const form = useForm({
-        defaultValues: {
-            search: '',
-        },
-    });
+    // State for search functionality
+    const [searchInput, setSearchInput] = useState<string>('');
 
     // NEW: Add local completion state for instant UI updates
     const [localCompletionState, setLocalCompletionState] = useState<
@@ -49,24 +57,15 @@ const ProgramContent = ({
     const [videoData, setVideoData] = useState<{
         videoInfo: null | TLessonInfo;
         isSideOpen: boolean;
-        item: TContent;
+        item: ChapterData;
         contentId: string | null;
     }>({
         videoInfo: null,
         isSideOpen: false,
-        item: {} as TContent,
+        item: {} as ChapterData,
         contentId: null,
     });
-    const [searchInput, setSearchInput] = useState<string>('');
-    const [filterOption, setFilterOption] = useState<
-        {
-            filter: string;
-        }[]
-    >([
-        {
-            filter: '',
-        },
-    ]);
+
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
     };
@@ -79,13 +78,37 @@ const ProgramContent = ({
         }
     }, [refetchCourseContent]);
 
-    // NEW: Function to handle progress updates
+    // Filter chapters based on search input
+    const getFilteredChapters = useCallback(() => {
+        if (!fetchedData) {
+            return [];
+        }
+
+        // First apply search filter
+        let filteredResults = fetchedData;
+
+        if (searchInput.trim() !== '') {
+            const searchTerm = searchInput.toLowerCase().trim();
+            filteredResults = fetchedData.filter(
+                (chapter) =>
+                    chapter.chapter?.name?.toLowerCase().includes(searchTerm) ||
+                    chapter.chapter?.description
+                        ?.toLowerCase()
+                        .includes(searchTerm),
+            );
+        }
+
+        return filteredResults;
+    }, [fetchedData, searchInput]);
 
     useEffect(() => {
         if (videoData?.isSideOpen) {
             setSidebarOpen(false);
         }
     }, [videoData?.isSideOpen]);
+
+    // Get filtered chapters
+    const filteredChapters = getFilteredChapters();
 
     return (
         <div className='p-2 flex relative bg-foreground'>
@@ -100,6 +123,7 @@ const ProgramContent = ({
                     <ProgramSidebar
                         courseData={courseData as any}
                         onToggle={toggleSidebar}
+                        fetchedData={fetchedData}
                     />
                 )}
             </div>
@@ -132,6 +156,7 @@ const ProgramContent = ({
                                 <div className='p-4'>
                                     <ProgramSidebar
                                         courseData={courseData as any}
+                                        fetchedData={fetchedData}
                                     />
                                 </div>
                             </SheetContent>
@@ -161,24 +186,24 @@ const ProgramContent = ({
                         </div>
                     </div>
                     <div className='flex flex-row items-start md:items-center gap-3'>
-                        {/* Search Form */}
-
+                        {/* Search Input */}
                         <div className='relative'>
                             <Search className='h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray' />
                             <Input
                                 onChange={(e) => setSearchInput(e.target.value)}
                                 placeholder='Search chapter & modules...'
                                 className='pl-9 w-[280px] md:w-[300px] border-border rounded-lg text-dark-gray placeholder:text-dark-gray bg-foreground'
-                                value={searchInput ?? ''}
+                                value={searchInput}
                             />
                             {searchInput?.length > 0 && (
                                 <X
-                                    className='h-4 w-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray'
-                                    onClick={(e) => setSearchInput('')}
+                                    className='h-4 w-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray cursor-pointer'
+                                    onClick={() => setSearchInput('')}
                                 />
                             )}
                         </div>
 
+                        {/* Filter Component */}
                         <FilterProgram
                             filterOption={filterOption}
                             setFilterOption={setFilterOption}
@@ -191,12 +216,11 @@ const ProgramContent = ({
                 >
                     {videoData?.isSideOpen && (
                         <VideoContent
-                            videoData={videoData}
-                            setVideoData={setVideoData}
+                            videoData={videoData as any}
+                            setVideoData={setVideoData as any}
                             isPinnedEyeOpen={isPinnedEyeOpen}
                             setIsPinnedEyeOpen={setIsPinnedEyeOpen}
                             refreshData={refreshData}
-                            // NEW: Pass progress update handler
                         />
                     )}
 
@@ -213,21 +237,33 @@ const ProgramContent = ({
                                 strokeWidth='2'
                                 strokeLinecap='round'
                                 strokeLinejoin='round'
-                                className='animate-spin stroke-primary'
+                                className='animate-spin stroke-primary ml-2'
                             >
                                 <path d='M21 12a9 9 0 1 1-6.219-8.56' />
                             </svg>
                         </div>
+                    ) : !fetchedData || fetchedData.length === 0 ? (
+                        <div className='text-center py-8 text-dark-gray'>
+                            {filterOption.length > 0 ||
+                            searchInput.trim() !== ''
+                                ? 'No chapters match your search or filter criteria'
+                                : 'No chapters available for this section'}
+                        </div>
+                    ) : filteredChapters.length === 0 ? (
+                        <div className='text-center py-8 text-dark-gray'>
+                            No chapters match your search criteria
+                        </div>
                     ) : (
                         <ContentDropDown
-                            fetchedData={fetchedData}
+                            fetchedData={filteredChapters as any}
                             option={option}
-                            setVideoData={setVideoData}
+                            setVideoData={setVideoData as any}
                             setIsPinnedEyeOpen={setIsPinnedEyeOpen}
-                            videoData={videoData}
+                            videoData={videoData as any}
                             searchInput={searchInput}
                             filterOption={filterOption}
-                            // NEW: Pass progress update handler and local state
+                            localCompletionState={localCompletionState}
+                            setLocalCompletionState={setLocalCompletionState}
                         />
                     )}
                 </div>
