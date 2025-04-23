@@ -116,7 +116,9 @@ const ProgramContent = ({
             <div
                 className={cn(
                     'transition-all duration-300 ease-in-out border-r border-border hidden lg:block',
-                    sidebarOpen ? 'w-[350px]' : 'w-0 opacity-0 overflow-hidden',
+                    sidebarOpen
+                        ? 'w-[350px] '
+                        : 'w-0 opacity-0 overflow-hidden ',
                 )}
             >
                 {sidebarOpen && (
@@ -135,7 +137,7 @@ const ProgramContent = ({
                     sidebarOpen ? 'lg:pl-2' : 'pl-0',
                 )}
             >
-                <div className='flex flex-col lg:flex-row justify-between items-start md:items-center mb-2'>
+                <div className='flex flex-col xl:flex-row justify-between items-start  mb-2 lg:gap-2 xl:gap-0'>
                     {/* Desktop Sidebar Toggle */}
                     <div className='flex items-start lg:items-center gap-2'>
                         {/* Mobile Sidebar */}
@@ -152,7 +154,10 @@ const ProgramContent = ({
                                     </span>
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent side='left' className='w-[280px] p-0'>
+                            <SheetContent
+                                side='left'
+                                className='w-[280px] p-0 overflow-y-auto'
+                            >
                                 <div className='p-4'>
                                     <ProgramSidebar
                                         courseData={courseData as any}

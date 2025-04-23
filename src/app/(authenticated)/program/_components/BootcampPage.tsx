@@ -128,7 +128,11 @@ const ProgressStats = ({
                 {inProgress || 0}%
             </span>
         </div>
-        <Progress value={inProgress || 0} className='h-2 mb-2 bg-background' />
+        <Progress
+            value={inProgress || 0}
+            className='h-2 mb-2 bg-background'
+            indicatorClass='bg-primary-white'
+        />
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <div className='bg-green-50 dark:bg-background rounded-lg p-4 flex items-center gap-2.5'>
                 <div className='h-10 w-10 flex items-center justify-center rounded-sm bg-green-100 dark:bg-foreground'>

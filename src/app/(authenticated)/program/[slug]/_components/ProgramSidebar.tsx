@@ -79,7 +79,7 @@ export function ProgramSidebar({
     ) || { high: 0, medium: 0, low: 0 };
 
     return (
-        <div className='overflow-y-auto w-full pr-2'>
+        <div className='w-full pr-2 '>
             <div className='flex items-center justify-between mb-4'>
                 <div className='flex items-center gap-1'>
                     <Check className='h-4 w-4 text-green-500' />
@@ -132,7 +132,7 @@ export function ProgramSidebar({
                     <p className='text-sm text-gray my-2'>
                         {courseData?.shortDetail}
                     </p>
-                    <div className='flex items-center gap-1 text-[10px] text-dark-gray'>
+                    {/* <div className='flex items-center gap-1 text-[10px] text-dark-gray'>
                         <div className='flex -space-x-2'>
                             <Avatar className='h-6 w-6 border border-border'>
                                 <AvatarImage
@@ -164,7 +164,7 @@ export function ProgramSidebar({
                             </Avatar>
                         </div>
                         <span>{10} + enrolled students</span>
-                    </div>
+                    </div> */}
                 </div>
             </div>
             <Separator className='my-2 bg-border' />
