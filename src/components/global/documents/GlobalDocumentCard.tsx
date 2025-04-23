@@ -22,6 +22,7 @@ export interface GlobalDocumentCardProps {
     readTime?: number;
     categories?: string[];
     attachment?: string[] | [];
+    thumbnail?: string;
     imageUrl?: string;
     description?: string;
     authorAvatar?: string;
@@ -42,6 +43,7 @@ export function GlobalDocumentCard({
     readTime = 2,
     categories = ['Document'],
     imageUrl = '/default_image.png',
+    thumbnail,
     attachment = [''],
     description,
     authorAvatar = '/avatar.png',
@@ -52,7 +54,7 @@ export function GlobalDocumentCard({
 }: GlobalDocumentCardProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { data } = useGetMySingleDocumentQuery(searchParams.get('id') || '');
+    // const { data } = useGetMySingleDocumentQuery(searchParams.get('id') || '');
     const [des, setDes] = useState(description);
 
     useEffect(() => {
@@ -92,6 +94,7 @@ export function GlobalDocumentCard({
     const getImageUrl = attachment?.find((file) =>
         imageExtensions.some((ext) => file?.toLowerCase().includes(ext)),
     );
+
     return (
         <Card className='overflow-hidden'>
             <div className='cursor-pointer' onClick={handleReadMore}>
@@ -107,21 +110,15 @@ export function GlobalDocumentCard({
                                     {category}
                                 </Badge>
                             ))}
-                            {/* <div className='flex flex-row items-center gap-2'>
-                                <Button
-                                    onClick={handleEdit}
-                                    className='h-6 w-6 rounded-full bg-primary-light hover:bg-primary'
-                                >
-                                    <PencilLine size={14} />
-                                </Button>
-                                <Button className='h-6 w-6 rounded-full bg-red-500/70 hover:bg-red-500'>
-                                    <Trash size={14} />
-                                </Button>
-                            </div> */}
                         </div>
                     </div>
                     <Image
-                        src={getImageUrl || imageUrl || '/default_image.png'}
+                        src={
+                            thumbnail ||
+                            imageUrl ||
+                            getImageUrl ||
+                            '/default_image.png'
+                        }
                         alt={title || 'thumbnail'}
                         width={400}
                         height={200}

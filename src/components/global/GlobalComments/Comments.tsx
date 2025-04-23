@@ -181,7 +181,7 @@ const Comments = ({
                             <h4 style={{ display: 'block' }}>
                                 {user?.fullName}
                             </h4>
-                            <p>{text}</p>
+                            <p className='whitespace-pre-wrap'>{text}</p>
                         </div>
                     )}
                     <Popover>

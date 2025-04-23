@@ -55,96 +55,92 @@ const DiagramComponent = () => {
         return <div>Something went wrong!</div>;
     }
 
-    const defaultColumns: TCustomColumnDef<DiagramType>[] = [
-        {
-            accessorKey: 'index',
-            header: '#',
-            cell: ({ row }) => (
-                <span>
-                    {row.index < 9 && 0}
-                    {row.index + 1}
-                </span>
-            ),
-            footer: (data) => data.column.id,
-            id: 'index',
-            visible: true,
-            canHide: false,
-        },
-        {
-            accessorKey: 'title',
-            header: 'Title',
-            cell: ({ row }) => <p>{row.original.title}</p>,
-            visible: true,
-            id: 'title',
-            footer: (data) => data.column.id,
-            canHide: false,
-        },
-        {
-            accessorKey: 'isActive',
-            header: 'Status',
-            cell: ({ row }) => {
-                const isActive = row.original.isActive;
-                return (
-                    <div className='flex items-center gap-1'>
-                        {isActive ? (
-                            <span className='text-primary-white text-xs font-medium p-1 bg-primary-light bg-opacity-10 rounded-full py-1 px-2'>
-                                Active
-                            </span>
-                        ) : (
-                            <span className='text-red-500 text-xs font-medium p-1 bg-primary-light bg-opacity-10 rounded-full py-1 px-2'>
-                                Inactive
-                            </span>
-                        )}
+    const defaultColumns: TCustomColumnDef<DiagramType & { serial: number }>[] =
+        [
+            {
+                accessorKey: 'serial',
+                header: 'Serial No',
+                cell: ({ row }) => <span>{row.original.serial}</span>,
+                footer: (data) => data.column.id,
+                id: 'index',
+                visible: true,
+                canHide: false,
+            },
+            {
+                accessorKey: 'title',
+                header: 'Title',
+                cell: ({ row }) => <p>{row.original.title}</p>,
+                visible: true,
+                id: 'title',
+                footer: (data) => data.column.id,
+                canHide: false,
+            },
+            {
+                accessorKey: 'isActive',
+                header: 'Status',
+                cell: ({ row }) => {
+                    const isActive = row.original.isActive;
+                    return (
+                        <div className='flex items-center gap-1'>
+                            {isActive ? (
+                                <span className='text-primary-white text-xs font-medium p-1 bg-primary-light bg-opacity-10 rounded-full py-1 px-2'>
+                                    Active
+                                </span>
+                            ) : (
+                                <span className='text-red-500 text-xs font-medium p-1 bg-primary-light bg-opacity-10 rounded-full py-1 px-2'>
+                                    Inactive
+                                </span>
+                            )}
+                        </div>
+                    );
+                },
+                visible: true,
+                id: 'isActive',
+                footer: (data) => data.column.id,
+            },
+            {
+                accessorKey: 'uploadedBy',
+                header: 'Uploaded By',
+                cell: ({ row }) => {
+                    const createdBy = row.original.createdBy;
+                    return <span>N/A</span>;
+                },
+                footer: (data) => data.column.id,
+                id: 'uploadedBy',
+                visible: true,
+            },
+            {
+                accessorKey: 'uploadedAt',
+                header: 'Uploaded Date',
+                cell: ({ row }) => <TdDate date={row.original.createdAt} />,
+                footer: (data) => data.column.id,
+                id: 'uploadedAt',
+                visible: true,
+            },
+            {
+                accessorKey: 'action',
+                header: 'Action',
+                cell: ({ row }) => (
+                    <div className='flex gap-2 items-center'>
+                        <Button
+                            variant='default'
+                            tooltip='View'
+                            onClick={() =>
+                                router.push(
+                                    `/architecture-diagram/preview/${row.original._id}`,
+                                )
+                            }
+                            icon={<Eye size={18} />}
+                        >
+                            View
+                        </Button>
                     </div>
-                );
+                ),
+                footer: (data) => data.column.id,
+                id: 'action',
+                visible: true,
             },
-            visible: true,
-            id: 'isActive',
-            footer: (data) => data.column.id,
-        },
-        {
-            accessorKey: 'uploadedBy',
-            header: 'Uploaded By',
-            cell: ({ row }) => {
-                const createdBy = row.original.createdBy;
-                return <span>N/A</span>;
-            },
-            footer: (data) => data.column.id,
-            id: 'uploadedBy',
-            visible: true,
-        },
-        {
-            accessorKey: 'uploadedAt',
-            header: 'Uploaded Date',
-            cell: ({ row }) => <TdDate date={row.original.createdAt} />,
-            footer: (data) => data.column.id,
-            id: 'uploadedAt',
-            visible: true,
-        },
-        {
-            accessorKey: 'action',
-            header: 'Action',
-            cell: ({ row }) => (
-                <div className='flex gap-2 items-center'>
-                    <Button
-                        variant='default'
-                        tooltip='View'
-                        onClick={() =>
-                            router.push(
-                                `/architecture-diagram/preview/${row.original._id}`,
-                            )
-                        }
-                        icon={<Eye size={18} />}
-                    >
-                        View
-                    </Button>
-                </div>
-            ),
-            footer: (data) => data.column.id,
-            id: 'action',
-            visible: true,
-        },
-    ];
+        ];
 
     const handleFilter = (
         conditions: TConditions[],
@@ -161,7 +157,7 @@ const DiagramComponent = () => {
     };
 
     return (
-        <div className=''>
+        <div className='pt-2'>
             <GlobalHeader
                 title='Architecture Diagrams'
                 subTitle='Visualizing System Structure for Clear Understanding'
@@ -192,11 +188,11 @@ const DiagramComponent = () => {
                             onChange={handleFilter}
                             columns={[
                                 {
-                                    label: 'Search (Name/Creator)',
+                                    label: 'Search (Name/Uploaded By)',
                                     value: 'query',
                                 },
                                 {
-                                    label: 'Creation Date',
+                                    label: 'Upload Date',
                                     value: 'date',
                                 },
                             ]}
@@ -225,7 +221,10 @@ const DiagramComponent = () => {
                     isLoading={isLoading || isFetching}
                     tableName='diagrams-table'
                     defaultColumns={defaultColumns}
-                    data={myDiagrams}
+                    data={myDiagrams?.map((item: any, i: number) => ({
+                        ...item,
+                        serial: i + 1 + (currentPage - 1) * limit,
+                    }))}
                 />
             )}
 

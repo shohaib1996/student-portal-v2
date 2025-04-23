@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
 import Image from 'next/image';
 import {
     ArrowLeft,
@@ -24,6 +24,7 @@ import dayjs from 'dayjs';
 import { toast } from 'sonner';
 import GlobalDeleteModal from '@/components/global/GlobalDeleteModal';
 import {
+    UploadDoc,
     useDeleteUserDocumentMutation,
     useGetSingleUpdatedDocumentByIdQuery,
     useGetSingleUploadDocumentQuery,
@@ -47,6 +48,7 @@ export interface DocumentDetailsProps {
     documentId: string | null;
     mode?: 'view' | 'edit' | 'add';
     relatedDocuments?: any[];
+    setSelected: Dispatch<SetStateAction<UploadDoc | null>>;
 }
 
 export function UploadedDocumentDetailsModal({
@@ -55,6 +57,7 @@ export function UploadedDocumentDetailsModal({
     documentId,
     mode = 'view',
     relatedDocuments,
+    setSelected,
 }: DocumentDetailsProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [activeSection, setActiveSection] = useState<string>('');
@@ -195,43 +198,10 @@ export function UploadedDocumentDetailsModal({
 
     const content = formatDocumentData();
 
-    // Placeholder tags
-    const allTags = [
-        'development',
-        'technical test',
-        'web development',
-        'resources',
-        'devops',
-    ];
-
     const handleEditClick = () => {
-        if (id) {
-            router.push(`?documentId=${id}&mode=edit`);
-            setIsEditModalOpen(true);
-        } else {
-            setIsEditModalOpen(true);
-        }
-    };
-
-    const handleEditModalClose = () => {
-        if (id) {
-            router.push(`?documentId=${id}&mode=view`);
-        }
-        setIsEditModalOpen(false);
-    };
-
-    const handleDelete = async () => {
-        try {
-            if (!id) {
-                return;
-            }
-            await deleteUserDocument(id).unwrap();
-            toast.success('Document successfully deleted!');
-            onClose();
-        } catch (error) {
-            console.error(error);
-            toast.error('Failed to delete document');
-        }
+        setSelected(apiData?.document);
+        router.push('/upload-documents');
+        onClose();
     };
 
     // Extract headings from content for table of contents
@@ -294,7 +264,7 @@ export function UploadedDocumentDetailsModal({
     const documentTags =
         Array.isArray(content?.tags) && content.tags.length > 0
             ? content.tags
-            : allTags;
+            : [];
 
     // Extract headings for table of contents
     const headings = content ? extractHeadings(content.content) : [];
@@ -396,7 +366,7 @@ export function UploadedDocumentDetailsModal({
 
                     {/* Main content */}
                     <div className='flex-1 overflow-y-auto p-4 document-container'>
-                        <div className='max-w-6xl mx-auto'>
+                        <div className='mx-auto'>
                             {/* Top section - full width */}
                             <div className='mb-6'>
                                 {/* Created date */}
@@ -743,35 +713,6 @@ export function UploadedDocumentDetailsModal({
                     </div>
                 </div>
             </GlobalDocumentDetailsModal>
-
-            {/* Edit Modal */}
-            {content && (
-                <EditDocumentModal
-                    isOpen={isEditModalOpen}
-                    onClose={handleEditModalClose}
-                    defaultValues={{
-                        description: content.content,
-                        name: content.title,
-                        categories: Array.isArray(content.tags)
-                            ? content.tags.slice(0, 2)
-                            : [],
-                        tags: Array.isArray(content.tags)
-                            ? content.tags.join(', ')
-                            : '',
-                        thumbnailUrl: content.imageUrl,
-                        attachedFileUrls: Array.isArray(content.attachedFiles)
-                            ? content.attachedFiles.map(
-                                  (file: {
-                                      id: string;
-                                      name: string;
-                                      type: string;
-                                      size: string;
-                                  }) => file.name,
-                              )
-                            : [],
-                    }}
-                />
-            )}
         </>
     );
 }

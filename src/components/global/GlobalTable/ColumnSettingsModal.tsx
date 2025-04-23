@@ -1,4 +1,10 @@
-import React, { Dispatch, ReactNode, SetStateAction, useState } from 'react';
+import React, {
+    Dispatch,
+    ReactNode,
+    SetStateAction,
+    useEffect,
+    useState,
+} from 'react';
 import GlobalModal from '../GlobalModal';
 import { Button } from '@/components/ui/button';
 import CrossCircle from '@/components/svgs/common/CrossCircle';
@@ -196,6 +202,12 @@ const ColumnSettingsModal = ({ open, setOpen, tableName }: TProps) => {
         setOpen(false);
     };
 
+    useEffect(() => {
+        if (columnData?.columns) {
+            setLocalColumns(columnData?.columns);
+        }
+    }, [columnData?.columns]);
+
     const sensors = useSensors(
         useSensor(TouchSensor),
         useSensor(PointerSensor),
@@ -216,20 +228,17 @@ const ColumnSettingsModal = ({ open, setOpen, tableName }: TProps) => {
             subTitle='Adjust and organize columns'
             buttons={
                 <div className='flex gap-2 items-center'>
-                    <Button
+                    {/* <Button
                         className='text-gray stroke-gray'
                         variant={'secondary'}
                         onClick={() => setOpen(false)}
                     >
                         <CrossCircle />
                         Cancel
-                    </Button>
+                    </Button> */}
                     <Button onClick={handleSave} variant={'default'}>
-                        <SaveIcon />
+                        <SaveIcon className='stroke-pure-white' />
                         Save Changes
-                    </Button>
-                    <Button variant={'secondary'} size={'icon'}>
-                        <ThreeDotIcon className='stroke-primary' />
                     </Button>
                 </div>
             }
@@ -340,7 +349,6 @@ const ColumnSettingsModal = ({ open, setOpen, tableName }: TProps) => {
                                 .map((d) => ({
                                     ...d,
                                     id: d.id as string,
-                                    key: d.id as string,
                                 }))}
                             strategy={verticalListSortingStrategy}
                         >

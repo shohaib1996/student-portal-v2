@@ -3,9 +3,10 @@ import { baseApi } from '../baseApi';
 const myAudioVideo = baseApi.injectEndpoints({
     endpoints: (build) => ({
         myAudioVideo: build.query({
-            query: () => ({
-                url: 'media/mymedia?page=1&limit=8',
+            query: (params: any) => ({
+                url: 'media/mymedia',
                 method: 'GET',
+                params,
             }),
         }),
         createComments: build.mutation({

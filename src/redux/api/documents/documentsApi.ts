@@ -61,7 +61,7 @@ export interface MyDocumentResponse {
     };
 }
 
-interface UploadDoc {
+export interface UploadDoc {
     _id: string;
     name: string;
     description: string;
@@ -71,6 +71,7 @@ interface UploadDoc {
     createdAt: string;
     updatedAt: string;
     attachment: any[];
+    thumbnail: string;
     comments: any[];
 }
 

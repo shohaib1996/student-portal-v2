@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { useUploadUserDocumentFileMutation } from '@/redux/api/documents/documentsApi';
 import { Loader, Paperclip, X } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useRef, DragEvent } from 'react';
 import { toast } from 'sonner';
 
 type TAttatchment = {
@@ -19,6 +19,8 @@ type TProps = {
 
 const UploadAttatchment = ({ attachments, onChange }: TProps) => {
     const [uploadingAttac, setUploadingAttac] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const dropRef = useRef<HTMLDivElement>(null);
 
     const [
         uploadUserDocumentFile,
@@ -46,53 +48,55 @@ const UploadAttatchment = ({ attachments, onChange }: TProps) => {
         );
     };
 
+    const processFiles = async (files: File[]) => {
+        const newFiles = files.filter((file) => !isFileAlreadyUploaded(file));
+
+        if (newFiles.length === 0 && files.length > 0) {
+            toast.warning('Attachment already exists');
+            return;
+        }
+        if (newFiles.length === 0) {
+            return;
+        }
+
+        setUploadingAttac(true);
+        try {
+            // Create an array of promises for each file upload
+            const uploadPromises = newFiles.map(async (file) => {
+                const url = await uploadFile(file);
+                if (url) {
+                    return {
+                        name: file.name,
+                        size: file.size,
+                        url: url,
+                        type: file.type,
+                    };
+                }
+                return null;
+            });
+
+            // Wait for all promises to resolve
+            const results = await Promise.all(uploadPromises);
+
+            // Filter out any null results
+            const newAttachments = results.filter(
+                (attachment) => attachment !== null,
+            ) as TAttatchment[];
+
+            // Combine existing attachments with new ones
+            onChange([...attachments, ...newAttachments]);
+        } catch (error) {
+            console.error('Failed to upload attachments:', error);
+        } finally {
+            setUploadingAttac(false);
+        }
+    };
+
     const handleFileAttachment = async (
         e: React.ChangeEvent<HTMLInputElement>,
     ) => {
         if (e.target.files) {
-            const newFiles = Array.from(e.target.files).filter(
-                (file) => !isFileAlreadyUploaded(file),
-            );
-
-            if (newFiles.length === 0 && e.target.files.length > 0) {
-                toast.warning('Attatchment already exist');
-                return;
-            }
-            if (newFiles.length === 0) {
-                return;
-            }
-
-            setUploadingAttac(true);
-            try {
-                // Create an array of promises for each file upload
-                const uploadPromises = newFiles.map(async (file) => {
-                    const url = await uploadFile(file);
-                    if (url) {
-                        return {
-                            name: file.name,
-                            size: file.size,
-                            url: url,
-                            type: file.type,
-                        };
-                    }
-                    return null;
-                });
-
-                // Wait for all promises to resolve
-                const results = await Promise.all(uploadPromises);
-
-                // Filter out any null results
-                const newAttachments = results.filter(
-                    (attachment) => attachment !== null,
-                ) as TAttatchment[];
-
-                // Combine existing attachments with new ones
-                onChange([...attachments, ...newAttachments]);
-            } catch (error) {
-                console.error('Failed to upload attachments:', error);
-            } finally {
-                setUploadingAttac(false);
-            }
+            await processFiles(Array.from(e.target.files));
         }
     };
 
@@ -103,8 +107,50 @@ const UploadAttatchment = ({ attachments, onChange }: TProps) => {
         onChange(newAttachments);
     };
 
+    // Drag and drop handlers
+    const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Only set isDragging to false if we're leaving the container (not entering a child element)
+        if (
+            dropRef.current &&
+            !dropRef.current.contains(e.relatedTarget as Node)
+        ) {
+            setIsDragging(false);
+        }
+    };
+
+    const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            await processFiles(Array.from(e.dataTransfer.files));
+        }
+    };
+
     return (
-        <div>
+        <div
+            className='bg-foreground p-2'
+            ref={dropRef}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+        >
             {uploadingAttac ? (
                 <div className='flex text-dark-gray items-center flex-col gap-3 justify-between w-full'>
                     <Loader className='animate-spin' />
@@ -113,13 +159,17 @@ const UploadAttatchment = ({ attachments, onChange }: TProps) => {
                     </p>
                 </div>
             ) : (
-                <div className='flex items-center justify-center py-2 text-sm text-muted-foreground'>
+                <div
+                    className={`flex items-center justify-center py-4 text-sm text-muted-foreground border-2 border-dashed rounded-md ${isDragging ? 'border-primary bg-primary/5' : 'border-muted'}`}
+                >
                     <label
                         htmlFor='file-upload'
-                        className='relative text-center cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
+                        className='relative text-center cursor-pointer rounded-md font-medium text-primary hover:text-primary/80 px-4 py-2'
                     >
                         <span className='text-center'>
-                            Attach or drag & drop
+                            {isDragging
+                                ? 'Drop files here'
+                                : 'Attach or drag & drop'}
                         </span>
                         <input
                             id='file-upload'

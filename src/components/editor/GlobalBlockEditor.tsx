@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { EditorState, SerializedEditorState } from 'lexical';
-import axios from 'axios';
 import { Editor, PluginOptions } from '../lexicalEditor/blocks/editor';
 import {
     MentionMenu,
@@ -10,6 +9,7 @@ import {
 } from '../lexicalEditor/components/editor-ui/MentionMenu';
 import { instance } from '@/lib/axios/axiosInstance';
 import { useUploadUserDocumentFileMutation } from '@/redux/api/documents/documentsApi';
+import { convertToLexicalFormat } from '../lexicalEditor/lib/toJsonConverter';
 
 type TProps = {
     value: string;
@@ -30,9 +30,7 @@ export default function GlobalBlockEditor({
     pluginOptions,
     placeholder = 'Write something',
 }: TProps) {
-    const [editorState, setEditorState] = useState<SerializedEditorState>(
-        value ? JSON.parse(value) : '',
-    );
+    const [editorState, setEditorState] = useState<SerializedEditorState>();
 
     const [
         uploadUserDocumentFile,
@@ -41,7 +39,9 @@ export default function GlobalBlockEditor({
 
     useEffect(() => {
         if (value) {
-            setEditorState(JSON.parse(value));
+            setEditorState(
+                convertToLexicalFormat(value) as SerializedEditorState,
+            );
         }
     }, [value]);
     // Define a minimal set of toolbar options
@@ -121,7 +121,6 @@ export default function GlobalBlockEditor({
             treeView: false,
         },
     };
-
 
     // Custom image upload handler
     const handleImageUpload = async (file: File) => {

@@ -346,7 +346,7 @@ export function DocumentAndLabsDetailsModal({
                                         <div className='rounded-lg overflow-hidden mb-6'>
                                             <Image
                                                 src={
-                                                    content.thumbnail ||
+                                                    content?.imageUrl ||
                                                     '/default_image.png'
                                                 }
                                                 alt={content.title}
@@ -465,7 +465,7 @@ export function DocumentAndLabsDetailsModal({
                                                                 {typeof session ===
                                                                 'string'
                                                                     ? session
-                                                                    : session.name}
+                                                                    : session?.name}
                                                             </Badge>
                                                         ),
                                                     )}
@@ -503,7 +503,7 @@ export function DocumentAndLabsDetailsModal({
                                                                 variant='outline'
                                                                 className='text-sm'
                                                             >
-                                                                {program.title}
+                                                                {program?.title}
                                                             </Badge>
                                                         ),
                                                     )}
@@ -532,7 +532,11 @@ export function DocumentAndLabsDetailsModal({
                                                 <div className='flex flex-wrap gap-2'>
                                                     {content.dependencies.map(
                                                         (
-                                                            dependency: string,
+                                                            dependency:
+                                                                | {
+                                                                      name: string;
+                                                                  }
+                                                                | string,
                                                             index: number,
                                                         ) => (
                                                             <Badge
@@ -540,7 +544,10 @@ export function DocumentAndLabsDetailsModal({
                                                                 variant='outline'
                                                                 className='text-sm'
                                                             >
-                                                                {dependency}
+                                                                {typeof dependency ===
+                                                                'string'
+                                                                    ? dependency
+                                                                    : dependency?.name}
                                                             </Badge>
                                                         ),
                                                     )}

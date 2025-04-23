@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useUploadUserDocumentFileMutation } from '@/redux/api/documents/documentsApi';
 import { ImageIcon, Loader, X } from 'lucide-react';
 import NextImage from 'next/image';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 type TProps = {
     value: string;
@@ -22,6 +22,8 @@ const UploadThumbnail = ({
 }: TProps) => {
     const [uploadingThumb, setUploadingThumb] = useState(false);
     const [processingError, setProcessingError] = useState<string | null>(null);
+    const [dragActive, setDragActive] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
     const [
         uploadUserDocumentFile,
         { isLoading: isUploading, isError, isSuccess, data },
@@ -44,46 +46,75 @@ const UploadThumbnail = ({
         }
     };
 
+    const processAndUploadFile = async (file: File) => {
+        setProcessingError(null);
+
+        // Check if file is an image
+        if (!file.type.match('image.*')) {
+            setProcessingError('Please select an image file');
+            return;
+        }
+
+        // Check file size (maxSize in MB)
+        const maxSizeBytes = maxSize * 1024 * 1024;
+
+        setUploadingThumb(true);
+
+        try {
+            let fileToUpload = file;
+
+            // Process the image only if needed (cropping or resizing)
+            if (file.size > maxSizeBytes || ratio !== '1:1') {
+                try {
+                    fileToUpload = await processImage(file);
+                } catch (processError) {
+                    fileToUpload = file;
+                }
+            }
+
+            const url = await uploadFile(fileToUpload);
+            if (url) {
+                onChange(url);
+            }
+        } catch (error) {
+            setProcessingError('Failed to upload image. Please try again.');
+        } finally {
+            setUploadingThumb(false);
+        }
+    };
+
     const handleThumbnailChange = async (
         e: React.ChangeEvent<HTMLInputElement>,
     ) => {
         if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setProcessingError(null);
-
-            // Check if file is an image
-            if (!file.type.match('image.*')) {
-                setProcessingError('Please select an image file');
-                return;
-            }
-
-            // Check file size (maxSize in MB)
-            const maxSizeBytes = maxSize * 1024 * 1024;
-
-            setUploadingThumb(true);
-
-            try {
-                let fileToUpload = file;
-
-                // Process the image only if needed (cropping or resizing)
-                if (file.size > maxSizeBytes || ratio !== '1:1') {
-                    try {
-                        fileToUpload = await processImage(file);
-                    } catch (processError) {
-                        fileToUpload = file;
-                    }
-                }
-
-                const url = await uploadFile(fileToUpload);
-                if (url) {
-                    onChange(url);
-                }
-            } catch (error) {
-                setProcessingError('Failed to upload image. Please try again.');
-            } finally {
-                setUploadingThumb(false);
-            }
+            await processAndUploadFile(e.target.files[0]);
         }
+    };
+
+    // Drag and drop handlers
+    const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (e.type === 'dragenter' || e.type === 'dragover') {
+            setDragActive(true);
+        } else if (e.type === 'dragleave') {
+            setDragActive(false);
+        }
+    };
+
+    const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            await processAndUploadFile(e.dataTransfer.files[0]);
+        }
+    };
+
+    const handleButtonClick = () => {
+        inputRef.current?.click();
     };
 
     const processImage = (file: File): Promise<File> => {
@@ -234,7 +265,13 @@ const UploadThumbnail = ({
     };
 
     return (
-        <div className='mt-1 flex justify-center bg-background rounded-lg border border-dashed border-border px-6 py-10'>
+        <div
+            className={`mt-1 flex justify-center bg-background rounded-lg border border-dashed ${dragActive ? 'border-primary border-2' : 'border-border'} px-6 py-10`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+        >
             <div className='text-center'>
                 {uploadingThumb ? (
                     <div className='flex text-dark-gray items-center flex-col gap-3 justify-between w-full'>
@@ -271,9 +308,11 @@ const UploadThumbnail = ({
                             <label
                                 htmlFor='thumbnail-upload'
                                 className='relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
+                                onClick={handleButtonClick}
                             >
                                 <span>Click to upload a thumbnail</span>
                                 <input
+                                    ref={inputRef}
                                     disabled={isUploading}
                                     id='thumbnail-upload'
                                     name='thumbnail'

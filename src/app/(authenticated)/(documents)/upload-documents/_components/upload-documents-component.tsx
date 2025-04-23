@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Upload, LayoutGrid, List, Eye, TriangleAlert } from 'lucide-react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { GlobalDocumentCard } from '@/components/global/documents/GlobalDocumentCard';
-import { useGetUploadDocumentsQuery } from '@/redux/api/documents/documentsApi';
+import {
+    UploadDoc,
+    useGetUploadDocumentsQuery,
+} from '@/redux/api/documents/documentsApi';
 import { UploadDocumentModal } from './upload-document-modal';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import GlobalHeader from '@/components/global/GlobalHeader';
@@ -15,7 +18,10 @@ import GlobalTable, {
 } from '@/components/global/GlobalTable/GlobalTable';
 import TdDate from '@/components/global/TdDate';
 import { TdUser } from '@/components/global/TdUser';
-import { UploadedDocumentDetailsModal } from './UploadedDocumentDetailsModal';
+import {
+    DocumentContent,
+    UploadedDocumentDetailsModal,
+} from './UploadedDocumentDetailsModal';
 import CardLoader from '@/components/loading-skeletons/CardLoader';
 
 interface FilterValues {
@@ -34,6 +40,7 @@ export default function UploadDocumentComponent() {
     const pathname = usePathname();
     const router = useRouter();
     const viewMode = searchParams.get('view') || 'grid';
+    const [selected, setSelected] = useState<UploadDoc | null>(null);
     const isGridView = viewMode === 'grid';
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
@@ -49,49 +56,13 @@ export default function UploadDocumentComponent() {
         if (documentId && mode === 'view') {
             setIsDetailsModalOpen(true);
         }
-        // if (documentId && mode === 'edit') {
-        //     setIsUploadModalOpen(true);
-        // }
+        if (documentId && mode === 'edit') {
+            setIsUploadModalOpen(true);
+        }
     }, [documentId, mode]);
     const allDocuments = data?.documents || [];
     const total = data?.count || 0;
 
-    // Filter documents based on filter values
-    const filteredDocuments = useMemo(() => {
-        return allDocuments.filter((doc) => {
-            const matchesQuery = filters.query
-                ? (doc.name
-                      ?.toLowerCase()
-                      .includes(filters?.query?.toLowerCase()) ??
-                      false) ||
-                  (doc.description
-                      ?.toLowerCase()
-                      .includes(filters?.query?.toLowerCase()) ??
-                      false)
-                : true;
-
-            const matchesPriority = filters.priority
-                ? (doc as any).priority === filters.priority
-                : true;
-
-            const matchesDate = filters.date
-                ? new Date(doc.createdAt).toDateString() ===
-                  new Date(filters.date).toDateString()
-                : true;
-
-            return matchesQuery && matchesPriority && matchesDate;
-        });
-    }, [allDocuments, filters]);
-
-    const paginatedDocuments = useMemo(() => {
-        const startIndex = (currentPage - 1) * limit;
-        const endIndex = startIndex + limit;
-        return filteredDocuments.slice(startIndex, endIndex);
-    }, [filteredDocuments, currentPage, limit]);
-
-    const totalPages = Math.ceil(filteredDocuments.length / limit);
-
-    // Loading state
     if (isLoading) {
         if (isGridView) {
             return (
@@ -155,6 +126,7 @@ export default function UploadDocumentComponent() {
     const handleCloseUploadModal = () => {
         setIsUploadModalOpen(false);
         router.push('/upload-documents');
+        setSelected(null);
     };
 
     const handlePageChange = (page: number, newLimit: number) => {
@@ -351,6 +323,7 @@ export default function UploadDocumentComponent() {
             </div>
 
             <UploadedDocumentDetailsModal
+                setSelected={setSelected}
                 isOpen={isDetailsModalOpen}
                 onClose={handleCloseDetailsModal}
                 documentId={selectedDocumentId || documentId}
@@ -358,8 +331,9 @@ export default function UploadDocumentComponent() {
             />
 
             <UploadDocumentModal
-                isOpen={isUploadModalOpen}
+                isOpen={isUploadModalOpen || selected !== null}
                 onClose={handleCloseUploadModal}
+                selected={selected}
             />
         </div>
     );

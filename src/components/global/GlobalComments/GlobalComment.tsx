@@ -138,17 +138,11 @@ const GlobalComment: React.FC<GlobalCommentProps> = ({
                         fetchComments();
                         fetchReplies();
                         cbDelete?.();
-                        Swal.fire(
-                            'Deleted!',
-                            'Your comment has been deleted',
-                            'success',
-                        );
+                        toast.success('Deleted! Your comment has been deleted');
                     })
                     .catch(() => {
-                        Swal.fire(
-                            'Sorry!',
-                            'Could not delete your comment. Please try again later',
-                            'error',
+                        toast.error(
+                            'Sorry! Could not delete your comment. Please try again later',
                         );
                     });
             }

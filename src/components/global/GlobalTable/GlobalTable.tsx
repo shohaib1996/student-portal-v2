@@ -12,9 +12,8 @@ import { cn } from '@/lib/utils';
 import { Button } from '../../ui/button';
 import ColumnSettingsModal from './ColumnSettingsModal';
 import SimpleBar from 'simplebar-react';
-import { EllipsisVertical, PlusCircle } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { array } from 'zod';
+import { Settings } from 'lucide-react';
+
 import EmptyData from '../EmptyData';
 import { setColumnSizing } from '@/redux/features/tableReducer';
 
@@ -30,7 +29,7 @@ function TableBody<T>({
     totalColumn: number;
 }) {
     const [totalWidth, setTotalWidth] = useState(table.getTotalSize());
-    const { tableSizeData } = useAppSelector((s) => s.table);
+    const { tableSizeData } = useAppSelector((s) => s?.table);
 
     useEffect(() => {
         setTotalWidth(table.getTotalSize());
@@ -46,19 +45,19 @@ function TableBody<T>({
                 <div className=''>
                     {Array.from({ length: limit || 0 }, (_, i: number) => (
                         <div
-                            key={i}
+                            key={`loading-row-${i}`}
                             className='flex items-center space-x-4 w-full h-14 border-b border-forground-border '
                         >
                             {Array.from(
                                 { length: totalColumn },
-                                (_, i: number) => {
+                                (_, j: number) => {
                                     const randomWidth =
                                         Math.floor(
                                             Math.random() * (150 - 100 + 1),
                                         ) + 100;
                                     return (
                                         <div
-                                            key={i}
+                                            key={`loading-cell-${i}-${j}`}
                                             className='flex-1 overflow-hidden flex items-center border-r border-forground-border h-full'
                                         >
                                             <div
@@ -149,6 +148,8 @@ interface GlobalTableProps<T> {
     height?: string;
     isLoading?: boolean;
     limit?: number;
+    actionsMinSize?: number;
+    showAddColumn?: boolean; // New prop to control the visibility of add column button
 }
 
 const GlobalTable = <T,>({
@@ -158,6 +159,8 @@ const GlobalTable = <T,>({
     data,
     height,
     limit,
+    actionsMinSize = 200,
+    showAddColumn = true, // Default to true for backward compatibility
 }: GlobalTableProps<T>) => {
     const [columnSettingsOpen, setCollumnSettings] = useState(false);
     const { tableSizeData } = useAppSelector((s) => s.table);
@@ -190,9 +193,21 @@ const GlobalTable = <T,>({
             .filter((col) => col.visible !== false); // Remove columns where visible is false
     }, [storeColumnSizing, defaultColumns]);
 
+    const columnsWithCustomSizing = React.useMemo(() => {
+        return mergedColumns.map((column) => {
+            if (column.id === 'action') {
+                return {
+                    ...column,
+                    minSize: actionsMinSize,
+                };
+            }
+            return column;
+        });
+    }, [mergedColumns, actionsMinSize]);
+
     const table = useReactTable({
         data,
-        columns: mergedColumns,
+        columns: columnsWithCustomSizing,
         defaultColumn: {
             minSize: 100,
             maxSize: 600,
@@ -227,10 +242,27 @@ const GlobalTable = <T,>({
                 setColumnSizing({
                     tableName,
                     columnSizing: table.getState().columnSizing,
-                    columns: defaultColumns.map((c) => ({
-                        ...c,
-                        visible: true,
-                    })),
+                    columns: defaultColumns,
+                }),
+            );
+        } else {
+            dispatch(
+                setColumnSizing({
+                    tableName,
+                    columnSizing: storeColumnSizing.columnSizing,
+                    columns: defaultColumns?.map((col) => {
+                        const found = storeColumnSizing?.columns?.find(
+                            (c) => c.id === col.id,
+                        );
+                        if (found) {
+                            return {
+                                ...col,
+                                visible: found.visible,
+                            };
+                        } else {
+                            return col;
+                        }
+                    }),
                 }),
             );
         }
@@ -264,7 +296,7 @@ const GlobalTable = <T,>({
                         },
                     }}
                 >
-                    <div className='thead sticky top-0 bg-foreground shadow-sm z-50'>
+                    <div className='thead sticky top-0 bg-background shadow-sm z-50'>
                         <div className='relative flex'>
                             {table.getHeaderGroups().map((headerGroup, i) => (
                                 <div key={headerGroup.id} className='h-12 flex'>
@@ -311,22 +343,24 @@ const GlobalTable = <T,>({
                                 </div>
                             ))}
 
-                            <div className='sticky right-0 top-0 flex justify-end w-full'>
-                                <Button
-                                    onClick={() => setCollumnSettings(true)}
-                                    variant={'plain'}
-                                    className='bg-foreground border-none rounded-none w-9 z-40 justify-center h-12 flex items-center'
-                                >
-                                    <PlusCircle size={18} />
-                                </Button>
-                            </div>
+                            {/* Only show the Add Column button if showAddColumn is true */}
+                            {showAddColumn && (
+                                <div className='sticky right-0 top-0 flex justify-end w-full'>
+                                    <Button
+                                        onClick={() => setCollumnSettings(true)}
+                                        variant={'plain'}
+                                        className='bg-background border-none rounded-none w-9 z-40 justify-center h-12 flex items-center'
+                                    >
+                                        <Settings />
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </div>
                     {/* When resizing any column we will render this special memoized version of our table body */}
 
                     <>
-                        {!isLoading &&
-                        table.getRowModel().rows?.length === 0 ? (
+                        {!isLoading && table.getRowModel().rows.length === 0 ? (
                             <div className='w-[calc(100%)] py-4 flex justify-center'>
                                 <EmptyData />
                             </div>
@@ -349,12 +383,15 @@ const GlobalTable = <T,>({
                     </>
                 </div>
 
-                <ColumnSettingsModal
-                    table={table}
-                    tableName={tableName}
-                    open={columnSettingsOpen}
-                    setOpen={setCollumnSettings}
-                />
+                {/* Only render the column settings modal if showAddColumn is true */}
+                {showAddColumn && (
+                    <ColumnSettingsModal
+                        table={table}
+                        tableName={tableName}
+                        open={columnSettingsOpen}
+                        setOpen={setCollumnSettings}
+                    />
+                )}
             </div>
         </SimpleBar>
     );

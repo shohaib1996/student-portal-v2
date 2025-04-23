@@ -86,8 +86,6 @@ export default function DocumentsAndLabsPage() {
         }
     }, [documentId, mode]);
     const allLabsData = labsData?.contents || [];
-    const totalItems = labsData?.count || 0;
-
     // Format document content from API response
     const content = useMemo(() => {
         if (!singleData) {
@@ -133,14 +131,6 @@ export default function DocumentsAndLabsPage() {
         });
     }, [allLabsData, filters]);
 
-    const paginatedLabs = useMemo(() => {
-        const startIndex = (currentPage - 1) * limit;
-        const endIndex = startIndex + limit;
-        return filteredTemplates.slice(startIndex, endIndex);
-    }, [filteredTemplates, currentPage, limit]);
-
-    const totalPages = Math.ceil(filteredTemplates.length / limit);
-
     const handleDocumentClick = (documentId: string) => {
         setSelectedDocumentId(documentId);
         setIsModalOpen(true);
@@ -165,16 +155,9 @@ export default function DocumentsAndLabsPage() {
         setCurrentPage(1); // Reset to first page when filtering
     };
 
-    const handlePageChange = (page: number, newLimit?: number) => {
-        const validPage = Math.max(1, Math.min(page, totalPages));
-        setCurrentPage(validPage);
-
-        if (newLimit) {
-            setLimit(newLimit);
-            const newStartIndex = (validPage - 1) * newLimit;
-            const newCurrentPage = Math.floor(newStartIndex / newLimit) + 1;
-            setCurrentPage(newCurrentPage);
-        }
+    const handlePageChange = (page: number, newLimit: number) => {
+        setLimit(newLimit);
+        setCurrentPage(page);
     };
 
     const defaultColumns: TCustomColumnDef<(typeof allLabsData)[0]>[] = [
@@ -295,65 +278,65 @@ export default function DocumentsAndLabsPage() {
         );
     }
 
+    console.log(allLabsData);
+
     return (
-        <div>
-            <div className='mb-3'>
-                <GlobalHeader
-                    title='Documents & Labs'
-                    subTitle='View your documents and labs with ease'
-                    buttons={
-                        <div className='flex items-center gap-2'>
-                            <Button
-                                variant={!isGridView ? 'outline' : 'default'}
-                                onClick={() => setIsGridView(true)}
-                            >
-                                <LayoutGrid size={16} />
+        <div className='pt-2'>
+            <GlobalHeader
+                title='Documents & Labs'
+                subTitle='View your documents and labs with ease'
+                buttons={
+                    <div className='flex items-center gap-2'>
+                        <Button
+                            variant={!isGridView ? 'outline' : 'default'}
+                            onClick={() => setIsGridView(true)}
+                        >
+                            <LayoutGrid size={16} />
+                        </Button>
+                        <Button
+                            variant={isGridView ? 'outline' : 'default'}
+                            onClick={() => setIsGridView(false)}
+                        >
+                            <List size={16} />
+                        </Button>
+                        <FilterModal
+                            value={Object.entries(filters)
+                                .filter(([_, value]) => value)
+                                .map(([column, value]) => ({
+                                    field: column,
+                                    operator: 'equals', // or any other default operator
+                                    value,
+                                }))}
+                            onChange={handleFilter}
+                            columns={[
+                                {
+                                    label: 'Search (Name/Description)',
+                                    value: 'query',
+                                },
+                                {
+                                    label: 'Type',
+                                    value: 'type',
+                                },
+                                {
+                                    label: 'Created Date',
+                                    value: 'date',
+                                },
+                            ]}
+                        />
+                        <Link href='/dashboard'>
+                            <Button size='sm'>
+                                Go to Dashboard
+                                <ChevronRight className='h-4 w-4' />
                             </Button>
-                            <Button
-                                variant={isGridView ? 'outline' : 'default'}
-                                onClick={() => setIsGridView(false)}
-                            >
-                                <List size={16} />
-                            </Button>
-                            <FilterModal
-                                value={Object.entries(filters)
-                                    .filter(([_, value]) => value)
-                                    .map(([column, value]) => ({
-                                        field: column,
-                                        operator: 'equals', // or any other default operator
-                                        value,
-                                    }))}
-                                onChange={handleFilter}
-                                columns={[
-                                    {
-                                        label: 'Search (Name/Description)',
-                                        value: 'query',
-                                    },
-                                    {
-                                        label: 'Type',
-                                        value: 'type',
-                                    },
-                                    {
-                                        label: 'Created Date',
-                                        value: 'date',
-                                    },
-                                ]}
-                            />
-                            <Link href='/dashboard'>
-                                <Button size='sm'>
-                                    Go to Dashboard
-                                    <ChevronRight className='h-4 w-4' />
-                                </Button>
-                            </Link>
-                        </div>
-                    }
-                />
-            </div>
+                        </Link>
+                    </div>
+                }
+            />
 
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
                 {isGridView ? (
                     <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
-                        {paginatedLabs.map((content: LabContent) => (
+                        {allLabsData.map((content: LabContent) => (
                             <GlobalDocumentCard
                                 redirect='documents-and-labs'
                                 key={content?._id}
@@ -366,20 +349,18 @@ export default function DocumentsAndLabsPage() {
                         ))}
                     </div>
                 ) : (
-                    <div>
-                        <GlobalTable
-                            isLoading={false}
-                            limit={limit}
-                            data={paginatedLabs}
-                            defaultColumns={defaultColumns}
-                            tableName='my-templates-table'
-                        />
-                    </div>
+                    <GlobalTable
+                        isLoading={false}
+                        limit={limit}
+                        data={allLabsData || []}
+                        defaultColumns={defaultColumns}
+                        tableName='my-templates-table'
+                    />
                 )}
 
                 <GlobalPagination
                     currentPage={currentPage}
-                    totalItems={filteredTemplates.length}
+                    totalItems={labsData?.count || 0}
                     itemsPerPage={limit}
                     onPageChange={handlePageChange}
                 />

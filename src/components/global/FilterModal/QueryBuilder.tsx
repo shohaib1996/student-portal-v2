@@ -249,7 +249,7 @@ function QueryBuilder({ columns, conditions, setConditions }: TProps) {
                                 }
                             >
                                 <SelectTrigger>
-                                    <SelectValue>
+                                    <SelectValue placeholder='Select Field'>
                                         {fieldOption.find(
                                             (f) => f.value === condition.field,
                                         )?.label || 'Select Field'}
@@ -359,7 +359,7 @@ function QueryBuilder({ columns, conditions, setConditions }: TProps) {
                     variant={'plain'}
                     onClick={addCondition}
                 >
-                    <PlusCircle size={18} /> Add Filter
+                    <PlusCircle /> Add Filter
                 </Button>
             )}
         </div>
