@@ -226,7 +226,7 @@ export function AppSidebar() {
                                             >
                                                 <BookOpen size={20} />
                                                 <h2 className='whitespace-nowrap truncate'>
-                                                    Courses
+                                                    My Courses
                                                 </h2>
                                                 <ChevronRight className='ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90' />
                                             </SidebarMenuButton>
@@ -241,7 +241,7 @@ export function AppSidebar() {
                                                         >
                                                             <SidebarMenuButton>
                                                                 <span>
-                                                                    Bootcamps
+                                                                    Bootcamp
                                                                 </span>
                                                                 <ChevronRight className='ml-auto transition-transform group-data-[state=open]/collapsible-sub:rotate-90' />
                                                             </SidebarMenuButton>
@@ -258,7 +258,7 @@ export function AppSidebar() {
                                                                             }
                                                                         >
                                                                             <Link href='/program'>
-                                                                                Programs
+                                                                                Program
                                                                             </Link>
                                                                         </SidebarMenuButton>
                                                                     </SidebarMenuSubItem>
@@ -395,11 +395,11 @@ export function AppSidebar() {
                                                             asChild
                                                             isActive={
                                                                 pathname ===
-                                                                '/program/online-courses'
+                                                                '/program/my-enrollments'
                                                             }
                                                         >
-                                                            <Link href='/program/online-courses'>
-                                                                Online Courses
+                                                            <Link href='/program/my-enrollments'>
+                                                                My Enrollments
                                                             </Link>
                                                         </SidebarMenuButton>
                                                     </SidebarMenuSubItem>
