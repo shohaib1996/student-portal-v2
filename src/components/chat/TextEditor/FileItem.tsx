@@ -85,10 +85,10 @@ function FileItem({ file, index, handleRemove }: FileItemProps) {
                 </div>
             ) : (
                 <div className='flex items-center'>
-                    <div className='w-[90px] h-[90px] flex items-center justify-center overflow-hidden rounded-md'>
+                    <div className='w-[60px] h-[60px] flex items-center justify-center overflow-hidden rounded-md'>
                         {fileType === 'video' ? (
                             <img
-                                className='w-[90px] object-cover'
+                                className='w-[60px] h-[60px] object-cover'
                                 src='/video-icon.png'
                                 alt='Video file'
                             />

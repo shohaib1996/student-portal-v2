@@ -61,12 +61,14 @@ const MentionPopover = ({
                     @{userName}
                 </span>
             </PopoverTrigger>
-            <MentionedUserPopover
-                userId={userId}
-                userData={userData}
-                isLoading={isLoading}
-                userName={userName}
-            />
+            {userId !== 'everyone' && (
+                <MentionedUserPopover
+                    userId={userId}
+                    userData={userData}
+                    isLoading={isLoading}
+                    userName={userName}
+                />
+            )}
         </Popover>
     );
 };

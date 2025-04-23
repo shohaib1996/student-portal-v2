@@ -186,7 +186,7 @@ const ImageUploader = ({
                                     alt='Preview'
                                     className='absolute inset-0 w-full h-full object-cover z-0'
                                 />
-                                <div className='absolute inset-0 bg-pure-black/50 flex flex-col items-center justify-center z-10'>
+                                <div className=' absolute inset-0 bg-pure-black/50 flex flex-col items-center justify-center z-10'>
                                     <Camera className='h-6 w-6 text-white mb-1' />
                                     <p className='text-white text-xs font-medium'>
                                         <span className='text-white underline'>
@@ -449,14 +449,18 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                     setImageLoading(true);
                     const newFile = await resizeFile(image);
                     const formData = new FormData();
-                    formData.append('image', newFile);
-                    formData.append('channel-avatar', 'chat-image');
+                    formData.append('file', newFile);
 
-                    const response = await uploadAvatar({
-                        chatId: chat._id,
-                        image: formData,
-                    }).unwrap();
-                    const url = response.url;
+                    const response = await instance.post(
+                        '/chat/file',
+                        formData,
+                        {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                            },
+                        },
+                    );
+                    const url = response?.data?.file?.location;
 
                     await updateChannel({
                         chatId: chat._id,
@@ -472,13 +476,15 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                     toast.success('Channel image updated successfully');
                 } catch (error: any) {
                     console.error(error);
-                    toast.error(error?.data?.error || 'Error uploading image');
+                    toast.error(
+                        error?.response?.data?.error || 'Error uploading image',
+                    );
                 } finally {
                     setImageLoading(false);
                 }
             }
         },
-        [chat, uploadAvatar, updateChannel],
+        [chat, updateChannel],
     );
 
     // Replace handleArchive with this:
