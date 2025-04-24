@@ -154,19 +154,19 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
             case 'crowds':
                 return 'All Crowds';
             case 'favourites':
-                return 'All Pinned Messages';
+                return 'All Pinned Chats';
             case 'onlines':
                 return 'All Online Users';
             case 'search':
                 return 'Search User';
             case 'readOnly':
-                return 'All Readonly Messages';
+                return 'All Readonly Chats';
             case 'unread':
-                return 'All Unread Messages';
+                return 'All Unread Chats';
             case 'blocked':
                 return 'All Blocked Users';
             case 'archived':
-                return 'All Archived Messages';
+                return 'All Archived Chats';
             case 'ai':
                 return 'All AI Bots';
             default:
@@ -489,13 +489,16 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                 <SlidersHorizontal className='h-4 w-4 text-gray' />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end' className='w-48'>
+                        <DropdownMenuContent
+                            align='end'
+                            className='w-48 bg-background'
+                        >
                             <DropdownMenuLabel>Filter Chats</DropdownMenuLabel>
                             <DropdownMenuSeparator />
 
                             <DropdownMenuItem
                                 onClick={() => handleNavItemClick('chats')}
-                                className={`flex items-center gap-2 ${active === 'chats' ? 'bg-blue-50 text-blue-600' : ''}`}
+                                className={`cursor-pointer flex items-center gap-2 mb-1 py-[2px] hover:bg-primary-light hover:text-primary-white border hover:border-forground-border ${active === 'chats' ? 'bg-primary-light text-primary-white' : 'bg-foreground'}`}
                             >
                                 <User className='h-4 w-4' />
                                 <span>All Chats</span>
@@ -503,7 +506,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
                             <DropdownMenuItem
                                 onClick={() => handleNavItemClick('crowds')}
-                                className={`flex items-center gap-2 ${active === 'crowds' ? 'bg-blue-50 text-blue-600' : ''}`}
+                                className={`cursor-pointer flex items-center gap-2 mb-1 py-[2px] hover:bg-primary-light hover:text-primary-white  border hover:border-forground-border ${active === 'crowds' ? 'bg-primary-light text-primary-white' : 'bg-foreground'}`}
                             >
                                 <Users className='h-4 w-4' />
                                 <span>Crowds</span>
@@ -511,7 +514,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
                             <DropdownMenuItem
                                 onClick={() => handleNavItemClick('unread')}
-                                className={`flex items-center gap-2 ${active === 'unread' ? 'bg-blue-50 text-blue-600' : ''}`}
+                                className={`cursor-pointer flex items-center gap-2 mb-1 py-[2px] hover:bg-primary-light hover:text-primary-white  border hover:border-forground-border ${active === 'unread' ? 'bg-primary-light text-primary-white' : 'bg-foreground'}`}
                             >
                                 <div className='relative'>
                                     <MessageSquareText className='h-4 w-4' />
@@ -524,7 +527,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
                             <DropdownMenuItem
                                 onClick={() => handleNavItemClick('favourites')}
-                                className={`flex items-center gap-2 ${active === 'favourites' ? 'bg-blue-50 text-blue-600' : ''}`}
+                                className={`cursor-pointer flex items-center gap-2 mb-1 py-[2px] hover:bg-primary-light hover:text-primary-white $ border hover:border-forground-border ${active === 'favourites' ? 'primary-light0/30 text-primary-white' : 'bg-foreground'}`}
                             >
                                 <Pin className='h-4 w-4' />
                                 <span>Pinned</span>
@@ -532,7 +535,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
                             <DropdownMenuItem
                                 onClick={() => handleNavItemClick('onlines')}
-                                className={`flex items-center gap-2 ${active === 'onlines' ? 'bg-blue-50 text-blue-600' : ''}`}
+                                className={`cursor-pointer flex items-center gap-2 mb-1 py-[2px] hover:bg-primary-light hover:text-primary-whit border hover:border-forground-bordere ${active === 'onlines' ? 'primary-light0/30 text-primary-white' : 'bg-foreground'}`}
                             >
                                 <UserCheck className='h-4 w-4' />
                                 <span>Online Users</span>
@@ -540,7 +543,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
                             <DropdownMenuItem
                                 onClick={() => handleNavItemClick('archived')}
-                                className={`flex items-center gap-2 ${active === 'archived' ? 'bg-blue-50 text-blue-600' : ''}`}
+                                className={`cursor-pointer flex items-center gap-2 mb-1 py-[2px] hover:bg-primary-light hover:text-primary-white border hover:border-forground-border ${active === 'archived' ? 'primary-light0/30 text-primary-white' : 'bg-foreground'}`}
                             >
                                 <Archive className='h-4 w-4' />
                                 <span>Archived</span>
@@ -549,7 +552,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                             {process.env.NEXT_PUBLIC_AI_BOT_ID && (
                                 <DropdownMenuItem
                                     onClick={() => handleNavItemClick('ai')}
-                                    className={`flex items-center gap-2 ${active === 'ai' ? 'bg-blue-50 text-blue-600' : ''}`}
+                                    className={`cursor-pointer flex items-center gap-2 mb-1 py-[2px] hover:bg-primary-light hover:text-primary-wh border hover:border-forground-borderite ${active === 'ai' ? 'bg-primary-light text-primary-white' : 'bg-foreground'}`}
                                 >
                                     <Bot className='h-4 w-4' />
                                     <span>AI Bot</span>
@@ -558,7 +561,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
                             <DropdownMenuItem
                                 onClick={() => handleNavItemClick('blocked')}
-                                className={`flex items-center gap-2 ${active === 'blocked' ? 'bg-blue-50 text-blue-600' : ''}`}
+                                className={`cursor-pointer flex items-center gap-2 mb-1 py-[2px] hover:bg-primary-light hover:text-primary-whit border hover:border-forground-bordere ${active === 'blocked' ? 'primary-light0/30 text-primary-white' : 'bg-foreground'}`}
                             >
                                 <UserMinus className='h-4 w-4' />
                                 <span>Blocked Users</span>
@@ -566,7 +569,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
                             <DropdownMenuItem
                                 onClick={() => handleNavItemClick('readOnly')}
-                                className={`flex items-center gap-2 ${active === 'readOnly' ? 'bg-blue-50 text-blue-600' : ''}`}
+                                className={`cursor-pointer flex items-center gap-2 mb-1 py-[2px] hover:bg-primary-light hover:text-primary-white border hover:border-forground-border ${active === 'readOnly' ? 'primary-light0/30 text-primary-white' : 'bg-foreground'}`}
                             >
                                 <Lock className='h-4 w-4' />
                                 <span>Read Only</span>
@@ -828,7 +831,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                                     ) : chat?.latestMessage
                                                           ?.type ===
                                                       'delete' ? (
-                                                        <span className='italic'>
+                                                        <span className='italic mr-2'>
                                                             Message deleted
                                                         </span>
                                                     ) : chat?.latestMessage
@@ -964,11 +967,16 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                                             className={`flex flex-row items-center ${isUnRead ? 'font-semibold text-dark-black' : 'font-normal text-gray'}`}
                                                         >
                                                             {chat?.latestMessage
+                                                                ?.sender &&
+                                                            chat?.latestMessage
                                                                 ?.sender
                                                                 ?._id !==
-                                                            user?._id
+                                                                user?._id
                                                                 ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
-                                                                : 'You: '}
+                                                                : chat
+                                                                      ?.latestMessage
+                                                                      ?.sender &&
+                                                                  'You: '}
 
                                                             <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap ml-1'>
                                                                 {renderPlainText(
@@ -1036,7 +1044,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                         <Button
                             variant='primary_light'
                             size='sm'
-                            className='text-xs rounded-3xl text-primary'
+                            className='text-xs rounded-3xl text-primary-white'
                             onClick={loadMoreChats}
                         >
                             View More{' '}

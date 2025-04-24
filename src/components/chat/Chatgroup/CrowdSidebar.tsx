@@ -137,9 +137,7 @@ function CrowdSidebar() {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [visibleCount, setVisibleCount] = useState<number>(20);
     const params = useParams();
-    useEffect(() => {
-        console.log('Refetched chats:', chats);
-    }, [chats]);
+
     const handleChangeSearch = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
             const value = e.target.value;
@@ -344,7 +342,7 @@ function CrowdSidebar() {
                                                 </>
                                             )}
 
-                                            <p className='text-xs text-gray truncate max-w-[80%]'>
+                                            <p className='text-xs text-gray truncate max-w-[80%] mr-2'>
                                                 {chat?.latestMessage?.type ===
                                                 'activity' ? (
                                                     <span className='italic'>
@@ -481,10 +479,15 @@ function CrowdSidebar() {
                                                         className={`flex flex-row items-center ${isUnRead ? 'font-semibold text-dark-black' : 'font-normal text-gray'}`}
                                                     >
                                                         {chat?.latestMessage
+                                                            ?.sender &&
+                                                        chat?.latestMessage
                                                             ?.sender?._id !==
-                                                        user?._id
+                                                            user?._id
                                                             ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
-                                                            : 'You: '}
+                                                            : chat
+                                                                  ?.latestMessage
+                                                                  ?.sender &&
+                                                              'You: '}
 
                                                         <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap ml-1'>
                                                             {renderPlainText({
@@ -542,21 +545,23 @@ function CrowdSidebar() {
                     </div>
                 )}
 
-                {records.length > 0 && hasMoreToLoad && (
-                    <div className='p-2 text-center flex flex-row items-center gap-1'>
-                        <div className='w-full h-[2px] bg-border'></div>
-                        <Button
-                            variant='primary_light'
-                            size='sm'
-                            className='text-xs rounded-3xl text-primary'
-                            onClick={handleLoadMore}
-                        >
-                            View More{' '}
-                            <ChevronDown size={16} className='text-gray' />
-                        </Button>
-                        <div className='w-full h-[2px] bg-border'></div>
-                    </div>
-                )}
+                {records.length > 0 &&
+                    chats?.length > records?.length &&
+                    hasMoreToLoad && (
+                        <div className='p-2 text-center flex flex-row items-center gap-1'>
+                            <div className='w-full h-[2px] bg-border'></div>
+                            <Button
+                                variant='primary_light'
+                                size='sm'
+                                className='text-xs rounded-3xl text-primary'
+                                onClick={handleLoadMore}
+                            >
+                                View More{' '}
+                                <ChevronDown size={16} className='text-gray' />
+                            </Button>
+                            <div className='w-full h-[2px] bg-border'></div>
+                        </div>
+                    )}
             </div>
         </>
     );

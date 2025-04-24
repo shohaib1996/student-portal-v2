@@ -70,7 +70,6 @@ export function MentionPopover({ userId, userName }: MentionPopoverProps) {
     const [user, setUser] = useState<User | null>(null);
     const [open, setOpen] = useState(false);
     const triggerRef = useRef<HTMLSpanElement>(null);
-    console.log({ userId });
     useEffect(() => {
         if (open) {
             fetchUserInfo(userId).then(setUser);

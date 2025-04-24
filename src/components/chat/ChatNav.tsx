@@ -73,6 +73,8 @@ import {
 } from '@/redux/api/chats/chatApi';
 import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
 import { ChatSkeletonList } from './chat-skeleton';
+import { store } from '@/redux/store';
+import { Chat, setSelectedChat } from '@/redux/features/chatReducer';
 
 // Dynamic imports for better performance
 const MessagePreview = dynamic(
@@ -286,6 +288,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
             setRecords(sortByLatestMessage(chats).slice(0, 20)); // Load initial chats
         }
     }, [chats]);
+
     useEffect(() => {
         // Update active state when URL query changes
         const tabFromUrl = searchParams.get('tab') || 'chats';
@@ -343,8 +346,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     );
 
     // Handle navigation click
-    const handleNavClick = useCallback(() => {
+    const handleNavClick = useCallback((c: Chat) => {
         // Will be implemented with RTK
+        store.dispatch(setSelectedChat(c));
     }, []);
 
     // Handle create chat with RTK mutation
@@ -441,19 +445,19 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                 {active === 'crowds' ? (
                                     'All Crowds'
                                 ) : active === 'favourites' ? (
-                                    'All Pinned Messages'
+                                    'All Pinned Chats'
                                 ) : active === 'onlines' ? (
                                     'All Online Users'
                                 ) : active === 'search' ? (
                                     'Search User'
                                 ) : active === 'readOnly' ? (
-                                    'All Readonly Mesages'
+                                    'All Readonly Chats'
                                 ) : active === 'unread' ? (
-                                    'All Unread Messages'
+                                    'All Unread Chats'
                                 ) : active === 'blocked' ? (
                                     'All Blocked Users'
                                 ) : active === 'archived' ? (
-                                    'All Archived Message'
+                                    'All Archived Chats'
                                 ) : active === 'ai' ? (
                                     'All AI Bots'
                                 ) : (
@@ -476,7 +480,10 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                 <Edit className='h-5 w-5 text-dark-gray' />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align='end'>
+                                        <DropdownMenuContent
+                                            align='end'
+                                            className='bg-foreground border-forground-border'
+                                        >
                                             <DropdownMenuLabel>
                                                 Create New
                                             </DropdownMenuLabel>
@@ -484,7 +491,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                 onClick={() =>
                                                     handleTabChange('search')
                                                 }
-                                                className='flex items-center gap-2'
+                                                className='flex items-center gap-2 bg-background hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
                                             >
                                                 <PenSquare className='h-4 w-4' />
                                                 <span>New Chat</span>
@@ -493,7 +500,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                 onClick={() =>
                                                     setCreateCrowdOpen(true)
                                                 }
-                                                className='flex items-center gap-2'
+                                                className='flex items-center gap-2 bg-background hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
                                             >
                                                 <UsersIcon className='h-4 w-4' />
                                                 <span>New Crowd</span>
@@ -539,7 +546,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent
                                                     align='end'
-                                                    className='w-56'
+                                                    className='w-56 bg-background'
                                                 >
                                                     <DropdownMenuLabel>
                                                         Filter Chats
@@ -551,7 +558,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                 'chats',
                                                             )
                                                         }
-                                                        className='flex items-center gap-2'
+                                                        className='flex items-center gap-2 bg-foreground hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
                                                     >
                                                         <User className='h-4 w-4' />
                                                         <span>All Chats</span>
@@ -563,7 +570,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                 'crowds',
                                                             )
                                                         }
-                                                        className='flex items-center gap-2'
+                                                        className='flex items-center gap-2 bg-foreground hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
                                                     >
                                                         <Users className='h-4 w-4' />
                                                         <span>Crowds</span>
@@ -575,7 +582,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                 'unread',
                                                             )
                                                         }
-                                                        className='flex items-center gap-2'
+                                                        className='flex items-center gap-2 bg-foreground hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
                                                     >
                                                         <MessageSquareMore className='h-4 w-4' />
                                                         <span>
@@ -589,7 +596,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                 'favourites',
                                                             )
                                                         }
-                                                        className='flex items-center gap-2'
+                                                        className='flex items-center gap-2 bg-foreground hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
                                                     >
                                                         <Pin className='h-4 w-4' />
                                                         <span>Pinned</span>
@@ -601,7 +608,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                 'onlines',
                                                             )
                                                         }
-                                                        className='flex items-center gap-2'
+                                                        className='flex items-center gap-2 bg-foreground hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
                                                     >
                                                         <UserCheck className='h-4 w-4' />
                                                         <span>
@@ -615,7 +622,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                 'archived',
                                                             )
                                                         }
-                                                        className='flex items-center gap-2'
+                                                        className='flex items-center gap-2 bg-foreground hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
                                                     >
                                                         <Archive className='h-4 w-4' />
                                                         <span>Archived</span>
@@ -627,7 +634,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                 'search',
                                                             )
                                                         }
-                                                        className='flex items-center gap-2'
+                                                        className='flex items-center gap-2 bg-foreground hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
                                                     >
                                                         <Search className='h-4 w-4' />
                                                         <span>Search</span>
@@ -645,7 +652,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                         .NEXT_PUBLIC_AI_BOT_ID as string,
                                                                 );
                                                             }}
-                                                            className='flex items-center gap-2'
+                                                            className='flex items-center gap-2 bg-foreground hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
                                                         >
                                                             <Bot className='h-4 w-4' />
                                                             <span>AI Bot</span>
@@ -658,7 +665,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                 'blocked',
                                                             )
                                                         }
-                                                        className='flex items-center gap-2'
+                                                        className='flex items-center gap-2 bg-foreground hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
                                                     >
                                                         <UserMinus className='h-4 w-4' />
                                                         <span>
@@ -753,7 +760,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                 ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
                                                                 : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
                                                         }`}
-                                                        onClick={handleNavClick}
+                                                        onClick={() =>
+                                                            handleNavClick(chat)
+                                                        }
                                                     >
                                                         <div className='flex items-start p-2 gap-2'>
                                                             {/* Avatar */}
@@ -964,7 +973,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                   ?.latestMessage
                                                                                   ?.type ===
                                                                               'delete' ? (
-                                                                                <span className='italic text-red-500'>
+                                                                                <span className='italic text-red-500 mr-2'>
                                                                                     Message
                                                                                     deleted
                                                                                 </span>
@@ -1105,11 +1114,17 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                 >
                                                                                     {chat
                                                                                         ?.latestMessage
+                                                                                        ?.sender &&
+                                                                                    chat
+                                                                                        ?.latestMessage
                                                                                         ?.sender
                                                                                         ?._id !==
-                                                                                    user?._id
+                                                                                        user?._id
                                                                                         ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
-                                                                                        : 'You: '}
+                                                                                        : chat
+                                                                                              ?.latestMessage
+                                                                                              ?.sender &&
+                                                                                          'You: '}
                                                                                     {/* {getText(
                                                                                         chat
                                                                                             ?.latestMessage
@@ -1187,24 +1202,26 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                             </div>
                                         )}
 
-                                        {records.length > 0 && hasMore && (
-                                            <div className='p-2 text-center flex flex-row items-center gap-1'>
-                                                <div className='w-full h-[2px] bg-border'></div>
-                                                <Button
-                                                    variant='primary_light'
-                                                    size='sm'
-                                                    className='text-xs rounded-3xl text-primary'
-                                                    onClick={loadMoreChats}
-                                                >
-                                                    View More{' '}
-                                                    <ChevronDown
-                                                        size={16}
-                                                        className='text-gray'
-                                                    />
-                                                </Button>
-                                                <div className='w-full h-[2px] bg-border'></div>
-                                            </div>
-                                        )}
+                                        {records.length > 0 &&
+                                            chats?.length > records?.length &&
+                                            hasMore && (
+                                                <div className='p-2 text-center flex flex-row items-center gap-1'>
+                                                    <div className='w-full h-[2px] bg-border'></div>
+                                                    <Button
+                                                        variant='primary_light'
+                                                        size='sm'
+                                                        className='text-xs rounded-3xl text-primary'
+                                                        onClick={loadMoreChats}
+                                                    >
+                                                        View More{' '}
+                                                        <ChevronDown
+                                                            size={16}
+                                                            className='text-gray'
+                                                        />
+                                                    </Button>
+                                                    <div className='w-full h-[2px] bg-border'></div>
+                                                </div>
+                                            )}
                                     </div>
                                 </>
                             ) : (

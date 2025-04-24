@@ -68,7 +68,6 @@ const MentionedUserPopover: React.FC<MentionedUserPopoverProps> = ({
     // Format date helper
     const { user } = useAppSelector((state) => state.auth);
     const loggedInUser = user;
-    console.log({ userId });
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return dayjs(date).format('MMMM YYYY');

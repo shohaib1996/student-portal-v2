@@ -59,13 +59,16 @@ function OnlineSidebar() {
     const { data: onlineUsers } = useGetOnlineUsersQuery();
     const [filteredOnlineUsers, setFilteredOnlineUsers] = useState<any[]>([]);
     const [filteredChats, setFilteredChats] = useState<any[]>([]);
+    const [allRecentChats, setAllRecentChats] = useState<any[]>([]);
+    const [allOnlineUsers, setAllOnlineUsers] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [activeTab, setActiveTab] = useState<string>('recent');
+    const [activeTab, setActiveTab] = useState<string>('online');
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+    const [onlineLimit, setOnlineLimit] = useState<number>(20);
+    const [chatLimit, setChatLimit] = useState<number>(20);
 
-    // Initialize filtered data
     useEffect(() => {
         try {
             // Make sure we have the online users data
@@ -74,26 +77,26 @@ function OnlineSidebar() {
                 const filteredUsers = onlineUsers.filter(
                     (u) => u?._id !== user?._id,
                 );
-                setFilteredOnlineUsers(filteredUsers);
+                setAllOnlineUsers(filteredUsers);
+                setFilteredOnlineUsers(filteredUsers.slice(0, onlineLimit));
             } else {
+                setAllOnlineUsers([]);
                 setFilteredOnlineUsers([]);
             }
 
-            // Get first 10 chats sorted by latest message
+            // Get chats sorted by latest message
             if (chats && chats.length > 0) {
-                const sortedChats = [...chats]
-                    .sort((a, b) => {
-                        const dateA = a.latestMessage?.createdAt
-                            ? new Date(a.latestMessage.createdAt).getTime()
-                            : 0;
-                        const dateB = b.latestMessage?.createdAt
-                            ? new Date(b.latestMessage.createdAt).getTime()
-                            : 0;
-                        return dateB - dateA;
-                    })
-                    .slice(0, 10);
-
-                setFilteredChats(sortedChats);
+                const sortedChats = [...chats].sort((a, b) => {
+                    const dateA = a.latestMessage?.createdAt
+                        ? new Date(a.latestMessage.createdAt).getTime()
+                        : 0;
+                    const dateB = b.latestMessage?.createdAt
+                        ? new Date(b.latestMessage.createdAt).getTime()
+                        : 0;
+                    return dateB - dateA;
+                });
+                setAllRecentChats(sortedChats);
+                setFilteredChats(sortedChats.slice(0, chatLimit));
             }
         } catch (error) {
             console.error('Error setting initial data:', error);
@@ -101,7 +104,7 @@ function OnlineSidebar() {
         } finally {
             setIsLoading(false);
         }
-    }, [onlineUsers, chats, user?._id]);
+    }, [onlineUsers, chats, user?._id, onlineLimit, chatLimit]);
 
     // Handle search functionality
     const handleChangeSearch = useCallback(
@@ -112,8 +115,8 @@ function OnlineSidebar() {
 
                 if (value) {
                     // Filter online users
-                    if (onlineUsers && onlineUsers.length > 0) {
-                        const filteredUsers = onlineUsers.filter(
+                    if (allOnlineUsers.length > 0) {
+                        const filteredUsers = allOnlineUsers.filter(
                             (user) =>
                                 user._id !== user?._id &&
                                 ((user.fullName &&
@@ -129,12 +132,14 @@ function OnlineSidebar() {
                                             .toLowerCase()
                                             .includes(value.toLowerCase()))),
                         );
-                        setFilteredOnlineUsers(filteredUsers);
+                        setFilteredOnlineUsers(
+                            filteredUsers.slice(0, onlineLimit),
+                        );
                     }
 
                     // Filter chats
-                    if (chats && chats.length > 0) {
-                        const filteredChats = chats
+                    if (allRecentChats.length > 0) {
+                        const filteredChats = allRecentChats
                             .filter((chat) => {
                                 if (chat.isChannel) {
                                     return (chat?.name ?? '')
@@ -161,43 +166,22 @@ function OnlineSidebar() {
                                     );
                                 }
                             })
-                            .slice(0, 10);
+                            .slice(0, chatLimit);
                         setFilteredChats(filteredChats);
                     }
                 } else {
-                    // Reset to original data
-                    if (onlineUsers && onlineUsers.length > 0) {
-                        setFilteredOnlineUsers(
-                            onlineUsers.filter((u) => u._id !== user?._id),
-                        );
-                    }
-
-                    if (chats && chats.length > 0) {
-                        const sortedChats = [...chats]
-                            .sort((a, b) => {
-                                const dateA = a.latestMessage?.createdAt
-                                    ? new Date(
-                                          a.latestMessage.createdAt,
-                                      ).getTime()
-                                    : 0;
-                                const dateB = b.latestMessage?.createdAt
-                                    ? new Date(
-                                          b.latestMessage.createdAt,
-                                      ).getTime()
-                                    : 0;
-                                return dateB - dateA;
-                            })
-                            .slice(0, 10);
-
-                        setFilteredChats(sortedChats);
-                    }
+                    // Reset to original data with limits
+                    setFilteredOnlineUsers(
+                        allOnlineUsers.slice(0, onlineLimit),
+                    );
+                    setFilteredChats(allRecentChats.slice(0, chatLimit));
                 }
             } catch (error) {
                 console.error('Error filtering data:', error);
                 toast.error('Failed to filter data');
             }
         },
-        [onlineUsers, chats, user?._id],
+        [allOnlineUsers, allRecentChats, user?._id, onlineLimit, chatLimit],
     );
 
     // Handle creating a new chat with a user
@@ -289,7 +273,7 @@ function OnlineSidebar() {
                         className={`border-b-[2px] ${
                             activeTab === 'online'
                                 ? 'border-primary-white !text-primary-white'
-                                : 'border-foreground-border text-gray'
+                                : 'border-forground-border text-gray'
                         } !bg-transparent rounded-none !shadow-none`}
                     >
                         Online Now
@@ -299,7 +283,7 @@ function OnlineSidebar() {
                         className={`border-b-[2px] ${
                             activeTab === 'recent'
                                 ? 'border-primary-white !text-primary-white'
-                                : 'border-foreground-border text-gray'
+                                : 'border-forground-border text-gray'
                         } !bg-transparent rounded-none !shadow-none`}
                     >
                         Recent Chats
@@ -399,6 +383,29 @@ function OnlineSidebar() {
                                             </div>
                                         </div>
                                     ))}
+                                    {allOnlineUsers.length >
+                                        filteredOnlineUsers.length && (
+                                        <div className='p-2 text-center flex flex-row items-center gap-1'>
+                                            <div className='w-full h-[2px] bg-border'></div>
+                                            <Button
+                                                variant='primary_light'
+                                                size='sm'
+                                                className='text-xs rounded-3xl text-primary'
+                                                onClick={() =>
+                                                    setOnlineLimit(
+                                                        (prev) => prev + 5,
+                                                    )
+                                                }
+                                            >
+                                                View More{' '}
+                                                <ChevronDown
+                                                    size={16}
+                                                    className='text-gray'
+                                                />
+                                            </Button>
+                                            <div className='w-full h-[2px] bg-border'></div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </Suspense>
@@ -695,11 +702,17 @@ function OnlineSidebar() {
                                                                 >
                                                                     {chat
                                                                         ?.latestMessage
+                                                                        ?.sender &&
+                                                                    chat
+                                                                        ?.latestMessage
                                                                         ?.sender
                                                                         ?._id !==
-                                                                    user?._id
+                                                                        user?._id
                                                                         ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
-                                                                        : 'You: '}
+                                                                        : chat
+                                                                              ?.latestMessage
+                                                                              ?.sender &&
+                                                                          'You: '}
 
                                                                     <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap ml-1'>
                                                                         {renderPlainText(
@@ -756,13 +769,16 @@ function OnlineSidebar() {
                                 );
                             })}
 
-                            {filteredChats.length > 0 && (
+                            {allRecentChats.length > filteredChats.length && (
                                 <div className='p-2 text-center flex flex-row items-center gap-1'>
                                     <div className='w-full h-[2px] bg-border'></div>
                                     <Button
                                         variant='primary_light'
                                         size='sm'
                                         className='text-xs rounded-3xl text-primary'
+                                        onClick={() =>
+                                            setChatLimit((prev) => prev + 5)
+                                        }
                                     >
                                         View More{' '}
                                         <ChevronDown

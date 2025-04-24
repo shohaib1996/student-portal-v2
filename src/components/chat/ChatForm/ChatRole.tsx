@@ -113,7 +113,7 @@ const ChatRole: React.FC<ChatRoleProps> = ({
                     defaultValue='member'
                 >
                     <div
-                        className={`flex items-center space-x-2 ${role === 'admin' ? 'bg-primary-light' : 'bg-background'} rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300`}
+                        className={`flex items-center space-x-2 ${role === 'admin' ? 'bg-blue-500/30 border border-primary' : 'bg-background'} rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300`}
                     >
                         <RadioGroupItem value='admin' id='admin' />
                         <div className='flex-1'>
@@ -123,7 +123,7 @@ const ChatRole: React.FC<ChatRoleProps> = ({
                             >
                                 Admin
                             </label>
-                            <p className='text-gray text-sm leading-tight'>
+                            <p className='text-dark-gray text-sm leading-tight'>
                                 Oversees users, chats, settings, and security
                                 for seamless communication
                             </p>
@@ -131,7 +131,7 @@ const ChatRole: React.FC<ChatRoleProps> = ({
                     </div>
 
                     <div
-                        className={`flex items-center space-x-2 ${role === 'moderator' ? 'bg-primary-light' : 'bg-background'} rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300`}
+                        className={`flex items-center space-x-2 ${role === 'moderator' ? 'bg-blue-500/30 border border-primary' : 'bg-background'} rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300`}
                     >
                         <RadioGroupItem value='moderator' id='moderator' />
                         <div className='flex-1'>
@@ -141,7 +141,7 @@ const ChatRole: React.FC<ChatRoleProps> = ({
                             >
                                 Moderator
                             </label>
-                            <p className='text-gray text-sm'>
+                            <p className='text-dark-gray text-sm'>
                                 Monitors chats, enforces guidelines, and manages
                                 user interactions
                             </p>
@@ -149,7 +149,7 @@ const ChatRole: React.FC<ChatRoleProps> = ({
                     </div>
 
                     <div
-                        className={`flex items-center space-x-2 ${role === 'member' ? 'bg-primary-light' : 'bg-background'} rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300`}
+                        className={`flex items-center space-x-2 ${role === 'member' ? 'bg-blue-500/30 border border-primary' : 'bg-background'} rounded-lg border p-2 transition-colors hover:bg-primary-light hover:border-blue/30 duration-300`}
                     >
                         <RadioGroupItem value='member' id='member' />
                         <div className='flex-1'>
@@ -159,7 +159,7 @@ const ChatRole: React.FC<ChatRoleProps> = ({
                             >
                                 Member
                             </label>
-                            <p className='text-gray text-sm'>
+                            <p className='text-dark-gray text-sm'>
                                 Participates in chats and collaborates with team
                                 members
                             </p>

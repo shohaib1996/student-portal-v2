@@ -31,6 +31,7 @@ import {
     ChatEditor,
     PluginOptions,
 } from '@/components/lexicalEditor/chateditor/editor';
+import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 // Dynamically import EmojiPicker to prevent blocking the main bundle
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
@@ -52,6 +53,7 @@ interface TextEditorReplyProps {
     setProfileInfoShow?: (show: boolean) => void;
     profileInfoShow?: boolean;
     isEdit?: boolean;
+    isChannel?: boolean;
     chat?: any;
     sendTypingIndicator?: (isTyping: boolean) => void;
 }
@@ -75,6 +77,7 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
     profileInfoShow,
     chat,
     isEdit = false,
+    isChannel,
     sendTypingIndicator,
 }) => {
     const [text, setText] = useState<string>('');
@@ -702,9 +705,11 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                                                     <DropdownMenuTrigger
                                                         asChild
                                                     >
-                                                        <button className='p-2 rounded-full hover:bg-muted transition-colors'>
-                                                            <Paperclip className='h-5 w-5 text-muted-foreground' />
-                                                        </button>
+                                                        <GlobalTooltip tooltip='Send attachment'>
+                                                            <button className='p-2 rounded-full hover:bg-muted transition-colors'>
+                                                                <Paperclip className='h-5 w-5 text-muted-foreground' />
+                                                            </button>
+                                                        </GlobalTooltip>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent
                                                         side='top'
@@ -727,23 +732,25 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
 
                                         {text?.length === 0 &&
                                         uploadFiles?.length === 0 ? (
-                                            <button
-                                                className='p-2 rounded-full hover:bg-muted transition-colors'
-                                                onClick={() =>
-                                                    setIsVoiceRecordVisible(
-                                                        true,
-                                                    )
-                                                }
-                                            >
-                                                <Mic className='h-5 w-5 text-muted-foreground' />
-                                            </button>
+                                            <GlobalTooltip tooltip='Send voice recording'>
+                                                <button
+                                                    className='p-2 rounded-full hover:bg-muted transition-colors'
+                                                    onClick={() =>
+                                                        setIsVoiceRecordVisible(
+                                                            true,
+                                                        )
+                                                    }
+                                                >
+                                                    <Mic className='h-5 w-5 text-muted-foreground' />
+                                                </button>
+                                            </GlobalTooltip>
                                         ) : null}
                                     </div>
 
                                     <button
                                         className={`p-2 rounded-full transition-all ${
                                             !text && uploadFiles?.length === 0
-                                                ? 'opacity-50 cursor-not-allowed bg-primary/60'
+                                                ? 'cursor-not-allowed bg-blue-500/60'
                                                 : 'bg-primary'
                                         }`}
                                         disabled={

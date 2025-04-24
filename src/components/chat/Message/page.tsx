@@ -695,24 +695,30 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                     {/* Emoji List */}
                                     {isEmojiPickerOpen && (
                                         <div className='flex flex-row items-center gap-1 mt-1 absolute -top-10 left-2 bg-primary-light shadow-md rounded-full p-1'>
-                                            {emojies?.map((x, i) => (
-                                                <div
-                                                    key={i}
-                                                    className={`h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white duration-200 rounded-full p-1 ${x === '❤' ? 'text-red-500' : ''}`}
-                                                    onClick={() => {
-                                                        handleReaction(
-                                                            x,
-                                                            message._id,
-                                                            message.chat,
-                                                        );
-                                                        setIsEmojiPickerOpen(
-                                                            false,
-                                                        ); // Close the emoji list after selection
-                                                    }}
-                                                >
-                                                    {x}
-                                                </div>
-                                            ))}
+                                            {emojies?.map((x, i) => {
+                                                // Assume reactions[emoji] is a count; check if user reacted via server or state
+                                                const isSelected =
+                                                    message?.reactions?.[x] &&
+                                                    message?.reactions[x] > 0; // Adjust based on actual logic
+                                                return (
+                                                    <div
+                                                        key={i}
+                                                        className={`h-8 w-8 flex items-center justify-center cursor-pointer hover:bg-white duration-200 rounded-full p-1 ${x === '❤' ? 'text-red-500' : ''} ${isSelected ? 'bg-white' : ''}`}
+                                                        onClick={() => {
+                                                            handleReaction(
+                                                                x,
+                                                                message._id,
+                                                                message.chat,
+                                                            );
+                                                            setIsEmojiPickerOpen(
+                                                                false,
+                                                            );
+                                                        }}
+                                                    >
+                                                        {x}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     )}
                                 </div>
@@ -994,21 +1000,27 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         className='bg-background'
                                     >
                                         <div className='flex flex-wrap gap-1 border-b pb-1'>
-                                            {emojies?.map((x, i) => (
-                                                <div
-                                                    key={i}
-                                                    className={`cursor-pointer h-8 w-8 flex items-center justify-center hover:bg-foreground hover:border rounded-full ${x === '❤' ? 'text-red-500' : ''}`}
-                                                    onClick={() =>
-                                                        handleReaction(
-                                                            x,
-                                                            message._id,
-                                                            message.chat,
-                                                        )
-                                                    }
-                                                >
-                                                    {x}
-                                                </div>
-                                            ))}
+                                            {emojies?.map((x, i) => {
+                                                // Assume reactions[emoji] is a count; check if user reacted via server or state
+                                                const isSelected =
+                                                    message?.reactions?.[x] &&
+                                                    message?.reactions[x] > 0; // Adjust based on actual logic
+                                                return (
+                                                    <div
+                                                        key={i}
+                                                        className={`cursor-pointer h-8 w-8 flex items-center justify-center hover:bg-foreground hover:border rounded-full ${x === '❤' ? 'text-red-500' : ''} ${isSelected ? 'bg-foreground border' : ''}`}
+                                                        onClick={() =>
+                                                            handleReaction(
+                                                                x,
+                                                                message._id,
+                                                                message.chat,
+                                                            )
+                                                        }
+                                                    >
+                                                        {x}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                         {source !== 'thread' && !isAi && (
                                             <DropdownMenuItem

@@ -41,6 +41,7 @@ import {
     EventPopoverTrigger,
 } from '@/components/calendar/CreateEvent/EventPopover';
 import CreateEventModal from '@/components/calendar/CreateEvent/CreateEventModal';
+import { Switch } from '@/components/ui/switch';
 
 // Dynamic imports
 const ChatBody = lazy(() => import('../ChatBody'));
@@ -85,7 +86,6 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
         isOpen: false,
         query: '',
     });
-
     const [finalQuery, setFinalQuery] = useState('');
 
     const handleSearchSubmit = useCallback(() => {
@@ -241,7 +241,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                             <Button
                                 variant='secondary'
                                 size='icon'
-                                className='border h-8 w-8 bg-foreground'
+                                className='border h-8 w-8 bg-background'
                                 onClick={() =>
                                     setSearch((prev) => ({
                                         ...prev,
@@ -256,7 +256,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                             <Button
                                 variant='secondary'
                                 size='icon'
-                                className='border h-8 w-8 bg-foreground'
+                                className='border h-8 w-8 bg-background'
                                 onClick={() => router.push(`/chat/${chatId}`)}
                             >
                                 <Maximize2 className='h-4 w-4' />
@@ -268,14 +268,14 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                     <Button
                                         variant='secondary'
                                         size='icon'
-                                        className='border h-8 w-8 bg-foreground'
+                                        className='border h-8 w-8 bg-background'
                                     >
                                         <MoreVertical className='h-4 w-4' />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                     align='end'
-                                    className='min-w-[180px]'
+                                    className='min-w-[180px] bg-background'
                                 >
                                     {/* Calendar option */}
                                     {/* <EventPopoverTrigger className='w-full'>
@@ -287,42 +287,49 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
 
                                     {/* Notification option */}
                                     <DropdownMenuItem
-                                        className='flex items-center gap-2 cursor-pointer'
-                                        onClick={() => handleNoti()}
+                                        className='flex items-center justify-between gap-2 cursor-pointer hover:bg-foreground border border-transparent hover:border-forground-border'
+                                        onSelect={(e) => e.preventDefault()}
                                     >
-                                        {chat?.myData?.notification?.isOn ? (
-                                            <>
+                                        <div className='flex items-center gap-2'>
+                                            {chat?.myData?.notification
+                                                ?.isOn ? (
                                                 <Bell className='h-4 w-4' />
-                                                <span>Notifications On</span>
-                                            </>
-                                        ) : (
-                                            <>
+                                            ) : (
                                                 <BellOff className='h-4 w-4' />
-                                                <span>Notifications Off</span>
-                                            </>
-                                        )}
+                                            )}
+                                            <span>Notifications</span>
+                                        </div>
+                                        <Switch
+                                            checked={
+                                                chat?.myData?.notification?.isOn
+                                            }
+                                            onCheckedChange={() => handleNoti()}
+                                            aria-label='Toggle notifications'
+                                        />
                                     </DropdownMenuItem>
 
                                     {/* Pin/Favorite option */}
                                     <DropdownMenuItem
-                                        className='flex items-center gap-2 cursor-pointer'
-                                        onClick={() =>
-                                            handleFavourite(
-                                                !chat?.myData?.isFavourite,
-                                            )
-                                        }
+                                        className='flex items-center justify-between gap-2 cursor-pointer hover:bg-foreground border border-transparent hover:border-forground-border'
+                                        onSelect={(e) => e.preventDefault()}
                                     >
-                                        {!chat?.myData?.isFavourite ? (
-                                            <>
+                                        <div className='flex items-center gap-2'>
+                                            {chat?.myData?.isFavourite ? (
                                                 <Pin className='h-4 w-4 rotate-45' />
-                                                <span>Pin Conversation</span>
-                                            </>
-                                        ) : (
-                                            <>
+                                            ) : (
                                                 <PinOff className='h-4 w-4 rotate-45' />
-                                                <span>Unpin Conversation</span>
-                                            </>
-                                        )}
+                                            )}
+                                            <span>Pin Conversation</span>
+                                        </div>
+                                        <Switch
+                                            checked={chat?.myData?.isFavourite}
+                                            onCheckedChange={() =>
+                                                handleFavourite(
+                                                    !chat?.myData?.isFavourite,
+                                                )
+                                            }
+                                            aria-label='Toggle pin conversation'
+                                        />
                                     </DropdownMenuItem>
 
                                     {/* <DropdownMenuSeparator /> */}
@@ -409,12 +416,43 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                 </div>
 
                 <Suspense fallback={null}>
-                    <NotificationOptionModal
-                        chatId={chat?._id}
-                        opened={notificationOption.isVisible}
-                        close={closeNotificationModal}
-                        member={chat?.myData}
-                    />
+                    {/* Notification Modal - Positioned in the center of the chatbox */}
+                    {notificationOption.isVisible && (
+                        <div className='fixed inset-0 flex items-center justify-center z-50'>
+                            <div
+                                className='absolute inset-0 bg-black opacity-65'
+                                onClick={closeNotificationModal}
+                            ></div>
+                            <div className='relative z-10 bg-background rounded-md shadow-lg max-w-md w-full mx-auto'>
+                                <NotificationOptionModal
+                                    chatId={chat?._id}
+                                    opened={notificationOption.isVisible}
+                                    close={closeNotificationModal}
+                                    member={chat?.myData}
+                                    handleUpdateCallback={(updatedMember) => {
+                                        // Immediately update local state to reflect the change
+                                        setChatInfo((prevChat: any) => ({
+                                            ...prevChat,
+                                            myData: {
+                                                ...prevChat.myData,
+                                                notification:
+                                                    updatedMember.notification,
+                                            },
+                                        }));
+
+                                        // Also dispatch to update the redux store directly
+                                        dispatch(
+                                            updateMyData({
+                                                _id: chat?._id,
+                                                field: 'notification',
+                                                value: updatedMember.notification,
+                                            }),
+                                        );
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    )}
                 </Suspense>
                 <CreateEventModal />
             </div>

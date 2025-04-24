@@ -39,7 +39,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
     const [selectedChats, setSelectedChats] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [sending, setSending] = useState(false);
-    console.log({ message });
+
     // Get chats from Redux store
     const { chats } = useAppSelector((state) => state.chat);
     const { user } = useAppSelector((state) => state.auth);
@@ -94,7 +94,6 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
         setSending(true);
         try {
             const chatIds = selectedChats.map((chat) => chat._id);
-            console.log({ chatIds });
             // Call the API to forward message
             const response = await instance.post(
                 `/chat/message/forward/${message._id}`,

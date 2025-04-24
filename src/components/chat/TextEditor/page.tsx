@@ -43,6 +43,7 @@ import {
     ChatEditor,
     PluginOptions,
 } from '@/components/lexicalEditor/chateditor/editor';
+import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 // Dynamically import EmojiPicker to prevent blocking the main bundle
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
@@ -61,6 +62,7 @@ interface TextEditorProps {
     profileInfoShow?: boolean;
     isPopUp?: boolean;
     isEdit?: boolean;
+    isChannel?: boolean;
     chat?: any;
     setIsAttachment?: (value: boolean) => void;
 }
@@ -91,6 +93,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     isPopUp = false,
     isEdit = false,
     setIsAttachment,
+    isChannel,
     chat,
 }) => {
     const { drafts } = useAppSelector((state) => state.chat);
@@ -126,7 +129,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         floatingLinkEditor: true,
         floatingTextFormat: false,
         maxIndentLevel: true,
-        beautifulMentions: true,
+        beautifulMentions: isChannel && true,
         showToolbar: true,
         showBottomBar: false,
         quote: false,
@@ -508,8 +511,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
             ...mappedData,
         ];
 
-        console.log('Final mention data:', finalMentionData);
-
         return finalMentionData;
     };
 
@@ -630,9 +631,11 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                                     <DropdownMenuTrigger
                                                         asChild
                                                     >
-                                                        <button className='p-2 rounded-full hover:bg-muted transition-colors'>
-                                                            <Paperclip className='h-5 w-5 text-muted-foreground' />
-                                                        </button>
+                                                        <GlobalTooltip tooltip='Send attachment'>
+                                                            <button className='p-2 rounded-full hover:bg-muted transition-colors'>
+                                                                <Paperclip className='h-5 w-5 text-muted-foreground' />
+                                                            </button>
+                                                        </GlobalTooltip>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent
                                                         side='top'
@@ -655,16 +658,18 @@ const TextEditor: React.FC<TextEditorProps> = ({
 
                                         {localText?.length === 0 &&
                                         uploadFiles?.length === 0 ? (
-                                            <button
-                                                className='p-2 rounded-full hover:bg-muted transition-colors'
-                                                onClick={() =>
-                                                    setIsVoiceRecordVisible(
-                                                        true,
-                                                    )
-                                                }
-                                            >
-                                                <Mic className='h-5 w-5 text-muted-foreground' />
-                                            </button>
+                                            <GlobalTooltip tooltip='Send voice recording'>
+                                                <button
+                                                    className='p-2 rounded-full hover:bg-muted transition-colors'
+                                                    onClick={() =>
+                                                        setIsVoiceRecordVisible(
+                                                            true,
+                                                        )
+                                                    }
+                                                >
+                                                    <Mic className='h-5 w-5 text-muted-foreground' />
+                                                </button>
+                                            </GlobalTooltip>
                                         ) : null}
                                     </div>
 
@@ -672,7 +677,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                         className={`p-2 rounded-full transition-all ${
                                             !localText &&
                                             uploadFiles?.length === 0
-                                                ? 'opacity-50 cursor-not-allowed bg-primary/60'
+                                                ? 'cursor-not-allowed bg-blue-500/60'
                                                 : 'bg-primary'
                                         }`}
                                         disabled={
