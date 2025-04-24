@@ -496,7 +496,10 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const [archiveChannel] = useArchiveChannelMutation();
 
     const handleArchive = useCallback(() => {
-        dispatch(setSelectedChat({ ...chat, isArchived: !chat.isArchived }));
+        // if(user?.role !== 'admin' || user?.role !== 'owner') {
+        //     toast.error('You do not have permission to archive this channel');
+        //     return;
+        // }
         if (chat?._id) {
             archiveChannel({
                 chatId: chat._id,
@@ -504,6 +507,12 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
             })
                 .unwrap()
                 .then(() => {
+                    dispatch(
+                        setSelectedChat({
+                            ...chat,
+                            isArchived: !chat.isArchived,
+                        }),
+                    );
                     dispatch(loadChats() as any);
 
                     setArchivedConfirmOpened(false);
@@ -513,6 +522,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                 })
                 .catch((error) => {
                     console.error(error);
+                    setArchivedConfirmOpened(false);
                     toast.error(error?.data?.error || 'Error archiving group');
                 });
         }
