@@ -969,7 +969,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                   ?.latestMessage
                                                                                   ?.type ===
                                                                               'delete' ? (
-                                                                                <span className='italic text-red-500'>
+                                                                                <span className='italic text-red-500 mr-2'>
                                                                                     Message
                                                                                     deleted
                                                                                 </span>
@@ -1110,11 +1110,17 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                 >
                                                                                     {chat
                                                                                         ?.latestMessage
+                                                                                        ?.sender &&
+                                                                                    chat
+                                                                                        ?.latestMessage
                                                                                         ?.sender
                                                                                         ?._id !==
-                                                                                    user?._id
+                                                                                        user?._id
                                                                                         ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
-                                                                                        : 'You: '}
+                                                                                        : chat
+                                                                                              ?.latestMessage
+                                                                                              ?.sender &&
+                                                                                          'You: '}
                                                                                     {/* {getText(
                                                                                         chat
                                                                                             ?.latestMessage

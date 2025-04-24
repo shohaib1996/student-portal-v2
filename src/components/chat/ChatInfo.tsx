@@ -116,7 +116,8 @@ const ImageUploader = ({
 }) => {
     const [dragActive, setDragActive] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-
+    const { user } = useSelector((state: any) => state.auth);
+    console.log({ chat });
     // Handle drag events
     const handleDrag = (e: React.DragEvent) => {
         e.preventDefault();
@@ -979,24 +980,51 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                 >
                                     <div className='flex flex-col gap-2 items-center'>
                                         <div className='relative'>
-                                            <ImageUploader
-                                                chat={chat}
-                                                onImageUpload={
-                                                    handleUploadImage
-                                                }
-                                                isLoading={imageLoading}
-                                                previewImage={
-                                                    chat?.isChannel
-                                                        ? chat?.avatar ||
-                                                          '/chat/group.png'
-                                                        : chat?.otherUser
-                                                                ?.type === 'bot'
-                                                          ? '/ai_bot.png'
-                                                          : chat?.otherUser
-                                                                ?.profilePicture ||
-                                                            '/chat/user.png'
-                                                }
-                                            />
+                                            {chat?.isChannel &&
+                                            ['owner', 'admin'].includes(
+                                                chat?.myData?.role,
+                                            ) ? (
+                                                <ImageUploader
+                                                    chat={chat}
+                                                    onImageUpload={
+                                                        handleUploadImage
+                                                    }
+                                                    isLoading={imageLoading}
+                                                    previewImage={
+                                                        chat?.isChannel
+                                                            ? chat?.avatar ||
+                                                              '/chat/group.png'
+                                                            : chat?.otherUser
+                                                                    ?.type ===
+                                                                'bot'
+                                                              ? '/ai_bot.png'
+                                                              : chat?.otherUser
+                                                                    ?.profilePicture ||
+                                                                '/chat/user.png'
+                                                    }
+                                                />
+                                            ) : (
+                                                <div className='w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-primary'>
+                                                    <img
+                                                        src={
+                                                            chat?.isChannel
+                                                                ? chat?.avatar ||
+                                                                  '/chat/group.png'
+                                                                : chat
+                                                                        ?.otherUser
+                                                                        ?.type ===
+                                                                    'bot'
+                                                                  ? '/ai_bot.png'
+                                                                  : chat
+                                                                        ?.otherUser
+                                                                        ?.profilePicture ||
+                                                                    '/chat/user.png'
+                                                        }
+                                                        alt='Chat avatar'
+                                                        className='w-full h-full object-cover'
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className='name_section flex flex-row gap-3 justify-between w-full pb-2 border-b'>

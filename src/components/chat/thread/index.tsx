@@ -182,7 +182,7 @@ const Thread: React.FC<ThreadProps> = ({
                                         <div key={dateHeader}>
                                             <div className='flex justify-center flex-row items-center gap-1 my-2'>
                                                 <div className='h-[2px] w-full bg-border'></div>
-                                                <span className='text-primary text-xs bg-primary-light text-nowrap px-2 py-1 rounded-full'>
+                                                <span className='text-primary-white text-xs bg-primary-light text-nowrap px-2 py-1 rounded-full'>
                                                     {dateHeader}
                                                 </span>
                                                 <div className='h-[2px] w-full bg-border'></div>

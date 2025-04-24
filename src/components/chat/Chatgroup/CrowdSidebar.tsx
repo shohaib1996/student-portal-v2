@@ -344,7 +344,7 @@ function CrowdSidebar() {
                                                 </>
                                             )}
 
-                                            <p className='text-xs text-gray truncate max-w-[80%]'>
+                                            <p className='text-xs text-gray truncate max-w-[80%] mr-2'>
                                                 {chat?.latestMessage?.type ===
                                                 'activity' ? (
                                                     <span className='italic'>
@@ -481,10 +481,15 @@ function CrowdSidebar() {
                                                         className={`flex flex-row items-center ${isUnRead ? 'font-semibold text-dark-black' : 'font-normal text-gray'}`}
                                                     >
                                                         {chat?.latestMessage
+                                                            ?.sender &&
+                                                        chat?.latestMessage
                                                             ?.sender?._id !==
-                                                        user?._id
+                                                            user?._id
                                                             ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
-                                                            : 'You: '}
+                                                            : chat
+                                                                  ?.latestMessage
+                                                                  ?.sender &&
+                                                              'You: '}
 
                                                         <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap ml-1'>
                                                             {renderPlainText({

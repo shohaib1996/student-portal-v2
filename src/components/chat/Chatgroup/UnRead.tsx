@@ -383,7 +383,7 @@ function UnRead() {
                                                     ) : chat.latestMessage
                                                           ?.type ===
                                                       'delete' ? (
-                                                        <span className='italic'>
+                                                        <span className='italic mr-2'>
                                                             Message deleted
                                                         </span>
                                                     ) : chat?.latestMessage
@@ -519,11 +519,16 @@ function UnRead() {
                                                             className={`flex flex-row items-center ${isUnRead ? 'font-semibold text-dark-black' : 'font-normal text-gray'}`}
                                                         >
                                                             {chat?.latestMessage
+                                                                ?.sender &&
+                                                            chat?.latestMessage
                                                                 ?.sender
                                                                 ?._id !==
-                                                            user?._id
+                                                                user?._id
                                                                 ? `${chat?.isChannel ? `${chat?.latestMessage?.sender?.firstName}: ` : ''}`
-                                                                : 'You: '}
+                                                                : chat
+                                                                      ?.latestMessage
+                                                                      ?.sender &&
+                                                                  'You: '}
 
                                                             <div className='w-[180px] overflow-hidden text-ellipsis whitespace-nowrap ml-1'>
                                                                 {renderPlainText(

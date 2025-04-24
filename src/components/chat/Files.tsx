@@ -28,7 +28,7 @@ const Files: React.FC<FilesProps> = ({ chat }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(12);
+    const [itemsPerPage, setItemsPerPage] = useState(15);
     const divRef = useRef<HTMLDivElement>(null);
 
     // Set up debounced search query to prevent excessive API calls

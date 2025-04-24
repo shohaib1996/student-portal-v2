@@ -20,6 +20,7 @@ interface MuteMessageProps {
 export interface ChatData {
     _id?: string;
     isReadOnly?: boolean;
+    isChannel?: boolean;
     myData?: {
         role?: string;
         mute?: MuteData;
@@ -116,6 +117,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
                                 setProfileInfoShow={setProfileInfoShow}
                                 profileInfoShow={profileInfoShow}
                                 chat={chat}
+                                isChannel={chat?.isChannel}
                             />
                         ) : (
                             <TextEditor
@@ -129,6 +131,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({
                                 profileInfoShow={profileInfoShow}
                                 chat={chat}
                                 setIsAttachment={setIsAttachment}
+                                isChannel={chat?.isChannel}
                             />
                         )}
                     </>
