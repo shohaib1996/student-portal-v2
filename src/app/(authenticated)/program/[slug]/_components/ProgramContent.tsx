@@ -171,8 +171,6 @@ const ProgramContent = ({
     // Get filtered chapters
     const filteredChapters = getFilteredChapters();
 
-    console.log({ filteredChapters });
-
     return (
         <div className='p-2 flex relative bg-foreground'>
             {/* Desktop Sidebar */}

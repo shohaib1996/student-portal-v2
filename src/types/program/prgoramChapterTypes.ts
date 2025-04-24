@@ -5,10 +5,11 @@ export enum ChapterType {
 
 export enum LessonType {
     VIDEO = 'video',
+    Quiz = 'quiz',
 }
 
 export type TLessonInfo = {
-    type: LessonType;
+    type: LessonType.Quiz | LessonType.VIDEO;
     isFree: boolean;
     duration?: string | number | undefined;
     _id: string;
@@ -91,3 +92,36 @@ export type TChaptersResponse = {
     chapters: TContent[];
     success: boolean;
 };
+
+export interface Interview {
+    success: boolean;
+    interview: {
+        _id: string;
+    };
+    questions: Question[];
+}
+
+interface Question {
+    question: string;
+    options: Option[];
+}
+
+interface Option {
+    option: string;
+}
+
+export interface AnswerPayload {
+    answers: Answer[];
+    source: string;
+    course: string;
+}
+
+interface Answer {
+    question: string;
+    options: AnswerOption[];
+}
+
+interface AnswerOption {
+    option: string;
+    isAnswered?: boolean;
+}

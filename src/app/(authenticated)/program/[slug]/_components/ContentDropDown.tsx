@@ -1,32 +1,54 @@
 'use client';
 
+// React imports
 import type React from 'react';
 import { useState, useEffect, useCallback } from 'react';
+
+// UI Components
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from '@/components/ui/accordion';
-import { File, Folder, Play, MoreVertical } from 'lucide-react';
-import Link from 'next/link';
-import { ChapterType, type TContent, type TLessonInfo } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import GlobalModal from '@/components/global/GlobalModal';
+
+// Icons and SVGs
+import { File, Folder, Play, MoreVertical, Clock } from 'lucide-react';
+import LecturesSvg from '@/components/svgs/common/LecturesSvg';
+import MemoizedLoadingIndicator from '@/components/svgs/common/LoadingIndicator';
+import MemoizedEmptyState from '@/components/svgs/common/EmptyState';
+
+// Navigation and Utils
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import LessionActionMenu from './LessionActionMenu';
 import {
     buildContentTree,
     getTotalDuration,
     countLessons,
     searchContentTree,
 } from '@/utils/tree-utils';
-import LecturesSvg from '@/components/svgs/common/LecturesSvg';
-import MemoizedLoadingIndicator from '@/components/svgs/common/LoadingIndicator';
-import MemoizedEmptyState from '@/components/svgs/common/EmptyState';
 
-// Define the video data type for better type safety
-// Updated interface for ContentDropDown props
+// Types
+import {
+    AnswerPayload,
+    ChapterType,
+    Interview,
+    type TContent,
+    type TLessonInfo,
+} from '@/types';
+
+// Related Components
+import LessionActionMenu from './LessionActionMenu';
+import {
+    useGetQuizForLessonQuery,
+    useSubmitQuizForLessonQuery,
+} from '@/redux/api/course/courseApi';
+import QuizModalContent from './QuizModalContent';
+
+// Types definitions
 interface ContentDropDownProps {
     fetchedData: TContent[] | null;
     videoData: {
@@ -50,47 +72,54 @@ interface ContentDropDownProps {
     >;
     setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
     searchInput: string;
-
-    // Update filterOption to match the new structure
     filterOption: Array<{ property: string; value: any }>;
-
-    // Optional props for local completion state
     localCompletionState?: Map<string, boolean>;
     setLocalCompletionState?: React.Dispatch<
         React.SetStateAction<Map<string, boolean>>
     >;
 }
 
+interface QuizModalProps {
+    openQuiz: boolean;
+    setOpenQuiz: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+// Helper component for Quiz Modal
+// const QuizModalComponent: React.FC<QuizModalProps> = ({
+//     openQuiz,
+//     setOpenQuiz,
+// }) => {
+//     console.log({ openQuiz });
+//     return <GlobalModal open={openQuiz} setOpen={setOpenQuiz}></GlobalModal>;
+// };
+
+// Main component
 const ContentDropDown: React.FC<ContentDropDownProps> = ({
     fetchedData,
     setVideoData,
     videoData,
     setIsPinnedEyeOpen,
     option,
-
     searchInput,
     filterOption,
 }) => {
-    // Keep track of expanded chapters
+    // State management
     const [expandedChapters, setExpandedChapters] = useState<Set<string>>(
         new Set(),
     );
-    // Transform flat data into tree structure
     const [treeData, setTreeData] = useState<TContent[]>([]);
-
-    // NEW: Track locally completed lessons for instant UI updates
     const [localCompletionState, setLocalCompletionState] = useState<
         Map<string, boolean>
     >(new Map());
+    const [openQuiz, setOpenQuiz] = useState(false);
 
-    console.log('fetchedData', fetchedData);
+    const [lesson, setLesson] = useState({});
+
+    // Initialize content tree
     useEffect(() => {
         if (fetchedData && fetchedData.length > 0) {
             try {
-                // Use the fixed buildContentTree function
-
                 const tree = buildContentTree(fetchedData);
-
                 setTreeData(tree);
             } catch (error) {
                 console.error('Error building content tree:', error);
@@ -99,9 +128,9 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         } else {
             setTreeData([]);
         }
-    }, [fetchedData, searchInput]); // Add searchInput as a dependency
+    }, [fetchedData, searchInput]);
 
-    // NEW: Function to handle lesson completion updates
+    // Utility handlers and formatters
     const handleProgressUpdate = useCallback(
         (lessonId: string, isCompleted: boolean) => {
             setLocalCompletionState((prevState) => {
@@ -113,7 +142,6 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         [],
     );
 
-    // NEW: Enhanced function to calculate progress with local state
     const calculateProgressWithLocalState = useCallback(
         (chapter: TContent): number => {
             // If the chapter itself is completed, return 100%
@@ -207,6 +235,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         return null;
     }, []);
 
+    // Event handlers
     const toggleChapter = useCallback(
         (chapterId: string, e?: React.MouseEvent): void => {
             if (e) {
@@ -241,6 +270,15 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         [setIsPinnedEyeOpen, setVideoData],
     );
 
+    console.log({ treeData });
+
+    const handelQuizOpen = () => {
+        setOpenQuiz(true);
+    };
+    const handleQuizClose = () => {
+        setOpenQuiz(false);
+    };
+    // Content rendering
     const renderContent = useCallback(
         (data: TContent[], parentIndex = ''): React.ReactNode => {
             return data.map((item, index) => {
@@ -249,7 +287,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
                 // Handle lesson type content
                 if (item.type === ChapterType.LESSON && 'lesson' in item) {
-                    // NEW: Check both backend and local completion status
+                    // Check both backend and local completion status
                     const localCompletionStatus = localCompletionState.get(
                         item._id,
                     );
@@ -277,7 +315,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                 >
                                     <div className='flex items-center justify-between w-full p-2'>
                                         <div
-                                            className='flex items-center gap-3 grow-[1] w-auto cursor-pointer'
+                                            className='flex items-center gap-3 grow-[1] w-full cursor-pointer'
                                             onClick={(e: React.MouseEvent) =>
                                                 handleVideoClick(item, e)
                                             }
@@ -297,14 +335,14 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                                     )}
                                                 </span>
                                             </div>
+                                        </div>
+
+                                        <div className='flex items-center gap-1'>
                                             <div className='flex items-start gap-1'>
                                                 {renderPriorityBadge(
                                                     item.priority,
                                                 )}
                                             </div>
-                                        </div>
-
-                                        <div className='flex items-center gap-1'>
                                             <LessionActionMenu
                                                 videoData={videoData}
                                                 item={item}
@@ -316,7 +354,6 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                                 setIsPinnedEyeOpen={
                                                     setIsPinnedEyeOpen
                                                 }
-                                                // NEW: Add progress update callback
                                                 onProgressUpdate={
                                                     handleProgressUpdate
                                                 }
@@ -324,6 +361,67 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                         </div>
                                     </div>
                                 </AccordionTrigger>
+                            ) : item.lesson.type === 'quiz' ? (
+                                <>
+                                    <AccordionTrigger
+                                        isIcon={false}
+                                        className={`text-start hover:no-underline py-0 ${
+                                            status === 'upcoming' ? '' : ''
+                                        } [&[data-state=open]>a>div>div>p]:text-primary [&[data-state=open]>div>div>svg]:stroke-primary`}
+                                    >
+                                        <div className='w-full'>
+                                            <div className='flex items-center justify-between w-full p-2'>
+                                                <div
+                                                    className='flex items-center gap-3 grow-[1]  '
+                                                    onClick={() => {
+                                                        handelQuizOpen();
+                                                        setLesson(item);
+                                                    }}
+                                                >
+                                                    <div>
+                                                        <File className='h-5 w-5 stroke-gray' />
+                                                    </div>
+
+                                                    <div>
+                                                        <p className='text-sm font-medium text-black'>
+                                                            {item.lesson.title}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className='flex items-center gap-3'>
+                                                    <div className='flex gap-1'>
+                                                        {renderPriorityBadge(
+                                                            item.priority,
+                                                        )}
+                                                    </div>
+                                                    <div className='flex items-center gap-1'>
+                                                        <LessionActionMenu
+                                                            videoData={
+                                                                videoData
+                                                            }
+                                                            item={item}
+                                                            setVideoData={
+                                                                setVideoData
+                                                            }
+                                                            lessonId={item?._id}
+                                                            courseId={
+                                                                item?.myCourse
+                                                                    ?.course
+                                                            }
+                                                            setIsPinnedEyeOpen={
+                                                                setIsPinnedEyeOpen
+                                                            }
+                                                            onProgressUpdate={
+                                                                handleProgressUpdate
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </AccordionTrigger>
+                                </>
                             ) : (
                                 <AccordionTrigger
                                     isIcon={false}
@@ -340,7 +438,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                                         : '#'
                                                 }
                                                 target='_blank'
-                                                className='flex items-center gap-3'
+                                                className='flex items-center gap-3 grow-[1] w-full'
                                             >
                                                 <div>
                                                     <File className='h-5 w-5 stroke-gray' />
@@ -350,12 +448,6 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                                     <p className='text-sm font-medium text-black'>
                                                         {item.lesson.title}
                                                     </p>
-                                                    {/* <span className='text-xs text-gray'>
-                                                        {formatSeconds(
-                                                            item.lesson
-                                                                .duration as number,
-                                                        )}
-                                                    </span> */}
                                                 </div>
                                             </Link>
 
@@ -380,7 +472,6 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                                         setIsPinnedEyeOpen={
                                                             setIsPinnedEyeOpen
                                                         }
-                                                        // NEW: Add progress update callback
                                                         onProgressUpdate={
                                                             handleProgressUpdate
                                                         }
@@ -397,15 +488,15 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
                 // Handle chapter type content
                 if (item.type === ChapterType.CHAPTER && 'chapter' in item) {
-                    // NEW: Use the enhanced progress calculation that includes local state
+                    // Use the enhanced progress calculation that includes local state
                     const progress = calculateProgressWithLocalState(item);
                     const hasChildren =
                         item?.children && item.children.length > 0;
 
-                    // Use countLessons to get the total number of lessons (including nested ones)
+                    // Get the total number of lessons (including nested ones)
                     const lectures = countLessons(item);
 
-                    // Use getTotalDuration to get the total duration of all lessons (including nested ones)
+                    // Get the total duration of all lessons (including nested ones)
                     const duration = getTotalDuration(item);
 
                     const isExpanded = expandedChapters.has(item._id);
@@ -438,32 +529,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                                     {lectures} lectures
                                                 </span>
                                                 <span className='flex items-center gap-1 text-sm text-nowrap'>
-                                                    <svg
-                                                        xmlns='http://www.w3.org/2000/svg'
-                                                        width='12'
-                                                        height='13'
-                                                        viewBox='0 0 12 13'
-                                                        fill='none'
-                                                        stroke='#5C5958'
-                                                        strokeWidth='1.2'
-                                                        strokeLinecap='round'
-                                                        strokeLinejoin='round'
-                                                    >
-                                                        <path
-                                                            d='M11 6.5C11 9.26 8.76 11.5 6 11.5C3.24 11.5 1 9.26 1 6.5C1 3.74 3.24 1.5 6 1.5C8.76 1.5 11 3.74 11 6.5Z'
-                                                            stroke='#5C5958'
-                                                            strokeWidth='1.2'
-                                                            strokeLinecap='round'
-                                                            strokeLinejoin='round'
-                                                        />
-                                                        <path
-                                                            d='M7.85494 8.09086L6.30494 7.16586C6.03494 7.00586 5.81494 6.62086 5.81494 6.30586V4.25586'
-                                                            stroke='#5C5958'
-                                                            strokeWidth='1.2'
-                                                            strokeLinecap='round'
-                                                            strokeLinejoin='round'
-                                                        />
-                                                    </svg>
+                                                    <Clock className='size-3' />
                                                     {formatSeconds(
                                                         duration as number,
                                                     )}
@@ -471,7 +537,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='flex items-center gap-4'>
+                                    <div className='flex items-center gap-2'>
                                         <div className='w-32'>
                                             <div className='flex items-center justify-between mb-1 gap-1.5'>
                                                 <Progress
@@ -484,6 +550,19 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                                 </span>
                                             </div>
                                         </div>
+                                        <LessionActionMenu
+                                            videoData={videoData}
+                                            item={item}
+                                            setVideoData={setVideoData}
+                                            lessonId={item?._id}
+                                            courseId={item?.myCourse?.course}
+                                            setIsPinnedEyeOpen={
+                                                setIsPinnedEyeOpen
+                                            }
+                                            onProgressUpdate={
+                                                handleProgressUpdate
+                                            }
+                                        />
                                     </div>
                                 </div>
                             </AccordionTrigger>
@@ -568,39 +647,15 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                     <MemoizedEmptyState />
                 )}
             </Accordion>
+            <GlobalModal
+                open={openQuiz}
+                setOpen={handleQuizClose}
+                title='Give tour qiize'
+            >
+                <QuizModalContent lesson={lesson as any} />
+            </GlobalModal>
         </div>
     );
-};
-
-const filterContent = (
-    treeData: TContent[],
-    filterOption: { filter: string }[],
-): TContent[] => {
-    if (!filterOption || filterOption.length === 0) {
-        return treeData;
-    }
-
-    const filteredTree = treeData.map((item) => {
-        if (item.type === ChapterType.CHAPTER && item.children) {
-            const filteredChildren = filterContent(item.children, filterOption);
-            return { ...item, children: filteredChildren };
-        }
-
-        const matchesFilter = filterOption.every((filterObj) => {
-            const filterValue = filterObj.filter.toLowerCase();
-            if (item.type === ChapterType.LESSON && item.lesson) {
-                return item.lesson.title.toLowerCase().includes(filterValue);
-            }
-            if (item.type === ChapterType.CHAPTER && item.chapter) {
-                return item.chapter.name.toLowerCase().includes(filterValue);
-            }
-            return false;
-        });
-
-        return matchesFilter ? item : null;
-    });
-
-    return filteredTree.filter(Boolean) as TContent[];
 };
 
 export default ContentDropDown;

@@ -93,6 +93,32 @@ const courseApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: [tagTypes.course],
         }),
+
+        getQuizForLesson: build.query({
+            query: ({
+                lessonUrl,
+                lessonId,
+            }: {
+                lessonUrl: string;
+                lessonId: string;
+            }) => ({
+                url: `/interviewqa/question/getactive/${lessonUrl}?source=${lessonId}`,
+                method: 'GET',
+            }),
+        }),
+        submitQuizForLesson: build.query({
+            query: ({
+                interviewId,
+                payload,
+            }: {
+                interviewId: string;
+                payload: any;
+            }) => ({
+                url: `/interviewqa/answer/submit/${interviewId}`,
+                method: 'POST',
+                data: payload,
+            }),
+        }),
     }),
 });
 
@@ -107,4 +133,6 @@ export const {
     useGetAllCourseReviewQuery,
     useGetAllCourseProgramsQuery,
     useGetSingleChapterQuery,
+    useGetQuizForLessonQuery,
+    useSubmitQuizForLessonQuery,
 } = courseApi;
