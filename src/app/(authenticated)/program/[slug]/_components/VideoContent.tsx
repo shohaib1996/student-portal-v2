@@ -70,7 +70,6 @@ const VideoContent: React.FC<VideoContentProps> = ({
 
     const programData = data?.program;
 
-    console.log({ singleData });
     const tabData = singleData?.chapter?.lesson?.data;
 
     const tabs = tabData

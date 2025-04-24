@@ -42,7 +42,6 @@ const ProgramContent = ({
 }) => {
     const courseData = courseContentData?.course;
 
-    console.log({ courseData });
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [isPinnedEyeOpen, setIsPinnedEyeOpen] = useState(false);
 
@@ -79,26 +78,88 @@ const ProgramContent = ({
     }, [refetchCourseContent]);
 
     // Filter chapters based on search input
+    // const checkSearch = () => {
+    //     if (!fetchedData) {
+    //         return [];
+    //     }
+
+    //     // If search input is empty, return all
+    //     if (searchInput.trim() === '') {
+    //         return fetchedData;
+    //     }
+
+    //     const searchTerm = searchInput.toLowerCase().trim();
+
+    //     // Filter chapters that match the search term
+    //     const filteredChapters = fetchedData.filter((item) => {
+    //         if (item.type === 'chapter') {
+    //             return item.chapter?.name.toLowerCase().includes(searchTerm);
+    //         }
+    //         if (item.type === 'lesson') {
+    //             console.log(item);
+    //             return item?.lesson?.title?.toLowerCase().includes(searchTerm);
+    //         }
+    //         return false;
+    //     });
+
+    //     // Get the IDs of matched chapters
+    //     const matchedChapterIds = filteredChapters.map((item) => item._id);
+
+    //     // Find items whose parent ID matches one of the filtered chapter IDs
+    //     const relatedItems = fetchedData.filter(
+    //         (item) =>
+    //             item.myCourse &&
+    //             matchedChapterIds.includes(item.myCourse.parent),
+    //     );
+
+    //     // Combine the filtered chapters and their related items
+    //     const result = [...filteredChapters, ...relatedItems];
+
+    //     console.log({ filteredResults: result });
+    //     return result;
+    // };
+
+    // Call the function
+    // const searchResults = checkSearch();
+
     const getFilteredChapters = useCallback(() => {
         if (!fetchedData) {
             return [];
         }
 
-        // First apply search filter
-        let filteredResults = fetchedData;
-
-        if (searchInput.trim() !== '') {
-            const searchTerm = searchInput.toLowerCase().trim();
-            filteredResults = fetchedData.filter(
-                (chapter) =>
-                    chapter.chapter?.name?.toLowerCase().includes(searchTerm) ||
-                    chapter.chapter?.description
-                        ?.toLowerCase()
-                        .includes(searchTerm),
-            );
+        // If search input is empty, return all
+        if (searchInput.trim() === '') {
+            return fetchedData;
         }
 
-        return filteredResults;
+        const searchTerm = searchInput.toLowerCase().trim();
+
+        // Filter chapters that match the search term
+        const filteredChapters = fetchedData.filter((item) => {
+            if (item.type === 'chapter') {
+                return item.chapter?.name.toLowerCase().includes(searchTerm);
+            }
+            if (item.type === 'lesson') {
+                return item?.lesson?.title?.toLowerCase().includes(searchTerm);
+            }
+            return false;
+        });
+
+        // Get the IDs of matched chapters
+        const matchedChapterIds = filteredChapters.map((item) => item._id);
+
+        // Find items whose parent ID matches one of the filtered chapter IDs
+        const relatedItems = fetchedData.filter(
+            (item) =>
+                item.myCourse &&
+                matchedChapterIds.includes(item.myCourse.parent),
+        );
+
+        // Combine the filtered chapters and their related items
+        const result = [...filteredChapters, ...relatedItems];
+
+        // console.log({ filteredResults: result });
+        return result;
     }, [fetchedData, searchInput]);
 
     useEffect(() => {
@@ -109,6 +170,8 @@ const ProgramContent = ({
 
     // Get filtered chapters
     const filteredChapters = getFilteredChapters();
+
+    console.log({ filteredChapters });
 
     return (
         <div className='p-2 flex relative bg-foreground'>
@@ -197,7 +260,7 @@ const ProgramContent = ({
                             <Input
                                 onChange={(e) => setSearchInput(e.target.value)}
                                 placeholder='Search chapter & modules...'
-                                className='pl-9 w-[280px] md:w-[300px] border-border rounded-lg text-dark-gray placeholder:text-dark-gray bg-foreground'
+                                className='pl-9 w-[280px] md:w-[300px] border-border-primary-light rounded-lg text-dark-gray placeholder:text-dark-gray bg-foreground'
                                 value={searchInput}
                             />
                             {searchInput?.length > 0 && (

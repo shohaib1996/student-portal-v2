@@ -168,6 +168,16 @@ export interface ChapterData {
         isFree: boolean;
         updatedAt?: string;
     };
+    lesson: {
+        title: string;
+        name: string;
+        description: string | null;
+        subTitle: string | null;
+        subDescription: string | null;
+        image: string;
+        isFree: boolean;
+        updatedAt?: string;
+    };
     category: string;
     updatedAt: string;
     priority?: number;

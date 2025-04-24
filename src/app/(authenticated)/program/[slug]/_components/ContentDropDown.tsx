@@ -83,20 +83,15 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         Map<string, boolean>
     >(new Map());
 
-    console.log({ filterOption });
+    console.log('fetchedData', fetchedData);
     useEffect(() => {
         if (fetchedData && fetchedData.length > 0) {
             try {
                 // Use the fixed buildContentTree function
+
                 const tree = buildContentTree(fetchedData);
 
-                // Apply search filtering if there's a search query
-                if (searchInput && searchInput.trim() !== '') {
-                    const filteredTree = searchContentTree(tree, searchInput);
-                    setTreeData(filteredTree);
-                } else {
-                    setTreeData(tree);
-                }
+                setTreeData(tree);
             } catch (error) {
                 console.error('Error building content tree:', error);
                 setTreeData([]);

@@ -34,7 +34,6 @@ export function ProgramSidebar({
     const { data, isLoading, error } = useGetPortalDataQuery({ bootcamp: {} });
     const bootcamp: TBootcampResult[] = data?.data?.bootcamp?.results;
 
-    console.log({ bootcamp, courseData, fetchedData });
     const totalCompleted = bootcamp?.reduce(
         (acc, curr) => acc + Number(curr.completedItems),
         0,

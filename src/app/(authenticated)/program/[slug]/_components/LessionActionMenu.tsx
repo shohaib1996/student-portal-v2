@@ -43,8 +43,6 @@ const LessionActionMenu = ({
         return <div>Loading...</div>;
     }
 
-    console.log({ videoData });
-
     const [isLoading, setIsLoading] = useState(false);
     const [isPinned, setIsPinned] = useState(item.isPinned ?? false);
     const [isCompleted, setIsCompleted] = useState(item.isCompleted ?? false);

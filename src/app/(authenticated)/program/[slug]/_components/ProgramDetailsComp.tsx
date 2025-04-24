@@ -103,7 +103,6 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
     const commingSoon = () => {
         toast.success('Coming Soon...');
     };
-    console.log({ filteredChaptersData });
     const lastUpdate = myPrograms?.program?.updatedAt;
 
     const { data: reviews } = useGetAllCourseReviewQuery({});
