@@ -56,7 +56,12 @@ export function FontBackgroundToolbarPlugin() {
 
     return (
         <ColorPicker
-            icon={<PaintBucketIcon className='size-4' />}
+            icon={
+                <PaintBucketIcon
+                    style={{ color: bgColor }}
+                    className='size-4'
+                />
+            }
             color={bgColor}
             onChange={onBgColorSelect}
             title='text background color'

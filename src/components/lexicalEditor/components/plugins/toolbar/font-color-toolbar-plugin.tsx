@@ -52,7 +52,9 @@ export function FontColorToolbarPlugin() {
 
     return (
         <ColorPicker
-            icon={<BaselineIcon className='size-4' />}
+            icon={
+                <BaselineIcon style={{ color: fontColor }} className='size-4' />
+            }
             color={fontColor}
             onChange={onFontColorSelect}
             title='text color'

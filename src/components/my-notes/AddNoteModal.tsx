@@ -32,6 +32,7 @@ import GlobalBlockEditor from '../editor/GlobalBlockEditor';
 import { toast } from 'sonner';
 import UploadAttatchment from '../global/UploadAttatchment/UploadAttatchment';
 import UploadThumbnail from '../global/UploadThumbnail/UploadThumbnail';
+import { TagsInput } from '../global/TagsInput';
 
 export interface AddNoteModalProps {
     isOpen: boolean;
@@ -45,7 +46,7 @@ const noteSchema = z.object({
     title: z.string().trim().min(1, { message: 'Title is required' }),
     description: z.string().optional(),
     thumbnail: z.string().optional(),
-    tags: z.string().optional(),
+    tags: z.array(z.string()).optional(),
     purpose: z
         .object({
             category: z.string(),
@@ -80,7 +81,7 @@ export function AddNoteModal({
             attachments: defaultValues?.attachments || [],
             description: defaultValues?.description || '',
             title: defaultValues?.title || '',
-            tags: defaultValues?.tags?.join(',') || '',
+            tags: defaultValues?.tags || [],
         },
     });
 
@@ -88,7 +89,7 @@ export function AddNoteModal({
         form.reset({
             description: '',
             title: '',
-            tags: '',
+            tags: [],
             purpose: {
                 category: '',
                 resourceId: '',
@@ -104,7 +105,7 @@ export function AddNoteModal({
             form.reset({
                 description: defaultValues.description,
                 title: defaultValues.title,
-                tags: defaultValues?.tags?.join(','),
+                tags: defaultValues?.tags || [],
                 purpose: defaultValues?.purpose,
                 attachments: defaultValues?.attachments || [],
                 thumbnail: defaultValues?.thumbnail || '',
@@ -112,26 +113,11 @@ export function AddNoteModal({
         }
     }, [isOpen, defaultValues, form]);
 
-    const handleRemoveFile = (index: number) => {
-        const current = form.watch('attachments');
-
-        const newValues = current?.filter((item) => {
-            const i = current.indexOf(item);
-            if (i !== i) {
-                return item;
-            }
-        });
-
-        form.setValue('attachments', newValues);
-    };
-
     const onSubmit = async (values: z.infer<typeof noteSchema>) => {
         const submissionData: Partial<TNote> = {
             description: values.description,
             title: values.title.trim(),
-            tags: values.tags
-                ? values.tags.split(',').map((tag) => tag.trim())
-                : [],
+            tags: values.tags || [],
             thumbnail: values.thumbnail,
             attachments: values.attachments,
             purpose: values.purpose,
@@ -178,6 +164,7 @@ export function AddNoteModal({
                         <ArrowLeft size={20} />
                     </Button>
                     <GlobalHeader
+                        withTooltip={false}
                         className='border-none'
                         title={defaultValues ? 'Edit Note' : 'Add Note'}
                         subTitle={
@@ -217,28 +204,6 @@ export function AddNoteModal({
                                                 className='mb-2 flex items-center gap-1'
                                             >
                                                 Description
-                                                <span className='text-muted-foreground'>
-                                                    <svg
-                                                        xmlns='http://www.w3.org/2000/svg'
-                                                        width='16'
-                                                        height='16'
-                                                        viewBox='0 0 24 24'
-                                                        fill='none'
-                                                        stroke='currentColor'
-                                                        strokeWidth='2'
-                                                        strokeLinecap='round'
-                                                        strokeLinejoin='round'
-                                                        className='h-4 w-4'
-                                                    >
-                                                        <circle
-                                                            cx='12'
-                                                            cy='12'
-                                                            r='10'
-                                                        />
-                                                        <path d='M12 16v-4' />
-                                                        <path d='M12 8h.01' />
-                                                    </svg>
-                                                </span>
                                             </Label>
                                             <div className='rounded-md border'>
                                                 <FormField
@@ -327,9 +292,17 @@ export function AddNoteModal({
                                                 <FormItem>
                                                     <FormLabel>Tags</FormLabel>
                                                     <FormControl>
-                                                        <Input
-                                                            placeholder='Enter tags (Maximum 10 tags)'
-                                                            {...field}
+                                                        <TagsInput
+                                                            itemClassName='bg-foreground'
+                                                            className='bg-background'
+                                                            selectedTags={
+                                                                field.value ||
+                                                                []
+                                                            }
+                                                            setSelectedTags={
+                                                                field.onChange
+                                                            }
+                                                            tags={[]}
                                                         />
                                                     </FormControl>
                                                 </FormItem>
@@ -370,17 +343,15 @@ export function AddNoteModal({
                                                         {field.value?.length})
                                                     </FormLabel>
                                                     <FormControl>
-                                                        <div className='rounded-lg border bg-background p-4'>
-                                                            <UploadAttatchment
-                                                                attachments={
-                                                                    field.value ||
-                                                                    []
-                                                                }
-                                                                onChange={
-                                                                    field.onChange
-                                                                }
-                                                            />
-                                                        </div>
+                                                        <UploadAttatchment
+                                                            attachments={
+                                                                field.value ||
+                                                                []
+                                                            }
+                                                            onChange={
+                                                                field.onChange
+                                                            }
+                                                        />
                                                     </FormControl>
                                                 </FormItem>
                                             )}

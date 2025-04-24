@@ -46,7 +46,10 @@ export function ColorPicker({ value, onChange, className }: ColorPickerProps) {
                     <Paintbrush className='h-4 w-4 opacity-50' />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className='w-64 p-3'>
+            <PopoverContent
+                className='w-64 p-3 z-[99999]'
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className='flex flex-col gap-2'>
                     <input
                         type='color'
