@@ -61,32 +61,10 @@ const AddAvailability = ({
 
     return (
         <div className='add-availability pt-2'>
-            <div className='flex justify-between'>
-                <div className='items-center gap-2'>
-                    {/* {schedules?.map((schedule: TSchedule, i: number) => (
-                        <div
-                            onClick={() => setActive(i)}
-                            style={{ cursor: 'pointer' }}
-                            key={i}
-                        >
-                            <p
-                                className={`${i === active ? 'white' : 'black'} pb-3 text-black`}
-                                style={{ textTransform: 'capitalize' }}
-                            >
-                                {schedule?.name}
-                            </p>
-                        </div>
-                    ))} */}
-
-                    {/* <ActionIcon onClick={() => handleAddSchedule()} size={"lg"} variant='outline'>
-                          <FaPlus />
-                      </ActionIcon> */}
-                </div>
-            </div>
-
             {isLoading ? (
-                <Card>
+                <Card className='min-h-[calc(100vh-140px)] flex-col gap-2 flex items-center justify-center'>
                     <Loader className='animate-spin' />
+                    <p>Loading your availability. Please wait ...</p>
                 </Card>
             ) : schedules && schedules?.length > 0 ? (
                 <Schedule

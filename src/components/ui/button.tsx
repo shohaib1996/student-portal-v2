@@ -34,25 +34,26 @@ const buttonVariants = cva(
                 plain: 'bg-tranparent border border border-forground-border text-dark-gray stroke-dark-gray fill-dark-gray',
                 white: 'bg-pure-white border border border-forground-border text-primary stroke-dark-gray fill-dark-gray',
                 export_button:
-                    'size-9 rounded-md bg-primary-light hover:bg-secondary border',
+                    'sm:size-9 size-8 rounded-md bg-primary-light hover:bg-secondary border',
                 import_button:
-                    'size-9 rounded-md bg-primary-light border hover:bg-secondary border-secondary-border',
+                    'sm:size-9 size-8 rounded-md bg-primary-light border hover:bg-secondary border-secondary-border',
                 sort_button:
-                    'size-9 rounded-md bg-primary-light border hover:bg-secondary border-secondary-border',
+                    'sm:size-9 size-8 rounded-md bg-primary-light border hover:bg-secondary border-secondary-border',
                 recycle_button:
-                    'size-9 rounded-md bg-primary-light border hover:bg-secondary border-secondary-border',
+                    'sm:size-9 size-8 rounded-md bg-primary-light border hover:bg-secondary border-secondary-border',
                 history_button:
-                    'size-9 rounded-md bg-primary-light border hover:bg-secondary border-secondary-border',
+                    'sm:size-9 size-8 rounded-md bg-primary-light border hover:bg-secondary border-secondary-border',
                 delete_button:
-                    'size-9 rounded-md bg-danger/20 text-danger border hover:bg-secondary border-secondary-border',
+                    'sm:size-9 size-8 rounded-md bg-danger/20 text-danger border hover:bg-secondary border-secondary-border',
                 danger_light:
                     'rounded-md bg-danger/20 text-danger border hover:bg-secondary border-secondary-border',
             },
             size: {
-                default: 'h-9 text-sm px-3 py-2 rounded-lg font-semibold',
-                sm: 'h-8 rounded-md px-3 text-xs',
+                default:
+                    'sm:h-9 h-8 px-2 sm:text-sm text-xs sm:px-3 py-1 sm:py-2 rounded-lg font-semibold',
+                sm: 'h-8 rounded-md px-2 sm:px-3 text-xs',
                 lg: 'h-10 rounded-md px-8',
-                icon: 'h-9 w-9',
+                icon: 'sm:size-9 size-8',
             },
         },
         defaultVariants: {

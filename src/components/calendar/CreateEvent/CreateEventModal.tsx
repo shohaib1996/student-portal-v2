@@ -417,7 +417,7 @@ const CreateEventModal = () => {
         <div>
             <EventPopover
                 title={
-                    <div className='flex justify-between items-center w-full'>
+                    <div className='flex flex-wrap gap-2 justify-between items-center w-full'>
                         {isFullScreen && (
                             <div>
                                 <h2 className='text-xl text-black font-semibold'>

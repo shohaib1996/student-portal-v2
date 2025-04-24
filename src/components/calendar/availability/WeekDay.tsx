@@ -99,13 +99,15 @@ export default function WeekDay({
     };
 
     return (
-        <div className='flex items-center gap-4'>
-            <div className='flex items-center gap-2'>
+        <div className='flex bg-background p-2 border border-forground-border rounded-md items-center gap-2 sm:gap-4'>
+            <div className='flex items-center sm:w-[100px] w-[70px] xs:w-[50px] sm:gap-2 gap-1'>
                 <Switch
                     checked={intervals?.length !== 0}
                     onCheckedChange={handleSetIntervalsSwitch}
+                    className='sm:h-5 sm:w-9 w-7 h-4'
+                    thumbClassName='sm:size-4 size-3 data-[state=checked]:translate-x-3 sm:data-[state=checked]:translate-x-4'
                 />
-                <span className='capitalize text-muted-foreground'>
+                <span className='capitalize sm:text-base text-sm font-semibold text-dark-gray'>
                     {title}
                 </span>
             </div>
@@ -117,7 +119,7 @@ export default function WeekDay({
                             key={i}
                             className='flex items-center justify-between'
                         >
-                            <div className='flex items-center gap-2'>
+                            <div className='flex items-center xxs:flex-row flex-col sm:gap-2 gap-1'>
                                 <Select
                                     value={interval.from}
                                     onValueChange={(value) =>
@@ -128,7 +130,7 @@ export default function WeekDay({
                                         })
                                     }
                                 >
-                                    <SelectTrigger className='w-[180px]'>
+                                    <SelectTrigger className='sm:w-[120px] text-xs sm:text-sm w-[80px] h-8 sm:h-10 bg-foreground 4xl:w-[150px] px-1 sm:px-3'>
                                         <SelectValue placeholder='From' />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -143,7 +145,7 @@ export default function WeekDay({
                                     </SelectContent>
                                 </Select>
 
-                                <span>to</span>
+                                <p>to</p>
 
                                 <Select
                                     value={interval.to}
@@ -155,7 +157,7 @@ export default function WeekDay({
                                         })
                                     }
                                 >
-                                    <SelectTrigger className='w-[180px]'>
+                                    <SelectTrigger className='sm:w-[120px] text-xs sm:text-sm w-[80px] h-8 sm:h-10 bg-foreground 4xl:w-[150px] px-1 sm:px-3'>
                                         <SelectValue placeholder='To' />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -171,11 +173,12 @@ export default function WeekDay({
                                 </Select>
                             </div>
 
-                            <div className='flex items-center gap-2'>
+                            <div className='flex items-center sm:gap-2 gap-1'>
                                 <Button
                                     variant='destructive'
                                     size='icon'
                                     onClick={() => handleClearInterval(i)}
+                                    className='sm:size-9 size-7'
                                 >
                                     <Minus className='h-4 w-4' />
                                 </Button>
@@ -186,6 +189,7 @@ export default function WeekDay({
                                             <Button
                                                 variant='outline'
                                                 size='icon'
+                                                className='sm:size-9 size-7'
                                             >
                                                 <Copy className='h-4 w-4' />
                                             </Button>
@@ -247,6 +251,7 @@ export default function WeekDay({
                                     variant='default'
                                     size='icon'
                                     onClick={handleAddInterval}
+                                    className='sm:size-9 size-7'
                                 >
                                     <Plus className='h-4 w-4' />
                                 </Button>
@@ -259,6 +264,7 @@ export default function WeekDay({
                             Unavailable
                         </span>
                         <Button
+                            className='sm:size-9 size-7'
                             variant='default'
                             size='icon'
                             onClick={handleAddInterval}

@@ -154,6 +154,7 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
                                     {getEventsForCell(day, hour)?.length >
                                         3 && (
                                         <GlobalDropdown
+                                            className='max-w-48'
                                             dropdownRender={
                                                 <div className='space-y-1 bg-foreground p-2'>
                                                     {getEventsForCell(day, hour)

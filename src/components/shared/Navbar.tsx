@@ -2,27 +2,16 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Input } from '../ui/input';
 import {
-    Bell,
     BellDot,
     Calendar,
-    Captions,
-    ChevronDown,
-    Globe,
-    MessageSquareDot,
-    MessageSquareMore,
     GraduationCap,
-    Menu,
     Moon,
-    PanelRightOpen,
     Search,
-    Settings,
     Sun,
     UserRound,
-    CircleDollarSign,
     ScrollText,
     LogOut,
     BookOpenText,
-    MessageCircle,
     MessageCircleMore,
 } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -43,14 +32,9 @@ import { usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 
 const Navbar = () => {
-    const dispatch = useAppDispatch();
-    const { companies, features, companySwitcher } = useAppSelector(
-        (state) => state.company,
-    );
+    const { features } = useAppSelector((state) => state.company);
     const router = useRouter();
     const { isAuthenticated } = useAppSelector((s) => s.auth);
-    const activeCompany = Cookies.get('activeCompany');
-    const isChatAvailable = features?.find((f) => f.key === 'chat');
     const isCalendarAvailable = features?.find((f) => f.key === 'calendar');
     const { theme, setTheme } = useTheme();
     const { user } = useAppSelector((s) => s.auth);
@@ -354,7 +338,7 @@ const Navbar = () => {
                 >
                     <SidebarTrigger></SidebarTrigger>
                     <Input
-                        className='h-9 rounded-full md:w-[390px] md:inline-flex hidden w-9 text-dark-gray'
+                        className='h-9 rounded-full md:w-[220px] lg:w-[290px] 2xl:w-[390px] md:inline-flex hidden w-9 text-dark-gray'
                         placeholder='Search here'
                         prefix={<Search size={18} />}
                         value={wordEntered}

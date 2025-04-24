@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import {
     addDays,
     endOfMonth,
@@ -149,12 +148,14 @@ export function MonthView({ currentDate }: MonthViewProps) {
                                         ))}
                                     {dayEvents?.length > (isMobile ? 2 : 4) && (
                                         <GlobalDropdown
+                                            className='max-w-48'
                                             dropdownRender={
                                                 <div className='space-y-1 bg-foreground p-2'>
                                                     {dayEvents
                                                         .slice(isMobile ? 2 : 4)
                                                         .map((event) => (
                                                             <EventButton
+                                                                className='max-w-full'
                                                                 key={event._id}
                                                                 event={event}
                                                             />

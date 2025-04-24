@@ -80,8 +80,8 @@ export default function Calendar() {
 
     return (
         <div className='flex flex-col overflow-hidden w-full'>
-            <div className='flex flex-wrap gap-2 items-center justify-between py-2 border-b border-forground-border bg-background'>
-                <div className='flex items-center gap-2'>
+            <div className='flex gap-2 flex-col 3xl:flex-row items-center justify-between py-2 border-b border-forground-border bg-background'>
+                <div className='flex items-center 3xl:w-fit w-full gap-2'>
                     <div className='flex items-center gap-1'>
                         <Button
                             variant={'secondary'}
@@ -109,7 +109,7 @@ export default function Calendar() {
                             setView(value as CalendarView)
                         }
                     >
-                        <SelectTrigger className='w-[100px] bg-foreground h-8'>
+                        <SelectTrigger className='w-[100px] ml-auto 3xl:ml-0 bg-foreground h-8'>
                             <SelectValue placeholder='Select view' />
                         </SelectTrigger>
                         <SelectContent>
@@ -118,6 +118,8 @@ export default function Calendar() {
                             <SelectItem value='month'>Month</SelectItem>
                         </SelectContent>
                     </Select>
+                </div>
+                <div className='flex gap-1 items-center justify-between w-full'>
                     <Button
                         variant='secondary'
                         size='sm'
@@ -126,40 +128,31 @@ export default function Calendar() {
                     >
                         Today
                     </Button>
-                </div>
-                <SheetTrigger className='min-[1000px]:hidden ms-auto' asChild>
-                    <Button
-                        variant='secondary'
-                        className='h-8 text-dark-gray'
-                        size='icon'
-                    >
-                        <PanelRightOpen className='h-4 w-4' />
-                        <span className='sr-only'>Open calendar sidebar</span>
-                    </Button>
-                </SheetTrigger>
-                <div className='flex items-center gap-3'>
-                    {/* <Select value={hoursView} onValueChange={setHoursView}>
-                        <SelectTrigger className='w-[150px] h-8'>
-                            <SelectValue placeholder='Hours view' />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value='24 hours view'>
-                                24 hours view
-                            </SelectItem>
-                            <SelectItem value='business hours'>
-                                Business hours
-                            </SelectItem>
-                        </SelectContent>
-                    </Select> */}
-
-                    <div className='relative'>
-                        <Search className='absolute left-2.5 top-2 h-4 w-4 text-muted-foreground' />
-                        <Input
-                            type='search'
-                            placeholder='Search people/events/status...'
-                            className='pl-8 bg-foreground h-8 w-[220px]'
-                        />
+                    <div className='flex items-center gap-3'>
+                        <div className='relative'>
+                            <Search className='absolute left-2.5 top-2 h-4 w-4 text-muted-foreground' />
+                            <Input
+                                type='search'
+                                placeholder='Search people/events/status...'
+                                className='pl-8 bg-foreground h-8 w-[220px]'
+                            />
+                        </div>
                     </div>
+                    <SheetTrigger
+                        className='min-[1000px]:hidden ms-auto'
+                        asChild
+                    >
+                        <Button
+                            variant='secondary'
+                            className='h-8 text-dark-gray'
+                            size='icon'
+                        >
+                            <PanelRightOpen className='h-4 w-4' />
+                            <span className='sr-only'>
+                                Open calendar sidebar
+                            </span>
+                        </Button>
+                    </SheetTrigger>
                 </div>
             </div>
 

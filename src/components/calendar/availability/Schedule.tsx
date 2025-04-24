@@ -143,7 +143,7 @@ export default function Schedule({
 
     return (
         <div className=''>
-            <div className='grid md:grid-cols-2 gap-2'>
+            <div className='grid grid-cols-1 xl:grid-cols-[3fr_2fr] 3xl:grid-cols-[2fr_1fr] 4xl:grid-cols-2 gap-2'>
                 <div className='bg-foreground border border-forground-border p-2 rounded-md'>
                     <div className='border-b w-full'>
                         <h2 className='text-lg text-black font-semibold'>
@@ -151,13 +151,7 @@ export default function Schedule({
                         </h2>
                     </div>
                     <div className='space-y-2 pt-2'>
-                        {/* <Input
-                            placeholder='Schedule Name'
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                        /> */}
-
-                        <div className='space-y-4'>
+                        <div className='space-y-2'>
                             {[
                                 'sunday',
                                 'monday',
