@@ -20,6 +20,7 @@ interface TagsInputProps {
     placeholder?: string;
     className?: string;
     disabled?: boolean;
+    itemClassName?: string;
 }
 
 export function TagsInput({
@@ -29,6 +30,7 @@ export function TagsInput({
     placeholder = 'Search or add tags...',
     className,
     disabled = false,
+    itemClassName,
 }: TagsInputProps) {
     const inputRef = React.useRef<HTMLInputElement>(null);
     const [inputValue, setInputValue] = React.useState('');
@@ -80,11 +82,12 @@ export function TagsInput({
     );
 
     return (
-        <div className={cn('relative', className)}>
+        <div className={cn('relative')}>
             <div
                 className={cn(
                     'flex flex-wrap border-forground-border gap-1.5 p-1.5 rounded-md border bg-foreground min-h-10',
                     selectedTags.length > 0 && 'pb-1.5',
+                    className,
                 )}
                 onClick={() => inputRef.current?.focus()}
             >
@@ -92,7 +95,10 @@ export function TagsInput({
                     <Badge
                         key={tag}
                         variant='secondary'
-                        className='flex items-center gap-1 px-2'
+                        className={cn(
+                            'flex items-center gap-1 px-2',
+                            itemClassName,
+                        )}
                     >
                         {tag}
                         <button

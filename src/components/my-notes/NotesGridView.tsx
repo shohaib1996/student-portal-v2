@@ -58,7 +58,7 @@ const NotesGridView = ({
                         <FileText className='h-10 w-10 text-dark' />
 
                         <div className='absolute -right-1 -top-1 animate-pulse'>
-                            <Sparkles className='h-5 w-5 text-amber-500' />
+                            <Sparkles className='h-5 w-5 text-purple-500' />
                         </div>
                     </div>
                 </div>
@@ -71,7 +71,7 @@ const NotesGridView = ({
 
                 <Button
                     onClick={() => setIsOpen(true)}
-                    className='group relative overflow-hidden hover:text-pure-white bg-gradient-to-r from-rose-500 to-amber-500 transition-all hover:shadow-md'
+                    className='group relative overflow-hidden hover:text-pure-white bg-gradient-to-r from-blue-500 to-violet-500 transition-all hover:shadow-md'
                 >
                     <span className='relative z-10 flex items-center'>
                         <Plus className='mr-2 h-4 w-4' />
@@ -192,27 +192,30 @@ const NotesGridView = ({
                     ))}
                 </div>
             </div>
-            <div className='ps-2 lg:col-span-3 col-span-4 h-full'>
+            <div className='ps-2 lg:col-span-3 col-span-4 h-full overflow-y-auto'>
                 <Sheet>
                     <GlobalHeader
+                        withTooltip={false}
                         title={activeNote?.title}
                         subTitle={
                             <div className='flex gap-4 pt-1 text-dark-gray items-center'>
-                                <div className='flex items-center gap-1'>
-                                    <div className='flex size-3 items-center justify-center rounded-full bg-[#F99D1C]'>
-                                        <CircleDot
-                                            size={10}
-                                            className='text-white'
-                                        />
+                                {activeNote?.purpose && (
+                                    <div className='flex items-center gap-1'>
+                                        <div className='flex size-3 items-center justify-center rounded-full bg-[#F99D1C]'>
+                                            <CircleDot
+                                                size={10}
+                                                className='text-white'
+                                            />
+                                        </div>
+                                        <span
+                                            className={cn(
+                                                'text-xs text-dark-gray capitalize font-medium',
+                                            )}
+                                        >
+                                            {activeNote?.purpose?.category}
+                                        </span>
                                     </div>
-                                    <span
-                                        className={cn(
-                                            'text-xs text-dark-gray capitalize font-medium',
-                                        )}
-                                    >
-                                        {activeNote?.purpose?.category}
-                                    </span>
-                                </div>
+                                )}
                                 <div
                                     className={cn(
                                         'flex items-center gap-1 text-xs font-medium',
@@ -225,18 +228,22 @@ const NotesGridView = ({
                                         )}
                                     </span>
                                 </div>
-                                <div
-                                    className={cn(
-                                        'text-xs flex items-center gap-1 font-medium',
-                                    )}
-                                >
-                                    <BookOpen size={14} />
-                                    <span className='capitalize'>
-                                        {activeNote?.purpose?.category}
-                                    </span>
-                                    :
-                                    <span>{activeNote?.purpose?.category}</span>
-                                </div>
+                                {activeNote?.purpose && (
+                                    <div
+                                        className={cn(
+                                            'text-xs flex items-center gap-1 font-medium',
+                                        )}
+                                    >
+                                        <BookOpen size={14} />
+                                        <span className='capitalize'>
+                                            {activeNote?.purpose?.category}
+                                        </span>
+                                        :
+                                        <span>
+                                            {activeNote?.purpose?.category}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         }
                         buttons={
@@ -392,7 +399,7 @@ const NotesGridView = ({
                         </div>
                     </SheetContent>
 
-                    <div className='pt-2 text-dark-gray h-[calc(100%-60px)] overflow-auto'>
+                    <div className='pt-2 text-dark-gray'>
                         {renderText({ text: activeNote?.description || '' })}
                     </div>
                 </Sheet>

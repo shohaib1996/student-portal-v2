@@ -1,5 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useUploadUserDocumentFileMutation } from '@/redux/api/documents/documentsApi';
 import { Loader, Paperclip, X } from 'lucide-react';
 import React, { useState, useRef, DragEvent } from 'react';
@@ -15,12 +16,22 @@ type TAttatchment = {
 type TProps = {
     attachments: TAttatchment[];
     onChange: (_: TAttatchment[]) => void;
+    className?: string;
+    uploadClassName?: string;
+    itemClassName?: string;
 };
 
-const UploadAttatchment = ({ attachments, onChange }: TProps) => {
+const UploadAttatchment = ({
+    attachments,
+    onChange,
+    className,
+    itemClassName,
+    uploadClassName,
+}: TProps) => {
     const [uploadingAttac, setUploadingAttac] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const dropRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const [
         uploadUserDocumentFile,
@@ -142,9 +153,17 @@ const UploadAttatchment = ({ attachments, onChange }: TProps) => {
         }
     };
 
+    const handleButtonClick = () => {
+        inputRef.current?.click();
+    };
+
     return (
         <div
-            className='bg-foreground p-2'
+            onClick={handleButtonClick}
+            className={cn(
+                'bg-background rounded-md border border-forground-border border-dashed p-2 cursor-pointer',
+                className,
+            )}
             ref={dropRef}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
@@ -160,18 +179,19 @@ const UploadAttatchment = ({ attachments, onChange }: TProps) => {
                 </div>
             ) : (
                 <div
-                    className={`flex items-center justify-center py-4 text-sm text-muted-foreground border-2 border-dashed rounded-md ${isDragging ? 'border-primary bg-primary/5' : 'border-muted'}`}
+                    className={cn(
+                        `flex items-center bg-foreground justify-center py-4 text-sm text-muted-foreground border-2 border-dashed rounded-md ${isDragging ? 'border-primary bg-primary/5' : 'border-forground-border'}`,
+                        uploadClassName,
+                    )}
                 >
-                    <label
-                        htmlFor='file-upload'
-                        className='relative text-center cursor-pointer rounded-md font-medium text-primary hover:text-primary/80 px-4 py-2'
-                    >
+                    <div className='relative text-center cursor-pointer rounded-md font-medium text-primary hover:text-primary/80 px-4 py-2'>
                         <span className='text-center'>
                             {isDragging
                                 ? 'Drop files here'
                                 : 'Attach or drag & drop'}
                         </span>
                         <input
+                            ref={inputRef}
                             id='file-upload'
                             name='files'
                             type='file'
@@ -183,7 +203,7 @@ const UploadAttatchment = ({ attachments, onChange }: TProps) => {
                         <p className='mt-1 text-center text-xs text-muted-foreground'>
                             JPG, PNG, PDF, DOCS | Max 5MB
                         </p>
-                    </label>
+                    </div>
                 </div>
             )}
 
@@ -192,9 +212,13 @@ const UploadAttatchment = ({ attachments, onChange }: TProps) => {
                     {attachments?.map((attachment, index) => (
                         <li
                             key={index}
-                            className='flex items-center justify-between rounded-md border bg-foreground p-2 text-sm'
+                            onClick={(e) => e.stopPropagation()}
+                            className={cn(
+                                'flex bg-foreground items-center justify-between rounded-md border text-sm',
+                                itemClassName,
+                            )}
                         >
-                            <div className='flex items-center gap-2'>
+                            <div className='flex items-center gap-2 ps-2'>
                                 <Paperclip className='h-4 w-4 text-muted-foreground' />
                                 <span className='truncate'>
                                     {attachment.name}
@@ -205,7 +229,10 @@ const UploadAttatchment = ({ attachments, onChange }: TProps) => {
                                 variant='ghost'
                                 size='icon'
                                 className='h-6 w-6'
-                                onClick={() => handleRemoveFile(index)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveFile(index);
+                                }}
                             >
                                 <X className='h-3 w-3' />
                             </Button>

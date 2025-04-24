@@ -266,7 +266,8 @@ const UploadThumbnail = ({
 
     return (
         <div
-            className={`mt-1 flex justify-center bg-background rounded-lg border border-dashed ${dragActive ? 'border-primary border-2' : 'border-border'} px-6 py-10`}
+            onClick={() => !value && handleButtonClick()}
+            className={`mt-1 flex justify-center bg-background rounded-lg border border-dashed ${dragActive ? 'border-primary border-2' : 'border-border'} ${value ? '' : 'cursor-pointer'} px-6 py-10`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
@@ -290,23 +291,20 @@ const UploadThumbnail = ({
                             sizes='(max-width: 768px) 100vw, 8rem'
                             className='object-cover absolute top-0 left-0'
                         />
-                        <Button
+                        <button
                             disabled={isUploading}
                             type='button'
-                            variant='destructive'
-                            size='icon'
-                            className='absolute right-1 top-1 h-6 w-6'
+                            className='absolute flex items-center justify-center bg-destructive right-1 top-1 size-4 rounded-sm text-pure-white'
                             onClick={handleRemoveThumbnail}
                         >
-                            <X className='h-3 w-3' />
-                        </Button>
+                            <X size={13} />
+                        </button>
                     </div>
                 ) : (
                     <>
                         <ImageIcon className='mx-auto h-12 w-12 text-muted-foreground' />
                         <div className='mt-4 flex flex-col text-sm text-muted-foreground'>
-                            <label
-                                htmlFor='thumbnail-upload'
+                            <div
                                 className='relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80'
                                 onClick={handleButtonClick}
                             >
@@ -327,7 +325,7 @@ const UploadThumbnail = ({
                                 <p className='text-xs text-muted-foreground'>
                                     JPG, PNG | {ratio} ratio | Max {maxSize}MB
                                 </p>
-                            </label>
+                            </div>
                             {processingError && (
                                 <p className='mt-2 text-xs text-red-500'>
                                     {processingError}

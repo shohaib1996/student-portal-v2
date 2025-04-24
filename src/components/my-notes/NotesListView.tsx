@@ -30,18 +30,19 @@ const NotesListView = ({ data }: { data: TNote[] }) => {
             canHide: false,
         },
         {
-            accessorKey: 'Category',
-            header: 'Category',
+            accessorKey: 'tags',
+            header: 'Tags',
             cell: ({ row }) => (
-                <div>
-                    <Badge className='bg-primary'>
-                        <Volume size={16} />
-                        Audio
-                    </Badge>
+                <div className='flex flex-wrap gap-1'>
+                    {row.original?.tags?.map((tag) => (
+                        <Badge key={tag} variant={'secondary'}>
+                            {tag}
+                        </Badge>
+                    ))}
                 </div>
             ),
             footer: (data) => data.column.id,
-            id: 'Category',
+            id: 'tags',
             visible: true,
         },
         {
@@ -66,7 +67,15 @@ const NotesListView = ({ data }: { data: TNote[] }) => {
                     }
                 >
                     <div className='truncate max-w-sm'>
-                        {row.original.description}
+                        {renderPlainText({
+                            text:
+                                row.original?.description || 'New conversation',
+                            textSize: 'text-xs',
+                            textColor: 'text-darkg-gray',
+                            // truncate: true,
+                            lineClamp: 2,
+                            width: 'w-full',
+                        })}
                     </div>
                 </GlobalTooltip>
             ),

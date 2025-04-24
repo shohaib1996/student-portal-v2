@@ -12,6 +12,7 @@ const ExpandContext = createContext<
 type TProps = {
     title: string | ReactNode;
     tooltip?: ReactNode | string;
+    withTooltip?: boolean;
     subTitle?: string | ReactNode;
     buttons?: ReactNode;
     expandedButtons?: ReactNode;
@@ -22,6 +23,7 @@ const GlobalHeader = ({
     title,
     subTitle,
     buttons,
+    withTooltip = true,
     expandedButtons,
     tooltip,
     className,
@@ -42,14 +44,16 @@ const GlobalHeader = ({
                         <h2 className='text-black text-xl font-semibold'>
                             {title}
                         </h2>
-                        <GlobalTooltip
-                            className='shadow-md border border-forground-border p-2'
-                            tooltip={tooltip || subTitle}
-                        >
-                            <h2 className='pt-1 text-dark-gray cursor-pointer'>
-                                <Info size={16} />
-                            </h2>
-                        </GlobalTooltip>
+                        {withTooltip && (
+                            <GlobalTooltip
+                                className='shadow-md border border-forground-border p-2'
+                                tooltip={tooltip || subTitle}
+                            >
+                                <h2 className='pt-1 text-dark-gray cursor-pointer'>
+                                    <Info size={16} />
+                                </h2>
+                            </GlobalTooltip>
+                        )}
                     </div>
                     <p className='text-sm text-gray'>{subTitle}</p>
                 </div>

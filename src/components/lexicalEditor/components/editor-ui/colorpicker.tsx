@@ -37,17 +37,15 @@ export default function ColorPicker({
                 </Button>
             </PopoverTrigger>
             <PopoverContent className='w-[200px] p-0'>
-                <ColorPicker
-                    color={color}
-                    onChange={(color) => onChange?.(color, false)}
-                />
-                <Input
-                    maxLength={7}
+                {/* <Button>None</Button> */}
+                <input
+                    type='color'
+                    value={color}
                     onChange={(e) => {
                         e.stopPropagation();
                         onChange?.(e?.currentTarget?.value, false);
                     }}
-                    value={color}
+                    className='w-full h-10 cursor-pointer'
                 />
             </PopoverContent>
         </Popover>
