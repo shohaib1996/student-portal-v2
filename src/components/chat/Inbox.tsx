@@ -323,14 +323,14 @@ const Inbox: React.FC<InboxProps> = ({
                                 className='border'
                                 tooltip={
                                     !chat?.myData?.isFavourite
-                                        ? 'Pin chat'
-                                        : 'Unpin chat'
+                                        ? 'Pin this chat'
+                                        : 'Unpin this chat'
                                 }
                                 onClick={() =>
                                     handleFavourite(!chat?.myData?.isFavourite)
                                 }
                             >
-                                {!chat?.myData?.isFavourite ? (
+                                {chat?.myData?.isFavourite ? (
                                     <Pin className='h-5 w-5 rotate-45' />
                                 ) : (
                                     <PinOff className='h-5 w-5 rotate-45' />
@@ -350,8 +350,14 @@ const Inbox: React.FC<InboxProps> = ({
                                         <MoreVertical className='h-5 w-5' />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align='end'>
-                                    <DropdownMenuItem onClick={toggleSearch}>
+                                <DropdownMenuContent
+                                    align='end'
+                                    className='bg-background'
+                                >
+                                    <DropdownMenuItem
+                                        onClick={toggleSearch}
+                                        className='bg-foreground py-[2px] hover:bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1'
+                                    >
                                         <Search className='h-4 w-4 ' />
                                         Search
                                     </DropdownMenuItem>
@@ -359,8 +365,8 @@ const Inbox: React.FC<InboxProps> = ({
                                     {chat?.otherUser?.type !== 'bot' && (
                                         <>
                                             <DropdownMenuItem asChild>
-                                                <EventPopoverTrigger>
-                                                    <div className='flex items-center w-full gap-2 cursor-pointer'>
+                                                <EventPopoverTrigger className='p-0'>
+                                                    <div className='flex items-center w-full gap-2 bg-foreground py-[2px] hover:bg-primary-light border border-transparent hover:border-forground-border cursor-pointer rounded-sm px-2 mb-1'>
                                                         <Calendar className='h-4 w-4 ' />
                                                         Create Event
                                                     </div>
@@ -387,6 +393,7 @@ const Inbox: React.FC<InboxProps> = ({
 
                                     <DropdownMenuItem
                                         onClick={() => handleNoti()}
+                                        className='bg-foreground py-[2px] hover:bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1'
                                     >
                                         {chat?.myData?.notification?.isOn ? (
                                             <>
@@ -402,6 +409,7 @@ const Inbox: React.FC<InboxProps> = ({
                                     </DropdownMenuItem>
 
                                     <DropdownMenuItem
+                                        className='bg-foreground py-[2px] hover:bg-primary-light border border-transparent hover:border-forground-border cursor-pointer'
                                         onClick={() =>
                                             handleFavourite(
                                                 !chat?.myData?.isFavourite,

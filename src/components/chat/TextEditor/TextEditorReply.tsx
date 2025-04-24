@@ -743,7 +743,7 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                                     <button
                                         className={`p-2 rounded-full transition-all ${
                                             !text && uploadFiles?.length === 0
-                                                ? 'opacity-50 cursor-not-allowed bg-primary/60'
+                                                ? 'cursor-not-allowed bg-blue-500/60'
                                                 : 'bg-primary'
                                         }`}
                                         disabled={

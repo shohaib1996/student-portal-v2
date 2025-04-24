@@ -304,6 +304,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const [voiceCount, setVoiceCount] = useState(0);
     const [fileCount, setFileCount] = useState(0);
     const [linksCount, setLinksCount] = useState(0);
+    console.log({ chat });
     // Add this useEffect to fetch all media counts when the component loads
     useEffect(() => {
         if (chat?._id) {
@@ -989,8 +990,11 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                                         ? chat?.avatar ||
                                                           '/chat/group.png'
                                                         : chat?.otherUser
-                                                              ?.profilePicture ||
-                                                          '/chat/user.png'
+                                                                ?.type === 'bot'
+                                                          ? '/ai_bot.png'
+                                                          : chat?.otherUser
+                                                                ?.profilePicture ||
+                                                            '/chat/user.png'
                                                 }
                                             />
                                         </div>
@@ -1130,61 +1134,70 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                             </div>
                                         </div>
                                         <div className='admin_Date w-full type_readonly grid grid-cols-2 gap-2 '>
-                                            <div className='user flex flex-row items-center gap-1'>
-                                                {loadingMembers ? (
-                                                    <div className='h-9 w-9 rounded-full bg-gray-200 animate-pulse'></div>
-                                                ) : (
-                                                    <img
-                                                        alt='owner avatar'
-                                                        src={
-                                                            ownerMember?.user
-                                                                ?.profilePicture ||
-                                                            '/avatar.png'
-                                                        }
-                                                        height={34}
-                                                        width={34}
-                                                        className='rounded-full object-cover h-9 w-9'
-                                                    />
-                                                )}
-                                                <div className='info flex flex-col'>
-                                                    <div
-                                                        className='name text-[14px] text-dark-gray font-semibold flex items-center'
-                                                        style={{
-                                                            lineHeight: 1.1,
-                                                        }}
-                                                    >
-                                                        {loadingMembers ? (
-                                                            <div className='h-4 w-24 bg-gray-200 rounded animate-pulse'></div>
-                                                        ) : (
-                                                            <>
-                                                                {getRoleIcon(
-                                                                    ownerMember?.role,
-                                                                )}
-                                                                {ownerMember
+                                            {chat?.isChannel && (
+                                                <div className='user flex flex-row items-center gap-1'>
+                                                    {loadingMembers ? (
+                                                        <div className='h-9 w-9 rounded-full bg-gray-200 animate-pulse'></div>
+                                                    ) : (
+                                                        <img
+                                                            alt='owner avatar'
+                                                            src={
+                                                                ownerMember
                                                                     ?.user
-                                                                    ?.fullName ||
-                                                                    'Owner not found'}
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                    <div
-                                                        className='role text-xs text-gray'
-                                                        style={{
-                                                            lineHeight: 1.1,
-                                                        }}
-                                                    >
-                                                        {loadingMembers ? (
-                                                            <div className='h-3 w-16 bg-gray-200 rounded animate-pulse mt-1'></div>
-                                                        ) : (
-                                                            getRoleName(
-                                                                ownerMember?.role,
-                                                            )
-                                                        )}
+                                                                    ?.profilePicture ||
+                                                                '/avatar.png'
+                                                            }
+                                                            height={34}
+                                                            width={34}
+                                                            className='rounded-full object-cover h-9 w-9'
+                                                        />
+                                                    )}
+                                                    <div className='info flex flex-col'>
+                                                        <div
+                                                            className='name text-[14px] text-dark-gray font-semibold flex items-center'
+                                                            style={{
+                                                                lineHeight: 1.1,
+                                                            }}
+                                                        >
+                                                            {loadingMembers ? (
+                                                                <div className='h-4 w-24 bg-gray-200 rounded animate-pulse'></div>
+                                                            ) : (
+                                                                <>
+                                                                    {getRoleIcon(
+                                                                        ownerMember?.role,
+                                                                    )}
+                                                                    {ownerMember
+                                                                        ?.user
+                                                                        ?.fullName ||
+                                                                        'Owner not found'}
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                        <div
+                                                            className='role text-xs text-gray'
+                                                            style={{
+                                                                lineHeight: 1.1,
+                                                            }}
+                                                        >
+                                                            {loadingMembers ? (
+                                                                <div className='h-3 w-16 bg-gray-200 rounded animate-pulse mt-1'></div>
+                                                            ) : (
+                                                                getRoleName(
+                                                                    ownerMember?.role,
+                                                                )
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            )}
                                             <div className='flex items-center text-gray'>
-                                                <Calendar className='h-4 w-4 mr-1' />
+                                                {chat?.isChannel ? (
+                                                    <Calendar className='h-4 w-4 mr-1' />
+                                                ) : (
+                                                    <p className='text-dark-gray font-semibold mr-2'>
+                                                        Joined at:
+                                                    </p>
+                                                )}
                                                 <span>
                                                     {dayjs(
                                                         chat?.createdAt,
@@ -1198,233 +1211,260 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                                 </span>
                                             </div>
                                         </div>
-                                        <div className='type_readonly grid grid-cols-2 gap-2 w-full'>
-                                            <div className='type flex flex-row items-center gap-2 text-start text-dark-gray text-sm font-semibold '>
-                                                Type:{' '}
-                                                {chat?.isChannel &&
-                                                ['owner', 'admin'].includes(
-                                                    chat?.myData?.role,
-                                                ) ? (
-                                                    <InlineSelectEdit
-                                                        value={chat?.isPublic}
-                                                        options={[
-                                                            {
-                                                                value: 'true',
-                                                                label: 'Public',
-                                                            },
-                                                            {
-                                                                value: 'false',
-                                                                label: 'Private',
-                                                            },
-                                                        ]}
-                                                        onSave={
-                                                            handleInlineUpdate
-                                                        }
-                                                        isLoading={
-                                                            isUpdating &&
-                                                            updateField ===
-                                                                'isPublic'
-                                                        }
-                                                        fieldName='isPublic'
-                                                    />
-                                                ) : (
-                                                    <p className='text-gray font-normal'>
-                                                        {chat?.isPublic
-                                                            ? 'Public'
-                                                            : 'Private'}
-                                                    </p>
-                                                )}
-                                            </div>
-                                            <div className='readonly flex flex-row items-center gap-2 text-start text-dark-gray text-sm font-semibold '>
-                                                Read Only:{' '}
-                                                {chat?.isChannel &&
-                                                ['owner', 'admin'].includes(
-                                                    chat?.myData?.role,
-                                                ) ? (
-                                                    <InlineSelectEdit
-                                                        value={chat?.isReadOnly}
-                                                        options={[
-                                                            {
-                                                                value: 'true',
-                                                                label: 'Yes',
-                                                            },
-                                                            {
-                                                                value: 'false',
-                                                                label: 'No',
-                                                            },
-                                                        ]}
-                                                        onSave={
-                                                            handleInlineUpdate
-                                                        }
-                                                        isLoading={
-                                                            isUpdating &&
-                                                            updateField ===
-                                                                'isReadOnly'
-                                                        }
-                                                        fieldName='isReadOnly'
-                                                    />
-                                                ) : (
-                                                    <p className='text-gray font-normal'>
-                                                        {chat?.isReadOnly
-                                                            ? 'Yes'
-                                                            : 'No'}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className='description flex flex-col gap-1 bg-background border rounded-md p-2 w-full'>
-                                            <div className='flex flex-row items-center justify-between'>
-                                                <p className='text-sm text-dark-gray font-semibold'>
-                                                    Description
+                                        {chat?.otherUser?.type && (
+                                            <div className='flex items-center text-gray w-full'>
+                                                <p className='text-dark-gray font-semibold mr-2'>
+                                                    User type:
                                                 </p>
-                                                {chat?.isChannel &&
+
+                                                <span className='capitalize'>
+                                                    {chat?.otherUser?.type}
+                                                </span>
+                                            </div>
+                                        )}
+                                        {chat?.isChannel && (
+                                            <div className='type_readonly grid grid-cols-2 gap-2 w-full'>
+                                                <div className='type flex flex-row items-center gap-2 text-start text-dark-gray text-sm font-semibold '>
+                                                    Type:{' '}
+                                                    {chat?.isChannel &&
                                                     ['owner', 'admin'].includes(
                                                         chat?.myData?.role,
-                                                    ) &&
-                                                    (isDescriptionEditing ? (
-                                                        // Show save/cancel buttons when in edit mode
-                                                        <div className='flex gap-1'>
-                                                            <Button
-                                                                tooltip='Update'
-                                                                size='icon'
-                                                                variant={
-                                                                    'primary_light'
-                                                                }
-                                                                onClick={() => {
-                                                                    handleInlineUpdate(
-                                                                        descriptionValue,
-                                                                        'description',
-                                                                    );
+                                                    ) ? (
+                                                        <InlineSelectEdit
+                                                            value={
+                                                                chat?.isPublic
+                                                            }
+                                                            options={[
+                                                                {
+                                                                    value: 'true',
+                                                                    label: 'Public',
+                                                                },
+                                                                {
+                                                                    value: 'false',
+                                                                    label: 'Private',
+                                                                },
+                                                            ]}
+                                                            onSave={
+                                                                handleInlineUpdate
+                                                            }
+                                                            isLoading={
+                                                                isUpdating &&
+                                                                updateField ===
+                                                                    'isPublic'
+                                                            }
+                                                            fieldName='isPublic'
+                                                        />
+                                                    ) : (
+                                                        <p className='text-gray font-normal'>
+                                                            {chat?.isPublic
+                                                                ? 'Public'
+                                                                : 'Private'}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className='readonly flex flex-row items-center gap-2 text-start text-dark-gray text-sm font-semibold '>
+                                                    Read Only:{' '}
+                                                    {chat?.isChannel &&
+                                                    ['owner', 'admin'].includes(
+                                                        chat?.myData?.role,
+                                                    ) ? (
+                                                        <InlineSelectEdit
+                                                            value={
+                                                                chat?.isReadOnly
+                                                            }
+                                                            options={[
+                                                                {
+                                                                    value: 'true',
+                                                                    label: 'Yes',
+                                                                },
+                                                                {
+                                                                    value: 'false',
+                                                                    label: 'No',
+                                                                },
+                                                            ]}
+                                                            onSave={
+                                                                handleInlineUpdate
+                                                            }
+                                                            isLoading={
+                                                                isUpdating &&
+                                                                updateField ===
+                                                                    'isReadOnly'
+                                                            }
+                                                            fieldName='isReadOnly'
+                                                        />
+                                                    ) : (
+                                                        <p className='text-gray font-normal'>
+                                                            {chat?.isReadOnly
+                                                                ? 'Yes'
+                                                                : 'No'}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {chat?.isChannel && (
+                                            <div className='description flex flex-col gap-1 bg-background border rounded-md p-2 w-full'>
+                                                <div className='flex flex-row items-center justify-between'>
+                                                    <p className='text-sm text-dark-gray font-semibold'>
+                                                        Description
+                                                    </p>
+                                                    {chat?.isChannel &&
+                                                        [
+                                                            'owner',
+                                                            'admin',
+                                                        ].includes(
+                                                            chat?.myData?.role,
+                                                        ) &&
+                                                        (isDescriptionEditing ? (
+                                                            // Show save/cancel buttons when in edit mode
+                                                            <div className='flex gap-1'>
+                                                                <Button
+                                                                    tooltip='Update'
+                                                                    size='icon'
+                                                                    variant={
+                                                                        'primary_light'
+                                                                    }
+                                                                    onClick={() => {
+                                                                        handleInlineUpdate(
+                                                                            descriptionValue,
+                                                                            'description',
+                                                                        );
+                                                                        setIsDescriptionEditing(
+                                                                            false,
+                                                                        );
+                                                                    }}
+                                                                    className='h-7 w-7'
+                                                                    icon={
+                                                                        isUpdating &&
+                                                                        updateField ===
+                                                                            'description' ? (
+                                                                            <Loader2
+                                                                                size={
+                                                                                    16
+                                                                                }
+                                                                                className='animate-spin'
+                                                                            />
+                                                                        ) : (
+                                                                            <SaveIcon
+                                                                                size={
+                                                                                    16
+                                                                                }
+                                                                            />
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        isUpdating &&
+                                                                        updateField ===
+                                                                            'description'
+                                                                    }
+                                                                />
+                                                                <Button
+                                                                    tooltip='Cancel Update'
+                                                                    size='icon'
+                                                                    onClick={() => {
+                                                                        setDescriptionValue(
+                                                                            chat?.description ||
+                                                                                '',
+                                                                        );
+                                                                        setIsDescriptionEditing(
+                                                                            false,
+                                                                        );
+                                                                    }}
+                                                                    disabled={
+                                                                        isUpdating &&
+                                                                        updateField ===
+                                                                            'description'
+                                                                    }
+                                                                    className='bg-red-500/10 h-7 w-7'
+                                                                    icon={
+                                                                        <X
+                                                                            size={
+                                                                                16
+                                                                            }
+                                                                            className='text-danger'
+                                                                        />
+                                                                    }
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            // Show edit button when not in edit mode
+                                                            <button
+                                                                onClick={() =>
                                                                     setIsDescriptionEditing(
-                                                                        false,
-                                                                    );
-                                                                }}
-                                                                className='h-7 w-7'
-                                                                icon={
-                                                                    isUpdating &&
-                                                                    updateField ===
-                                                                        'description' ? (
-                                                                        <Loader2
-                                                                            size={
-                                                                                16
-                                                                            }
-                                                                            className='animate-spin'
-                                                                        />
-                                                                    ) : (
-                                                                        <SaveIcon
-                                                                            size={
-                                                                                16
-                                                                            }
-                                                                        />
+                                                                        true,
                                                                     )
                                                                 }
-                                                                disabled={
-                                                                    isUpdating &&
-                                                                    updateField ===
-                                                                        'description'
-                                                                }
-                                                            />
-                                                            <Button
-                                                                tooltip='Cancel Update'
-                                                                size='icon'
-                                                                onClick={() => {
-                                                                    setDescriptionValue(
-                                                                        chat?.description ||
-                                                                            '',
-                                                                    );
-                                                                    setIsDescriptionEditing(
-                                                                        false,
-                                                                    );
-                                                                }}
-                                                                disabled={
-                                                                    isUpdating &&
-                                                                    updateField ===
-                                                                        'description'
-                                                                }
-                                                                className='bg-red-500/10 h-7 w-7'
-                                                                icon={
-                                                                    <X
-                                                                        size={
-                                                                            16
-                                                                        }
-                                                                        className='text-danger'
-                                                                    />
-                                                                }
-                                                            />
-                                                        </div>
-                                                    ) : (
-                                                        // Show edit button when not in edit mode
-                                                        <button
-                                                            onClick={() =>
-                                                                setIsDescriptionEditing(
-                                                                    true,
+                                                                className='ml-2'
+                                                            >
+                                                                <PencilLine
+                                                                    size={16}
+                                                                />
+                                                            </button>
+                                                        ))}
+                                                </div>
+
+                                                {chat?.isChannel &&
+                                                ['owner', 'admin'].includes(
+                                                    chat?.myData?.role,
+                                                ) ? (
+                                                    isDescriptionEditing ? (
+                                                        <Textarea
+                                                            value={
+                                                                descriptionValue
+                                                            }
+                                                            onChange={(e) =>
+                                                                setDescriptionValue(
+                                                                    e.target
+                                                                        .value,
                                                                 )
                                                             }
-                                                            className='ml-2'
-                                                        >
-                                                            <PencilLine
-                                                                size={16}
-                                                            />
-                                                        </button>
-                                                    ))}
-                                            </div>
-
-                                            {chat?.isChannel &&
-                                            ['owner', 'admin'].includes(
-                                                chat?.myData?.role,
-                                            ) ? (
-                                                isDescriptionEditing ? (
-                                                    <Textarea
-                                                        value={descriptionValue}
-                                                        onChange={(e) =>
-                                                            setDescriptionValue(
-                                                                e.target.value,
-                                                            )
-                                                        }
-                                                        placeholder='Add crowd description...'
-                                                        className='min-h-[100px] bg-background w-full'
-                                                        disabled={
-                                                            isUpdating &&
-                                                            updateField ===
-                                                                'description'
-                                                        }
-                                                    />
+                                                            placeholder='Add crowd description...'
+                                                            className='min-h-[100px] bg-background w-full'
+                                                            disabled={
+                                                                isUpdating &&
+                                                                updateField ===
+                                                                    'description'
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <p className='text-sm text-gray'>
+                                                            {chat?.description ||
+                                                                'No description added yet...'}
+                                                        </p>
+                                                    )
                                                 ) : (
                                                     <p className='text-sm text-gray'>
-                                                        {chat?.description ||
-                                                            'No description added yet...'}
+                                                        {chat?.isChannel
+                                                            ? chat?.description ||
+                                                              'No description added yet...'
+                                                            : ''}
                                                     </p>
-                                                )
-                                            ) : (
-                                                <p className='text-sm text-gray'>
-                                                    {chat?.isChannel
-                                                        ? chat?.description ||
-                                                          'No description added yet...'
-                                                        : ''}
-                                                </p>
-                                            )}
-
-                                            {/* User details for direct messages */}
-                                            {!chat?.isChannel &&
-                                                chat?.otherUser && (
-                                                    <div className='space-y-2 border-t border p-2 rounded-lg bg-foreground'>
-                                                        <h2 className='font-medium text-gray text-xs'>
-                                                            About{' '}
-                                                            {
-                                                                chat?.otherUser
-                                                                    ?.fullName
-                                                            }
-                                                        </h2>
-                                                        <p className='text-xs text-gray'>
-                                                            {chat?.otherUser
-                                                                ?.bio ||
-                                                                'No bio available.'}
-                                                        </p>
-                                                    </div>
                                                 )}
-                                        </div>
-                                        <div className='border-t pt-2 grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
-                                            {/* <Button
+
+                                                {/* User details for direct messages */}
+                                                {!chat?.isChannel &&
+                                                    chat?.otherUser && (
+                                                        <div className='space-y-2 border-t border p-2 rounded-lg bg-foreground'>
+                                                            <h2 className='font-medium text-gray text-xs'>
+                                                                About{' '}
+                                                                {
+                                                                    chat
+                                                                        ?.otherUser
+                                                                        ?.fullName
+                                                                }
+                                                            </h2>
+                                                            <p className='text-xs text-gray'>
+                                                                {chat?.otherUser
+                                                                    ?.bio ||
+                                                                    'No bio available.'}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                            </div>
+                                        )}
+                                        {chat?.isChannel && (
+                                            <div className='border-t pt-2 grid grid-cols-1 md:grid-cols-2 gap-2 w-full'>
+                                                {/* <Button
                                                 onClick={handleCopy}
                                                 icon={
                                                     !copied ? (
@@ -1440,56 +1480,59 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                                     ? 'Copy invitation link'
                                                     : 'Link copied!'}
                                             </Button> */}
-                                            <Button
-                                                onClick={handleCopy}
-                                                icon={
-                                                    !copied ? (
-                                                        <Copy />
-                                                    ) : (
-                                                        <CopyCheck />
-                                                    )
-                                                }
-                                                variant={'secondary'}
-                                                className='text-start text-gray bg-background'
-                                            >
-                                                {!copied
-                                                    ? 'Copy invitation link'
-                                                    : 'Link copied!'}
-                                            </Button>
-                                            <Button
-                                                onClick={() =>
-                                                    setArchivedConfirmOpened(
-                                                        true,
-                                                    )
-                                                }
-                                                icon={<ArchiveRestore />}
-                                                variant={'secondary'}
-                                                className='text-start text-gray bg-background'
-                                            >
-                                                {chat?.isArchived
-                                                    ? 'Retrieve Crowd'
-                                                    : 'Archive Crowd'}
-                                            </Button>
-                                            <Button
-                                                onClick={() =>
-                                                    setIsReportModalOpen(true)
-                                                }
-                                                icon={<TriangleAlert />}
-                                                variant={'secondary'}
-                                                className='text-start text-gray bg-background'
-                                            >
-                                                Report
-                                            </Button>
-                                            <Button
-                                                onClick={handleLeaveOpen}
-                                                icon={<Trash2 />}
-                                                className='bg-destructive/10 text-danger'
-                                            >
-                                                {chat?.isChannel
-                                                    ? 'Exit Crowd'
-                                                    : 'Leave'}
-                                            </Button>
-                                        </div>
+                                                <Button
+                                                    onClick={handleCopy}
+                                                    icon={
+                                                        !copied ? (
+                                                            <Copy />
+                                                        ) : (
+                                                            <CopyCheck />
+                                                        )
+                                                    }
+                                                    variant={'secondary'}
+                                                    className='text-start text-gray bg-background'
+                                                >
+                                                    {!copied
+                                                        ? 'Copy invitation link'
+                                                        : 'Link copied!'}
+                                                </Button>
+                                                <Button
+                                                    onClick={() =>
+                                                        setArchivedConfirmOpened(
+                                                            true,
+                                                        )
+                                                    }
+                                                    icon={<ArchiveRestore />}
+                                                    variant={'secondary'}
+                                                    className='text-start text-gray bg-background'
+                                                >
+                                                    {chat?.isArchived
+                                                        ? 'Retrieve Crowd'
+                                                        : 'Archive Crowd'}
+                                                </Button>
+                                                <Button
+                                                    onClick={() =>
+                                                        setIsReportModalOpen(
+                                                            true,
+                                                        )
+                                                    }
+                                                    icon={<TriangleAlert />}
+                                                    variant={'secondary'}
+                                                    className='text-start text-gray bg-background'
+                                                >
+                                                    Report
+                                                </Button>
+                                                <Button
+                                                    onClick={handleLeaveOpen}
+                                                    icon={<Trash2 />}
+                                                    className='bg-destructive/10 text-danger'
+                                                >
+                                                    {chat?.isChannel
+                                                        ? 'Exit Crowd'
+                                                        : 'Leave'}
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </TabsContent>
 

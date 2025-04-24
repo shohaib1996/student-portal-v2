@@ -269,6 +269,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
         if (chats && selectedChatId) {
             const foundChat = chats.find((c) => c._id === selectedChatId);
             if (foundChat) {
+                console.log({ foundChat });
                 setChat(foundChat);
                 setChatInfo(foundChat);
             }

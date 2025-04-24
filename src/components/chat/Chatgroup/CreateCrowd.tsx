@@ -244,7 +244,8 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
             toast.success('Crowd created successfully');
             dispatch(updateChats(res?.data?.chat));
             dispatch(updateLatestMessage(res?.data?.chat));
-            handleCreateChat(res?.data?.chat._id);
+            // handleCreateChat(res?.data?.chat._id);
+            router.push(`/chat/${res.data.chat._id}`);
             dispatch(loadChats() as any);
             onClose();
         } catch (err: any) {

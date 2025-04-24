@@ -59,6 +59,7 @@ function OnlineSidebar() {
     const { data: onlineUsers } = useGetOnlineUsersQuery();
     const [filteredOnlineUsers, setFilteredOnlineUsers] = useState<any[]>([]);
     const [filteredChats, setFilteredChats] = useState<any[]>([]);
+    const [allRecentChats, setAllRecentChats] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState<string>('recent');
@@ -91,8 +92,17 @@ function OnlineSidebar() {
                             : 0;
                         return dateB - dateA;
                     })
-                    .slice(0, 10);
-
+                    .slice(0, 20);
+                const sortedAllRecentChats = [...chats].sort((a, b) => {
+                    const dateA = a.latestMessage?.createdAt
+                        ? new Date(a.latestMessage.createdAt).getTime()
+                        : 0;
+                    const dateB = b.latestMessage?.createdAt
+                        ? new Date(b.latestMessage.createdAt).getTime()
+                        : 0;
+                    return dateB - dateA;
+                });
+                setAllRecentChats(sortedAllRecentChats);
                 setFilteredChats(sortedChats);
             }
         } catch (error) {
@@ -161,7 +171,7 @@ function OnlineSidebar() {
                                     );
                                 }
                             })
-                            .slice(0, 10);
+                            .slice(0, 20);
                         setFilteredChats(filteredChats);
                     }
                 } else {
@@ -187,7 +197,7 @@ function OnlineSidebar() {
                                     : 0;
                                 return dateB - dateA;
                             })
-                            .slice(0, 10);
+                            .slice(0, 20);
 
                         setFilteredChats(sortedChats);
                     }
@@ -289,7 +299,7 @@ function OnlineSidebar() {
                         className={`border-b-[2px] ${
                             activeTab === 'online'
                                 ? 'border-primary-white !text-primary-white'
-                                : 'border-foreground-border text-gray'
+                                : 'border-forground-border text-gray'
                         } !bg-transparent rounded-none !shadow-none`}
                     >
                         Online Now
@@ -299,7 +309,7 @@ function OnlineSidebar() {
                         className={`border-b-[2px] ${
                             activeTab === 'recent'
                                 ? 'border-primary-white !text-primary-white'
-                                : 'border-foreground-border text-gray'
+                                : 'border-forground-border text-gray'
                         } !bg-transparent rounded-none !shadow-none`}
                     >
                         Recent Chats
@@ -756,23 +766,25 @@ function OnlineSidebar() {
                                 );
                             })}
 
-                            {filteredChats.length > 0 && (
-                                <div className='p-2 text-center flex flex-row items-center gap-1'>
-                                    <div className='w-full h-[2px] bg-border'></div>
-                                    <Button
-                                        variant='primary_light'
-                                        size='sm'
-                                        className='text-xs rounded-3xl text-primary'
-                                    >
-                                        View More{' '}
-                                        <ChevronDown
-                                            size={16}
-                                            className='text-gray'
-                                        />
-                                    </Button>
-                                    <div className='w-full h-[2px] bg-border'></div>
-                                </div>
-                            )}
+                            {filteredChats.length > 0 &&
+                                filteredChats?.length >
+                                    allRecentChats.length && (
+                                    <div className='p-2 text-center flex flex-row items-center gap-1'>
+                                        <div className='w-full h-[2px] bg-border'></div>
+                                        <Button
+                                            variant='primary_light'
+                                            size='sm'
+                                            className='text-xs rounded-3xl text-primary'
+                                        >
+                                            View More{' '}
+                                            <ChevronDown
+                                                size={16}
+                                                className='text-gray'
+                                            />
+                                        </Button>
+                                        <div className='w-full h-[2px] bg-border'></div>
+                                    </div>
+                                )}
                         </div>
                     )}
                 </TabsContent>
