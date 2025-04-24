@@ -8,6 +8,7 @@ import {
     useUpdateReviewMutation,
     useSubmitReviewMutation,
 } from '@/redux/api/course/courseApi';
+import { toast } from 'sonner';
 
 // Interfaces
 interface ReviewedBy {
@@ -86,8 +87,11 @@ export default function ReviewModal({ _id }: ReviewModalProps) {
                 body: { starCount: editedRating, text: editedText },
             })
                 .unwrap()
-                .then(() => setIsEdit(false))
-                .catch((err) => console.error('Failed to update review:', err));
+                .then(() => {
+                    toast.success('Review updated successfully');
+                    setIsEdit(false);
+                })
+                .catch((err) => toast.error('Failed to update review:', err));
         } else {
             // Submit new review
             submitReview({
@@ -96,8 +100,11 @@ export default function ReviewModal({ _id }: ReviewModalProps) {
                 text: editedText,
             })
                 .unwrap()
-                .then(() => setIsEdit(false))
-                .catch((err) => console.error('Failed to submit review:', err));
+                .then(() => {
+                    toast.success('Review added successfully');
+                    setIsEdit(false);
+                })
+                .catch((err) => toast.error('Failed to submit review:', err));
         }
     };
 
@@ -105,6 +112,8 @@ export default function ReviewModal({ _id }: ReviewModalProps) {
     const currentRating = isEdit
         ? editedRating
         : Math.round(review?.starCount || 0);
+
+    console.log({ review });
 
     return (
         <div className='space-y-4 mt-3'>
@@ -140,9 +149,7 @@ export default function ReviewModal({ _id }: ReviewModalProps) {
                                         </Avatar>
                                     )}
                                     <span className='font-medium text-gray'>
-                                        {review || isError
-                                            ? 'Please Give rating'
-                                            : name}
+                                        {review ? name : 'Please Give rating'}
                                     </span>
                                 </div>
                                 <span className='text-sm text-gray'>
@@ -172,13 +179,15 @@ export default function ReviewModal({ _id }: ReviewModalProps) {
 
                             <div className='flex justify-between items-center'>
                                 <p className='text-gray'>{formattedDate}</p>
-                                <div className='flex items-center'>
-                                    <span className='mr-2'>Status:</span>
-                                    <Badge className='bg-primary text-pure-white hover:bg-primary'>
-                                        {review?.status ||
-                                            (isEdit ? 'New' : 'Pending')}
-                                    </Badge>
-                                </div>
+                                {review && (
+                                    <div className='flex items-center'>
+                                        <span className='mr-2'>Status:</span>
+                                        <Badge className='bg-primary text-pure-white hover:bg-primary'>
+                                            {review?.status ||
+                                                (isEdit ? 'New' : 'Pending')}
+                                        </Badge>
+                                    </div>
+                                )}
                             </div>
 
                             {isEdit ? (

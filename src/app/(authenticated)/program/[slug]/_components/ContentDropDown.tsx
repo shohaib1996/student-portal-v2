@@ -26,25 +26,39 @@ import MemoizedLoadingIndicator from '@/components/svgs/common/LoadingIndicator'
 import MemoizedEmptyState from '@/components/svgs/common/EmptyState';
 
 // Define the video data type for better type safety
-type VideoDataType = {
-    videoInfo: null | TLessonInfo;
-    isSideOpen: boolean;
-    item: TContent;
-    contentId: string | null;
-};
-
+// Updated interface for ContentDropDown props
 interface ContentDropDownProps {
     fetchedData: TContent[] | null;
-    videoData: VideoDataType;
+    videoData: {
+        videoInfo: null | TLessonInfo;
+        isSideOpen: boolean;
+        item: TContent;
+        contentId: string | null;
+    };
     option: {
         isLoading: boolean;
         isError: boolean;
         courseProgramsLoading: boolean;
     };
-    setVideoData: React.Dispatch<React.SetStateAction<VideoDataType>>;
+    setVideoData: React.Dispatch<
+        React.SetStateAction<{
+            videoInfo: null | TLessonInfo;
+            isSideOpen: boolean;
+            item: TContent;
+            contentId: string | null;
+        }>
+    >;
     setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
     searchInput: string;
-    filterOption: { filter: string }[];
+
+    // Update filterOption to match the new structure
+    filterOption: Array<{ property: string; value: any }>;
+
+    // Optional props for local completion state
+    localCompletionState?: Map<string, boolean>;
+    setLocalCompletionState?: React.Dispatch<
+        React.SetStateAction<Map<string, boolean>>
+    >;
 }
 
 const ContentDropDown: React.FC<ContentDropDownProps> = ({
@@ -69,22 +83,15 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         Map<string, boolean>
     >(new Map());
 
-    console.log('treeData', treeData.slice(0, 10));
-
-    console.log({ filterOption });
+    console.log('fetchedData', fetchedData);
     useEffect(() => {
         if (fetchedData && fetchedData.length > 0) {
             try {
                 // Use the fixed buildContentTree function
+
                 const tree = buildContentTree(fetchedData);
 
-                // Apply search filtering if there's a search query
-                if (searchInput && searchInput.trim() !== '') {
-                    const filteredTree = searchContentTree(tree, searchInput);
-                    setTreeData(filteredTree);
-                } else {
-                    setTreeData(tree);
-                }
+                setTreeData(tree);
             } catch (error) {
                 console.error('Error building content tree:', error);
                 setTreeData([]);
@@ -319,21 +326,22 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                 </AccordionTrigger>
                             ) : (
                                 <AccordionTrigger
+                                    isIcon={false}
                                     className={`text-start hover:no-underline py-0 ${
                                         status === 'upcoming' ? '' : ''
                                     } [&[data-state=open]>a>div>div>p]:text-primary [&[data-state=open]>div>div>svg]:stroke-primary`}
                                 >
-                                    <Link
-                                        href={
-                                            item.lesson.url
-                                                ? `/presentation-slides/${extractSlideId(item.lesson.url)}`
-                                                : '#'
-                                        }
-                                        target='_blank'
-                                        className='w-full'
-                                    >
+                                    <div className='w-full'>
                                         <div className='flex items-center justify-between w-full p-2'>
-                                            <div className='flex items-center gap-3'>
+                                            <Link
+                                                href={
+                                                    item.lesson.url
+                                                        ? `/presentation-slides/${extractSlideId(item.lesson.url)}`
+                                                        : '#'
+                                                }
+                                                target='_blank'
+                                                className='flex items-center gap-3'
+                                            >
                                                 <div>
                                                     <File className='h-5 w-5 stroke-gray' />
                                                 </div>
@@ -342,14 +350,14 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                                     <p className='text-sm font-medium text-black'>
                                                         {item.lesson.title}
                                                     </p>
-                                                    <span className='text-xs text-gray'>
+                                                    {/* <span className='text-xs text-gray'>
                                                         {formatSeconds(
                                                             item.lesson
                                                                 .duration as number,
                                                         )}
-                                                    </span>
+                                                    </span> */}
                                                 </div>
-                                            </div>
+                                            </Link>
 
                                             <div className='flex items-center gap-3'>
                                                 <div className='flex gap-1'>
@@ -357,10 +365,30 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                                         item.priority,
                                                     )}
                                                 </div>
-                                                <MoreVertical className='h-5 w-5 text-gray' />
+                                                <div className='flex items-center gap-1'>
+                                                    <LessionActionMenu
+                                                        videoData={videoData}
+                                                        item={item}
+                                                        setVideoData={
+                                                            setVideoData
+                                                        }
+                                                        lessonId={item?._id}
+                                                        courseId={
+                                                            item?.myCourse
+                                                                ?.course
+                                                        }
+                                                        setIsPinnedEyeOpen={
+                                                            setIsPinnedEyeOpen
+                                                        }
+                                                        // NEW: Add progress update callback
+                                                        onProgressUpdate={
+                                                            handleProgressUpdate
+                                                        }
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                    </Link>
+                                    </div>
                                 </AccordionTrigger>
                             )}
                         </AccordionItem>

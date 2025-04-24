@@ -598,7 +598,7 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                     onValueChange={setActiveTab}
                     className='mt-4'
                 >
-                    <TabsList className='flex items-center justify-start gap-2 bg-transparent'>
+                    <TabsList className='flex items-center justify-start gap-2 bg-transparent overflow-x-auto overflow-y-hidden'>
                         <TabsTrigger
                             value='program'
                             className='text-sm data-[state=active]:text-white data-[state=active]:bg-primary data-[state=active]:border-primary rounded-md px-4'
@@ -634,7 +634,7 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                 </Tabs>
 
                 {/* Footer Action Buttons */}
-                <div className='flex items-center justify-between mt-6 pt-3 border-t border-gray-200'>
+                <div className='flex flex-col md:flex-row gap-2 md:gap-0 items-center justify-between mt-6 pt-3 border-t border-gray-200 w-full'>
                     <div className='flex items-center'>
                         <TooltipProvider>
                             <Tooltip>
@@ -660,14 +660,14 @@ export function CombinedSelectionModal({ myEnrollments }: any) {
                         <Button
                             variant='outline'
                             onClick={() => dispatch(closeModal())}
-                            className='px-4'
+                            className='px-4 '
                         >
                             Cancel
                         </Button>
                         <Button
                             onClick={handleConfirm}
                             disabled={!selectedCourseId}
-                            className='px-5 font-medium'
+                            className='px-5 font-medium '
                         >
                             Go to Program{' '}
                             <ArrowRight className='ml-2 h-4 w-4' />

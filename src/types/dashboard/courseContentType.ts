@@ -153,3 +153,49 @@ export interface IReviewResponse {
     success: boolean;
     review: IReview;
 }
+
+// Chapter Data Interface
+
+export interface ChapterData {
+    _id: string;
+    type: string;
+    chapter: {
+        name: string;
+        description: string | null;
+        subTitle: string | null;
+        subDescription: string | null;
+        image: string;
+        isFree: boolean;
+        updatedAt?: string;
+    };
+    lesson: {
+        title: string;
+        name: string;
+        description: string | null;
+        subTitle: string | null;
+        subDescription: string | null;
+        image: string;
+        isFree: boolean;
+        updatedAt?: string;
+    };
+    category: string;
+    updatedAt: string;
+    priority?: number;
+    myCourse: {
+        course: string;
+        isOwner: boolean;
+        parent: string;
+        groups: string[];
+        prev: string;
+        isPublished: boolean;
+        category: string;
+        isPreview: boolean;
+        sessions: any[]; // You can replace `any` with a specific session type if known
+        _id?: string;
+    };
+    isPinned: boolean;
+    isCompleted: boolean;
+    isFocused: boolean;
+    isLocked: boolean;
+    isSpecial: boolean;
+}

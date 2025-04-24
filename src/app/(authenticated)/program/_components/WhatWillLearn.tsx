@@ -86,7 +86,7 @@ const WhatWillLearn: React.FC<WhatWillLearnProps> = ({ bootcamp, index }) => {
                                     isExpanded ? handleSeeLess : handleSeeMore
                                 }
                                 variant='outline'
-                                className='border-emerald-200 hover:bg-emerald-50 text-emerald-700 font-medium rounded-full px-6 group transition-all duration-300'
+                                className='border-emerald-200  text-emerald-700 font-medium rounded-full px-6 group transition-all duration-300'
                             >
                                 <span>
                                     {isExpanded ? 'See Less' : 'See More'}

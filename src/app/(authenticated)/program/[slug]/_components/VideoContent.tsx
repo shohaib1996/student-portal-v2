@@ -24,15 +24,23 @@ import {
     useTrackChapterMutation,
 } from '@/redux/api/course/courseApi';
 
+// Fixed VideoContent Props Interface
 interface VideoContentProps {
     videoData: {
         videoInfo: null | TLessonInfo;
         isSideOpen: boolean;
         contentId: string | null;
-        item: Partial<TContent>;
+        item: TContent;
     };
     refreshData?: () => void;
-    setVideoData: React.Dispatch<React.SetStateAction<any>>;
+    setVideoData: React.Dispatch<
+        React.SetStateAction<{
+            videoInfo: null | TLessonInfo;
+            isSideOpen: boolean;
+            item: TContent;
+            contentId: string | null;
+        }>
+    >;
     isPinnedEyeOpen: boolean;
     setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
     // Add callback for progress updates
@@ -62,7 +70,6 @@ const VideoContent: React.FC<VideoContentProps> = ({
 
     const programData = data?.program;
 
-    console.log({ singleData });
     const tabData = singleData?.chapter?.lesson?.data;
 
     const tabs = tabData
@@ -373,102 +380,109 @@ const VideoContent: React.FC<VideoContentProps> = ({
                                         Resources
                                     </h2>
                                 </div>
-                                <Tabs defaultValue='summary'>
-                                    <TabsList className='bg-background p-1 rounded-full gap-2 flex-wrap overflow-x-auto lg:overflow-x-visible'>
-                                        {tabs
-                                            ?.filter(
-                                                (t) =>
-                                                    t.title !== 'transcription',
-                                            )
-                                            ?.map((tab) => (
-                                                <TabsTrigger
-                                                    key={tab.title}
-                                                    value={tab.title}
-                                                    className={cn(
-                                                        'rounded-full data-[state=active]:bg-primary-light data-[state=active]:text-white text-sm font-medium',
-                                                        'data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-border-primary-light',
-                                                        'text-gray hover:text-dark-gray',
+                                {tabs?.length > 0 ? (
+                                    <Tabs defaultValue='summary'>
+                                        <TabsList className='bg-background p-1 rounded-full gap-2 flex-wrap overflow-x-auto lg:overflow-x-visible'>
+                                            {tabs
+                                                ?.filter(
+                                                    (t) =>
+                                                        t.title !==
+                                                        'transcription',
+                                                )
+                                                ?.map((tab) => (
+                                                    <TabsTrigger
+                                                        key={tab.title}
+                                                        value={tab.title}
+                                                        className={cn(
+                                                            'rounded-full data-[state=active]:bg-primary-light data-[state=active]:text-white text-sm font-medium',
+                                                            'data-[state=active]:text-primary-white data-[state=active]:border-b-2 data-[state=active]:border-border-primary-light',
+                                                            'text-gray hover:text-dark-gray',
+                                                        )}
+                                                    >
+                                                        {tab.title ===
+                                                            'summary' && (
+                                                            <svg
+                                                                width='16'
+                                                                height='16'
+                                                                viewBox='0 0 24 24'
+                                                                fill='none'
+                                                                xmlns='http://www.w3.org/2000/svg'
+                                                                className='data-[state=active]:text-primary-white text-gray'
+                                                            >
+                                                                <path
+                                                                    d='M4 6H20M4 10H20M4 14H20M4 18H12'
+                                                                    stroke='currentColor'
+                                                                    strokeWidth='2'
+                                                                    strokeLinecap='round'
+                                                                    strokeLinejoin='round'
+                                                                />
+                                                            </svg>
+                                                        )}
+                                                        {tab.title ===
+                                                            'interview' && (
+                                                            <svg
+                                                                width='16'
+                                                                height='16'
+                                                                viewBox='0 0 24 24'
+                                                                fill='none'
+                                                                xmlns='http://www.w3.org/2000/svg'
+                                                                className='data-[state=active]:text-primary-white text-gray'
+                                                            >
+                                                                <path
+                                                                    d='M8 9H16M8 13H14M8 17H11M13 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V9L13 2Z'
+                                                                    stroke='currentColor'
+                                                                    strokeWidth='2'
+                                                                    strokeLinecap='round'
+                                                                    strokeLinejoin='round'
+                                                                />
+                                                            </svg>
+                                                        )}
+                                                        {tab.title ===
+                                                            'behavioral' && (
+                                                            <svg
+                                                                width='16'
+                                                                height='16'
+                                                                viewBox='0 0 24 24'
+                                                                fill='none'
+                                                                xmlns='http://www.w3.org/2000/svg'
+                                                                className='data-[state=active]:text-primary-white text-gray'
+                                                            >
+                                                                <path
+                                                                    d='M9 6L20 6M9 12H20M9 18H20M5 6V6.01M5 12V12.01M5 18V18.01'
+                                                                    stroke='currentColor'
+                                                                    strokeWidth='2'
+                                                                    strokeLinecap='round'
+                                                                    strokeLinejoin='round'
+                                                                />
+                                                            </svg>
+                                                        )}
+                                                        <span>{tab.label}</span>
+                                                    </TabsTrigger>
+                                                ))}
+                                        </TabsList>
+                                        {tabs?.map((tab) => (
+                                            <TabsContent
+                                                key={tab.title}
+                                                value={tab.title}
+                                                className='mt-0'
+                                            >
+                                                <>
+                                                    {tab.data && (
+                                                        <div className='py-2 px-2'>
+                                                            <p className='whitespace-pre-line text-sm font-semibold text-gray'>
+                                                                {
+                                                                    tab.data as any
+                                                                }
+                                                            </p>
+                                                        </div>
                                                     )}
-                                                >
-                                                    {tab.title ===
-                                                        'summary' && (
-                                                        <svg
-                                                            width='16'
-                                                            height='16'
-                                                            viewBox='0 0 24 24'
-                                                            fill='none'
-                                                            xmlns='http://www.w3.org/2000/svg'
-                                                            className='data-[state=active]:text-primary-white text-gray'
-                                                        >
-                                                            <path
-                                                                d='M4 6H20M4 10H20M4 14H20M4 18H12'
-                                                                stroke='currentColor'
-                                                                strokeWidth='2'
-                                                                strokeLinecap='round'
-                                                                strokeLinejoin='round'
-                                                            />
-                                                        </svg>
-                                                    )}
-                                                    {tab.title ===
-                                                        'interview' && (
-                                                        <svg
-                                                            width='16'
-                                                            height='16'
-                                                            viewBox='0 0 24 24'
-                                                            fill='none'
-                                                            xmlns='http://www.w3.org/2000/svg'
-                                                            className='data-[state=active]:text-primary-white text-gray'
-                                                        >
-                                                            <path
-                                                                d='M8 9H16M8 13H14M8 17H11M13 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V9L13 2Z'
-                                                                stroke='currentColor'
-                                                                strokeWidth='2'
-                                                                strokeLinecap='round'
-                                                                strokeLinejoin='round'
-                                                            />
-                                                        </svg>
-                                                    )}
-                                                    {tab.title ===
-                                                        'behavioral' && (
-                                                        <svg
-                                                            width='16'
-                                                            height='16'
-                                                            viewBox='0 0 24 24'
-                                                            fill='none'
-                                                            xmlns='http://www.w3.org/2000/svg'
-                                                            className='data-[state=active]:text-primary-white text-gray'
-                                                        >
-                                                            <path
-                                                                d='M9 6L20 6M9 12H20M9 18H20M5 6V6.01M5 12V12.01M5 18V18.01'
-                                                                stroke='currentColor'
-                                                                strokeWidth='2'
-                                                                strokeLinecap='round'
-                                                                strokeLinejoin='round'
-                                                            />
-                                                        </svg>
-                                                    )}
-                                                    <span>{tab.label}</span>
-                                                </TabsTrigger>
-                                            ))}
-                                    </TabsList>
-                                    {tabs?.map((tab) => (
-                                        <TabsContent
-                                            key={tab.title}
-                                            value={tab.title}
-                                            className='mt-0'
-                                        >
-                                            <>
-                                                {tab.data && (
-                                                    <div className='py-2 px-2'>
-                                                        <p className='whitespace-pre-line text-sm font-semibold text-gray'>
-                                                            {tab.data as any}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                            </>
-                                        </TabsContent>
-                                    ))}
-                                </Tabs>
+                                                </>
+                                            </TabsContent>
+                                        ))}
+                                    </Tabs>
+                                ) : (
+                                    'No resources available'
+                                )}
                             </div>
                         </div>
                     </TabsContent>

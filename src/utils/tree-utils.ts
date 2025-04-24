@@ -2,6 +2,7 @@
  * Enhanced function to transform flat array data into hierarchical tree structure
  * Efficiently builds a nested tree based on parent-child relationships
  * with proper ordering based on prev references
+ * Modified to include items with missing parents as individual items
  *
  * @param {Array} flatData - Flat array of content items (chapters, lessons)
  * @returns {Array} - Tree structured array with proper hierarchy
@@ -22,14 +23,24 @@ export const buildContentTree = (flatData: TContent[]): TContent[] => {
     const parentChildMap: ParentChildMap = new Map();
     const prevMap: PrevMap = new Map();
 
-    // First pass: Build the maps
+    // Set to track IDs of items in the flat data for parent existence check
+    const existingIds = new Set<string>();
+
+    // First pass: Collect all existing IDs
+    flatData.forEach((item) => {
+        existingIds.add(item._id);
+    });
+
+    // Second pass: Build the maps
     flatData.forEach((item) => {
         // Clone the item and add an empty children array
         itemMap.set(item._id, { ...item, children: [] });
 
         // Track parent-child relationships
         const parentId = item.myCourse?.parent || '';
-        if (parentId) {
+
+        // Check if parent exists in our data
+        if (parentId && existingIds.has(parentId)) {
             if (!parentChildMap.has(parentId)) {
                 parentChildMap.set(parentId, []);
             }
@@ -44,9 +55,15 @@ export const buildContentTree = (flatData: TContent[]): TContent[] => {
         }
     });
 
-    // Find root items (those without parents or with empty parent)
+    // Find root items:
+    // 1. Items without parents
+    // 2. Items with empty parent
+    // 3. Items whose parents don't exist in the dataset
     const rootIds = flatData
-        .filter((item) => !item.myCourse?.parent || item.myCourse.parent === '')
+        .filter((item) => {
+            const parentId = item.myCourse?.parent;
+            return !parentId || parentId === '' || !existingIds.has(parentId);
+        })
         .map((item) => item._id);
 
     // Helper function to sort items based on the 'prev' relationship

@@ -11,7 +11,7 @@ import {
     useGetAllCourseProgramsQuery,
     useGetAllCourseReviewQuery,
 } from '@/redux/api/course/courseApi';
-import { ICourseData, TProgram } from '@/types';
+import { ChapterData, ICourseData, TProgram } from '@/types';
 import ProgramContent from './ProgramContent';
 import { toast } from 'sonner';
 import ReviewModal from '@/components/shared/review-modal';
@@ -24,15 +24,13 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
         tab: 'Modules',
         value: 'modules',
     });
+
+    // Updated filter option state to handle property-value pairs
+    const [filterOption, setFilterOption] = useState<
+        Array<{ property: string; value: any }>
+    >([]);
     const router = useRouter();
     const [reviewOpen, setReviewOpen] = useState<boolean>(false);
-    const [filterOption, setFilterOption] = useState<{
-        filter: string;
-        query: string;
-    }>({
-        filter: '',
-        query: '',
-    });
 
     // Fetch program and course data
     const { data: myPrograms, isLoading: isProgramsLoading } =
@@ -50,12 +48,50 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
         categoryID: selectedTab?.value,
     });
 
+    const [filteredChaptersData, setFilteredChaptersData] = useState<
+        ChapterData[] | undefined
+    >(undefined);
+
     // Extract relevant data
     const program: TProgram | undefined = myPrograms?.program;
     const courseContentData: ICourseData | undefined = courseContent;
-    const chaptersData = programsData?.chapters;
+    const chaptersData: ChapterData[] = programsData?.chapters;
 
     const tabs = courseContentData?.category?.categories;
+
+    // Updated filtering logic to handle property-value pairs
+    useEffect(() => {
+        if (!chaptersData) {
+            setFilteredChaptersData(undefined);
+            return;
+        }
+
+        if (filterOption.length === 0) {
+            // When no filters are active, show all chapters
+            setFilteredChaptersData(chaptersData);
+            return;
+        }
+
+        const filtered = chaptersData.filter((chapter: any) =>
+            filterOption.some((filter) => {
+                const { property, value } = filter;
+
+                // Handle nested properties like "chapter.isFree"
+                if (property.includes('.')) {
+                    const [parentProp, childProp] = property.split('.');
+                    return (
+                        chapter?.[parentProp] &&
+                        chapter?.[parentProp][childProp] === value
+                    );
+                }
+
+                // Handle direct properties
+                return chapter[property as keyof typeof chapter] === value;
+            }),
+        );
+
+        setFilteredChaptersData(filtered);
+    }, [filterOption, chaptersData]);
 
     useEffect(() => {
         // Initialize first tab from available tabs if needed
@@ -67,7 +103,6 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
     const commingSoon = () => {
         toast.success('Coming Soon...');
     };
-
     const lastUpdate = myPrograms?.program?.updatedAt;
 
     const { data: reviews } = useGetAllCourseReviewQuery({});
@@ -120,8 +155,8 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
             >
                 {/* Tabs Navigation */}
                 <div className='border-b border-border'>
-                    <div className='flex flex-col xl:flex-row gap-2 justify-between items-center py-2'>
-                        <TabsList className='bg-foreground p-1 rounded-full gap-2 flex-wrap overflow-x-auto'>
+                    <div className='flex flex-col lg:flex-row gap-2 justify-between md:justify-start lg:justify-between  items-center md:items-start lg:items-center py-2'>
+                        <TabsList className='bg-foreground p-1 rounded-full gap-2  overflow-x-auto flex-wrap'>
                             {tabs?.map((tab, i) => (
                                 <TabsTrigger
                                     key={tab?._id || i}
@@ -146,7 +181,8 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                             <div className='flex items-center gap-1 text-nowrap'>
                                 <FileText className='h-4 w-4 text-primary' />
                                 <span className='text-sm font-medium'>
-                                    {chaptersData?.length || 0} modules
+                                    {chaptersData?.length || 0} modules &
+                                    lessons
                                 </span>
                             </div>
                         </div>
@@ -160,9 +196,11 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                             courseProgramsLoading,
                         }}
                         selectedTab={selectedTab}
-                        fetchedData={chaptersData}
+                        fetchedData={filteredChaptersData}
                         courseContentData={courseContentData}
                         refetchCourseContent={refetchCourseContent}
+                        filterOption={filterOption}
+                        setFilterOption={setFilterOption}
                     />
                 </TabsContent>
             </Tabs>
