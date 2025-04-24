@@ -299,8 +299,10 @@ const CreateEventModal = () => {
                     values.attendees,
                 );
 
+                const { startTime, endTime, recurrence, ...rest } = data;
+
                 const changes: any = {
-                    ...data,
+                    ...(event.recurrence?.isRecurring ? rest : data),
                 };
 
                 if (removed && removed.length > 0) {
@@ -341,11 +343,12 @@ const CreateEventModal = () => {
         const data = values;
         try {
             if (updateId) {
+                const { startTime, endTime, recurrence, ...rest } = data;
                 const res = await updateEvent({
                     id: updateId,
                     updateOption,
                     changes: {
-                        ...data,
+                        ...(event.recurrence?.isRecurring ? rest : data),
                     },
                 }).unwrap();
                 if (res) {
