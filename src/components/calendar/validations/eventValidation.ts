@@ -48,7 +48,7 @@ export const EventFormSchema = z
                         ctx.addIssue({
                             path: ['endRecurrence'],
                             message:
-                                'endRecurrence is required when isRecurring is true',
+                                'End Recurrence date is required for recurring events',
                             code: z.ZodIssueCode.custom,
                         });
                     } else if (isNaN(Date.parse(data.endRecurrence))) {
@@ -121,7 +121,7 @@ export const EventFormSchema = z
             if (endRecurrence < endDate) {
                 ctx.addIssue({
                     path: ['recurrence', 'endRecurrence'],
-                    message: 'End of Recurrence cannot be before End Date',
+                    message: 'End of recurrence date cannot be before end date',
                     code: z.ZodIssueCode.custom,
                 });
             }
@@ -130,7 +130,7 @@ export const EventFormSchema = z
                 ctx.addIssue({
                     path: ['recurrence', 'endRecurrence'],
                     message:
-                        'End of Recurrence cannot be more than a year after End Date',
+                        'End of recurrence date cannot be more than a year from start date',
                     code: z.ZodIssueCode.custom,
                 });
             }

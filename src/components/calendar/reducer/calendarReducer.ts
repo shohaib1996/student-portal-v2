@@ -20,6 +20,7 @@ type TInitialState = {
     rolesFilter: ('organizer' | 'attendee')[];
     priorityFilter: ('low' | 'medium' | 'high')[];
     currentDate: Date | null;
+    query: string;
 };
 
 const initialState: TInitialState = {
@@ -30,6 +31,7 @@ const initialState: TInitialState = {
     typeFilter: [],
     priorityFilter: [],
     currentDate: null,
+    query: '',
 };
 
 const calendarSlice = createSlice({
@@ -88,6 +90,9 @@ const calendarSlice = createSlice({
             state.rolesFilter = [];
             state.priorityFilter = [];
         },
+        setEventQuery: (state, action: PayloadAction<string>) => {
+            state.query = action.payload;
+        },
     },
 });
 
@@ -100,6 +105,7 @@ export const {
     setCurrentDate,
     setTypeFilter,
     resetFilters,
+    setEventQuery,
 } = calendarSlice.actions;
 
 export default calendarSlice.reducer;

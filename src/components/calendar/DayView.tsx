@@ -1,6 +1,6 @@
 'use client';
 
-import { MouseEvent, useState } from 'react';
+import { MouseEvent, useCallback, useState } from 'react';
 import { format, isToday } from 'date-fns';
 
 import { cn } from '@/lib/utils';
@@ -13,6 +13,7 @@ import { useEventPopover } from './CreateEvent/EventPopover';
 import { setCurrentDate } from '@/components/calendar/reducer/calendarReducer';
 import EventButton from './EventButton';
 import EventButtonWithBG from './EventButtonWithBG';
+import Fuse from 'fuse.js';
 interface DayViewProps {
     currentDate: Date;
     onModal?: boolean;
@@ -20,8 +21,14 @@ interface DayViewProps {
 }
 
 export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
-    const { eventFilter, todoFilter, priorityFilter, rolesFilter, typeFilter } =
-        useAppSelector((s) => s.calendar);
+    const {
+        eventFilter,
+        todoFilter,
+        priorityFilter,
+        rolesFilter,
+        typeFilter,
+        query,
+    } = useAppSelector((s) => s.calendar);
     const { data } = useGetMyEventsQuery({
         from: dayjs(currentDate).startOf('day').toISOString(), // Start of the day (00:00:00)
         to: dayjs(currentDate).endOf('day').toISOString(), // End of the day (23:59:59.999)
@@ -60,12 +67,25 @@ export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
     // Generate hours (0-23)
     const hours = Array.from({ length: 24 }, (_, i) => i);
 
+    const searchedEvents = useCallback(() => {
+        if (!query) {
+            return events;
+        } else {
+            const fuse = new Fuse(events, {
+                keys: ['title', 'organizer.fullName', 'priority'],
+                threshold: 0.3,
+            });
+            const results = fuse.search(query);
+            return results.map((result) => result.item);
+        }
+    }, [query, events]);
+
     // Get events for a specific hour
     const getEventsForHour = (hour: number) => {
         // Create a dayjs object for the current date
         const current = dayjs(currentDate);
 
-        return events.filter((event) => {
+        return searchedEvents().filter((event) => {
             // Parse the event start date
             const eventTime = dayjs(event.startTime);
 
@@ -132,30 +152,3 @@ export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
         </div>
     );
 }
-
-// {
-//     hour === event.startHour && (
-//         <>
-//             <div className='font-medium'>
-//                 {event.title}
-//             </div>
-//             <div className='text-xs'>
-//                 {event.startHour === 0
-//                     ? '12 AM'
-//                     : event.startHour < 12
-//                         ? `${event.startHour} AM`
-//                         : event.startHour === 12
-//                             ? '12 PM'
-//                             : `${event.startHour - 12} PM`}{' '}
-//                 -
-//                 {event.endHour === 0
-//                     ? '12 AM'
-//                     : event.endHour < 12
-//                         ? `${event.endHour} AM`
-//                         : event.endHour === 12
-//                             ? '12 PM'
-//                             : `${event.endHour - 12} PM`}
-//             </div>
-//         </>
-//     )
-// }

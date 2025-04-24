@@ -66,9 +66,10 @@ type TProps = {
     form: UseFormReturn<TTodoFormType>;
     onSubmit: SubmitHandler<TTodoFormType>;
     setCurrentDate: Dispatch<SetStateAction<Dayjs>>;
+    edit: boolean;
 };
 
-const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
+const TodoForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
     const [openUser, setOpenUser] = useState<string>('');
     const [query, setQuery] = useState('');
     const {
@@ -110,16 +111,6 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
         { value: 5, label: 'Fri' },
         { value: 6, label: 'Sat' },
     ];
-
-    const { data: userData, isLoading } = useFetchUsersQuery(query);
-
-    const users: TUser[] = userData?.users
-        ? (Array.from(
-              new Map(
-                  userData.users.map((user: TUser) => [user._id, user]),
-              ).values(),
-          ) as TUser[])
-        : [];
 
     const { isFullScreen, setIsFullScreen } = useEventPopover();
 
@@ -239,6 +230,12 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                             <FormControl>
                                                 <div className='flex items-center gap-2'>
                                                     <DatePicker
+                                                        disabled={
+                                                            edit &&
+                                                            form.getValues(
+                                                                'recurrence.isRecurring',
+                                                            ) === true
+                                                        }
                                                         className='bg-background min-h-8'
                                                         value={dayjs(
                                                             field.value,
@@ -265,6 +262,12 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                     {form.watch('isAllDay') ===
                                                         false && (
                                                         <TimePicker
+                                                            disabled={
+                                                                edit &&
+                                                                form.getValues(
+                                                                    'recurrence.isRecurring',
+                                                                ) === true
+                                                            }
                                                             className='bg-background '
                                                             value={field.value}
                                                             onChange={(val) => {
@@ -297,6 +300,12 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                             <FormControl>
                                                 <div className='flex items-center gap-2'>
                                                     <DatePicker
+                                                        disabled={
+                                                            edit &&
+                                                            form.getValues(
+                                                                'recurrence.isRecurring',
+                                                            ) === true
+                                                        }
                                                         className='bg-background min-h-8'
                                                         value={dayjs(
                                                             field.value,
@@ -312,6 +321,12 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                         'isAllDay',
                                                     ) && (
                                                         <TimePicker
+                                                            disabled={
+                                                                edit &&
+                                                                form.getValues(
+                                                                    'recurrence.isRecurring',
+                                                                ) === true
+                                                            }
                                                             className='bg-background'
                                                             value={field.value}
                                                             onChange={(val) =>
@@ -337,6 +352,12 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                         <FormControl>
                                             <div className='flex items-center space-x-2'>
                                                 <Switch
+                                                    disabled={
+                                                        edit &&
+                                                        form.getValues(
+                                                            'recurrence.isRecurring',
+                                                        ) === true
+                                                    }
                                                     checked={field.value}
                                                     onCheckedChange={(val) =>
                                                         field.onChange(val)
@@ -363,6 +384,7 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                 return (
                                     <FormItem key={field.value?.frequency}>
                                         <Select
+                                            disabled={edit}
                                             value={
                                                 field.value?.frequency as string
                                             }
@@ -390,7 +412,10 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                             {...rest}
                                         >
                                             <FormControl>
-                                                <SelectTrigger className='w-fit gap-2 bg-background h-8 flex'>
+                                                <SelectTrigger
+                                                    disabled={edit}
+                                                    className='w-fit gap-2 bg-background h-8 flex'
+                                                >
                                                     <RepeatIcon size={16} />
                                                     <SelectValue placeholder='Repeat'></SelectValue>
                                                 </SelectTrigger>
@@ -419,7 +444,9 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                 'weekly' && (
                                                 <div className='flex gap-1 pt-2'>
                                                     {days.map((day) => (
-                                                        <p
+                                                        <button
+                                                            type='button'
+                                                            disabled={edit}
                                                             key={day.label}
                                                             onClick={() =>
                                                                 field.onChange({
@@ -444,7 +471,7 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                                               ],
                                                                 })
                                                             }
-                                                            className={`hover:bg-primary text-xs size-8 flex items-center justify-center py-1 px-2 cursor-pointer hover:text-pure-white rounded-full ${
+                                                            className={`disabled:opacity-55 disabled:cursor-not-allowed hover:bg-primary text-xs size-8 flex items-center justify-center py-1 px-2 cursor-pointer hover:text-pure-white rounded-full ${
                                                                 field.value?.daysOfWeek?.includes(
                                                                     day.value,
                                                                 )
@@ -455,7 +482,7 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                             <span>
                                                                 {day.label}
                                                             </span>
-                                                        </p>
+                                                        </button>
                                                     ))}
                                                 </div>
                                             )}
@@ -469,6 +496,7 @@ const TodoForm = ({ form, onSubmit, setCurrentDate }: TProps) => {
                                                     till -
                                                 </p>
                                                 <DatePicker
+                                                    disabled={edit}
                                                     allowDeselect={false}
                                                     className='border-none h-fit w-fit'
                                                     value={dayjs(

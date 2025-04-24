@@ -31,9 +31,7 @@ import { TdUser } from '@/components/global/TdUser';
 import dayjs, { Dayjs } from 'dayjs';
 import { useEventPopover } from './EventPopover';
 import { UseFormReturn, SubmitHandler } from 'react-hook-form';
-import { MDXEditorMethods } from '@mdxeditor/editor';
 import Image from 'next/image';
-
 const zoomImg = '/calendar/zoom.png';
 const meetImg = '/calendar/meet.png';
 const phoneImg = '/calendar/phone.png';
@@ -108,7 +106,6 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
     const [availability, setAvailibility] = useState<
         TAvailability | undefined
     >();
-    const agendaRef = useRef<MDXEditorMethods>(null);
     const handleSetAvailibility = (date: Date) => {
         const availabilityList: TAvailability[] | undefined =
             userAvailability?.schedule?.availability || [];
@@ -296,6 +293,12 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                             <FormControl>
                                                 <div className='flex items-center gap-2'>
                                                     <DatePicker
+                                                        disabled={
+                                                            edit &&
+                                                            form.getValues(
+                                                                'recurrence.isRecurring',
+                                                            ) === true
+                                                        }
                                                         className='bg-background min-h-8'
                                                         value={dayjs(
                                                             field.value,
@@ -322,6 +325,12 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                     {form.watch('isAllDay') ===
                                                         false && (
                                                         <TimePicker
+                                                            disabled={
+                                                                edit &&
+                                                                form.getValues(
+                                                                    'recurrence.isRecurring',
+                                                                ) === true
+                                                            }
                                                             className='bg-background '
                                                             value={field.value}
                                                             onChange={(val) => {
@@ -354,6 +363,12 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                             <FormControl>
                                                 <div className='flex items-center gap-2'>
                                                     <DatePicker
+                                                        disabled={
+                                                            edit &&
+                                                            form.getValues(
+                                                                'recurrence.isRecurring',
+                                                            ) === true
+                                                        }
                                                         className='bg-background min-h-8'
                                                         value={dayjs(
                                                             field.value,
@@ -369,6 +384,12 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                         'isAllDay',
                                                     ) && (
                                                         <TimePicker
+                                                            disabled={
+                                                                edit &&
+                                                                form.getValues(
+                                                                    'recurrence.isRecurring',
+                                                                ) === true
+                                                            }
                                                             className='bg-background'
                                                             value={field.value}
                                                             onChange={(val) =>
@@ -394,6 +415,12 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                         <FormControl>
                                             <div className='flex items-center space-x-2'>
                                                 <Switch
+                                                    disabled={
+                                                        edit &&
+                                                        form.getValues(
+                                                            'recurrence.isRecurring',
+                                                        ) === true
+                                                    }
                                                     checked={field.value}
                                                     onCheckedChange={(val) =>
                                                         field.onChange(val)
@@ -447,7 +474,10 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                             {...rest}
                                         >
                                             <FormControl>
-                                                <SelectTrigger className='w-fit gap-2 bg-background h-8 flex'>
+                                                <SelectTrigger
+                                                    disabled={edit}
+                                                    className='w-fit gap-2 bg-background h-8 flex'
+                                                >
                                                     <RepeatIcon size={16} />
                                                     <SelectValue placeholder='Repeat'></SelectValue>
                                                 </SelectTrigger>
@@ -476,7 +506,9 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                 'weekly' && (
                                                 <div className='flex gap-1 pt-2'>
                                                     {days.map((day) => (
-                                                        <p
+                                                        <button
+                                                            type='button'
+                                                            disabled={edit}
                                                             key={day.label}
                                                             onClick={() =>
                                                                 field.onChange({
@@ -501,7 +533,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                                               ],
                                                                 })
                                                             }
-                                                            className={`hover:bg-primary text-xs size-8 flex items-center justify-center py-1 px-2 cursor-pointer hover:text-pure-white rounded-full ${
+                                                            className={`disabled:opacity-55 disabled:cursor-not-allowed hover:bg-primary text-xs size-8 flex items-center justify-center py-1 px-2 cursor-pointer hover:text-pure-white rounded-full ${
                                                                 field.value?.daysOfWeek?.includes(
                                                                     day.value,
                                                                 )
@@ -512,7 +544,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                             <span>
                                                                 {day.label}
                                                             </span>
-                                                        </p>
+                                                        </button>
                                                     ))}
                                                 </div>
                                             )}
@@ -526,6 +558,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                                     till -
                                                 </p>
                                                 <DatePicker
+                                                    disabled={edit}
                                                     allowDeselect={false}
                                                     className='border-none h-fit w-fit'
                                                     value={dayjs(

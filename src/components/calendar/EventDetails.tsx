@@ -172,19 +172,25 @@ const EventDetails = () => {
                             </h2>
                             <div className='flex space-x-2'>
                                 {(isMyEvent ||
-                                    premissions?.modifyEvent === true) && (
-                                    <EventPopoverTrigger updateId={event?._id}>
-                                        <Button
-                                            tooltip='Edit Event'
-                                            onClick={() => setOpen()}
-                                            variant='ghost'
-                                            size='icon'
-                                            className='h-8 w-8'
+                                    premissions?.modifyEvent === true) &&
+                                    dayjs(event.startTime).isAfter(
+                                        dayjs(),
+                                        'minute',
+                                    ) && (
+                                        <EventPopoverTrigger
+                                            updateId={event?._id}
                                         >
-                                            <Edit className='h-4 w-4' />
-                                        </Button>
-                                    </EventPopoverTrigger>
-                                )}
+                                            <Button
+                                                tooltip='Edit Event'
+                                                onClick={() => setOpen()}
+                                                variant='ghost'
+                                                size='icon'
+                                                className='h-8 w-8'
+                                            >
+                                                <Edit className='h-4 w-4' />
+                                            </Button>
+                                        </EventPopoverTrigger>
+                                    )}
                                 <EventPopoverTrigger copyId={event?._id}>
                                     <Button
                                         tooltip='Copy Event'

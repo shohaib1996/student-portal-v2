@@ -14,9 +14,15 @@ interface TimePickerProps {
     value: Date | null;
     onChange: (value: Date | null) => void;
     className?: string;
+    disabled?: boolean;
 }
 
-export function TimePicker({ value, onChange, className }: TimePickerProps) {
+export function TimePicker({
+    value,
+    onChange,
+    className,
+    disabled = false,
+}: TimePickerProps) {
     // Initialize state based on the value prop
     const [hour, setHour] = useState<number>(() => {
         if (!value) {
@@ -132,6 +138,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
         <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
                 <Button
+                    disabled={disabled}
                     variant='outline'
                     className={cn(
                         'w-full text-dark-gray justify-start text-left font-normal',

@@ -2,7 +2,6 @@
 
 import {
     addDays,
-    endOfMonth,
     format,
     getDay,
     isToday,
@@ -16,14 +15,12 @@ import { TEvent } from '@/components/calendar/types/calendarTypes';
 
 import GlobalDropdown from '../global/GlobalDropdown';
 import { useMediaQuery } from 'react-responsive';
-import {
-    EventPopoverTrigger,
-    useEventPopover,
-} from './CreateEvent/EventPopover';
-import { useRouter } from 'next/navigation';
+import { EventPopoverTrigger } from './CreateEvent/EventPopover';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setCurrentDate } from '@/components/calendar/reducer/calendarReducer';
 import EventButton from './EventButton';
+import { useCallback } from 'react';
+import Fuse from 'fuse.js';
 
 interface MonthViewProps {
     currentDate: Date;
@@ -32,12 +29,9 @@ interface MonthViewProps {
 export function MonthView({ currentDate }: MonthViewProps) {
     // Generate calendar days
     const monthStart = startOfMonth(currentDate);
-    const monthEnd = endOfMonth(currentDate);
     const startDate = subDays(monthStart, getDay(monthStart));
-    const { isOpen, openPopover } = useEventPopover();
     const days: Date[] = [];
     let day = startDate;
-    const router = useRouter();
     const dispatch = useAppDispatch();
 
     // Create 6 weeks (42 days) to ensure we have enough rows for any month
@@ -46,8 +40,14 @@ export function MonthView({ currentDate }: MonthViewProps) {
         day = addDays(day, 1);
     }
 
-    const { eventFilter, todoFilter, priorityFilter, rolesFilter, typeFilter } =
-        useAppSelector((s) => s.calendar);
+    const {
+        eventFilter,
+        todoFilter,
+        priorityFilter,
+        rolesFilter,
+        typeFilter,
+        query,
+    } = useAppSelector((s) => s.calendar);
 
     const { data } = useGetMyEventsQuery({
         from: days[0]?.toISOString(),
@@ -65,9 +65,22 @@ export function MonthView({ currentDate }: MonthViewProps) {
 
     const events: TEvent[] = (data?.events as TEvent[]) || [];
 
+    const searchedEvents = useCallback(() => {
+        if (!query) {
+            return events;
+        } else {
+            const fuse = new Fuse(events, {
+                keys: ['title', 'organizer.fullName', 'priority'],
+                threshold: 0.3,
+            });
+            const results = fuse.search(query);
+            return results.map((result) => result.item);
+        }
+    }, [query, events]);
+
     // Get events for a specific day
     const getEventsForDay = (day: Date) => {
-        return events.filter(
+        return searchedEvents().filter(
             (event) =>
                 format(new Date(event?.startTime), 'yyyy-MM-dd') ===
                 format(day, 'yyyy-MM-dd'),
@@ -75,10 +88,6 @@ export function MonthView({ currentDate }: MonthViewProps) {
     };
 
     const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-    const dayPopup = (day: Date) => {
-        return <div className='h-[400px]'>hello</div>;
-    };
 
     const validIndexes = [
         0, 1, 2, 7, 8, 9, 14, 15, 16, 21, 22, 23, 28, 29, 30, 35, 36, 37,

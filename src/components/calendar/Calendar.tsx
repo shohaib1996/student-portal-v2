@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
 import {
     CalendarIcon,
@@ -25,6 +25,9 @@ import { WeekView } from './WeekView';
 import { DayView } from './DayView';
 import { SheetTrigger } from '../ui/sheet';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { setEventQuery } from './reducer/calendarReducer';
+import useDebounce from '@/hooks/useDebounce';
 
 type CalendarView = 'day' | 'week' | 'month';
 
@@ -32,7 +35,14 @@ export default function Calendar() {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [view, setView] = useState<CalendarView>('month');
     const [hoursView, setHoursView] = useState<string>('24 hours view');
-    const router = useRouter();
+    const { query } = useAppSelector((s) => s.calendar);
+    const [searchValue, setSearchValue] = useState('');
+    const dispatch = useAppDispatch();
+    const debouncedSearchValue = useDebounce(searchValue, 300);
+
+    useEffect(() => {
+        dispatch(setEventQuery(debouncedSearchValue));
+    }, [debouncedSearchValue]);
 
     const navigateToPrevious = () => {
         setCurrentDate((prev) => {
@@ -132,6 +142,8 @@ export default function Calendar() {
                         <div className='relative'>
                             <Search className='absolute left-2.5 top-2 h-4 w-4 text-muted-foreground' />
                             <Input
+                                defaultValue={query}
+                                onChange={(e) => setSearchValue(e.target.value)}
                                 type='search'
                                 placeholder='Search people/events/status...'
                                 className='pl-8 bg-foreground h-8 w-[220px]'

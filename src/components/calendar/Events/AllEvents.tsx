@@ -8,7 +8,7 @@ import { endOfMonth, startOfMonth } from 'date-fns';
 import { Bell, ChevronDown, Clock, Ellipsis, Plus, Users } from 'lucide-react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
     EventPopoverProvider,
     EventPopoverTrigger,
@@ -36,6 +36,12 @@ const AllEvents = () => {
 
     const events: TEvent[] =
         (data?.events as TEvent[])?.filter((ev) => ev.type !== 'task') || [];
+
+    const paginatedEvents = useMemo(() => {
+        const startIndex = (currentPage - 1) * limit;
+        const endIndex = startIndex + limit;
+        return events.slice(startIndex, endIndex);
+    }, [events, currentPage, limit]);
 
     const pathName = usePathname();
     const router = useRouter();
@@ -80,7 +86,7 @@ const AllEvents = () => {
             />
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
                 <div className='grid overflow-y-auto grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2 mt-2'>
-                    {events.map((event, i) => (
+                    {paginatedEvents.map((event, i) => (
                         <div
                             key={event._id}
                             className='bg-foreground rounded-lg border border-border-primary-light py-2 px-2.5'
