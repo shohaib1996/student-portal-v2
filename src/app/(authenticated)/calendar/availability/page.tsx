@@ -10,9 +10,17 @@ import {
     TAvailability,
     TUpdateSchedule,
 } from '@/components/calendar/types/calendarTypes';
-import { BookmarkCheck, RotateCcw, Undo, XCircle } from 'lucide-react';
+import {
+    ArrowLeft,
+    BookmarkCheck,
+    ChevronLeft,
+    RotateCcw,
+    Undo,
+    XCircle,
+} from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const AvailabilityPage = () => {
     const [updateSchedule, { isLoading: savingSchedule }] =
@@ -26,6 +34,7 @@ const AvailabilityPage = () => {
     const schedules = scheduleData?.schedules || [];
     const [availability, setAvailability] = useState<TAvailability[]>([]);
     const [name, setName] = useState('');
+    const router = useRouter();
 
     const handleSave = async () => {
         try {
@@ -54,7 +63,16 @@ const AvailabilityPage = () => {
     return (
         <div className='pt-2'>
             <GlobalHeader
-                title='Availability'
+                title={
+                    <h1 className='flex items-center gap-2'>
+                        <ArrowLeft
+                            className='cursor-pointer'
+                            size={18}
+                            onClick={() => router.back()}
+                        />
+                        Availability
+                    </h1>
+                }
                 subTitle='Manage Availability with Precision'
                 buttons={
                     <div className='flex items-center gap-2'>

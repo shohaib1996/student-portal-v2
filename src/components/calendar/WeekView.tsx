@@ -1,6 +1,6 @@
 'use client';
 
-import { MouseEvent, useState } from 'react';
+import { MouseEvent, useCallback, useState } from 'react';
 import {
     addDays,
     format,
@@ -23,6 +23,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setCurrentDate } from '@/components/calendar/reducer/calendarReducer';
 import EventButton from './EventButton';
+import Fuse from 'fuse.js';
 
 interface WeekViewProps {
     currentDate: Date;
@@ -30,8 +31,14 @@ interface WeekViewProps {
 }
 
 export function WeekView({ currentDate, hoursView }: WeekViewProps) {
-    const { eventFilter, todoFilter, priorityFilter, rolesFilter, typeFilter } =
-        useAppSelector((s) => s.calendar);
+    const {
+        eventFilter,
+        todoFilter,
+        priorityFilter,
+        rolesFilter,
+        typeFilter,
+        query,
+    } = useAppSelector((s) => s.calendar);
 
     const { data } = useGetMyEventsQuery({
         from: startOfWeek(currentDate).toISOString(),
@@ -73,9 +80,22 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
             ? hours.filter((hour) => hour >= 8 && hour <= 18)
             : hours;
 
+    const searchedEvents = useCallback(() => {
+        if (!query) {
+            return events;
+        } else {
+            const fuse = new Fuse(events, {
+                keys: ['title', 'organizer.fullName', 'priority'],
+                threshold: 0.3,
+            });
+            const results = fuse.search(query);
+            return results.map((result) => result.item);
+        }
+    }, [query, events]);
+
     // Get events for a specific day and hour
     const getEventsForCell = (day: Date, hour: number) => {
-        return events.filter(
+        return searchedEvents().filter(
             (event) =>
                 isSameDay(event.startTime, day) &&
                 hour === dayjs(event.endTime).hour(),
@@ -154,6 +174,7 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
                                     {getEventsForCell(day, hour)?.length >
                                         3 && (
                                         <GlobalDropdown
+                                            className='max-w-48'
                                             dropdownRender={
                                                 <div className='space-y-1 bg-foreground p-2'>
                                                     {getEventsForCell(day, hour)

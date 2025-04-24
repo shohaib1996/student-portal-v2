@@ -259,7 +259,7 @@ const CreateEventModal = () => {
                     toast.error(reminderError[0]?.methods?.message);
                 }
             } else {
-                toast.error(errors[0].message);
+                toast.error(errors[0]?.message || 'Validation Error');
             }
         }
     }, [eventForm.formState?.errors, todoForm.formState?.errors]);
@@ -417,7 +417,7 @@ const CreateEventModal = () => {
         <div>
             <EventPopover
                 title={
-                    <div className='flex justify-between items-center w-full'>
+                    <div className='flex flex-wrap gap-2 justify-between items-center w-full'>
                         {isFullScreen && (
                             <div>
                                 <h2 className='text-xl text-black font-semibold'>
@@ -534,6 +534,7 @@ const CreateEventModal = () => {
                             setCurrentDate={setCurrentDate}
                             form={todoForm}
                             onSubmit={onTodoSubmit}
+                            edit={updateId !== null && eventDetails?.event}
                         />
                     </TabsContent>
                 </Tabs>

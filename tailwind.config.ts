@@ -11,6 +11,7 @@ export default {
     ],
     theme: {
         screens: {
+            xxs: '420px',
             xs: '468px',
             sm: '640px',
             md: '768px',
@@ -18,6 +19,8 @@ export default {
             xl: '1160px',
             '2xl': '1280px',
             '3xl': '1500px',
+            '4xl': '1640px',
+            '5xl': '1920px',
         },
         extend: {
             spacing: {

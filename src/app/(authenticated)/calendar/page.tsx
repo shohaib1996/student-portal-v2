@@ -74,15 +74,17 @@ const CalendarPage = () => {
                 subTitle='Plan, Organize, and Stay On Track with Schedule'
                 buttons={
                     <div className='flex gap-2'>
-                        <Button
-                            className='text-dark-gray fill-none stroke-none'
-                            variant={'secondary'}
-                            icon={<MyInvitationsIcon />}
-                        >
-                            <Link href={'/calendar/my-invitations'}>
-                                My Invitaions
-                            </Link>
-                        </Button>
+                        <Link href={'/calendar/my-invitations'}>
+                            <Button
+                                className='text-dark-gray fill-none stroke-none'
+                                variant={'secondary'}
+                                icon={<MyInvitationsIcon />}
+                            >
+                                <span className='sm:inline hidden'>
+                                    My Invitaions
+                                </span>
+                            </Button>
+                        </Link>
                         <Button
                             onClick={() =>
                                 router.push('/calendar/availability')
@@ -95,7 +97,7 @@ const CalendarPage = () => {
                         ></Button>
                         <CalendarFilter />
                         <EventPopoverTrigger>
-                            <Button className='h-9' icon={<Plus size={18} />}>
+                            <Button icon={<Plus size={18} />}>
                                 Create New
                             </Button>
                         </EventPopoverTrigger>

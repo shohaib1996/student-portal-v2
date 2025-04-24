@@ -88,7 +88,7 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
 
-        x = Math.max(10, Math.min(x, viewportWidth - 610)); // 10px margin, 600px width + 10px margin
+        x = Math.max(10, Math.min(x, viewportWidth - 500)); // 10px margin, 600px width + 10px margin
         y = Math.max(10, Math.min(y, viewportHeight - 400)); // Assuming a min height of ~400px
 
         setPosition({ x, y });
@@ -287,7 +287,7 @@ export function EventPopover({
                     'bg-background border border-forground-border rounded-lg shadow-lg flex flex-col pointer-events-auto event-popover',
                     isFullScreen
                         ? 'fixed inset-0 w-full h-full rounded-none'
-                        : 'w-[500px] h-fit max-h-[80vh] absolute',
+                        : 'sm:w-[500px] xs:w-[400px] w-[360px] h-fit max-h-[80vh] absolute',
                     className,
                 )}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -321,7 +321,7 @@ export function EventPopover({
                 <div className='flex'>
                     <div className='border-r border-forground-border w-full'>
                         <div
-                            className='flex items-center justify-between p-4 py-2 border-b cursor-move'
+                            className='flex items-center justify-between sm:p-4 p-2 py-2 border-b cursor-move'
                             onPointerDown={(e) => {
                                 if (!isFullScreen) {
                                     dragControls.start(e);
@@ -346,7 +346,7 @@ export function EventPopover({
                         </div>
                         <div
                             className={cn(
-                                'flex-1 overflow-auto p-4 h-[350px]',
+                                'flex-1 overflow-auto sm:p-4 p-2 h-[350px]',
                                 { 'h-[calc(100vh-61px)]': isFullScreen },
                             )}
                         >
