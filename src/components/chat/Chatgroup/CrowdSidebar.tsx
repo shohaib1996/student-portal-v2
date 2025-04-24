@@ -137,9 +137,7 @@ function CrowdSidebar() {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [visibleCount, setVisibleCount] = useState<number>(20);
     const params = useParams();
-    useEffect(() => {
-        console.log('Refetched chats:', chats);
-    }, [chats]);
+
     const handleChangeSearch = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
             const value = e.target.value;

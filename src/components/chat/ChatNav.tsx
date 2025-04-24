@@ -73,6 +73,8 @@ import {
 } from '@/redux/api/chats/chatApi';
 import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
 import { ChatSkeletonList } from './chat-skeleton';
+import { store } from '@/redux/store';
+import { Chat, setSelectedChat } from '@/redux/features/chatReducer';
 
 // Dynamic imports for better performance
 const MessagePreview = dynamic(
@@ -286,8 +288,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
             setRecords(sortByLatestMessage(chats).slice(0, 20)); // Load initial chats
         }
     }, [chats]);
-    console.log({ TotalChats: chats?.length });
-    console.log({ VisibleChats: records.length });
+
     useEffect(() => {
         // Update active state when URL query changes
         const tabFromUrl = searchParams.get('tab') || 'chats';
@@ -345,8 +346,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
     );
 
     // Handle navigation click
-    const handleNavClick = useCallback(() => {
+    const handleNavClick = useCallback((c: Chat) => {
         // Will be implemented with RTK
+        store.dispatch(setSelectedChat(c));
     }, []);
 
     // Handle create chat with RTK mutation
@@ -758,7 +760,9 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                 ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
                                                                 : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
                                                         }`}
-                                                        onClick={handleNavClick}
+                                                        onClick={() =>
+                                                            handleNavClick(chat)
+                                                        }
                                                     >
                                                         <div className='flex items-start p-2 gap-2'>
                                                             {/* Avatar */}

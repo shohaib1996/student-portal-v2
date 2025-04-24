@@ -123,7 +123,6 @@ export default function TaskModal({
                 onClose();
             })
             .catch((err) => {
-                console.log(err);
                 toast.error(
                     err?.response?.data?.error || 'Something went wrong',
                 );

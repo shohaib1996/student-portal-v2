@@ -511,8 +511,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
             ...mappedData,
         ];
 
-        console.log('Final mention data:', finalMentionData);
-
         return finalMentionData;
     };
 

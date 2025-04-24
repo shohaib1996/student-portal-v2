@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ChatFooter, { type ChatData } from './ChatFooter';
 import Cookies from 'js-cookie';
-import { Loader2, Pin, SearchIcon } from 'lucide-react';
+import { ArchiveIcon, Loader2, Pin, SearchIcon } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import {
     markRead,
@@ -116,10 +116,10 @@ const ChatBody: React.FC<ChatBodyProps> = ({
         currentPage,
         fetchedMore,
         drafts,
+        selectedChat,
     } = useAppSelector((state) => state.chat);
     const [count, setCount] = useState(0);
     const messages = chatMessages[params?.chatid as string] || [];
-    console.log({ messages });
     const draft = drafts?.find((f) => f.chat === params?.chatid);
 
     const [hasMore, setHasMore] = useState(true);
@@ -722,7 +722,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                     </div>
                                 )}
 
-                            {error ? (
+                            {error && !selectedChat?.isArchived ? (
                                 <Alert variant='destructive'>
                                     <AlertTitle>Error</AlertTitle>
                                     <AlertDescription>{error}</AlertDescription>
@@ -839,17 +839,27 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     )}
                 </div>
             </div>
-            {!showPinnedMessages && !(chat?.myData?.isBlocked || error) && (
-                <ChatFooter
-                    chat={chat as ChatData}
-                    className={`chat_${chat?._id}`}
-                    draft={draft}
-                    onSentCallback={onSentCallback}
-                    setProfileInfoShow={setProfileInfoShow}
-                    profileInfoShow={profileInfoShow}
-                    sendTypingIndicator={sendTypingIndicator}
-                />
+
+            {selectedChat?.isArchived && (
+                <div className='h-[60px] w-full bg-background flex items-center justify-center text-wrap text-danger font-semibold text-2xl '>
+                    <p className='flex flex-row items-center gap-2'>
+                        <ArchiveIcon size={24} /> This channel is archived
+                    </p>
+                </div>
             )}
+
+            {!showPinnedMessages &&
+                !(chat?.myData?.isBlocked || selectedChat?.isArchived) && (
+                    <ChatFooter
+                        chat={chat as ChatData}
+                        className={`chat_${chat?._id}`}
+                        draft={draft}
+                        onSentCallback={onSentCallback}
+                        setProfileInfoShow={setProfileInfoShow}
+                        profileInfoShow={profileInfoShow}
+                        sendTypingIndicator={sendTypingIndicator}
+                    />
+                )}
             {showPinnedMessages && (
                 <div className='w-full items-center justify-center flex border-t pt-2 mt-2'>
                     <Button

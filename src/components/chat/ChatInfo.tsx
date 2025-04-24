@@ -45,7 +45,11 @@ import {
     ChevronLeft,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { removeChat, updateChats } from '@/redux/features/chatReducer';
+import {
+    removeChat,
+    setSelectedChat,
+    updateChats,
+} from '@/redux/features/chatReducer';
 import UpdateChannelModal from './UpdateChannelModal';
 import { useAppSelector } from '@/redux/hooks';
 import dayjs from 'dayjs';
@@ -117,7 +121,7 @@ const ImageUploader = ({
     const [dragActive, setDragActive] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const { user } = useSelector((state: any) => state.auth);
-    console.log({ chat });
+
     // Handle drag events
     const handleDrag = (e: React.DragEvent) => {
         e.preventDefault();
@@ -305,7 +309,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const [voiceCount, setVoiceCount] = useState(0);
     const [fileCount, setFileCount] = useState(0);
     const [linksCount, setLinksCount] = useState(0);
-    console.log({ chat });
     // Add this useEffect to fetch all media counts when the component loads
     useEffect(() => {
         if (chat?._id) {
@@ -493,6 +496,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const [archiveChannel] = useArchiveChannelMutation();
 
     const handleArchive = useCallback(() => {
+        dispatch(setSelectedChat({ ...chat, isArchived: !chat.isArchived }));
         if (chat?._id) {
             archiveChannel({
                 chatId: chat._id,
@@ -501,6 +505,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                 .unwrap()
                 .then(() => {
                     dispatch(loadChats() as any);
+
                     setArchivedConfirmOpened(false);
                     toast.success(
                         `The group has been successfully ${chat.isArchived ? 'retrieved' : 'archived'}.`,

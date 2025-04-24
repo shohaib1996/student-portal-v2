@@ -86,7 +86,6 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
         isOpen: false,
         query: '',
     });
-    console.log({ chatNotification: chat?.myData?.notification });
     const [finalQuery, setFinalQuery] = useState('');
 
     const handleSearchSubmit = useCallback(() => {

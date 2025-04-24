@@ -74,7 +74,7 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-    console.log({ CrowdDescription: description });
+
     // Reset state when modal opens/closes
     useEffect(() => {
         if (!isOpen) {
@@ -102,7 +102,6 @@ const CreateCrowd = ({ isOpen, onClose, isPopup }: CreateCrowdProps) => {
             findOrCreateChat(id)
                 .unwrap()
                 .then((res) => {
-                    console.log('Chat created:', res);
                     router.push(`/chat/${res.chat._id}`);
                 })
                 .catch((err) => {

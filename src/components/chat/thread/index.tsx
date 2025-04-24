@@ -154,7 +154,7 @@ const Thread: React.FC<ThreadProps> = ({
                 }}
             >
                 <SheetContent className='p-1 w-full sm:max-w-md md:max-w-lg lg:max-w-xl overflow-hidden flex flex-col bg-foreground'>
-                    <SheetHeader className='border-b px-4 py-2'>
+                    <SheetHeader className='border-b border-forground-border px-4 py-2'>
                         <div className='flex justify-between items-center'>
                             <SheetTitle className='text-dark-gray'>
                                 Thread
@@ -173,7 +173,7 @@ const Thread: React.FC<ThreadProps> = ({
                             />
                         </div>
 
-                        <hr className='my-4 h-[1px] w-full bg-border' />
+                        <hr className='my-4 h-[1px] w-full !bg-forground-border' />
 
                         <div>
                             {replies?.length > 0 ? (
@@ -181,11 +181,11 @@ const Thread: React.FC<ThreadProps> = ({
                                     (dateHeader) => (
                                         <div key={dateHeader}>
                                             <div className='flex justify-center flex-row items-center gap-1 my-2'>
-                                                <div className='h-[2px] w-full bg-border'></div>
+                                                <div className='h-[2px] w-full bg-forground-border'></div>
                                                 <span className='text-primary-white text-xs bg-primary-light text-nowrap px-2 py-1 rounded-full'>
                                                     {dateHeader}
                                                 </span>
-                                                <div className='h-[2px] w-full bg-border'></div>
+                                                <div className='h-[2px] w-full bg-forground-border'></div>
                                             </div>
 
                                             {groupedMessages[dateHeader].map(
