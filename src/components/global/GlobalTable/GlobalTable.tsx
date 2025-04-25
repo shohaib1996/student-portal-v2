@@ -8,6 +8,7 @@ import {
     Table,
 } from '@tanstack/react-table';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { setColumnSizing } from '@/redux/features/tableReducer';
 import { cn } from '@/lib/utils';
 import { Button } from '../../ui/button';
 import ColumnSettingsModal from './ColumnSettingsModal';
@@ -15,7 +16,6 @@ import SimpleBar from 'simplebar-react';
 import { Settings } from 'lucide-react';
 
 import EmptyData from '../EmptyData';
-import { setColumnSizing } from '@/redux/features/tableReducer';
 
 function TableBody<T>({
     table,

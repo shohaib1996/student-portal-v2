@@ -6,9 +6,11 @@ import {
     Calendar,
     ChevronDown,
     ChevronRight,
+    ContactRound,
     Copy,
     Edit,
     Trash2,
+    UserCog,
     XCircle,
 } from 'lucide-react';
 import { TEvent } from '@/components/calendar/types/calendarTypes';
@@ -256,8 +258,8 @@ const EventDetails = () => {
                             </h2>
                         </div>
                         {event.location?.link && (
-                            <div className='flex items-center justify-between'>
-                                <div className='flex items-center gap-2'>
+                            <div className='flex items-center justify-between w-full'>
+                                <div className='flex items-center gap-2 line-clamp-2 w-[90%]'>
                                     <div className='bg-blue-100 p-1 rounded'>
                                         <svg
                                             width='24'
@@ -299,7 +301,7 @@ const EventDetails = () => {
                                                 {event.location?.type}
                                             </a>
                                         )}
-                                        <span className='text-xs text-muted-foreground'>
+                                        <span className='text-xs text-muted-foreground line-clamp-2'>
                                             {event?.location?.link}
                                         </span>
                                     </div>
@@ -485,8 +487,13 @@ const EventDetails = () => {
                         </div>
 
                         <div className='flex items-center gap-2 text-base font-medium'>
-                            <Calendar className='h-4 w-4' />
-                            <span>{event.organizer?.email}</span>
+                            <ContactRound className='h-4 w-4' />
+                            <div>
+                                <p>{event.organizer?.fullName} (Organizer)</p>
+                                <span className='text-sm text-gray'>
+                                    Email: {event.organizer?.email}
+                                </span>
+                            </div>
                         </div>
 
                         <div className='mt-2'>

@@ -39,7 +39,7 @@ export const EventFormSchema = z
                     .enum(['daily', 'weekly', 'monthly', 'yearly', ''])
                     .optional(),
                 interval: z.number().int().positive(), // Ensures a positive integer
-                daysOfWeek: z.array(z.number().int()).min(1).max(7).optional(), // 1 = Monday, 7 = Sunday
+                daysOfWeek: z.array(z.number().int()).max(7).optional(), // 1 = Monday, 7 = Sunday
                 endRecurrence: z.string().nullable().optional(),
             })
             .superRefine((data, ctx) => {

@@ -4,7 +4,9 @@ import {
     addDays,
     format,
     getDay,
+    isBefore,
     isToday,
+    startOfDay,
     startOfMonth,
     subDays,
 } from 'date-fns';
@@ -21,6 +23,7 @@ import { setCurrentDate } from '@/components/calendar/reducer/calendarReducer';
 import EventButton from './EventButton';
 import { useCallback } from 'react';
 import Fuse from 'fuse.js';
+import { toast } from 'sonner';
 
 interface MonthViewProps {
     currentDate: Date;
@@ -103,7 +106,7 @@ export function MonthView({ currentDate }: MonthViewProps) {
                 {weekdays.map((day) => (
                     <div
                         key={day}
-                        className='p-2 font-medium border-r border-forground-border text-muted-foreground'
+                        className='p-2 sm:text-base text-sm font-medium border-r border-forground-border text-muted-foreground'
                     >
                         {day}
                     </div>
@@ -125,15 +128,24 @@ export function MonthView({ currentDate }: MonthViewProps) {
                             <div
                                 key={index}
                                 className={cn(
-                                    'lg:min-h-[190px] min-h-[140px] cursor-pointer p-1 border-r border-forground-border border-b',
+                                    'lg:min-h-[190px] min-h-[120px] cursor-pointer p-1 border-r border-forground-border border-b',
                                     !isCurrentMonth && 'bg-muted/30',
                                 )}
-                                onClick={() => handleDayClick(day)}
+                                onClick={(e) => {
+                                    if (isBefore(day, startOfDay(new Date()))) {
+                                        toast.warning(
+                                            'Please select a future date',
+                                        );
+                                        e.stopPropagation();
+                                        return;
+                                    }
+                                    handleDayClick(day);
+                                }}
                             >
                                 <div className='flex justify-between items-start'>
                                     <span
                                         className={cn(
-                                            'inline-flex h-6 w-6 text-dark-gray font-semibold items-center justify-center rounded-full text-base',
+                                            'inline-flex h-6 w-6 text-dark-gray font-semibold items-center justify-center rounded-full sm:text-base  text-sm',
                                             isToday(day) &&
                                                 'bg-primary text-pure-white font-medium',
                                             !isCurrentMonth &&

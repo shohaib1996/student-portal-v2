@@ -5,12 +5,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { X } from 'lucide-react';
 import { Button } from '../ui/button';
 import timesArray from '../helpers/times';
-import {
-    TAvailability,
-    TInterval,
-    TSchedule,
-    TUpdateSchedule,
-} from '../types/calendarTypes';
+import { TAvailability, TInterval, TSchedule } from '../types/calendarTypes';
 import WeekDay, { TCopyTo } from './WeekDay';
 import OverrideModal from './OverrideModal';
 

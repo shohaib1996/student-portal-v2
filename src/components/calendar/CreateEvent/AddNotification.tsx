@@ -30,17 +30,19 @@ const AddNotification = ({
     setNotification,
     className,
     disabled,
+    isFullScreen,
 }: {
     notificaiton: TNotification;
     setNotification: (_: TNotification) => void;
     className?: string;
     disabled?: boolean;
+    isFullScreen?: boolean;
 }) => {
     const { chats } = useAppSelector((state) => state?.chat);
     return (
         <div
             className={cn(
-                'grid grid-cols-2 gap-2 mt-2 bg-foreground p-2 rounded-md border border-forground-border',
+                'grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 bg-foreground p-2 rounded-md border border-forground-border',
                 className,
             )}
         >
