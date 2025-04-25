@@ -16,7 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import GlobalModal from '@/components/global/GlobalModal';
 
 // Icons and SVGs
-import { File, Folder, Play, MoreVertical, Clock } from 'lucide-react';
+import { File, Folder, Play, MoreVertical, Clock, Brain } from 'lucide-react';
 import LecturesSvg from '@/components/svgs/common/LecturesSvg';
 import MemoizedLoadingIndicator from '@/components/svgs/common/LoadingIndicator';
 import MemoizedEmptyState from '@/components/svgs/common/EmptyState';
@@ -42,10 +42,7 @@ import {
 
 // Related Components
 import LessionActionMenu from './LessionActionMenu';
-import {
-    useGetQuizForLessonQuery,
-    useSubmitQuizForLessonQuery,
-} from '@/redux/api/course/courseApi';
+
 import QuizModalContent from './QuizModalContent';
 
 // Types definitions
@@ -144,8 +141,17 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
     const calculateProgressWithLocalState = useCallback(
         (chapter: TContent): number => {
-            // If the chapter itself is completed, return 100%
-            if (chapter.isCompleted) {
+            // If the chapter itself is marked as completed (either from API or local state),
+            // return 100% immediately
+            const localChapterCompletionState = localCompletionState.get(
+                chapter._id,
+            );
+            const isChapterCompleted =
+                localChapterCompletionState !== undefined
+                    ? localChapterCompletionState
+                    : chapter.isCompleted;
+
+            if (isChapterCompleted) {
                 return 100;
             }
 
@@ -270,8 +276,6 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         [setIsPinnedEyeOpen, setVideoData],
     );
 
-    console.log({ treeData });
-
     const handelQuizOpen = () => {
         setOpenQuiz(true);
     };
@@ -379,7 +383,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                                     }}
                                                 >
                                                     <div>
-                                                        <File className='h-5 w-5 stroke-gray' />
+                                                        <Brain className='h-5 w-5 stroke-gray' />
                                                     </div>
 
                                                     <div>
@@ -505,106 +509,122 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                         <AccordionItem
                             key={uniqueKey}
                             value={uniqueKey}
-                            className='mb-2 mt-1 mr-2 rounded-lg border border-border-primary-light overflow-hidden'
+                            className='mb-2  mr-2 rounded-lg border border-border-primary-light overflow-hidden flex justify-between items-start'
                         >
-                            <AccordionTrigger
-                                isIcon={false}
-                                className={`text-start hover:no-underline py-0 pr-4 [&[data-state=open]>div>div>svg]:stroke-primary [&[data-state=open]>div>p]:text-primary`}
-                                onClick={(e: React.MouseEvent) =>
-                                    toggleChapter(item._id, e)
-                                }
-                            >
-                                <div className='flex items-center justify-between w-full p-2 flex-wrap gap-2'>
-                                    <div className='flex items-center gap-2'>
-                                        <div className='bg-primary-light mr-1.5 p-1.5 rounded-md'>
-                                            <Folder className='h-5 w-5 stroke-primary' />
+                            <div className='flex-1'>
+                                <AccordionTrigger
+                                    isIcon={false}
+                                    className={`text-start hover:no-underline py-0 pr-0 [&[data-state=open]>div>div>svg]:stroke-primary [&[data-state=open]>div>p]:text-primary`}
+                                    onClick={(e: React.MouseEvent) =>
+                                        toggleChapter(item._id, e)
+                                    }
+                                >
+                                    <div className='flex items-center justify-between w-full p-2 flex-wrap gap-2'>
+                                        <div className='flex items-center gap-2'>
+                                            <div className='bg-primary-light mr-1.5 p-1.5 rounded-md'>
+                                                <Folder className='h-5 w-5 stroke-primary' />
+                                            </div>
+                                            <div>
+                                                <h3 className='font-medium text-black'>
+                                                    {item.chapter.name}
+                                                </h3>
+                                                <div className='flex items-center gap-4 text-sm text-gray'>
+                                                    <span className='flex items-center gap-1 text-sm text-nowrap'>
+                                                        <LecturesSvg />
+                                                        {lectures} lectures
+                                                    </span>
+                                                    <span className='flex items-center gap-1 text-sm text-nowrap'>
+                                                        <Clock className='size-3' />
+                                                        {formatSeconds(
+                                                            duration as number,
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className='font-medium text-black'>
-                                                {item.chapter.name}
-                                            </h3>
-                                            <div className='flex items-center gap-4 text-sm text-gray'>
-                                                <span className='flex items-center gap-1 text-sm text-nowrap'>
-                                                    <LecturesSvg />
-                                                    {lectures} lectures
-                                                </span>
-                                                <span className='flex items-center gap-1 text-sm text-nowrap'>
-                                                    <Clock className='size-3' />
-                                                    {formatSeconds(
-                                                        duration as number,
+                                        <div className='flex items-center gap-4'>
+                                            <div className='w-32'>
+                                                <div className='flex items-center justify-between mb-1 gap-1.5'>
+                                                    <Progress
+                                                        value={progress}
+                                                        className='h-2.5 bg-primary-light'
+                                                        indicatorClass='bg-primary rounded-full'
+                                                    />
+                                                    <span className='text-xs text-black'>
+                                                        {progress}%
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className='flex items-center gap-1'>
+                                                <div className='flex items-start gap-1'>
+                                                    {renderPriorityBadge(
+                                                        item.priority,
                                                     )}
-                                                </span>
+                                                </div>
+                                                <div className='flex'>
+                                                    <LessionActionMenu
+                                                        videoData={videoData}
+                                                        item={item}
+                                                        setVideoData={
+                                                            setVideoData
+                                                        }
+                                                        lessonId={item?._id}
+                                                        courseId={
+                                                            item?.myCourse
+                                                                ?.course
+                                                        }
+                                                        setIsPinnedEyeOpen={
+                                                            setIsPinnedEyeOpen
+                                                        }
+                                                        onProgressUpdate={
+                                                            handleProgressUpdate
+                                                        }
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='flex items-center gap-2'>
-                                        <div className='w-32'>
-                                            <div className='flex items-center justify-between mb-1 gap-1.5'>
-                                                <Progress
-                                                    value={progress}
-                                                    className='h-2.5 bg-primary-light'
-                                                    indicatorClass='bg-primary rounded-full'
-                                                />
-                                                <span className='text-xs text-black'>
-                                                    {progress}%
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <LessionActionMenu
-                                            videoData={videoData}
-                                            item={item}
-                                            setVideoData={setVideoData}
-                                            lessonId={item?._id}
-                                            courseId={item?.myCourse?.course}
-                                            setIsPinnedEyeOpen={
-                                                setIsPinnedEyeOpen
-                                            }
-                                            onProgressUpdate={
-                                                handleProgressUpdate
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                            </AccordionTrigger>
-                            {isExpanded && (
-                                <AccordionContent className='border-t border-border pb-0'>
-                                    {hasChildren ? (
-                                        <Accordion
-                                            type='single'
-                                            collapsible
-                                            className='ml-4'
-                                        >
-                                            {renderContent(
-                                                item?.children as TContent[],
-                                                uniqueKey,
-                                            )}
-                                        </Accordion>
-                                    ) : option?.courseProgramsLoading ? (
-                                        <div className='flex w-full items-center justify-center py-4 text-center text-primary'>
-                                            <p>Loading...</p>
-                                            <svg
-                                                xmlns='http://www.w3.org/2000/svg'
-                                                width='24'
-                                                height='24'
-                                                viewBox='0 0 24 24'
-                                                fill='none'
-                                                stroke='currentColor'
-                                                strokeWidth='2'
-                                                strokeLinecap='round'
-                                                strokeLinejoin='round'
-                                                className='animate-spin stroke-primary ml-2'
+                                </AccordionTrigger>
+                                {isExpanded && (
+                                    <AccordionContent className='border-t border-border pb-0'>
+                                        {hasChildren ? (
+                                            <Accordion
+                                                type='single'
+                                                collapsible
+                                                className='ml-4'
                                             >
-                                                <path d='M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z' />
-                                                <path d='M21 12a9 9 0 0 1-9 9' />
-                                            </svg>
-                                        </div>
-                                    ) : (
-                                        <p className='p-3 text-center text-primary'>
-                                            No additional content available
-                                        </p>
-                                    )}
-                                </AccordionContent>
-                            )}
+                                                {renderContent(
+                                                    item?.children as TContent[],
+                                                    uniqueKey,
+                                                )}
+                                            </Accordion>
+                                        ) : option?.courseProgramsLoading ? (
+                                            <div className='flex w-full items-center justify-center py-4 text-center text-primary'>
+                                                <p>Loading...</p>
+                                                <svg
+                                                    xmlns='http://www.w3.org/2000/svg'
+                                                    width='24'
+                                                    height='24'
+                                                    viewBox='0 0 24 24'
+                                                    fill='none'
+                                                    stroke='currentColor'
+                                                    strokeWidth='2'
+                                                    strokeLinecap='round'
+                                                    strokeLinejoin='round'
+                                                    className='animate-spin stroke-primary ml-2'
+                                                >
+                                                    <path d='M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z' />
+                                                    <path d='M21 12a9 9 0 0 1-9 9' />
+                                                </svg>
+                                            </div>
+                                        ) : (
+                                            <p className='p-3 text-center text-primary'>
+                                                No additional content available
+                                            </p>
+                                        )}
+                                    </AccordionContent>
+                                )}
+                            </div>
                         </AccordionItem>
                     );
                 }
@@ -634,7 +654,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
             className={cn(
                 'space-y-4',
                 videoData?.isSideOpen
-                    ? `no-scrollbar lg:col-span-1 sticky top-0 h-[607px] overflow-y-auto bottom-[20px]`
+                    ? `no-scrollbar lg:col-span-1 xl:sticky top-0 h-[607px] overflow-y-auto bottom-[20px]`
                     : 'w-full',
             )}
         >

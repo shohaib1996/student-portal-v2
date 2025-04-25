@@ -156,17 +156,21 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
                 {/* Tabs Navigation */}
                 <div className='border-b border-border'>
                     <div className='flex flex-col lg:flex-row gap-2 justify-between md:justify-start lg:justify-between  items-center md:items-start lg:items-center py-2'>
-                        <TabsList className='bg-foreground p-1 rounded-full gap-2  overflow-x-auto flex-wrap'>
-                            {tabs?.map((tab, i) => (
-                                <TabsTrigger
-                                    key={tab?._id || i}
-                                    value={tab?._id || ''}
-                                    className='rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-sm font-medium'
-                                >
-                                    {tab?.name || 'Untitled'}
-                                </TabsTrigger>
-                            ))}
-                        </TabsList>
+                        {(tabs?.length as number) > 0 ? (
+                            <TabsList className='bg-foreground p-1 rounded-full gap-2  overflow-x-auto flex-wrap'>
+                                {tabs?.map((tab, i) => (
+                                    <TabsTrigger
+                                        key={tab?._id || i}
+                                        value={tab?._id || ''}
+                                        className='rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-sm font-medium'
+                                    >
+                                        {tab?.name || 'Untitled'}
+                                    </TabsTrigger>
+                                ))}
+                            </TabsList>
+                        ) : (
+                            <div className='invisible'></div>
+                        )}
 
                         <div className='flex items-center gap-4 flex-wrap'>
                             <div className='flex items-center gap-1 text-nowrap'>

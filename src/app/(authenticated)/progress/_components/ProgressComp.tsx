@@ -126,7 +126,10 @@ const ProgressComp = () => {
                     {/* Left Sidebar */}
                     <div className=''>
                         {/* Program Card */}
-                        <ProgramCard program={program} key={program.id} />
+                        <ProgramCard
+                            program={program as any}
+                            key={program.id}
+                        />
 
                         {/* User Progress */}
                         <div className='bg-foreground rounded-xl overflow-hidden border border-border mt-2.5 p-2.5'>

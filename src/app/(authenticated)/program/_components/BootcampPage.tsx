@@ -62,6 +62,7 @@ import {
 } from '@/types';
 import { key } from 'localforage';
 import { it } from 'node:test';
+import { ErrorState } from '@/components/shared/ErrorPage';
 
 const BootcampSkeleton = () => (
     <div className='overflow-hidden mt-2'>
@@ -262,7 +263,11 @@ export default function BootcampPage() {
         return <BootcampSkeleton />;
     }
     if (isError || isProgressError) {
-        return <p>Error fetching data</p>;
+        return (
+            <div>
+                <ErrorState />
+            </div>
+        );
     }
 
     const myProgram: TProgramMain = data as TProgramMain;
@@ -344,7 +349,7 @@ export default function BootcampPage() {
                                 <Clock className='h-4 w-4 text-green-500' />
                                 <span>
                                     Last updated{' '}
-                                    {dayjs(program.updatedAt).fromNow()}
+                                    {dayjs(program?.updatedAt).fromNow()}
                                 </span>
                             </div>
                             <div className='flex items-center gap-1 text-sm'>
