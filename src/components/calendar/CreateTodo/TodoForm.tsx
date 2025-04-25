@@ -536,11 +536,11 @@ const TodoForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
 
     const agendaField = (className?: string) => {
         return (
-            <div className={isFullScreen ? 'h-[60vh]' : ''}>
+            <div className={isFullScreen ? '' : ''}>
                 {isFullScreen && (
                     <FormLabel>Meeting Agenda/Follow up/Action Item</FormLabel>
                 )}
-                <div className='mt-2 h-full'>
+                <div className='my-2 md:h-[60vh] sm:h-[50vh] h-[40vh]'>
                     <GlobalEditor
                         className='bg-foreground'
                         placeholder='Write Agenda/Follow up/Action Item'

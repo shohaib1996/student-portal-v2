@@ -150,7 +150,7 @@ const GlobalDialog = React.forwardRef<HTMLDivElement, GlobalDialogProps>(
                     {!isFullScreen && showCloseButton && (
                         <button
                             onClick={() => setOpen(false)}
-                            className='absolute rounded-full -right-3 bg-warning size-6 flex items-center justify-center -top-3 z-20'
+                            className='absolute rounded-full sm:-right-3 -right-1 bg-warning size-6 flex items-center justify-center -top-1 sm:-top-3 z-20'
                         >
                             <XIcon className='text-white text-sm' size={20} />
                         </button>

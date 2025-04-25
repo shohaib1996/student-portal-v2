@@ -36,11 +36,11 @@ import DragIcon from '@/components/svgs/common/DragIcon';
 import { motion } from 'framer-motion';
 
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { setColumnSizing } from '@/redux/features/tableReducer';
 import { cn } from '@/lib/utils';
 import { CSS } from '@dnd-kit/utilities';
 import { EyeOff } from 'lucide-react';
 import { TCustomColumnDef } from './GlobalTable';
-import { setColumnSizing } from '@/redux/features/tableReducer';
 
 type TProps = {
     open: boolean;
@@ -228,14 +228,14 @@ const ColumnSettingsModal = ({ open, setOpen, tableName }: TProps) => {
             subTitle='Adjust and organize columns'
             buttons={
                 <div className='flex gap-2 items-center'>
-                    {/* <Button
+                    <Button
                         className='text-gray stroke-gray'
                         variant={'secondary'}
                         onClick={() => setOpen(false)}
                     >
                         <CrossCircle />
                         Cancel
-                    </Button> */}
+                    </Button>
                     <Button onClick={handleSave} variant={'default'}>
                         <SaveIcon className='stroke-pure-white' />
                         Save Changes

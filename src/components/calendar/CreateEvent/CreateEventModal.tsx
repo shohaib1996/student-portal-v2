@@ -33,6 +33,7 @@ import { Checkbox } from '../ui/checkbox';
 import { useAppSelector } from '@/redux/hooks';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import CalendarModal from '../ui/CalendarModal';
+import { cn } from '@/lib/utils';
 
 export const updateOptionsOptions: {
     label: string;
@@ -97,7 +98,7 @@ const CreateEventModal = () => {
                         ? dayjs().add(15, 'minutes').toDate()
                         : new Date(event.endTime),
                 isAllDay: event.isAllDay,
-                // repeat: false,
+                purpose: event?.purpose,
                 reminders: event.reminders,
                 location: event.location,
                 recurrence: {
@@ -123,7 +124,7 @@ const CreateEventModal = () => {
                 startTime: new Date(event.startTime),
                 endTime: new Date(event.endTime),
                 isAllDay: event.isAllDay,
-                // repeat: false,
+                purpose: event?.purpose,
                 reminders: event.reminders,
                 recurrence: {
                     isRecurring: event.recurrence?.isRecurring,
@@ -229,7 +230,7 @@ const CreateEventModal = () => {
     useEffect(() => {
         const errors = Object.values(eventForm.formState?.errors);
         const todoErrors = Object.values(todoForm.formState?.errors);
-        // console.error(errors);
+        console.log(errors);
         if (errors.length > 0) {
             if (eventForm.formState.errors.recurrence?.endRecurrence) {
                 toast.error(
@@ -420,7 +421,15 @@ const CreateEventModal = () => {
         <div>
             <EventPopover
                 title={
-                    <div className='flex flex-wrap gap-2 justify-between items-center w-full'>
+                    <div
+                        className={cn(
+                            'flex gap-2 justify-between items-center w-full',
+                            {
+                                'sm:flex-row flex-col sm:items-center items-start':
+                                    isFullScreen,
+                            },
+                        )}
+                    >
                         {isFullScreen && (
                             <div>
                                 <h2 className='text-xl text-black font-semibold'>

@@ -214,7 +214,7 @@ const MyInvitations = () => {
     const defaultColumns: TCustomColumnDef<TEvent>[] = [
         {
             accessorKey: 'select',
-            header: '',
+            header: 'Serial No',
             cell: ({ row }) => {
                 return (
                     <Checkbox
@@ -258,7 +258,7 @@ const MyInvitations = () => {
             footer: (data) => data.column.id,
             id: 'organizer',
             visible: true,
-            canHide: false,
+            canHide: true,
         },
         {
             accessorKey: 'startTime',
@@ -269,7 +269,7 @@ const MyInvitations = () => {
             footer: (data) => data.column.id,
             id: 'startTime',
             visible: true,
-            canHide: false,
+            canHide: true,
         },
         {
             accessorKey: 'startTime',
@@ -282,7 +282,7 @@ const MyInvitations = () => {
             footer: (data) => data.column.id,
             id: 'duration',
             visible: true,
-            canHide: false,
+            canHide: true,
         },
         {
             accessorKey: 'guests',
@@ -293,7 +293,7 @@ const MyInvitations = () => {
             footer: (data) => data.column.id,
             id: 'guests',
             visible: true,
-            canHide: false,
+            canHide: true,
         },
         {
             accessorKey: 'location',
@@ -322,7 +322,7 @@ const MyInvitations = () => {
             footer: (data) => data.column.id,
             id: 'location',
             visible: true,
-            canHide: false,
+            canHide: true,
         },
         {
             accessorKey: 'actions',

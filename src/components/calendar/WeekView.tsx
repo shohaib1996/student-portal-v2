@@ -8,6 +8,8 @@ import {
     startOfWeek,
     isSameDay,
     endOfWeek,
+    isBefore,
+    startOfDay,
 } from 'date-fns';
 
 import { cn } from '@/lib/utils';
@@ -24,6 +26,7 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setCurrentDate } from '@/components/calendar/reducer/calendarReducer';
 import EventButton from './EventButton';
 import Fuse from 'fuse.js';
+import { toast } from 'sonner';
 
 interface WeekViewProps {
     currentDate: Date;
@@ -59,6 +62,13 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
         i: number,
     ) => {
         const dateTime = dayjs(day).hour(hour).minute(0).second(0).toDate();
+
+        if (isBefore(dateTime, new Date())) {
+            toast.warning('Please select a future date and time');
+            e.stopPropagation();
+            return;
+        }
+
         dispatch(setCurrentDate(dateTime));
         openPopover(
             e.currentTarget.getBoundingClientRect(),

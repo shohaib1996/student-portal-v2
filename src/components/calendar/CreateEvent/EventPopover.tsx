@@ -63,25 +63,37 @@ export function EventPopoverProvider({ children }: EventPopoverProviderProps) {
         let x = 0;
         let y = 0;
 
-        const padding = 10; // Space between trigger and popover
+        if (window.innerWidth <= 640) {
+            setIsFullScreen(true);
+        } else {
+            const padding = 10; // Space between trigger and popover
 
-        switch (side) {
-            case 'top':
-                x = triggerRect.left + triggerRect.width / 2 - 250; // Center horizontally (600px width / 2)
-                y = triggerRect.top - padding - window.scrollY;
-                break;
-            case 'right':
-                x = triggerRect.right + padding;
-                y = triggerRect.top + triggerRect.height / 2 - window.scrollY;
-                break;
-            case 'bottom':
-                x = triggerRect.left + triggerRect.width / 2 - 250; // Center horizontally
-                y = triggerRect.bottom + padding - window.scrollY;
-                break;
-            case 'left':
-                x = triggerRect.left - 500 - padding; // 600px is the width of the popover
-                y = triggerRect.top + triggerRect.height / 2 - window.scrollY;
-                break;
+            switch (side) {
+                case 'top':
+                    x = triggerRect.left + triggerRect.width / 2 - 250; // Center horizontally (600px width / 2)
+                    y = triggerRect.top - padding - window.scrollY;
+                    break;
+                case 'right':
+                    x = triggerRect.right + padding;
+                    y =
+                        triggerRect.top -
+                        50 +
+                        triggerRect.height / 2 -
+                        window.scrollY;
+                    break;
+                case 'bottom':
+                    x = triggerRect.left + triggerRect.width / 2 - 250; // Center horizontally
+                    y = triggerRect.bottom + padding - window.scrollY;
+                    break;
+                case 'left':
+                    x = triggerRect.left - 500 - padding; // 600px is the width of the popover
+                    y =
+                        triggerRect.top -
+                        50 +
+                        triggerRect.height / 2 -
+                        window.scrollY;
+                    break;
+            }
         }
 
         // Ensure the popover stays within the viewport
@@ -334,7 +346,7 @@ export function EventPopover({
                                     variant='secondary'
                                     size='icon'
                                     onClick={toggleFullScreen}
-                                    className='ms-2 text-dark-gray'
+                                    className='ms-2 text-dark-gray sm:flex hidden'
                                 >
                                     {isFullScreen ? (
                                         <Minimize2 className='h-4 w-4' />
@@ -347,7 +359,10 @@ export function EventPopover({
                         <div
                             className={cn(
                                 'flex-1 overflow-auto sm:p-4 p-2 h-[350px]',
-                                { 'h-[calc(100vh-61px)]': isFullScreen },
+                                {
+                                    'sm:h-[calc(100vh-61px)] h-[calc(100vh-100px)]':
+                                        isFullScreen,
+                                },
                             )}
                         >
                             {children}

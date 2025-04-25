@@ -41,7 +41,6 @@ import { TEventFormType } from '../validations/eventValidation';
 import MultiSelect from '../ui/MultiSelect';
 import { useAppSelector } from '@/redux/hooks';
 import { toast } from 'sonner';
-import SelectPurpose from './SelectPurpose';
 import { TAvailability, TEvent, TNotification } from '../types/calendarTypes';
 import {
     Form,
@@ -70,6 +69,7 @@ import { Button } from '../ui/button';
 import { Calendar } from '../ui/calendar';
 import timesArray from '../helpers/times';
 import GlobalEditor from '@/components/editor/GlobalEditor';
+import SelectPurpose from './SelectPurpose';
 
 type TProps = {
     form: UseFormReturn<TEventFormType>;
@@ -184,7 +184,6 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                 control={form.control}
                 name='priority'
                 render={({ field }) => {
-                    console.log(field.value);
                     return (
                         <FormItem className={className} key={field.value}>
                             <Select
@@ -291,7 +290,11 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                     render={({ field, formState }) => (
                                         <FormItem>
                                             <FormControl>
-                                                <div className='flex items-center gap-2'>
+                                                <div
+                                                    className={cn(
+                                                        'flex items-center gap-2',
+                                                    )}
+                                                >
                                                     <DatePicker
                                                         disabled={
                                                             edit &&
@@ -442,7 +445,6 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                             control={form.control}
                             name='recurrence'
                             render={({ field, formState }) => {
-                                console.log(field.value?.frequency);
                                 const { value, ...rest } = field;
                                 return (
                                     <FormItem key={field.value?.frequency}>
@@ -602,32 +604,38 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                 control={form.control}
                 name='reminders'
                 render={({ field }) => (
-                    <FormItem
-                        className={cn('col-span-5', {
-                            'col-span-10 order-9': isFullScreen,
-                        })}
-                    >
+                    <FormItem>
                         <FormControl>
                             <div
-                                className={
-                                    isFullScreen
-                                        ? 'min-h-[calc(100%-20px)]'
-                                        : ''
-                                }
+                                className={cn('col-span-5', {
+                                    'col-span-10 order-9': isFullScreen,
+                                })}
                             >
-                                {isFullScreen && (
-                                    <FormLabel reqired>Add Reminders</FormLabel>
-                                )}
-                                {field.value?.map((noti, i) => (
-                                    <AddNotification
-                                        disabled={edit}
-                                        setNotification={(val) =>
-                                            field.onChange([val])
-                                        }
-                                        key={i}
-                                        notificaiton={noti as TNotification}
-                                    />
-                                ))}
+                                <div
+                                    className={
+                                        isFullScreen
+                                            ? 'min-h-[calc(100%-20px)]'
+                                            : ''
+                                    }
+                                >
+                                    {isFullScreen && (
+                                        <FormLabel reqired>
+                                            Add Reminders
+                                        </FormLabel>
+                                    )}
+                                    {field.value?.map((noti, i) => (
+                                        <AddNotification
+                                            className={`${isFullScreen ? '' : 'grid-cols-1'}`}
+                                            isFullScreen={isFullScreen}
+                                            disabled={edit}
+                                            setNotification={(val) =>
+                                                field.onChange([val])
+                                            }
+                                            key={i}
+                                            notificaiton={noti as TNotification}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </FormControl>
                         <FormMessage />
@@ -729,11 +737,11 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
 
     const agendaField = (className?: string) => {
         return (
-            <div className={isFullScreen ? 'h-[60vh]' : ''}>
+            <div className={isFullScreen ? 'mt-1' : ''}>
                 {isFullScreen && (
                     <FormLabel>Meeting Agenda/Follow up/Action Item</FormLabel>
                 )}
-                <div className='mt-2 h-full'>
+                <div className='mt-2 md:h-[60vh] sm:h-[50vh] h-[40vh]'>
                     <GlobalEditor
                         className='bg-foreground'
                         placeholder='Write Agenda/Follow up/Action Item'
@@ -988,7 +996,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                             </div>
                             <div className='grid md:grid-cols-2 grid-cols-1 lg:grid-cols-[2fr_1fr] gap-2'>
                                 {agendaField()}
-                                <div className='h-full'>
+                                <div className='h-full mt-1'>
                                     {isFullScreen && (
                                         <FormLabel reqired>
                                             Invitations/Add Guests
