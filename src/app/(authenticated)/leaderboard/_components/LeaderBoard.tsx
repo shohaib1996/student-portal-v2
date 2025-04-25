@@ -2,46 +2,39 @@
 
 import GlobalHeader from '@/components/global/GlobalHeader';
 import { RadialProgress } from '@/components/global/RadialProgress';
-import { Button } from '@/components/ui/button';
-import {
-    ArrowLeft,
-    Building,
-    Calendar,
-    Check,
-    Filter,
-    Package,
-    Star,
-    UploadCloud,
-} from 'lucide-react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { cn } from '@/lib/utils';
 import ProgramCard from '../../switch-program/_components/ProgramCard';
+import TopPerformersSkeleton from './TopPerformersSkeleton';
+import GlobalModal from '@/components/global/GlobalModal';
+import ReviewModal from '@/components/shared/review-modal';
 import {
     Select,
-    SelectContent,
-    SelectItem,
     SelectTrigger,
     SelectValue,
+    SelectContent,
+    SelectItem,
 } from '@/components/ui/select';
 import {
     useGetLeaderboardQuery,
-    useGetMyProgressQuery,
     useMyProgramQuery,
 } from '@/redux/api/myprogram/myprogramApi';
-import { TProgram, TProgressChart } from '@/types';
-import dayjs from 'dayjs';
+import { useGetPortalDataQuery } from '@/redux/api/dashboard/calendarApi';
 import { useAppSelector } from '@/redux/hooks';
-import TopPerformersSkeleton from './TopPerformersSkeleton';
+import { TBootcampResult, TProgram } from '@/types';
+import { ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import dayjs from 'dayjs';
 
 // Types
+
 type Status = 'approved' | 'pending' | 'cancelled';
 type PerformanceLevel =
     | 'Outstanding Performance'
     | 'Good Performance'
     | 'Need Improvements';
 type MedalType = 'green' | 'gold' | 'red';
+
 interface Metrics {
     totalMark: number;
     totalObtainedMark: number;
@@ -70,27 +63,16 @@ const LeaderBoard = () => {
     const { user } = useAppSelector((state) => state.auth);
     const router = useRouter();
     const [filterPeriod, setFilterPeriod] = useState('weekly');
-    const { data, isLoading, isError, error } = useGetLeaderboardQuery({});
+
+    const { data, isLoading } = useGetLeaderboardQuery({});
     const leaderboard: Leaderboard = data?.results || [];
 
-    const {
-        data: myProgram,
-        isLoading: isProgramLoading,
-        isError: myProgramError,
-    } = useMyProgramQuery({});
-
-    const {
-        data: myProgress,
-        isLoading: isProgressLoading,
-        isError: isProgressError,
-    } = useGetMyProgressQuery<{
-        data: TProgressChart;
-        isLoading: boolean;
-        isError: boolean;
-    }>({});
-
+    const { data: myProgram } = useMyProgramQuery({});
     const programData: TProgram = myProgram?.program;
 
+    const { data: portalData } = useGetPortalDataQuery({ bootcamp: {} });
+    const bootcamp: TBootcampResult[] = portalData?.data?.bootcamp?.results;
+    console.log({ programData });
     const program = {
         id: '1',
         title: programData?.title,
@@ -105,22 +87,17 @@ const LeaderBoard = () => {
         organization: 'N/A',
         branch: 'TS4U IT Engineer Bootcamps',
         date: dayjs(programData?.createdAt).format('MMM-YYYY'),
-        payment: {
-            totalFee: 0,
-            paid: 0,
-            due: 0,
-        },
-        progress: 0,
+        payment: { totalFee: 0, paid: 0, due: 0 },
         switched: true,
+        bootcamp,
     };
 
-    // User progress data
     const userProgress = {
         name: user?.fullName,
         avatar: user?.profilePicture,
         rank: data?.myData?.rank,
-        score: myProgress?.metrics?.totalObtainedMark,
-        improvement: myProgress?.metrics?.overallPercentageAllItems,
+        score: data?.myData?.metrics?.totalObtainedMark,
+        improvement: data?.myData?.metrics?.overallPercentageAllItems,
     };
 
     const getPerformance = (rank: number): PerformanceLevel => {
@@ -133,7 +110,6 @@ const LeaderBoard = () => {
         return 'Need Improvements';
     };
 
-    // Helper function to determine medal type based on rank
     const getMedalType = (rank: number): MedalType => {
         if (rank <= 3) {
             return 'green';
@@ -144,188 +120,139 @@ const LeaderBoard = () => {
         return 'red';
     };
 
-    // Helper function to render medal icon
     const renderMedalIcon = (type: MedalType, rank: number) => {
         const baseClasses =
             'w-10 h-10 rounded-full flex items-center justify-center';
-
-        if (type === 'green') {
-            return (
-                <div className={`${baseClasses}`}>
-                    <Image
-                        width={512}
-                        height={512}
-                        className='h-10 w-10 object-cover'
-                        src='/images/leaderboard/first.png'
-                        alt='top perform first'
-                    />
-                </div>
-            );
-        }
-
-        if (type === 'gold') {
-            return (
-                <div className={`${baseClasses}`}>
-                    <Image
-                        width={512}
-                        height={512}
-                        className='h-10 w-10 object-cover'
-                        src='/images/leaderboard/second.png'
-                        alt='top perform 2'
-                    />
-                </div>
-            );
-        }
-
+        const srcMap: Record<MedalType, string> = {
+            green: '/images/leaderboard/first.png',
+            gold: '/images/leaderboard/second.png',
+            red: '/images/leaderboard/redsign.png',
+        };
         return (
-            <div className={`${baseClasses}`}>
+            <div className={baseClasses}>
                 <Image
-                    width={512}
-                    height={512}
-                    className='h-10 w-10 object-cover'
-                    src='/images/leaderboard/redsign.png'
-                    alt='top perform red'
+                    width={40}
+                    height={40}
+                    className='object-cover'
+                    src={srcMap[type]}
+                    alt={`top performer ${rank}`}
                 />
             </div>
         );
     };
 
     return (
-        <div className='pt-2'>
-            <GlobalHeader
-                title={
-                    <span className='flex items-center justify-center gap-1'>
-                        <ArrowLeft
-                            onClick={() => router.push('/program')}
-                            size={18}
-                            className='cursor-pointer'
-                        />
-                        Leaderboard
-                    </span>
-                }
-                subTitle='Track Your Progress, Reach the Top'
-                buttons={
+        <>
+            <div className='pt-2'>
+                <GlobalHeader
+                    title={
+                        <span className='flex items-center justify-center gap-1'>
+                            <ArrowLeft
+                                onClick={() => router.push('/program')}
+                                size={18}
+                                className='cursor-pointer'
+                            />
+                            Leaderboard
+                        </span>
+                    }
+                    subTitle='Track Your Progress, Reach the Top'
+                />
+
+                <div className='my-2 flex flex-col lg:flex-row gap-2'>
+                    {/* Sidebar */}
                     <div>
-                        {/* <Button
-                            variant={'ghost'}
-                            icon={<UploadCloud size={18} />}
-                        ></Button> */}
-                        {/* <Button
-                            variant='outline'
-                            size='sm'
-                            className='h-9 gap-1 text-dark-gray'
-                        >
-                            <Filter size={18} />
-                            Filters
-                        </Button> */}
-                    </div>
-                }
-            />
+                        <ProgramCard
+                            program={program as any}
+                            key={program.id}
+                        />
 
-            <div className='my-2'>
-                <div className='flex flex-col lg:flex-row gap-2'>
-                    {/* Left Sidebar */}
-                    <div className=''>
-                        {/* Program Card */}
-                        <ProgramCard program={program} key={program.id} />
-
-                        {/* User Progress */}
                         <div className='bg-foreground rounded-xl overflow-hidden border border-border mt-2.5 p-2.5'>
                             <h3 className='font-semibold text-black capitalize'>
                                 Your Progress
                             </h3>
+                            <div className='flex items-center gap-3 my-2'>
+                                <Image
+                                    src={userProgress.avatar || '/avatar.png'}
+                                    alt={userProgress.name || 'User Avatar'}
+                                    width={40}
+                                    height={40}
+                                    className='rounded-full'
+                                />
+                                <span className='font-medium text-black'>
+                                    {userProgress.name}
+                                </span>
+                            </div>
 
-                            <div>
-                                <div className='flex items-center gap-3 my-2'>
-                                    <div className='relative'>
-                                        <Image
-                                            src={
-                                                userProgress?.avatar ||
-                                                '/avatar.png'
-                                            }
-                                            alt={
-                                                userProgress.name ||
-                                                'User Avatar'
-                                            }
-                                            width={40}
-                                            height={40}
-                                            className='rounded-full'
-                                        />
+                            <div className='grid grid-cols-3 gap-2 mb-3'>
+                                <div className='bg-[#FBF5FF] p-3 rounded-lg'>
+                                    <div className='text-xs text-gray'>
+                                        Current Rank
                                     </div>
-                                    <span className='font-medium text-black'>
-                                        {userProgress.name}
-                                    </span>
-                                </div>
-
-                                <div className='grid grid-cols-3 gap-2 mb-3'>
-                                    <div className='bg-[#FBF5FF] dark:bg-background p-3 rounded-lg'>
-                                        <div className='text-xs text-gray'>
-                                            Current Rank
-                                        </div>
-                                        <div className='font-semibold text-base text-[#875BC9]'>
-                                            #{userProgress.rank}
-                                        </div>
-                                    </div>
-                                    <div className='bg-yellow-50 dark:bg-background p-3 rounded-lg'>
-                                        <div className='text-xs text-gray'>
-                                            Your Score
-                                        </div>
-                                        <div className='font-bold text-yellow-600'>
-                                            {userProgress.score}
-                                        </div>
-                                    </div>
-                                    <div className='bg-green-50 dark:bg-background p-3 rounded-lg'>
-                                        <div className='text-xs text-gray'>
-                                            Improvement
-                                        </div>
-                                        <div className='font-bold text-green-600'>
-                                            {userProgress.improvement}%
-                                        </div>
+                                    <div className='font-semibold text-base text-[#875BC9]'>
+                                        #{userProgress.rank}
                                     </div>
                                 </div>
-
-                                <div className='relative pt-1 mb-2'>
-                                    <div className='overflow-hidden h-2 text-xs flex rounded bg-primary-light'>
-                                        <div
-                                            style={{
-                                                width: `${userProgress.improvement}%`,
-                                            }}
-                                            className='shadow-none flex flex-col text-center whitespace-nowrap justify-center bg-primary'
-                                        ></div>
+                                <div className='bg-yellow-50 p-3 rounded-lg'>
+                                    <div className='text-xs text-gray'>
+                                        Your Score
+                                    </div>
+                                    <div className='font-bold text-yellow-600'>
+                                        {userProgress.score}
                                     </div>
                                 </div>
+                                <div className='bg-green-50 p-3 rounded-lg'>
+                                    <div className='text-xs text-gray'>
+                                        Improvement
+                                    </div>
+                                    <div className='font-bold text-green-600'>
+                                        {userProgress.improvement}%
+                                    </div>
+                                </div>
+                            </div>
 
-                                <div className='flex items-center gap-2 text-gray text-xs font-medium'>
-                                    <Image
-                                        width={512}
-                                        height={512}
-                                        className='h-4 w-5 object-cover'
-                                        src='/images/leaderboard/redsign.png'
-                                        alt='top perform'
+                            <div className='relative pt-1 mb-2'>
+                                <div className='overflow-hidden h-2 text-xs flex rounded bg-primary-light'>
+                                    <div
+                                        style={{
+                                            width: `${userProgress.improvement}%`,
+                                        }}
+                                        className='shadow-none flex flex-col text-center whitespace-nowrap justify-center bg-primary'
                                     />
-                                    <span>Need Improvements</span>
                                 </div>
+                            </div>
+
+                            <div className='flex items-center gap-2 text-gray text-xs font-medium'>
+                                <Image
+                                    width={16}
+                                    height={16}
+                                    className='object-cover'
+                                    src='/images/leaderboard/redsign.png'
+                                    alt='need improvements'
+                                />
+                                <span>Need Improvements</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Main Content - Leaderboard */}
+                    {/* Main Content */}
                     <div className='flex-1'>
                         <div className='bg-background rounded-xl overflow-hidden'>
                             <div className='flex justify-between py-2'>
                                 <div className='flex items-center gap-2'>
                                     <Image
-                                        width={512}
-                                        height={512}
-                                        className='h-6 w-6 object-cover'
+                                        width={24}
+                                        height={24}
                                         src='/images/leaderboard/top.png'
-                                        alt='top perform'
+                                        alt='top performers'
                                     />
                                     <h3 className='text-black text-lg font-bold'>
                                         Top Performers
                                     </h3>
                                 </div>
-                                <Select defaultValue='weekly'>
+                                <Select
+                                    value={filterPeriod}
+                                    onValueChange={setFilterPeriod}
+                                >
                                     <SelectTrigger className='w-[98px] h-9 border-border bg-foreground mr-1'>
                                         <SelectValue placeholder='Weekly' />
                                     </SelectTrigger>
@@ -345,98 +272,95 @@ const LeaderBoard = () => {
                                     </SelectContent>
                                 </Select>
                             </div>
+
                             {isLoading ? (
                                 <TopPerformersSkeleton />
                             ) : (
                                 <div className='overflow-x-auto'>
                                     <table className='w-full table-auto'>
                                         <tbody>
-                                            {leaderboard?.map((performer) => (
+                                            {leaderboard.map((performer) => (
                                                 <tr
                                                     key={performer._id}
                                                     className='bg-foreground border border-border shadow-sm px-2 md:px-4 py-2 md:py-3 space-x-2'
                                                 >
-                                                    <td className='py-2 pl-2 md:py-3 md:pl-4 w-12 md:w-auto'>
+                                                    <td className='py-2 pl-2 md:py-3 md:pl-4 w-12'>
                                                         {renderMedalIcon(
                                                             getMedalType(
-                                                                performer?.rank,
+                                                                performer.rank,
                                                             ),
-                                                            performer?.rank,
+                                                            performer.rank,
                                                         )}
                                                     </td>
-                                                    <td className='py-2 md:py-3 w-12 md:w-auto'>
-                                                        <div className='flex justify-center'>
-                                                            <div className='profile-clip w-8 h-8 md:w-10 md:h-10 bg-primary-light rounded-full flex items-center justify-center text-primary-white font-medium text-sm md:text-base'>
-                                                                {
-                                                                    performer?.rank
-                                                                }
-                                                            </div>
+                                                    <td className='py-2 md:py-3 w-12'>
+                                                        <div className='profile-clip w-8 h-8 md:w-10 md:h-10 bg-primary-light rounded-full flex items-center justify-center text-primary-white font-medium text-sm md:text-base'>
+                                                            {performer.rank}
                                                         </div>
                                                     </td>
-                                                    <td className='py-2 md:py-3 min-w-[160px] md:min-w-[200px]'>
-                                                        <div className='flex items-center gap-1 md:gap-1.5'>
+                                                    <td className='py-2 md:py-3 min-w-[160px]'>
+                                                        <div className='flex items-center gap-1'>
                                                             <div className='relative'>
                                                                 <Image
                                                                     src='/avatar.png'
                                                                     alt={
                                                                         performer
-                                                                            ?.user
-                                                                            ?.fullName
+                                                                            .user
+                                                                            .fullName
                                                                     }
                                                                     width={40}
                                                                     height={40}
                                                                     className='w-9 h-9 md:w-11 md:h-11 rounded-full'
                                                                 />
-                                                                <div className='absolute bottom-0 right-0 w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full border-2 border-white'></div>
+                                                                <div className='absolute bottom-0 right-0 w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full border-2 border-white' />
                                                             </div>
-                                                            <span className='text-xs md:text-sm lg:text-lg font-semibold text-black text-wrap md:text-nowrap'>
+                                                            <span className='text-sm font-semibold text-black whitespace-nowrap'>
                                                                 {
                                                                     performer
-                                                                        ?.user
-                                                                        ?.fullName
+                                                                        .user
+                                                                        .fullName
                                                                 }
                                                             </span>
                                                         </div>
                                                     </td>
-                                                    <td className='py-2 md:py-3 min-w-16 md:w-auto'>
+                                                    <td className='py-2 md:py-3 min-w-16'>
                                                         <div className='text-xs font-medium text-gray'>
                                                             Score
                                                         </div>
-                                                        <div className='text-sm md:text-base font-semibold text-black'>
+                                                        <div className='text-sm font-semibold text-black'>
                                                             {
                                                                 performer
-                                                                    ?.metrics
-                                                                    ?.totalObtainedMark
+                                                                    .metrics
+                                                                    .totalObtainedMark
                                                             }
                                                         </div>
                                                     </td>
-                                                    <td className='py-2 md:py-3 min-w-24 md:w-auto'>
+                                                    <td className='py-2 md:py-3 min-w-24'>
                                                         <div className='text-xs font-medium text-gray'>
                                                             Improvement
                                                         </div>
-                                                        <div className='text-sm md:text-base font-semibold text-black'>
+                                                        <div className='text-sm font-semibold text-black'>
                                                             {
                                                                 performer
-                                                                    ?.metrics
-                                                                    ?.overallPercentageAllItems
+                                                                    .metrics
+                                                                    .overallPercentageAllItems
                                                             }
                                                             %
                                                         </div>
                                                     </td>
-                                                    <td className='py-2 md:py-3 min-w-24 md:w-auto'>
-                                                        <div className='font-semibold text-xs md:text-sm text-dark-gray'>
+                                                    <td className='py-2 md:py-3 min-w-24'>
+                                                        <div className='font-semibold text-xs text-dark-gray'>
                                                             {getPerformance(
-                                                                performer?.rank,
+                                                                performer.rank,
                                                             )}
                                                         </div>
                                                     </td>
-                                                    <td className='py-2 pr-2 md:py-3 md:pr-4 w-16 md:w-auto'>
+                                                    <td className='py-2 pr-2 md:py-3 md:pr-4 w-16'>
                                                         <div className='flex justify-center'>
                                                             <RadialProgress
                                                                 value={
                                                                     performer
-                                                                        ?.metrics
-                                                                        ?.overallPercentageAllItems
+                                                                        .metrics
+                                                                        .overallPercentageAllItems
                                                                 }
                                                                 size='sm'
                                                                 thickness='medium'
@@ -462,7 +386,7 @@ const LeaderBoard = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

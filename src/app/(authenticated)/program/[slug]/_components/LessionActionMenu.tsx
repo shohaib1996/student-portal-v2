@@ -1,5 +1,7 @@
 'use client';
 
+import type React from 'react';
+
 import { useState, useEffect, useRef } from 'react';
 import {
     Eye,
@@ -20,7 +22,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useTrackChapterMutation } from '@/redux/api/course/courseApi';
 import { toast } from 'sonner';
-import { TContent } from '@/types';
+import type { TContent } from '@/types';
 
 const LessionActionMenu = ({
     lessonId,
@@ -53,17 +55,11 @@ const LessionActionMenu = ({
     const [trackChapter] = useTrackChapterMutation();
 
     useEffect(() => {
+        // Only update local state from props when the item changes
         setIsPinned(item.isPinned ?? false);
         setIsCompleted(item.isCompleted ?? false);
         setIsFocused(item.isFocused ?? false);
-
-        if (!videoData?.item?.isPinned) {
-            setIsPinned(false);
-        }
-        if (videoData?.item?.isPinned) {
-            setIsPinned(true);
-        }
-    }, [item.isPinned, item.isCompleted, item.isFocused]);
+    }, [item]);
 
     const handleAction = async (action: string) => {
         setIsLoading(true);
@@ -128,7 +124,7 @@ const LessionActionMenu = ({
             await trackChapter({ courseId, action, chapterId: lessonId });
 
             toast.success(
-                `${action.charAt(0).toUpperCase() + action.slice(1)} has been successful`,
+                `The item has been marked as ${action.charAt(0).toUpperCase() + action.slice(1)} `,
             );
         } catch (error) {
             // If API call fails, revert the local state
@@ -184,8 +180,7 @@ const LessionActionMenu = ({
         }
     };
 
-    const commingSoon = () => toast.success('Coming Soon...');
-
+    const commingSoon = () => toast.warning('Coming Soon...');
     return (
         <>
             <div className='flex items-center gap-3'>
@@ -198,7 +193,10 @@ const LessionActionMenu = ({
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <button className='focus:outline-none'>
+                    <button
+                        className='focus:outline-none'
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <MoreVertical className='h-5 w-5 text-dark-gray' />
                     </button>
                 </DropdownMenuTrigger>
@@ -218,9 +216,10 @@ const LessionActionMenu = ({
                     <div className='relative z-50 space-y-2'>
                         {/* Focus / Unfocus */}
                         <DropdownMenuItem
-                            onClick={() =>
-                                handleAction(isFocused ? 'unfocus' : 'focus')
-                            }
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleAction(isFocused ? 'unfocus' : 'focus');
+                            }}
                             className={cn(
                                 'w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer',
                                 isFocused
@@ -235,9 +234,10 @@ const LessionActionMenu = ({
 
                         {/* Pin / Unpin */}
                         <DropdownMenuItem
-                            onClick={() =>
-                                handleAction(isPinned ? 'unpin' : 'pin')
-                            }
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleAction(isPinned ? 'unpin' : 'pin');
+                            }}
                             className={cn(
                                 'w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer',
                                 isPinned
@@ -252,11 +252,12 @@ const LessionActionMenu = ({
 
                         {/* Complete / Incomplete */}
                         <DropdownMenuItem
-                            onClick={() =>
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 handleAction(
                                     isCompleted ? 'incomplete' : 'complete',
-                                )
-                            }
+                                );
+                            }}
                             className={cn(
                                 'w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer',
                                 isCompleted
@@ -275,7 +276,10 @@ const LessionActionMenu = ({
                         <DropdownMenuItem
                             className='w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-foreground text-dark-gray'
                             disabled={isLoading}
-                            onClick={commingSoon}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                commingSoon();
+                            }}
                         >
                             <Share className='h-4 w-4' />
                             <span>Share</span>
@@ -284,7 +288,10 @@ const LessionActionMenu = ({
                         <DropdownMenuItem
                             className='w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-foreground text-dark-gray'
                             disabled={isLoading}
-                            onClick={commingSoon}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                commingSoon();
+                            }}
                         >
                             <Calendar className='h-4 w-4' />
                             <span>Add to Calendar</span>
@@ -293,7 +300,10 @@ const LessionActionMenu = ({
                         <DropdownMenuItem
                             className='w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-foreground text-dark-gray'
                             disabled={isLoading}
-                            onClick={commingSoon}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                commingSoon();
+                            }}
                         >
                             <MessageSquare className='h-4 w-4' />
                             <span>Add to Chat</span>
