@@ -72,7 +72,6 @@ const LeaderBoard = () => {
 
     const { data: portalData } = useGetPortalDataQuery({ bootcamp: {} });
     const bootcamp: TBootcampResult[] = portalData?.data?.bootcamp?.results;
-    console.log({ programData });
     const program = {
         id: '1',
         title: programData?.title,

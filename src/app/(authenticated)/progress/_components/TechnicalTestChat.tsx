@@ -7,6 +7,8 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from '@/components/ui/chart';
+import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 // Chart configuration
 const chartConfig = {
@@ -107,25 +109,36 @@ export function TechnicalTestChart({ data }: { data: any }) {
 
     return (
         <div className='border-0 shadow-none bg-foreground'>
-            <div className='border-b border-border'>
-                <h3 className='font-medium text-black mb-1'>Technical Test</h3>
-                <p className='text-sm text-gray mb-2'>
-                    View all your technical test data
-                </p>
+            <div className='border-b border-border flex justify-between items-center '>
+                <div>
+                    <h3 className='font-medium text-black mb-1'>
+                        Technical Test
+                    </h3>
+                    <p className='text-sm text-gray mb-2'>
+                        View all your technical test data
+                    </p>
+                </div>
+                <Link
+                    href='/technical-tests'
+                    className='text-sm text-primary-white bg-primary-light hover:bg-primary hover:text-white font-medium flex items-center gap-0.5 py-2 px-2.5 rounded-lg mb-2'
+                >
+                    View More
+                    <ArrowRight className='hidden md:block' />
+                </Link>
             </div>
             <div className='mt-4 p-0'>
-                <div className='flex flex-col 3xl:flex-row items-center 3xl:items-start gap-6'>
-                    <div className='3xl:w-1/3 relative'>
-                        <div className='w-full aspect-square mx-auto relative'>
-                            <div className='absolute inset-0 flex items-center justify-center z-10'>
+                <div className='flex flex-col 3xl:flex-row items-center 3xl:items-center gap-6'>
+                    <div className='3xl:w-1/3 relative h-full'>
+                        <div className='w-full h-full aspect-square mx-auto relative'>
+                            {/* <div className='absolute inset-0 flex items-center justify-center z-10'>
                                 <div className='w-[50%] h-[50%] rounded-full bg-foreground border-4 border-green-100'></div>
-                            </div>
+                            </div> */}
 
                             <ChartContainer
                                 config={chartConfig}
-                                className='mx-auto aspect-square h-full'
+                                className='mx-auto aspect-square h-full '
                             >
-                                <ResponsiveContainer width='100%' height='100%'>
+                                <ResponsiveContainer width='100%' height='50%'>
                                     <PieChart>
                                         <ChartTooltip
                                             cursor={false}
@@ -142,7 +155,7 @@ export function TechnicalTestChart({ data }: { data: any }) {
                                             cx='50%'
                                             cy='50%'
                                             innerRadius={30}
-                                            outerRadius={90}
+                                            outerRadius={75}
                                             paddingAngle={1}
                                             startAngle={90}
                                             endAngle={-270}

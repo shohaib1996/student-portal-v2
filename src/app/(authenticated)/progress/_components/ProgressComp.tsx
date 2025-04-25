@@ -1,48 +1,95 @@
 'use client';
-import GlobalHeader from '@/components/global/GlobalHeader';
-import { ArrowLeft, Check, Clock, ArrowRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+
+// External Libraries
 import React from 'react';
-import ProgramCard from '../../switch-program/_components/ProgramCard';
+import dayjs from 'dayjs';
 import Image from 'next/image';
-import { RadialProgress } from '@/components/global/RadialProgress';
-import { TechnicalTestChart } from './TechnicalTestChat';
-import { MockInterviewChart } from './MockInterviewChart';
 import Link from 'next/link';
-import { Progress } from '@/components/ui/progress';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+
+// Redux / API Hooks
+import { useAppSelector } from '@/redux/hooks';
 import {
     useGetLeaderboardQuery,
     useGetMyProgressQuery,
     useMyProgramQuery,
 } from '@/redux/api/myprogram/myprogramApi';
-import { TProgram, TProgressChart } from '@/types';
-import dayjs from 'dayjs';
+import { useGetPortalDataQuery } from '@/redux/api/dashboard/calendarApi';
+
+// Types
+import { TBootcampResult, TProgram, TProgressChart } from '@/types';
+
+// Components
+import GlobalHeader from '@/components/global/GlobalHeader';
+import ProgramCard from '../../switch-program/_components/ProgramCard';
+import { RadialProgress } from '@/components/global/RadialProgress';
+import { TechnicalTestChart } from './TechnicalTestChat';
+import { MockInterviewChart } from './MockInterviewChart';
 import BottomCalendar from './BottomCalendar';
-import { useAppSelector } from '@/redux/hooks';
+
+// -----------------------------------------------------------------------------
+// Types & Helpers
+// -----------------------------------------------------------------------------
 
 type Status = 'approved' | 'pending' | 'cancelled';
 
+interface ProcessedItem {
+    limit: number;
+    count: number;
+    percentage: number;
+    additionalData?: object;
+}
+
+type ProcessedData = Record<string, ProcessedItem>;
+
+/**
+ * Calculate percentage while handling division-by-zero.
+ */
+function calculatePercentage(count: number, limit: number): number {
+    if (limit === 0) {
+        return 0;
+    }
+
+    let percentage: number = 0;
+
+    if (limit > count) {
+        percentage = (count * 100) / limit;
+    } else if (count > limit) {
+        percentage = (limit * 100) / count;
+    } else if (count === limit) {
+        percentage = (count * 100) / limit;
+    }
+
+    return Math.round(percentage);
+}
+
+// -----------------------------------------------------------------------------
+// Component
+// -----------------------------------------------------------------------------
+
 const ProgressComp = () => {
+    // ---------------------------------------------------------------------
+    // Data Fetching & Derivations
+    // ---------------------------------------------------------------------
+
     const router = useRouter();
     const { user } = useAppSelector((state) => state.auth);
-    const { data, isLoading, isError, error } = useGetLeaderboardQuery({});
-    const {
-        data: myProgram,
-        isLoading: isProgramLoading,
-        isError: myProgramError,
-    } = useMyProgramQuery({});
 
-    const {
-        data: myProgress,
-        isLoading: isProgressLoading,
-        isError: isProgressError,
-    } = useGetMyProgressQuery<{
+    const { data: leaderboardData } = useGetLeaderboardQuery({});
+    const { data: myProgram } = useMyProgramQuery({});
+    const { data: portalData } = useGetPortalDataQuery({ bootcamp: {} });
+    const { data: myProgress } = useGetMyProgressQuery<{
         data: TProgressChart;
         isLoading: boolean;
         isError: boolean;
     }>({});
 
-    const programData: TProgram = myProgram?.program;
+    // ---------------------------------------------------------------------
+    // Program & User Progress Mapping
+    // ---------------------------------------------------------------------
+    const bootcamp: TBootcampResult[] = portalData?.data?.bootcamp?.results;
+    const programData = myProgram?.program as TProgram | undefined;
 
     const program = {
         id: '1',
@@ -65,27 +112,24 @@ const ProgressComp = () => {
         },
         progress: 0,
         switched: true,
+        bootcamp: bootcamp,
     };
 
-    // User progress data
     const userProgress = {
         name: user?.fullName,
         avatar: user?.profilePicture,
-        rank: data?.myData?.rank,
-        score: myProgress?.metrics?.totalObtainedMark,
-        improvement: myProgress?.metrics?.overallPercentageAllItems,
+        rank: leaderboardData?.myData?.rank,
+        score: leaderboardData?.myData?.metrics?.totalObtainedMark,
+        improvement:
+            leaderboardData?.myData?.metrics?.overallPercentageAllItems,
     };
 
-    function calculatePercentage(count: number, limit: number) {
-        if (limit === 0) {
-            return 0;
-        }
-        const percentage = (count / limit) * 100;
-        return Math.min(Math.round(percentage), 100);
-    }
+    // ---------------------------------------------------------------------
+    // Progress Data Processing
+    // ---------------------------------------------------------------------
 
-    const processedData = myProgress?.results?.reduce(
-        (acc, item) => {
+    const processedData: ProcessedData | undefined =
+        myProgress?.results?.reduce((acc, item) => {
             acc[item.id] = {
                 limit: item.limit,
                 count: item.count,
@@ -93,18 +137,11 @@ const ProgressComp = () => {
                 additionalData: item.additionalData,
             };
             return acc;
-        },
-        {} as Record<
-            string,
-            {
-                limit: number;
-                count: number;
-                percentage: number;
-                additionalData?: object;
-            }
-        >,
-    );
+        }, {} as ProcessedData);
 
+    // ---------------------------------------------------------------------
+    // JSX
+    // ---------------------------------------------------------------------
     return (
         <div className='pt-2'>
             <GlobalHeader
@@ -123,9 +160,10 @@ const ProgressComp = () => {
 
             <div className='my-2'>
                 <div className='flex flex-col lg:flex-row gap-2'>
-                    {/* Left Sidebar */}
-                    <div className=''>
-                        {/* Program Card */}
+                    {/* ----------------------------------------------------------------
+                        Left Sidebar
+                    ---------------------------------------------------------------- */}
+                    <div>
                         <ProgramCard
                             program={program as any}
                             key={program.id}
@@ -165,7 +203,7 @@ const ProgressComp = () => {
                                             Current Rank
                                         </div>
                                         <div className='font-semibold text-base text-[#875BC9]'>
-                                            #{userProgress.rank}
+                                            #{userProgress.rank ?? 0}
                                         </div>
                                     </div>
                                     <div className='bg-yellow-50 dark:bg-background p-3 rounded-lg'>
@@ -173,7 +211,7 @@ const ProgressComp = () => {
                                             Your Score
                                         </div>
                                         <div className='font-bold text-yellow-600'>
-                                            {userProgress.score}
+                                            {userProgress.score ?? 0}
                                         </div>
                                     </div>
                                     <div className='bg-green-50 dark:bg-background p-3 rounded-lg'>
@@ -181,7 +219,7 @@ const ProgressComp = () => {
                                             Improvement
                                         </div>
                                         <div className='font-bold text-green-600'>
-                                            {userProgress.improvement}%
+                                            {userProgress.improvement ?? 0}%
                                         </div>
                                     </div>
                                 </div>
@@ -189,31 +227,36 @@ const ProgressComp = () => {
                         </div>
                     </div>
 
-                    {/* Main Content - Chart Progress Bar*/}
+                    {/* ----------------------------------------------------------------
+                        Main Content
+                    ---------------------------------------------------------------- */}
                     <div className='flex-1'>
-                        {/* Top Progress Cards */}
+                        {/* ------------------------- Top Progress Cards ----------------------- */}
                         <div className='grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-2 mb-2'>
                             {/* Overall Progress */}
                             <div className='bg-foreground rounded-xl border border-border py-4 px-3 flex items-center justify-between'>
-                                <div className=''>
+                                <div>
                                     <h3 className='text-base font-medium text-black'>
                                         Overall Progress
                                     </h3>
 
                                     <div className='text-3xl font-bold text-black my-2.5'>
-                                        {myProgress?.metrics
-                                            ?.overallPercentageAllItems || 0}
+                                        {leaderboardData?.myData?.metrics
+                                            ?.overallPercentageAllItems ?? 0}
                                         %
                                     </div>
                                     <div className='text-sm text-gray font-medium'>
-                                        {myProgress?.metrics?.totalObtainedMark}{' '}
-                                        out of {myProgress?.metrics?.totalMark}
+                                        {leaderboardData?.myData?.metrics
+                                            ?.totalObtainedMark ?? 0}{' '}
+                                        out of{' '}
+                                        {leaderboardData?.myData?.metrics
+                                            ?.totalMark ?? 0}
                                     </div>
                                 </div>
                                 <RadialProgress
                                     value={
-                                        myProgress?.metrics
-                                            ?.overallPercentageAllItems || 0
+                                        leaderboardData?.myData?.metrics
+                                            ?.overallPercentageAllItems ?? 0
                                     }
                                     size='md'
                                     thickness='medium'
@@ -223,25 +266,32 @@ const ProgressComp = () => {
 
                             {/* Daily Activities */}
                             <div className='bg-foreground rounded-xl border border-border py-4 px-3 flex items-center justify-between'>
-                                <div className=''>
+                                <div>
                                     <h3 className='text-base font-medium text-black'>
                                         Daily Activities
                                     </h3>
 
                                     <div className='text-3xl font-bold text-black my-2.5'>
-                                        {processedData?.day2day?.percentage ||
+                                        {processedData?.day2day?.percentage ??
                                             0}
                                         %
                                     </div>
                                     <div className='text-sm text-gray font-medium'>
-                                        {processedData?.day2day?.count} out of{' '}
-                                        {processedData?.day2day?.limit}{' '}
+                                        {Math.min(
+                                            processedData?.day2day?.count || 0,
+                                            processedData?.day2day?.limit || 0,
+                                        )}{' '}
+                                        out of{' '}
+                                        {Math.max(
+                                            processedData?.day2day?.count || 0,
+                                            processedData?.day2day?.limit || 0,
+                                        )}{' '}
                                         activities
                                     </div>
                                 </div>
                                 <RadialProgress
                                     value={
-                                        processedData?.day2day?.percentage || 0
+                                        processedData?.day2day?.percentage ?? 0
                                     }
                                     size='md'
                                     thickness='medium'
@@ -251,23 +301,31 @@ const ProgressComp = () => {
 
                             {/* Reviews */}
                             <div className='bg-foreground rounded-xl border border-border py-4 px-3 flex items-center justify-between'>
-                                <div className=''>
+                                <div>
                                     <h3 className='text-base font-medium text-black'>
                                         Reviews
                                     </h3>
 
                                     <div className='text-3xl font-bold text-black my-2.5'>
-                                        {processedData?.review?.percentage || 0}
+                                        {processedData?.review?.percentage ?? 0}
                                         %
                                     </div>
                                     <div className='text-sm text-gray font-medium'>
-                                        {processedData?.review?.count} out of{' '}
-                                        {processedData?.review?.count} reviews
+                                        {Math.min(
+                                            processedData?.review?.count || 0,
+                                            processedData?.review?.limit || 0,
+                                        )}{' '}
+                                        out of{' '}
+                                        {Math.max(
+                                            processedData?.review?.count || 0,
+                                            processedData?.review?.limit || 0,
+                                        )}{' '}
+                                        reviews
                                     </div>
                                 </div>
                                 <RadialProgress
                                     value={
-                                        processedData?.review?.percentage || 0
+                                        processedData?.review?.percentage ?? 0
                                     }
                                     size='md'
                                     thickness='medium'
@@ -277,24 +335,31 @@ const ProgressComp = () => {
 
                             {/* Messages */}
                             <div className='bg-foreground rounded-xl border border-border py-4 px-3 flex items-center justify-between'>
-                                <div className=''>
+                                <div>
                                     <h3 className='text-base font-medium text-black'>
                                         Messages
                                     </h3>
 
                                     <div className='text-3xl font-bold text-black my-2.5'>
-                                        {processedData?.messages?.percentage ||
+                                        {processedData?.messages?.percentage ??
                                             0}
                                         %
                                     </div>
                                     <div className='text-sm text-gray font-medium'>
-                                        {processedData?.messages?.count} out of{' '}
-                                        {processedData?.messages?.limit}
+                                        {Math.min(
+                                            processedData?.messages?.count || 0,
+                                            processedData?.messages?.limit || 0,
+                                        )}{' '}
+                                        out of{' '}
+                                        {Math.max(
+                                            processedData?.messages?.count || 0,
+                                            processedData?.messages?.limit || 0,
+                                        )}
                                     </div>
                                 </div>
                                 <RadialProgress
                                     value={
-                                        processedData?.messages?.percentage || 0
+                                        processedData?.messages?.percentage ?? 0
                                     }
                                     size='md'
                                     thickness='medium'
@@ -303,23 +368,34 @@ const ProgressComp = () => {
                             </div>
                         </div>
 
-                        {/* Documents Section */}
+                        {/* ------------------------- Documents Section ------------------------- */}
                         <div className='grid grid-cols-1 2xl:grid-cols-2 gap-2 mb-2'>
                             {/* Documents */}
                             <div className='bg-foreground rounded-xl border border-border p-2'>
-                                <div className='border-b border-border'>
-                                    <h3 className='font-medium text-black mb-1'>
-                                        Documents
-                                    </h3>
-                                    <p className='text-sm text-gray mb-2'>
-                                        Access all your documents in one place
-                                    </p>
+                                <div className='border-b border-border flex justify-between items-center'>
+                                    <div>
+                                        <h3 className='font-medium text-black mb-1'>
+                                            Documents
+                                        </h3>
+                                        <p className='text-sm text-gray mb-2'>
+                                            Access all your documents in one
+                                            place
+                                        </p>
+                                    </div>
+                                    <Link
+                                        href='/my-documents'
+                                        className='text-sm text-primary-white bg-primary-light hover:bg-primary hover:text-white font-medium flex items-center gap-0.5 py-2 px-2.5 rounded-lg mb-2'
+                                    >
+                                        View More
+                                        <ArrowRight className='hidden md:block' />
+                                    </Link>
                                 </div>
                                 <div className='grid grid-cols-2 gap-4 mt-2'>
                                     {/* Documents & Labs */}
                                     <div className='bg-foreground border border-border rounded-lg p-4'>
                                         <div className='flex items-center gap-2 mb-2'>
                                             <div className='w-8 h-8 bg-purple-100 dark:bg-background rounded-lg flex items-center justify-center'>
+                                                {/* SVG intentionally preserved */}
                                                 <svg
                                                     width='20'
                                                     height='20'
@@ -337,15 +413,13 @@ const ProgressComp = () => {
                                                     />
                                                 </svg>
                                             </div>
-                                            <div>
-                                                <h4 className='font-medium text-black'>
-                                                    Documents & Labs
-                                                </h4>
-                                            </div>
+                                            <h4 className='font-medium text-black'>
+                                                Documents & Labs
+                                            </h4>
                                         </div>
                                         <div className='text-2xl font-bold text-black mb-1'>
                                             {processedData?.dcumentLabsComment
-                                                ?.count || 0}
+                                                ?.count ?? 0}
                                         </div>
                                         <div className='text-xs text-gray'>
                                             All documents & labs
@@ -356,6 +430,7 @@ const ProgressComp = () => {
                                     <div className='bg-foreground border border-border rounded-lg p-4'>
                                         <div className='flex items-center gap-2 mb-2'>
                                             <div className='w-8 h-8 bg-blue-100 dark:bg-background rounded-lg flex items-center justify-center'>
+                                                {/* SVG intentionally preserved */}
                                                 <svg
                                                     width='20'
                                                     height='20'
@@ -373,15 +448,13 @@ const ProgressComp = () => {
                                                     />
                                                 </svg>
                                             </div>
-                                            <div>
-                                                <h4 className='font-medium text-black'>
-                                                    Uploaded Documents
-                                                </h4>
-                                            </div>
+                                            <h4 className='font-medium text-black'>
+                                                Uploaded Documents
+                                            </h4>
                                         </div>
                                         <div className='text-2xl font-bold text-black mb-1'>
                                             {processedData?.uploadedDocuments
-                                                ?.count || 0}
+                                                ?.count ?? 0}
                                         </div>
                                         <div className='text-xs text-gray'>
                                             All uploaded documents
@@ -392,6 +465,7 @@ const ProgressComp = () => {
                                     <div className='bg-foreground border border-border rounded-lg p-4'>
                                         <div className='flex items-center gap-2 mb-2'>
                                             <div className='w-8 h-8 bg-amber-100 dark:bg-background rounded-lg flex items-center justify-center'>
+                                                {/* SVG intentionally preserved */}
                                                 <svg
                                                     width='20'
                                                     height='20'
@@ -409,11 +483,9 @@ const ProgressComp = () => {
                                                     />
                                                 </svg>
                                             </div>
-                                            <div>
-                                                <h4 className='font-medium text-black'>
-                                                    Presentations / Slides
-                                                </h4>
-                                            </div>
+                                            <h4 className='font-medium text-black'>
+                                                Presentations / Slides
+                                            </h4>
                                         </div>
                                         <div className='text-2xl font-bold text-black mb-1'>
                                             72
@@ -427,6 +499,7 @@ const ProgressComp = () => {
                                     <div className='bg-foreground border border-border rounded-lg p-4'>
                                         <div className='flex items-center gap-2 mb-2'>
                                             <div className='w-8 h-8 bg-green-100 dark:bg-background rounded-lg flex items-center justify-center'>
+                                                {/* SVG intentionally preserved */}
                                                 <svg
                                                     width='20'
                                                     height='20'
@@ -444,11 +517,9 @@ const ProgressComp = () => {
                                                     />
                                                 </svg>
                                             </div>
-                                            <div>
-                                                <h4 className='font-medium text-black'>
-                                                    Templates
-                                                </h4>
-                                            </div>
+                                            <h4 className='font-medium text-black'>
+                                                Templates
+                                            </h4>
                                         </div>
                                         <div className='text-2xl font-bold text-black mb-1'>
                                             35
@@ -471,7 +542,7 @@ const ProgressComp = () => {
                             </div>
                         </div>
 
-                        {/* Mock Interview & Calendar Section */}
+                        {/* -------------------- Mock Interview & Calendar Section ---------------- */}
                         <div className='grid grid-cols-1 2xl:grid-cols-2 gap-2 mb-2'>
                             <div className='bg-foreground rounded-xl border border-border p-2 mb-2'>
                                 <MockInterviewChart
@@ -506,6 +577,7 @@ const ProgressComp = () => {
                                     <div className='bg-primary-light rounded-lg p-4'>
                                         <div className='flex items-center gap-2 mb-3'>
                                             <div className='w-8 h-8 bg-blue-100 dark:bg-background rounded-full flex items-center justify-center'>
+                                                {/* SVG intentionally preserved */}
                                                 <svg
                                                     width='16'
                                                     height='16'
@@ -538,10 +610,11 @@ const ProgressComp = () => {
                                         </p>
 
                                         <Link
-                                            href='#'
+                                            href='/audio-video'
                                             className='text-sm text-primary-white font-medium hover:underline flex items-center'
                                         >
                                             View More
+                                            {/* Chevron */}
                                             <svg
                                                 width='16'
                                                 height='16'
@@ -565,6 +638,7 @@ const ProgressComp = () => {
                                     <div className='bg-primary-light rounded-lg p-4'>
                                         <div className='flex items-center gap-2 mb-3'>
                                             <div className='w-8 h-8 bg-purple-100 dark:bg-background rounded-full flex items-center justify-center'>
+                                                {/* SVG intentionally preserved */}
                                                 <svg
                                                     width='16'
                                                     height='16'
@@ -589,20 +663,21 @@ const ProgressComp = () => {
 
                                         <div className='text-2xl font-bold text-black mb-1'>
                                             {processedData?.communityPost
-                                                ?.count || 0}
+                                                ?.count ?? 0}
                                         </div>
                                         <p className='text-sm text-gray mb-3'>
                                             Total{' '}
                                             {processedData?.communityPost
-                                                ?.count || 0}{' '}
+                                                ?.count ?? 0}{' '}
                                             posts
                                         </p>
 
                                         <Link
-                                            href='#'
+                                            href='/community'
                                             className='text-sm text-primary-white font-medium hover:underline flex items-center'
                                         >
                                             View More
+                                            {/* Chevron */}
                                             <svg
                                                 width='16'
                                                 height='16'
@@ -625,7 +700,7 @@ const ProgressComp = () => {
                             </div>
                         </div>
 
-                        {/* Bottom Calendar Section with 4 cards */}
+                        {/* ------------------------- Bottom Calendar --------------------------- */}
                         <BottomCalendar
                             data={processedData?.events?.additionalData || []}
                         />

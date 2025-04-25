@@ -670,7 +670,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
             <GlobalModal
                 open={openQuiz}
                 setOpen={handleQuizClose}
-                title='Give tour qiize'
+                title='Give your quiz ans'
             >
                 <QuizModalContent lesson={lesson as any} />
             </GlobalModal>

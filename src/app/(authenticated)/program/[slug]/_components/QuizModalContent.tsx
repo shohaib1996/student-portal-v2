@@ -17,6 +17,8 @@ import {
     useGetQuizForLessonQuery,
     useSubmitQuizForLessonQuery,
 } from '@/redux/api/course/courseApi';
+import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 
 // Types based on your API structure
 interface Option {
@@ -68,6 +70,11 @@ export const QuizModalContent = ({ lesson }: { lesson: TContent }) => {
         lessonUrl: (lesson?.lesson as any)?.url,
     });
 
+    const { enrollment } = useAppSelector((state) => state?.auth);
+    const enrollmentData: any = enrollment;
+    const coursesId = enrollmentData?.program?._id;
+
+    console.log({ coursesId });
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState<
         Record<number, number>
@@ -143,7 +150,7 @@ export const QuizModalContent = ({ lesson }: { lesson: TContent }) => {
         const payload = {
             answers,
             source: lesson._id,
-            course: '64fcb957b0cf6e9ae43d126d', // This should be dynamic in your implementation
+            course: coursesId, // This should be dynamic in your implementation
         };
 
         setSubmittedResult(payload);

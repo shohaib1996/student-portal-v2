@@ -44,11 +44,8 @@ export interface BootcampProgram {
 }
 
 const ProgramCard = ({ program }: { program: BootcampProgram }) => {
-    const { enrollment }: { enrollment: any } = useAppSelector(
-        (state) => state.auth,
-    );
-
-    console.log({ enrollment });
+    const { enrollment } = useAppSelector((state) => state.auth);
+    const enrollmentData: any = enrollment;
     const [reviewOpen, setReviewOpen] = useState(false);
     const programComplete: any = Math.round(
         (((program?.bootcamp as TBootcampResult[])?.reduce(
@@ -330,13 +327,17 @@ const ProgramCard = ({ program }: { program: BootcampProgram }) => {
                         <div className='border-r border-border'>
                             <div className='text-xs text-gray'>Total Fee</div>
                             <div className='text-xs text-black font-semibold'>
-                                ${enrollment?.totalAmount?.toLocaleString()}.00
+                                $
+                                {(
+                                    enrollmentData?.totalAmount as any
+                                )?.toLocaleString()}
+                                .00
                             </div>
                         </div>
                         <div className='border-r border-border'>
                             <div className='text-xs text-gray'>Paid</div>
                             <div className='text-xs text-black font-semibold'>
-                                {enrollment?.totalPaid?.toLocaleString()}.00
+                                {enrollmentData?.totalPaid?.toLocaleString()}.00
                             </div>
                         </div>
                         <div>
@@ -344,8 +345,8 @@ const ProgramCard = ({ program }: { program: BootcampProgram }) => {
                                 <span className='text-gray'>Due</span>
                             </div>
                             <div className='text-xs text-black font-semibold'>
-                                {(enrollment?.totalAmount as number) -
-                                    enrollment?.totalPaid}
+                                {(enrollmentData?.totalAmount as number) -
+                                    enrollmentData?.totalPaid}
                                 .00
                             </div>
                         </div>
@@ -374,7 +375,7 @@ const ProgramCard = ({ program }: { program: BootcampProgram }) => {
                 subTitle='A quick overview of your feedback and rating'
                 title='My Review'
             >
-                <ReviewModal _id={enrollment?.program?._id as string} />
+                <ReviewModal _id={enrollmentData?.program?._id as string} />
             </GlobalModal>
         </>
     );

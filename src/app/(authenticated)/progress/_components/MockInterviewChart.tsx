@@ -3,6 +3,7 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, LabelList } from 'recharts';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function MockInterviewChart({ data }: { data: any }) {
     const totalCount = Object.values(data)?.reduce(
@@ -46,7 +47,9 @@ export function MockInterviewChart({ data }: { data: any }) {
                 : '0%',
         }, // Orange
     ];
-
+    function comingsSoon() {
+        toast.warning('Coming soon');
+    }
     return (
         <div className='bg-foreground rounded-xl mb-2'>
             <div className='flex justify-between items-center mb-2 pb-2 border-b border-border'>
@@ -58,6 +61,7 @@ export function MockInterviewChart({ data }: { data: any }) {
                 </div>
                 <Link
                     href='#'
+                    onClick={comingsSoon}
                     className='text-sm text-primary-white bg-primary-light hover:bg-primary hover:text-white font-medium flex items-center gap-0.5 py-2 px-2.5 rounded-lg'
                 >
                     View More
