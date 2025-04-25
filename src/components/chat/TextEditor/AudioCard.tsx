@@ -97,12 +97,13 @@ const AudioCard = ({ audioUrl }: AudioCardProps) => {
 
     return (
         <div className='w-full lg:min-w-[200px]'>
-            <div className='flex items-center p-2 rounded-full bg-white'>
+            <div className='flex items-center p-2 rounded-full bg-foreground'>
                 <Button
                     onClick={handlePlayPause}
-                    className='mr-3 h-7 w-7 rounded-full disabled:opacity-50'
+                    className='mr-3 h-9 w-9 min-h-9 min-w-9 rounded-full disabled:opacity-50'
                     aria-label={isPlaying ? 'Pause' : 'Play'}
                     disabled={isLoading || !audioUrl}
+                    size={'icon'}
                 >
                     {isLoading ? (
                         <Loader2

@@ -11,6 +11,7 @@ import ChatConversationModal from './ChatConversationModal';
 import MinimizedChatTabs from './MinimizedChatTabs';
 import { useGetChatsQuery } from '@/redux/api/chats/chatApi';
 import { useAppSelector } from '@/redux/hooks';
+import { toast } from 'sonner';
 
 // Loading fallback
 const LoadingFallback = () => (
@@ -20,8 +21,16 @@ const LoadingFallback = () => (
 );
 
 const ChatPopup = () => {
-    const { isListOpen, openModals, openListModal, closeListModal } =
-        useChatModals();
+    const {
+        isListOpen,
+        openModals,
+        openListModal,
+        closeListModal,
+        maxChatLimitReached,
+        maxTotalLimitReached,
+        resetMaxLimitWarning,
+        resetTotalLimitWarning,
+    } = useChatModals();
     // const { data: chats = [], isLoading: isChatsLoading } = useGetChatsQuery();
     const { chats = [] } = useAppSelector((state) => state.chat);
     const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
@@ -44,6 +53,41 @@ const ChatPopup = () => {
         setUnReadCount(unreadCount);
         setHasUnreadMessages(unreadCount > 0);
     }, [chats]);
+    // Add this effect to show toast when max limit is reached
+    console.log({ maxChatLimitReached });
+
+    // Handle visible modal limit reached
+    useEffect(() => {
+        if (maxChatLimitReached && !maxTotalLimitReached) {
+            toast.error(
+                'You can have maximum 4 visible chats at once. Please close or minimize some chats to open new ones.',
+                {
+                    duration: 5000,
+                },
+            );
+
+            // Reset the flag after showing the toast
+            resetMaxLimitWarning();
+        }
+    }, [maxChatLimitReached, maxTotalLimitReached, resetMaxLimitWarning]);
+
+    // Handle total modal limit reached
+    useEffect(() => {
+        if (maxTotalLimitReached) {
+            toast.error(
+                'You can have maximum 10 chats open at once (including minimized). Please close some chats to open new ones.',
+                {
+                    duration: 5000,
+                },
+            );
+
+            // Reset the flag after showing the toast
+            resetTotalLimitWarning();
+
+            // Also reset the regular limit flag since we're handling this case
+            resetMaxLimitWarning();
+        }
+    }, [maxTotalLimitReached, resetTotalLimitWarning, resetMaxLimitWarning]);
 
     // Toggle chat list
     const toggleChatList = useCallback(() => {
@@ -111,7 +155,7 @@ const ChatPopup = () => {
             >
                 <Button
                     onClick={toggleChatList}
-                    className='rounded-full h-12 w-12 p-2 shadow-[0px_2px_20px_0px_rgba(0,0,0,0.50)] relative hover:bg-primary hover:text-pure-white'
+                    className='rounded-full h-12 w-12 min-h-12 size-12 p-2 shadow-[0px_2px_20px_0px_rgba(0,0,0,0.50)] relative hover:bg-primary hover:text-pure-white'
                 >
                     <MessageCircleMore className='h-6 w-6' />
 

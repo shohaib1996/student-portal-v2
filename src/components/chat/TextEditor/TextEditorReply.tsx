@@ -705,18 +705,19 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                                                     <DropdownMenuTrigger
                                                         asChild
                                                     >
-                                                        <GlobalTooltip tooltip='Send attachment'>
-                                                            <button className='p-2 rounded-full hover:bg-muted transition-colors'>
+                                                        <button className='p-2 rounded-full hover:bg-muted transition-colors'>
+                                                            <GlobalTooltip tooltip='Send attachment'>
                                                                 <Paperclip className='h-5 w-5 text-muted-foreground' />
-                                                            </button>
-                                                        </GlobalTooltip>
+                                                            </GlobalTooltip>
+                                                        </button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent
                                                         side='top'
                                                         align='start'
+                                                        className='bg-background'
                                                     >
                                                         <DropdownMenuItem
-                                                            className='flex items-center gap-2 cursor-pointer'
+                                                            className='flex items-center gap-2 cursor-pointer hover:bg-foreground'
                                                             onClick={
                                                                 handleMenuItemClick
                                                             }
@@ -732,18 +733,18 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
 
                                         {text?.length === 0 &&
                                         uploadFiles?.length === 0 ? (
-                                            <GlobalTooltip tooltip='Send voice recording'>
-                                                <button
-                                                    className='p-2 rounded-full hover:bg-muted transition-colors'
-                                                    onClick={() =>
-                                                        setIsVoiceRecordVisible(
-                                                            true,
-                                                        )
-                                                    }
-                                                >
+                                            <button
+                                                className='p-2 rounded-full hover:bg-muted transition-colors'
+                                                onClick={() =>
+                                                    setIsVoiceRecordVisible(
+                                                        true,
+                                                    )
+                                                }
+                                            >
+                                                <GlobalTooltip tooltip='Send voice recording'>
                                                     <Mic className='h-5 w-5 text-muted-foreground' />
-                                                </button>
-                                            </GlobalTooltip>
+                                                </GlobalTooltip>
+                                            </button>
                                         ) : null}
                                     </div>
 

@@ -53,8 +53,9 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
             setLoading(false);
         }
     }, [isOpen, chats]);
-
+    console.log({ chats });
     useEffect(() => {
+        const allChats = chats.filter((chat) => chat?.myData?.role === 'owner');
         if (searchQuery.trim() === '') {
             setFilteredChats(chats);
         } else {
@@ -268,10 +269,16 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
             <div className='flex items-center gap-1 p-2 bg-foreground rounded-md'>
                 <div className='flex-1 min-w-0'>
                     <p className='text-sm line-clamp-3 overflow-hidden'>
-                        {message.text}
+                        {renderPlainText({
+                            text: message.text || '',
+                            textSize: 'text-sm',
+                            textColor: 'text-gray',
+                            lineClamp: 3,
+                            width: 'w-full',
+                        })}
                     </p>
                 </div>
-                <button
+                {/* <button
                     className='bg-danger p-1 rounded-full flex-shrink-0'
                     onClick={(e) => {
                         e.stopPropagation();
@@ -279,7 +286,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                     }}
                 >
                     <X size={16} className='text-pure-white' />
-                </button>
+                </button> */}
             </div>
         );
     };
@@ -392,11 +399,15 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                             );
                             const online =
                                 !chat.isChannel && isUserOnline(chat);
-
+                            const isReadOnly =
+                                chat.isChannel &&
+                                chat?.isReadOnly === true &&
+                                chat.myData?.role !== 'owner' &&
+                                chat.myData?.role !== 'admin';
                             return (
                                 <div
                                     key={chat._id}
-                                    className='flex items-center justify-between p-2 hover:bg-primary-light border-b pb-2 cursor-pointer'
+                                    className={`flex items-center justify-between p-2 hover:bg-primary-light border-b pb-2  ${isReadOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                                     onClick={() => handleSelectChat(chat)}
                                 >
                                     <div className='flex items-center gap-2'>
@@ -439,10 +450,15 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                                                         Channel
                                                     </span>
                                                 )}
+                                                {isReadOnly && (
+                                                    <span className='text-xs text-danger bg-red-500/20 px-1 rounded'>
+                                                        Read only
+                                                    </span>
+                                                )}
                                             </div>
                                             {activeStatus && !online && (
                                                 <div
-                                                    className={`text-xs ${activeStatus.isActive ? 'text-green-600' : 'text-gray-500'}`}
+                                                    className={`text-xs ${activeStatus.isActive ? 'text-green-600' : 'text-gray'}`}
                                                 >
                                                     {activeStatus.text}
                                                 </div>
@@ -455,6 +471,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                                         </div>
                                     </div>
                                     <Checkbox
+                                        disabled={isReadOnly}
                                         checked={isSelected}
                                         onClick={(e) => {
                                             e.stopPropagation();

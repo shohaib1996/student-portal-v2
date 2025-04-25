@@ -217,21 +217,23 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
                     {recordedAudio &&
                         !isRecording &&
                         (isPlaying ? (
-                            <button
+                            <Button
                                 onClick={handlePauseRecording}
-                                className='text-primary transition-colors'
+                                className='text-primary transition-colors bg-transparent hover:bg-transparent'
+                                tooltip='Pause audio'
                             >
-                                <Pause size={17} />
+                                <Pause size={20} />
                                 <span className='sr-only'>Pause</span>
-                            </button>
+                            </Button>
                         ) : (
-                            <button
+                            <Button
                                 onClick={handlePlayRecording}
-                                className='text-primary transition-colors'
+                                className='text-primary transition-colors bg-transparent hover:bg-transparent'
+                                tooltip='Play audio'
                             >
-                                <Play size={17} />
+                                <Play size={20} />
                                 <span className='sr-only'>Play</span>
-                            </button>
+                            </Button>
                         ))}
                     {recordedAudio &&
                         !isRecording &&
@@ -249,7 +251,9 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
                     {!isRecording && recordedAudio && (
                         <Button
                             onClick={() => setIsRecorderVisible(false)}
+                            variant={'destructive'}
                             className='text-danger bg-red-500/10 rounded-full h-9 w-9 transition-colors'
+                            tooltip='Delete recording'
                         >
                             <Trash size={17} />
                             <span className='sr-only'>Delete recording</span>
@@ -263,18 +267,19 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
             <div className='flex gap-2.5 items-center justify-between'>
                 {!isRecording ? (
                     <>
-                        <button
-                            className='p-2 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors'
+                        <Button
+                            className='h-10 min-h-10 w-10 min-w-10 bg-primary-light rounded-full border border-forground-border hover:bg-foreground  transition-colors'
                             onClick={handleStartRecording}
+                            tooltip='Start recording'
                         >
-                            <Mic size={20} className='text-gray-600' />
+                            <Mic size={20} className='text-gray' />
                             <span className='sr-only'>Start recording</span>
-                        </button>
+                        </Button>
 
                         {recordedAudio &&
                             !isRecording &&
                             (isSendingAudio ? (
-                                <div className='p-2 rounded-full h-10 w-10 min-w-10 bg-primary'>
+                                <div className=' rounded-full h-10 min-h-10 w-10 min-w-10 bg-primary'>
                                     <Loader
                                         size={20}
                                         className='text-white animate-spin'
@@ -282,8 +287,9 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
                                 </div>
                             ) : (
                                 <Button
-                                    className='rounded-full h-10 w-10 min-w-10'
+                                    className='rounded-full h-10 min-h-10 w-10 min-w-10'
                                     onClick={sendRecording}
+                                    tooltip='Send Recording'
                                 >
                                     <Send size={16} />
                                     <span className='sr-only'>
@@ -295,8 +301,9 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
                 ) : (
                     <Button
                         variant={'destructive'}
-                        className='rounded-full bg-red-500/10 hover:bg-red-500/20 text-danger h-10 w-10 min-w-10'
+                        className='rounded-full bg-red-500/10 hover:bg-red-500/20 text-danger min-h-10 h-10 w-10 min-w-10'
                         onClick={handleStopRecording}
+                        tooltip='Stop recording'
                     >
                         <CircleStop size={22} />
                         <span className='sr-only'>Stop recording</span>

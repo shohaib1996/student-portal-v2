@@ -113,7 +113,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
     );
     const [searchQuery, setSearchQuery] = useState('');
     const [records, setRecords] = useState<Chat[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [displayCount, setDisplayCount] = useState<number>(20);
     const [active, setActive] = useState('chats');
@@ -256,12 +256,13 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
         if (active !== 'search' && searchQuery) {
             setSearchQuery('');
         }
-
         setDisplayCount(10);
         setHasMore(true);
-        setLoading(true);
 
-        const timer = setTimeout(() => {
+        // Only set loading if we have no chats data yet
+        if (chats.length === 0) {
+            setLoading(true);
+        } else {
             const filteredData = getFilteredData();
             const initialRecords = sortByLatestMessage(filteredData).slice(
                 0,
@@ -270,30 +271,20 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
             setRecords(initialRecords);
             setHasMore(initialRecords.length < filteredData.length);
             setLoading(false);
-        }, 300);
-
-        return () => clearTimeout(timer);
+        }
     }, [active]);
 
     // 2. Effect for handling search query changes
     useEffect(() => {
-        if (searchQuery !== '') {
-            setLoading(true);
-
-            const timer = setTimeout(() => {
-                const filteredData = getFilteredData();
-                const initialRecords = sortByLatestMessage(filteredData).slice(
-                    0,
-                    displayCount,
-                );
-                setRecords(initialRecords);
-                setHasMore(initialRecords.length < filteredData.length);
-                setLoading(false);
-            }, 300);
-
-            return () => clearTimeout(timer);
-        }
-    }, [searchQuery]);
+        const filteredData = getFilteredData();
+        const initialRecords = sortByLatestMessage(filteredData).slice(
+            0,
+            displayCount,
+        );
+        setRecords(initialRecords);
+        setHasMore(initialRecords.length < filteredData.length);
+        setLoading(false);
+    }, [searchQuery, getFilteredData, displayCount]);
 
     // 3. Effect for real-time updates from Redux
     useEffect(() => {
@@ -320,8 +311,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
 
     // 4. Effect for handling display count changes
     useEffect(() => {
-        if (displayCount > 10) {
-            // Only run if display count changed (not on initial load)
+        if (chats.length > 0) {
             const filteredData = getFilteredData();
             const updatedRecords = sortByLatestMessage(filteredData).slice(
                 0,
@@ -329,8 +319,9 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
             );
             setRecords(updatedRecords);
             setHasMore(updatedRecords.length < filteredData.length);
+            setLoading(false);
         }
-    }, [displayCount, getFilteredData]);
+    }, [chats, getFilteredData, displayCount]);
 
     // Handle search input change
     const handleChangeSearch = useCallback(
@@ -444,14 +435,14 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                 </DropdownMenuLabel>
                                 <DropdownMenuItem
                                     onClick={() => handleNavItemClick('search')}
-                                    className='flex items-center gap-2'
+                                    className='flex items-center gap-2 hover:bg-primary-light hover:border-primary border border-transparent h-8 bg-background mb-1'
                                 >
                                     <PenSquare className='h-4 w-4' />
                                     <span>New Chat</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() => setCreateCrowdOpen(true)}
-                                    className='flex items-center gap-2'
+                                    className='flex items-center gap-2 hover:bg-primary-light hover:border-primary border border-transparent h-8 bg-background'
                                 >
                                     <UsersIcon className='h-4 w-4' />
                                     <span>New Crowd</span>
@@ -839,7 +830,12 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                                       0 ? (
                                                         <span
                                                             className={` ${
-                                                                hasUnread
+                                                                hasUnread &&
+                                                                chat
+                                                                    ?.latestMessage
+                                                                    ?.sender
+                                                                    ?._id !==
+                                                                    user?._id
                                                                     ? 'text-black'
                                                                     : 'text-gray'
                                                             }`}
@@ -989,8 +985,13 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                                                         textSize:
                                                                             'text-xs',
                                                                         textColor:
-                                                                            hasUnread
-                                                                                ? 'text-black'
+                                                                            hasUnread &&
+                                                                            chat
+                                                                                ?.latestMessage
+                                                                                ?.sender
+                                                                                ?._id !==
+                                                                                user?._id
+                                                                                ? 'text-black font-semibold'
                                                                                 : 'text-gray',
                                                                         truncate:
                                                                             true,
@@ -1011,7 +1012,7 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                                 )}
 
                                                 {/* Bell icon (muted or not) */}
-                                                {isMuted && (
+                                                {isNotification && (
                                                     <BellOff className='h-4 w-4 text-gray-400' />
                                                 )}
 

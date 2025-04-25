@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ChatFooter, { type ChatData } from '../ChatFooter';
 import Cookies from 'js-cookie';
-import { Loader2, Pin } from 'lucide-react';
+import { Loader2, Pin, SearchIcon } from 'lucide-react';
 import {
     markRead,
     pushHistoryMessages,
@@ -31,6 +31,8 @@ import {
 import ForwardMessageModal from '../Message/ForwardMessageModal';
 import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
+import EditMessageModal from '../Message/EditMessageModal';
+import Thread from '../thread';
 
 interface ChatMessage {
     _id: string;
@@ -83,6 +85,7 @@ interface PopUpChatBodyProps {
     reloading: boolean;
     searchQuery?: string;
     chatId?: string;
+    setFinalQuery?: () => void;
 }
 
 interface SentCallbackObject {
@@ -139,6 +142,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
     reloading,
     searchQuery,
     chatId,
+    setFinalQuery,
 }) => {
     const params = useParams();
     const dispatch = useDispatch();
@@ -151,7 +155,7 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
         chatMessages,
         chats,
         onlineUsers,
-        currentPage: reduxCurrentPage,
+        currentPage,
         fetchedMore: reduxFetchedMore,
         drafts,
         messageCounts,
@@ -670,22 +674,26 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
     const bottomTextRef = useRef<any | null>(null);
 
     const hasPinnedMessages =
-        messages.filter((message) => message.pinnedBy).length > 0;
+        messages.filter(
+            (message) => message.pinnedBy && message?.type !== 'delete',
+        ).length > 0;
 
     return (
         <div className='flex flex-col h-full'>
             {/* Pinned Messages Section */}
             {!showPinnedMessages && hasPinnedMessages && (
                 <div
-                    className='w-full shadow-lg bg-foreground border shadow-ms cursor-pointer'
+                    className='w-full shadow-lg bg-background border shadow-ms cursor-pointer'
                     onClick={() => setShowPinnedMessages(true)}
                 >
                     <div className='container mx-auto flex items-center p-2'>
                         <div className='flex items-center gap-2 w-full'>
-                            <span className='text-primary flex items-center justify-center text-xs font-medium'>
+                            <span className='text-primary-white flex items-center justify-center text-xs font-medium'>
                                 {hasPinnedMessages
                                     ? messages.filter(
-                                          (message) => message.pinnedBy,
+                                          (message) =>
+                                              message.pinnedBy &&
+                                              message?.type !== 'delete',
                                       ).length
                                     : 0}
                             </span>
@@ -854,7 +862,11 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                     ) : showPinnedMessages ? (
                         <div className='p-4'>
                             {messages
-                                .filter((message) => message.pinnedBy)
+                                .filter(
+                                    (message) =>
+                                        message.pinnedBy &&
+                                        message?.type !== 'delete',
+                                )
                                 .map((message) => (
                                     <Message
                                         isPopUp
@@ -894,7 +906,6 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                     <div className='w-full h-[2px] bg-border rounded-xl'></div>
                                 </div>
                             )}
-
                             {/* Chat start indicator - shown when at the beginning of chat history */}
                             {messages.length > 0 && !hasMore && (
                                 <div className='p-2.5 text-center flex flex-col items-center gap-2.5'>
@@ -949,16 +960,38 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                     )}
                                 </div>
                             )}
-
                             {/* Empty state - shown when no messages */}
-                            {messages.length === 0 && !initialLoading && (
-                                <div className='text-center mt-15 pb-[25vh]'>
-                                    <h3 className='font-bold text-dark-gray'>
-                                        No messages found!
+                            {searchQuery &&
+                            messages.length === 0 &&
+                            !initialLoading ? (
+                                <div className='flex flex-col items-center justify-center h-[50vh] p-4 text-center'>
+                                    <SearchIcon className='h-12 w-12 text-muted-foreground mb-2' />
+                                    <h3 className='text-lg font-medium'>
+                                        No messages found
                                     </h3>
+                                    <p className='text-muted-foreground'>
+                                        {`We couldn't find any messages matching "${searchQuery}"`}
+                                    </p>
+                                    <Button
+                                        variant='outline'
+                                        className='mt-4'
+                                        onClick={() => {
+                                            setFinalQuery?.();
+                                        }}
+                                    >
+                                        Clear search
+                                    </Button>
                                 </div>
+                            ) : (
+                                messages.length === 0 &&
+                                !initialLoading && (
+                                    <div className='text-center mt-15 pb-[25vh]'>
+                                        <h3 className='font-bold text-dark-gray'>
+                                            No messages found!
+                                        </h3>
+                                    </div>
+                                )
                             )}
-
                             {/* Error message */}
                             {error ? (
                                 <Alert variant='destructive'>
@@ -1057,7 +1090,6 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                     )}
                                 </>
                             )}
-
                             {/* AI message streaming */}
                             {aiIncomingMessage && (
                                 <Message
@@ -1080,7 +1112,6 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                                     setReload={setReload}
                                 />
                             )}
-
                             {/* Invisible element for scrolling to bottom */}
                             <div
                                 ref={bottomRef}
@@ -1106,6 +1137,32 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                         setIsAttachment={setIsAttachmentVisible}
                     />
                 </div>
+            )}
+            {showPinnedMessages && (
+                <div className='w-full h-14 items-center justify-center flex border-t mt-1 bg-background'>
+                    <Button
+                        onClick={() => setShowPinnedMessages(false)}
+                        className='w-fit h-10 px-10'
+                        variant={'destructive'}
+                    >
+                        Exit Pin Mode
+                    </Button>
+                </div>
+            )}
+            {threadMessage && (
+                <Thread
+                    chat={chat}
+                    handleClose={() => setThreadMessage(null)}
+                    message={threadMessage}
+                    setEditMessage={setEditMessage}
+                />
+            )}
+            {editMessage && chat && (
+                <EditMessageModal
+                    chat={chat}
+                    selectedMessage={editMessage}
+                    handleCloseEdit={() => setEditMessage(null)}
+                />
             )}
 
             {forwardMessage && (

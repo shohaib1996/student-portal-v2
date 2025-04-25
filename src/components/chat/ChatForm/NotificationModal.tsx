@@ -285,19 +285,21 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
             bgColor='bg-background'
             allowFullScreen={false}
             buttons={
-                <Button
-                    onClick={handleSave}
-                    disabled={isUpdating || !isFormValid}
-                    className='text-lg'
-                    type='button'
-                >
-                    {isUpdating ? (
-                        <Loader2 className='h-4 w-4 animate-spin mr-2' />
-                    ) : (
-                        <SaveIcon size={18} className='mr-2' />
-                    )}
-                    Save
-                </Button>
+                member?.notification?.isOn && (
+                    <Button
+                        onClick={handleSave}
+                        disabled={isUpdating || !isFormValid}
+                        className='text-lg'
+                        type='button'
+                    >
+                        {isUpdating ? (
+                            <Loader2 className='h-4 w-4 animate-spin' />
+                        ) : (
+                            <SaveIcon size={18} />
+                        )}
+                        Save
+                    </Button>
+                )
             }
         >
             <div className=''>

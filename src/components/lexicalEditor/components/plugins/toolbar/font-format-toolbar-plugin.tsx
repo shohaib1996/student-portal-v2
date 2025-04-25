@@ -53,7 +53,7 @@ export function FontFormatToolbarPlugin({
         <Toggle
             aria-label='Toggle bold'
             variant='outline'
-            className='bg-foreground text-dark-black'
+            className={` border border-forground-border ${!isSelected ? '!bg-foreground !text-dark-black' : '!bg-primary-light text-primary-white border-primary'}`}
             size='sm'
             defaultPressed={isSelected}
             pressed={isSelected}
@@ -65,7 +65,9 @@ export function FontFormatToolbarPlugin({
                 );
             }}
         >
-            <Icon className='h-4 w-4' />
+            <Icon
+                className={`h-4 w-4 ${!isSelected ? '!text-dark-black' : '!text-primary-white'}`}
+            />
         </Toggle>
     );
 }

@@ -248,6 +248,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                         isOpen: !prev.isOpen,
                                     }))
                                 }
+                                tooltip='Search in conversation'
                             >
                                 <Search className='h-4 w-4' />
                             </Button>
@@ -258,6 +259,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                 size='icon'
                                 className='border h-8 w-8 bg-background'
                                 onClick={() => router.push(`/chat/${chatId}`)}
+                                tooltip='Maximize chat'
                             >
                                 <Maximize2 className='h-4 w-4' />
                             </Button>
@@ -269,13 +271,14 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                         variant='secondary'
                                         size='icon'
                                         className='border h-8 w-8 bg-background'
+                                        tooltip='More options'
                                     >
                                         <MoreVertical className='h-4 w-4' />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                     align='end'
-                                    className='min-w-[180px] bg-background'
+                                    className='min-w-[180px] bg-foreground '
                                 >
                                     {/* Calendar option */}
                                     {/* <EventPopoverTrigger className='w-full'>
@@ -287,7 +290,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
 
                                     {/* Notification option */}
                                     <DropdownMenuItem
-                                        className='flex items-center justify-between gap-2 cursor-pointer hover:bg-foreground border border-transparent hover:border-forground-border'
+                                        className='flex items-center justify-between gap-2 cursor-pointer bg-background hover:bg-primary-light h-8 mb-1 border border-transparent hover:border-primary'
                                         onSelect={(e) => e.preventDefault()}
                                     >
                                         <div className='flex items-center gap-2'>
@@ -310,7 +313,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
 
                                     {/* Pin/Favorite option */}
                                     <DropdownMenuItem
-                                        className='flex items-center justify-between gap-2 cursor-pointer hover:bg-foreground border border-transparent hover:border-forground-border'
+                                        className='flex items-center justify-between gap-2 cursor-pointer bg-background hover:bg-primary-light h-8 border border-transparent hover:border-primary'
                                         onSelect={(e) => e.preventDefault()}
                                     >
                                         <div className='flex items-center gap-2'>
@@ -409,6 +412,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
                                     searchQuery={finalQuery}
                                     isPopup={true}
                                     chatId={chatId}
+                                    setFinalQuery={() => resetSearch()}
                                 />
                             </Suspense>
                         )}

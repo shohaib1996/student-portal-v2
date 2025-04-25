@@ -631,15 +631,16 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                                     <DropdownMenuTrigger
                                                         asChild
                                                     >
-                                                        <GlobalTooltip tooltip='Send attachment'>
-                                                            <button className='p-2 rounded-full hover:bg-muted transition-colors'>
+                                                        <button className='p-2 rounded-full hover:bg-muted transition-colors'>
+                                                            <GlobalTooltip tooltip='Send attachment'>
                                                                 <Paperclip className='h-5 w-5 text-muted-foreground' />
-                                                            </button>
-                                                        </GlobalTooltip>
+                                                            </GlobalTooltip>
+                                                        </button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent
                                                         side='top'
                                                         align='start'
+                                                        className='bg-background'
                                                     >
                                                         <DropdownMenuItem
                                                             className='flex items-center gap-2 cursor-pointer'

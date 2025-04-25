@@ -491,7 +491,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                 onClick={() =>
                                                     handleTabChange('search')
                                                 }
-                                                className='flex items-center gap-2 bg-background hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
+                                                className='flex items-center gap-2 bg-background hover:!bg-primary-light border border-transparent hover:border-primary cursor-pointer mb-1 !py-[2px]'
                                             >
                                                 <PenSquare className='h-4 w-4' />
                                                 <span>New Chat</span>
@@ -500,7 +500,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                 onClick={() =>
                                                     setCreateCrowdOpen(true)
                                                 }
-                                                className='flex items-center gap-2 bg-background hover:!bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1 !py-[2px]'
+                                                className='flex items-center gap-2 bg-background hover:!bg-primary-light border border-transparent hover:border-primary cursor-pointer mb-1 !py-[2px]'
                                             >
                                                 <UsersIcon className='h-4 w-4' />
                                                 <span>New Crowd</span>
@@ -1142,7 +1142,12 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                                                                                 textSize:
                                                                                                     'text-xs',
                                                                                                 textColor:
-                                                                                                    hasUnread
+                                                                                                    hasUnread &&
+                                                                                                    chat
+                                                                                                        ?.latestMessage
+                                                                                                        ?.sender
+                                                                                                        ?._id !==
+                                                                                                        user?._id
                                                                                                         ? 'text-black'
                                                                                                         : 'text-gray',
                                                                                                 truncate:

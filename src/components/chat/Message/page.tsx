@@ -104,8 +104,22 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     const dispatch = useDispatch();
 
     const handleDeleteMessage = (msg: any) => {
-        setDeleteMessage(msg);
-        setChatDelOpened(true);
+        if (msg?.pinnedBy) {
+            toast.info(
+                'This message is pinned. Would you like to unpin it before deleting?',
+                {
+                    action: {
+                        label: 'Unpin',
+                        onClick: () => handlePin(msg),
+                    },
+                    duration: 5000,
+                },
+            );
+        } else {
+            setDeleteMessage(msg);
+            setChatDelOpened(true);
+            console.log({ msg });
+        }
     };
     // Add this useEffect to fetch initial replies when the message loads
     useEffect(() => {
@@ -329,7 +343,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
             toast.info('Coming soon!');
         }
     };
-
+    const forwardedBy = message?.forwardedFrom;
     return (
         <>
             {message?.type === 'activity' ? (
@@ -350,30 +364,58 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                         className={`flex max-w-full ${!isPopUp && 'lg:max-w-[80%]'}`}
                     >
                         <div className='flex-shrink-0 mr-2'>
-                            <div
-                                className='cursor-pointer'
-                                onClick={() =>
-                                    handleOpenNewChat(
-                                        message?.sender?._id || '',
-                                    )
-                                }
-                            >
-                                <Image
-                                    src={
-                                        message.sender?.type === 'bot'
-                                            ? '/ai_bot.png'
-                                            : message?.sender?.profilePicture ||
-                                              '/avatar.png'
+                            {forwardedBy ? (
+                                <div
+                                    className='cursor-pointer'
+                                    onClick={() =>
+                                        handleOpenNewChat(
+                                            forwardedBy?._id || '',
+                                        )
                                     }
-                                    alt={
-                                        message?.sender?.firstName ||
-                                        'User images'
+                                >
+                                    <Image
+                                        src={
+                                            message.sender?.type === 'bot'
+                                                ? '/ai_bot.png'
+                                                : forwardedBy?.profilePicture ||
+                                                  '/avatar.png'
+                                        }
+                                        alt={
+                                            forwardedBy?.firstName ||
+                                            'User images'
+                                        }
+                                        width={30}
+                                        height={30}
+                                        className='rounded-full h-8 w-8 object-cover'
+                                    />
+                                </div>
+                            ) : (
+                                <div
+                                    className='cursor-pointer'
+                                    onClick={() =>
+                                        handleOpenNewChat(
+                                            message?.sender?._id || '',
+                                        )
                                     }
-                                    width={30}
-                                    height={30}
-                                    className='rounded-full h-8 w-8 object-cover'
-                                />
-                            </div>
+                                >
+                                    <Image
+                                        src={
+                                            message.sender?.type === 'bot'
+                                                ? '/ai_bot.png'
+                                                : message?.sender
+                                                      ?.profilePicture ||
+                                                  '/avatar.png'
+                                        }
+                                        alt={
+                                            message?.sender?.firstName ||
+                                            'User images'
+                                        }
+                                        width={30}
+                                        height={30}
+                                        className='rounded-full h-8 w-8 object-cover'
+                                    />
+                                </div>
+                            )}
                         </div>
                         <div className='flex flex-col w-full'>
                             <div className='flex flex-col w-full'>
@@ -396,8 +438,12 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                             className='font-medium text-sm cursor-pointer mb-1 w-full flex flex-row gap-1 items-center'
                                         >
                                             <p className='truncate'>
-                                                {message.sender?.fullName ||
-                                                    'Bootcamps Hub user'}{' '}
+                                                {forwardedBy
+                                                    ? forwardedBy?.fullName ||
+                                                      'Bootcamps Hub user'
+                                                    : message.sender
+                                                          ?.fullName ||
+                                                      'Bootcamps Hub user'}{' '}
                                             </p>
                                             <span
                                                 className={`text-xs ml-2 front-normal text-nowrap ${!hideAlign && !isThread && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}

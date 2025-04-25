@@ -356,7 +356,7 @@ const Inbox: React.FC<InboxProps> = ({
                                 >
                                     <DropdownMenuItem
                                         onClick={toggleSearch}
-                                        className='bg-foreground py-[2px] hover:bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1'
+                                        className='bg-foreground py-[2px] hover:!bg-primary-light border border-transparent hover:border-primary cursor-pointer mb-1'
                                     >
                                         <Search className='h-4 w-4 ' />
                                         Search
@@ -366,7 +366,7 @@ const Inbox: React.FC<InboxProps> = ({
                                         <>
                                             <DropdownMenuItem asChild>
                                                 <EventPopoverTrigger className='p-0'>
-                                                    <div className='flex items-center w-full gap-2 bg-foreground py-[2px] hover:bg-primary-light border border-transparent hover:border-forground-border cursor-pointer rounded-sm px-2 mb-1'>
+                                                    <div className='flex items-center w-full gap-2 bg-foreground py-[2px] hover:!bg-primary-light border border-transparent hover:border-primary cursor-pointer rounded-sm px-2 mb-1'>
                                                         <Calendar className='h-4 w-4 ' />
                                                         Create Event
                                                     </div>
@@ -393,7 +393,7 @@ const Inbox: React.FC<InboxProps> = ({
 
                                     <DropdownMenuItem
                                         onClick={() => handleNoti()}
-                                        className='bg-foreground py-[2px] hover:bg-primary-light border border-transparent hover:border-forground-border cursor-pointer mb-1'
+                                        className='bg-foreground py-[2px] hover:!bg-primary-light border border-transparent hover:border-primary cursor-pointer mb-1'
                                     >
                                         {chat?.myData?.notification?.isOn ? (
                                             <>
@@ -409,7 +409,7 @@ const Inbox: React.FC<InboxProps> = ({
                                     </DropdownMenuItem>
 
                                     <DropdownMenuItem
-                                        className='bg-foreground py-[2px] hover:bg-primary-light border border-transparent hover:border-forground-border cursor-pointer'
+                                        className='bg-foreground py-[2px] hover:!bg-primary-light border border-transparent hover:border-primary cursor-pointer'
                                         onClick={() =>
                                             handleFavourite(
                                                 !chat?.myData?.isFavourite,

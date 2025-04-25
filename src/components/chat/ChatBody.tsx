@@ -124,7 +124,6 @@ const ChatBody: React.FC<ChatBodyProps> = ({
 
     const [hasMore, setHasMore] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
-    const [isBackground, setIsBackground] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [limit, setLimit] = useState<number>(15);
     const [forwardMessage, setForwardMessage] = useState<ChatMessage | null>(
@@ -418,21 +417,26 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     (message) => message.pinnedBy && message?.type !== 'delete',
                 ).length > 0 && (
                     <div
-                        className='w-full shadow-lg bg-foreground border shadow-ms cursor-pointer'
+                        className='w-full shadow-lg bg-background border shadow-ms cursor-pointer'
                         onClick={() => setShowPinnedMessages(true)}
                     >
                         <div className='container mx-auto flex items-center p-2'>
                             <div className='flex items-center gap-2 w-full'>
-                                <span className=' text-primary flex items-center justify-center text-xs font-medium'>
+                                <span className=' text-primary-white flex items-center justify-center text-xs font-medium'>
                                     {
                                         messages.filter(
-                                            (message) => message.pinnedBy,
+                                            (message) =>
+                                                message.pinnedBy &&
+                                                message?.type !== 'delete',
                                         ).length
                                     }
                                 </span>
 
-                                {messages.filter((message) => message.pinnedBy)
-                                    .length > 0 && (
+                                {messages.filter(
+                                    (message) =>
+                                        message.pinnedBy &&
+                                        message?.type !== 'delete',
+                                ).length > 0 && (
                                     <>
                                         <Avatar className='h-6 w-6'>
                                             <AvatarImage
@@ -609,7 +613,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                         </div>
                     ) : (
                         <>
-                            {!isBackground && currentPage * 20 < count ? (
+                            {currentPage * 20 < count ? (
                                 <div className='w-full flex flex-row items-center gap-2 my-2'>
                                     <div className='w-full h-[2px] bg-border'></div>
                                     <div className='text-center'>
@@ -712,15 +716,13 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                                 )
                             )}
 
-                            {messages?.length === 0 &&
-                                !chat &&
-                                !isBackground && (
-                                    <div className='text-center mt-15 pb-[25vh]'>
-                                        <h3 className='font-bold text-dark-gray'>
-                                            No messages found!
-                                        </h3>
-                                    </div>
-                                )}
+                            {messages?.length === 0 && !chat && (
+                                <div className='text-center mt-15 pb-[25vh]'>
+                                    <h3 className='font-bold text-dark-gray'>
+                                        No messages found!
+                                    </h3>
+                                </div>
+                            )}
 
                             {error && !selectedChat?.isArchived ? (
                                 <Alert variant='destructive'>
@@ -861,7 +863,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                     />
                 )}
             {showPinnedMessages && (
-                <div className='w-full items-center justify-center flex border-t pt-2 mt-2'>
+                <div className='w-full items-center justify-center flex border-t h-12 mt-2 bg-background'>
                     <Button
                         onClick={() => setShowPinnedMessages(false)}
                         className='w-fit px-10'
