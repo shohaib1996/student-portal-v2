@@ -187,25 +187,28 @@ const ProgramStats = ({
     return (
         <div className='grid grid-cols-1 lg:grid-cols-4 gap-4 my-2.5'>
             {bootcamp?.map((item: TBootcampResult, index: number) => (
-                <Card className='rounded-md shadow-none' key={index}>
-                    <CardContent className='px-2.5 py-3 flex items-center gap-4'>
-                        <div className='bg-primary-light p-3 rounded-full'>
-                            <Layers className='h-6 w-6 text-purple-600' />
-                        </div>
-                        <div>
-                            <p className='text-sm text-black'>
-                                {item?.category?.name + ' & Lessons' ||
-                                    'Category'}
-                            </p>
-                            <h4 className='text-xl font-semibold'>
-                                {item?.totalItems || 0}
-                            </h4>
-                            <p className='text-xs text-gray'>
-                                Full-time commitment
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
+                <Link key={index} href={`/program/${program?.slug}`}>
+                    {' '}
+                    <Card className='rounded-md shadow-none'>
+                        <CardContent className='px-2.5 py-3 flex items-center gap-4'>
+                            <div className='bg-primary-light p-3 rounded-full'>
+                                <Layers className='h-6 w-6 text-purple-600' />
+                            </div>
+                            <div>
+                                <p className='text-sm text-black'>
+                                    {item?.category?.name + ' & Lessons' ||
+                                        'Category'}
+                                </p>
+                                <h4 className='text-xl font-semibold'>
+                                    {item?.totalItems || 0}
+                                </h4>
+                                <p className='text-xs text-gray'>
+                                    Full-time commitment
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </Link>
             ))}
 
             {/* <Card className='rounded-md shadow-none'>

@@ -35,8 +35,11 @@ export default function ProgramDetailsComp({ slug }: { slug: string }) {
     // Fetch program and course data
     const { data: myPrograms, isLoading: isProgramsLoading } =
         useMyProgramQuery({});
-    const { data: courseContent, isLoading: isCourseContentLoading } =
-        useCourseContentQuery({ slug });
+    const {
+        data: courseContent,
+        isLoading: isCourseContentLoading,
+        isFetching,
+    } = useCourseContentQuery({ slug });
 
     // Use the single API call with filter parameters
     const {

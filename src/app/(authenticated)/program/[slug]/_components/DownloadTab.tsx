@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -6,19 +8,23 @@ import {
     Eye,
     FileText,
     FileX,
-    Image,
+    ImageIcon,
     Search,
     SlidersHorizontal,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 
 const DownloadTab = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedFileType, setSelectedFileType] = useState<string | null>(
         null,
     );
-    const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 
     const programMaterials = [
         {
@@ -131,7 +137,7 @@ const DownloadTab = () => {
             case 'image':
                 return (
                     <div className={`${baseClass} bg-pink-100`}>
-                        <Image
+                        <ImageIcon
                             {...iconProps}
                             className='h-5 w-5 text-pink-600'
                         />
@@ -171,7 +177,7 @@ const DownloadTab = () => {
     return (
         <div className='py-2'>
             {/* 🔍 Search and Filter */}
-            <div className='border border-border rounded-md'>
+            <div className='border border-border rounded-md '>
                 <div className='p-2 border-b border-border'>
                     <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3'>
                         <h3 className='text-lg font-medium text-black'>
@@ -189,80 +195,61 @@ const DownloadTab = () => {
                                     }
                                 />
                             </div>
-                            <div className='relative'>
-                                <Button
-                                    variant='primary_light'
-                                    onClick={() =>
-                                        setShowFilterDropdown(
-                                            !showFilterDropdown,
-                                        )
-                                    }
-                                >
-                                    <SlidersHorizontal
-                                        size={20}
-                                        className='text-primary-white font-bold'
-                                    />
-                                </Button>
-
-                                {showFilterDropdown && (
-                                    <>
-                                        <div
-                                            className='fixed inset-0 z-10'
-                                            onClick={() =>
-                                                setShowFilterDropdown(false)
-                                            }
-                                        ></div>
-                                        <div className='absolute right-0 top-full mt-1 z-20 bg-background rounded-md shadow-md border border-border w-[180px] py-1'>
-                                            <div className='px-3 py-2 border-b border-border flex justify-between items-center'>
-                                                <span className='text-sm font-medium text-dark-gray'>
-                                                    Filter by type
-                                                </span>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='sm'
-                                                    className='h-6 px-2 text-xs text-gray'
-                                                    onClick={() => {
-                                                        setSelectedFileType(
-                                                            null,
-                                                        );
-                                                        setShowFilterDropdown(
-                                                            false,
-                                                        );
-                                                    }}
-                                                >
-                                                    Clear
-                                                </Button>
-                                            </div>
-                                            <div className='max-h-[200px] overflow-y-auto py-1'>
-                                                {fileTypes.map((type) => (
-                                                    <button
-                                                        key={type}
-                                                        className={`w-full text-left px-3 py-2 text-sm ${
-                                                            selectedFileType ===
-                                                            type
-                                                                ? 'bg-primary-light text-white'
-                                                                : 'text-dark-gray hover:text-black hover:bg-foreground'
-                                                        }`}
-                                                        onClick={() => {
-                                                            setSelectedFileType(
-                                                                type,
-                                                            );
-                                                            setShowFilterDropdown(
-                                                                false,
-                                                            );
-                                                        }}
-                                                    >
-                                                        {type
-                                                            .charAt(0)
-                                                            .toUpperCase() +
-                                                            type.slice(1)}
-                                                    </button>
-                                                ))}
-                                            </div>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant='primary_light'
+                                        className='relative'
+                                    >
+                                        <SlidersHorizontal
+                                            size={20}
+                                            className='text-primary-white font-bold'
+                                        />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className='w-[180px] p-0'>
+                                    <div className='p-0'>
+                                        <div className='px-3 py-2 border-b border-border flex justify-between items-center'>
+                                            <span className='text-sm font-medium text-dark-gray'>
+                                                Filter by type
+                                            </span>
+                                            <Button
+                                                variant='outline'
+                                                size='sm'
+                                                className='h-6 px-0 text-xs text-gray'
+                                                onClick={() =>
+                                                    setSelectedFileType(null)
+                                                }
+                                            >
+                                                Clear
+                                            </Button>
                                         </div>
-                                    </>
-                                )}
-                            </div>
+                                        <div className='max-h-[200px] overflow-hidden py-1'>
+                                            {fileTypes.map((type) => (
+                                                <button
+                                                    key={type}
+                                                    className={`w-full text-left px-3 py-2 text-sm border-border-primary-light border  border-l-0 border-r-0 border-t-0 border-b ${
+                                                        selectedFileType ===
+                                                        type
+                                                            ? 'bg-primary text-pure-white '
+                                                            : 'text-dark-gray hover:text-black hover:bg-foreground'
+                                                    }`}
+                                                    onClick={() =>
+                                                        setSelectedFileType(
+                                                            type,
+                                                        )
+                                                    }
+                                                >
+                                                    {type
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                        type.slice(1)}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
                         </div>
                     </div>
                 </div>

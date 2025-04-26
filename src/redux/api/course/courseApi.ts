@@ -29,6 +29,7 @@ const courseApi = baseApi.injectEndpoints({
                 url: `course/contentv2/${data?.slug}`,
                 method: 'GET',
             }),
+            providesTags: [tagTypes.course],
         }),
         getCourseReview: build.query({
             query: (_id: string) => ({

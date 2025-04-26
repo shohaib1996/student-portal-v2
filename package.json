@@ -113,6 +113,7 @@
         "react-phone-input-2": "^2.15.1",
         "react-rating-stars-component": "^2.2.0",
         "react-redux": "^9.2.0",
+        "react-resizable-panels": "^2.1.8",
         "react-responsive": "^10.0.1",
         "react-swipeable": "^7.0.2",
         "react-syntax-highlighter": "^15.6.1",
