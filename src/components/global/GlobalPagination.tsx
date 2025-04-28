@@ -81,10 +81,11 @@ const GlobalPagination: React.FC<PaginationProps> = ({
             <div className='flex flex-col sm:flex-1 sm:flex-row md:flex-col lg:flex-row sm:items-center sm:justify-between justify-center items-center'>
                 <div className='flex items-center gap-4 justify-between sm:mb-0'>
                     <p className='text-sm text-black'>
-                        Showing {startRange}-{endRange} of{' '}
+                        Showing {startRange}-{endRange} (of{' '}
                         <span className='font-medium'>
                             {totalItems} entries
                         </span>
+                        )
                     </p>
 
                     <div className='flex items-center lg:hidden'>

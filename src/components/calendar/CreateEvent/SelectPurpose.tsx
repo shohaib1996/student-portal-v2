@@ -15,12 +15,10 @@ import { Badge } from '@/components/ui/badge';
 
 // Icons and SVGs
 import { File, Folder, Play, Brain, LinkIcon, ChevronDown } from 'lucide-react';
-import LecturesSvg from '@/components/svgs/common/LecturesSvg';
 import MemoizedLoadingIndicator from '@/components/svgs/common/LoadingIndicator';
 import MemoizedEmptyState from '@/components/svgs/common/EmptyState';
 
 // Navigation and Utils
-import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { buildContentTree } from '@/utils/tree-utils';
 
@@ -40,8 +38,8 @@ import {
 } from '@/redux/api/course/courseApi';
 import GlobalDropdown from '@/components/global/GlobalDropdown';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
+import Cookies from 'js-cookie';
 
 // Types definitions
 interface ContentDropDownProps {
@@ -62,17 +60,28 @@ const SelectPurpose: React.FC<ContentDropDownProps> = ({
     const { myEnrollments } = useAppSelector((state) => state.auth);
     const [open, setOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<TContent | null>(null);
+
+    const activeEnrollmentFromCookie = Cookies.get('activeEnrolment');
+    const activeProgram = myEnrollments?.find(
+        (en) => en._id === activeEnrollmentFromCookie,
+    );
     const {
         data: programsData,
         isLoading: courseProgramsLoading,
         refetch: refetchCourseContent,
-    } = useGetAllCourseProgramsQuery({
-        slug: 'first-program',
-        categoryID: selectedTab.value,
-    });
+    } = useGetAllCourseProgramsQuery(
+        {
+            slug: activeProgram?.program?.slug,
+            categoryID: selectedTab.value,
+        },
+        { skip: !activeProgram },
+    );
 
     const { data: courseContent, isLoading: isCourseContentLoading } =
-        useCourseContentQuery({ slug: 'first-program' });
+        useCourseContentQuery(
+            { slug: activeProgram?.program?.slug },
+            { skip: !activeProgram },
+        );
     const chaptersData: TContent[] = programsData?.chapters;
     const [expandedChapters, setExpandedChapters] = useState<Set<string>>(
         new Set(),

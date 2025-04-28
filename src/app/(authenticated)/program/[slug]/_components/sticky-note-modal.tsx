@@ -318,9 +318,9 @@ const StickyNoteModal = ({
                             />
                         </div>
 
-                        <div className='space-y-2 h-[calc(100%-160px)]'>
+                        <div className='space-y-2 '>
                             <Label>Note Content</Label>
-                            <div className='h-full border rounded-md'>
+                            <div className='h-[calc(100%-160px)] border rounded-md'>
                                 <GlobalBlockEditor
                                     value={description}
                                     onChange={setDescription}

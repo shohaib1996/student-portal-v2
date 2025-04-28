@@ -4,7 +4,7 @@ import * as React from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
+import { Calendar, CalendarProps } from '@/components/ui/calendar';
 import {
     Popover,
     PopoverContent,
@@ -31,6 +31,8 @@ interface DatePickerDemoProps {
     allowDeselect?: boolean;
     calendarClassName?: string;
     yearSelection?: boolean;
+    readOnly?: boolean;
+    disabledDate?: (date: Date) => boolean;
 }
 
 export function DatePicker({
@@ -44,7 +46,9 @@ export function DatePicker({
     disableFuture = false,
     yearSelection = false,
     calendarClassName,
-}: DatePickerDemoProps) {
+    readOnly,
+    disabledDate,
+}: DatePickerDemoProps & CalendarProps) {
     const [date, setDate] = React.useState<Dayjs | undefined>(
         value ? dayjs(value) : dayjs(),
     );
@@ -56,6 +60,9 @@ export function DatePicker({
     );
 
     const handleDateSelect = (newDate: Date | undefined) => {
+        if (readOnly) {
+            return;
+        }
         const dayjsDate = newDate ? dayjs(newDate) : undefined;
         setDate(dayjsDate);
         onChange?.(dayjsDate);
@@ -63,6 +70,9 @@ export function DatePicker({
     };
 
     const setMonth = (month: number) => {
+        if (readOnly) {
+            return;
+        }
         const newDate = date ? date.month(month) : dayjs().month(month);
 
         // Update the calendar view date
@@ -83,6 +93,9 @@ export function DatePicker({
     };
 
     const setYear = (year: number) => {
+        if (readOnly) {
+            return;
+        }
         const newDate = date ? date.year(year) : dayjs().year(year);
 
         // Update the calendar view date
@@ -121,13 +134,23 @@ export function DatePicker({
     }, [value]);
 
     const isDateDisabled = (date: Date) => {
-        if (disableFuture) {
-            return dayjs(date).isAfter(dayjs(), 'day');
+        // First check the disableFuture setting
+        if (disableFuture && dayjs(date).isAfter(dayjs(), 'day')) {
+            return true;
         }
+
+        // Then check the custom disabledDate function if provided
+        if (disabledDate && disabledDate(date)) {
+            return true;
+        }
+
         return false;
     };
 
     const handleClearDate = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (readOnly) {
+            return;
+        }
         e.stopPropagation();
         onChange?.(undefined);
         setDate(undefined);
@@ -146,16 +169,28 @@ export function DatePicker({
           ? date.year()
           : new Date().getFullYear();
 
+    const handleOpenChange = (newOpen: boolean) => {
+        if (!readOnly) {
+            setOpen(newOpen);
+        }
+    };
+
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={handleOpenChange}>
             <PopoverTrigger asChild className='border-forground-border'>
                 <Button
                     variant={'plain'}
                     className={cn(
                         `relative min-h-10 w-full justify-start bg-background-foreground text-left text-sm font-normal text-gray`,
                         !date && 'text-muted-foreground',
+                        readOnly && 'opacity-80 cursor-default',
                         className,
                     )}
+                    onClick={(e) => {
+                        if (readOnly) {
+                            e.preventDefault();
+                        }
+                    }}
                     disabled={disabled}
                 >
                     <CalendarIcon className='size-4 text-gray' />
@@ -165,7 +200,7 @@ export function DatePicker({
                         <span className='text-gray'>{placeholder}</span>
                     )}
 
-                    {date && allowDeselect && (
+                    {date && !readOnly && allowDeselect && (
                         <div
                             onClick={handleClearDate}
                             className='absolute right-2 bg-transparent'
@@ -221,6 +256,7 @@ export function DatePicker({
                     </div>
                 )}
                 <Calendar
+                    className='bg-background rounded-md'
                     mode='single'
                     selected={date ? date?.toDate() : undefined}
                     onSelect={handleDateSelect}

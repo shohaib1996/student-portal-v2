@@ -228,14 +228,14 @@ const ColumnSettingsModal = ({ open, setOpen, tableName }: TProps) => {
             subTitle='Adjust and organize columns'
             buttons={
                 <div className='flex gap-2 items-center'>
-                    <Button
+                    {/* <Button
                         className='text-gray stroke-gray'
                         variant={'secondary'}
                         onClick={() => setOpen(false)}
                     >
                         <CrossCircle />
                         Cancel
-                    </Button>
+                    </Button> */}
                     <Button onClick={handleSave} variant={'default'}>
                         <SaveIcon className='stroke-pure-white' />
                         Save Changes

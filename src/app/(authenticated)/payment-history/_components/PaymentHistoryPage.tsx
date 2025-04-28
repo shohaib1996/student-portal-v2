@@ -21,7 +21,7 @@ export default function PaymentHistoryPage() {
     };
 
     return (
-        <section>
+        <section className='pt-2'>
             <GlobalHeader
                 title={
                     <div className='flex items-center gap-1'>
@@ -46,10 +46,8 @@ export default function PaymentHistoryPage() {
                 }
             />
 
-            <div className='my-2'>
-                <TransactionsStatistics />
-                <TransactionTable />
-            </div>
+            <TransactionsStatistics />
+            <TransactionTable />
 
             <PaymentModal open={isModalOpen} onOpenChange={handleCloseModal} />
         </section>

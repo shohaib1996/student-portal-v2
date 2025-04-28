@@ -10,19 +10,41 @@ import {
 } from '@/redux/api/notes/notesApi';
 import type { TNote } from '@/types';
 import { Pencil, StickyNote, Trash } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import StickyNoteModal from './sticky-note-modal';
 
 const NewAddNote = ({ contentId }: { contentId: string }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+    // Add local note state to handle transitions cleanly
+    const [currentNote, setCurrentNote] = useState<TNote | null>(null);
 
     const {
         data: noteData,
         isLoading: isLoadingNote,
         refetch,
-    } = useGetSingleNoteQuery(contentId);
-    const note: TNote = noteData?.note;
+        isFetching,
+    } = useGetSingleNoteQuery(contentId, {
+        refetchOnMountOrArgChange: true,
+        // Skip caching to ensure fresh data
+        refetchOnReconnect: true,
+    });
+
+    // Update local state when data changes
+    useEffect(() => {
+        if (noteData?.note) {
+            setCurrentNote(noteData.note);
+        } else {
+            // Clear the note when there is no data for this contentId
+            setCurrentNote(null);
+        }
+    }, [noteData, contentId]);
+
+    // Reset state when contentId changes
+    useEffect(() => {
+        // Clear the current note data while new data is loading
+        setCurrentNote(null);
+    }, [contentId]);
 
     const [updateNote, { isLoading: isUpdating }] = useUpdateNoteMutation();
     const [addNote, { isLoading: isCreating }] = useAddNoteMutation();
@@ -30,8 +52,11 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
 
     const handleDeleteNote = async () => {
         try {
-            await deleteNote(note._id).unwrap();
-            await refetch();
+            if (currentNote?._id) {
+                await deleteNote(currentNote._id).unwrap();
+                setCurrentNote(null);
+                await refetch();
+            }
         } catch (err) {
             console.log(err);
         }
@@ -58,8 +83,11 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
         };
 
         try {
-            if (modalMode === 'edit' && note?._id) {
-                await updateNote({ id: note._id, data: payload }).unwrap();
+            if (modalMode === 'edit' && currentNote?._id) {
+                await updateNote({
+                    id: currentNote._id,
+                    data: payload,
+                }).unwrap();
             } else {
                 await addNote(payload).unwrap();
             }
@@ -89,7 +117,7 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
     );
 
     // Show loading state
-    if (isLoadingNote) {
+    if (isLoadingNote || isFetching) {
         return (
             <div className='flex justify-center items-center p-8'>
                 <div className='animate-pulse text-center'>
@@ -101,12 +129,12 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
 
     return (
         <div>
-            {note ? (
+            {currentNote ? (
                 <div className='bg-primary-light dark:bg-background p-4 rounded-lg mt-2'>
                     <div className='flex gap-2 w-full'>
                         <div>
                             <p className='font-semibold text-2xl mb-1'>
-                                {note.title || 'Untitled Note'}
+                                {currentNote.title || 'Untitled Note'}
                             </p>
                         </div>
                         <Button
@@ -127,7 +155,7 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
                         </Button>
                     </div>
                     <div className='text-dark-gray mt-2'>
-                        {renderText({ text: note?.description })}
+                        {renderText({ text: currentNote?.description })}
                     </div>
                 </div>
             ) : (
@@ -138,9 +166,11 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 onSubmit={handleSubmitNote}
-                initialTitle={modalMode === 'edit' ? note?.title || '' : ''}
+                initialTitle={
+                    modalMode === 'edit' ? currentNote?.title || '' : ''
+                }
                 initialDescription={
-                    modalMode === 'edit' ? note?.description || '' : ''
+                    modalMode === 'edit' ? currentNote?.description || '' : ''
                 }
                 isLoading={isUpdating || isCreating}
                 mode={modalMode}
