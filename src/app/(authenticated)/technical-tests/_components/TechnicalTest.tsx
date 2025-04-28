@@ -333,7 +333,7 @@ const TechnicalTest = () => {
                 footer: (data) => data.column.id,
                 id: 'status',
                 visible: true,
-                canHide: false,
+                canHide: true,
             },
             {
                 accessorKey: 'mark',
@@ -362,6 +362,222 @@ const TechnicalTest = () => {
                 visible: !isMobile,
                 canHide: true,
             },
+        ];
+
+        // Add tab-specific columns
+        if (tabType === 'tasks') {
+            return [
+                ...baseColumns,
+                {
+                    accessorKey: 'category',
+                    header: 'Category',
+                    cell: ({ row }) => (
+                        <span className='capitalize'>
+                            {row.original.category}
+                        </span>
+                    ),
+                    footer: (data) => data.column.id,
+                    id: 'category',
+                    visible: !isMobile,
+                    canHide: true,
+                },
+                {
+                    accessorKey: 'actions',
+                    header: 'Actions',
+                    cell: ({ row }) => (
+                        <div
+                            className={`flex items-center ${isMobile ? 'flex-col' : 'flex-row'} gap-2`}
+                        >
+                            <Button
+                                size='sm'
+                                variant='default'
+                                disabled={
+                                    row.original.submission?.status ===
+                                        'completed' ||
+                                    row.original.submission?.status ===
+                                        'pending' ||
+                                    row.original.submission?.status ===
+                                        'rejected' ||
+                                    row.original.submission?.status ===
+                                        'accepted'
+                                }
+                                onClick={() =>
+                                    handleTestNowClick(row.original, row.index)
+                                }
+                                className='hover:bg-primary-light rounded-md px-3.5 py-2.5 h-auto w-fit'
+                            >
+                                {isMobile ? 'Test' : 'Test Now'}{' '}
+                                <span className='ml-1'>→</span>
+                            </Button>
+                            <Button
+                                size='sm'
+                                disabled={
+                                    !row.original.submission?.status ||
+                                    row.original.submission?.status ===
+                                        'not_answered'
+                                }
+                                onClick={() =>
+                                    handleSeeResultClick(
+                                        row.original,
+                                        row.index,
+                                    )
+                                }
+                                variant='primary_light'
+                                className='rounded-md px-3.5 py-2 h-auto flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-gray w-fit'
+                            >
+                                <Eye className='h-5 w-5' />
+                                {!isMobile && 'See Result'}
+                            </Button>
+                        </div>
+                    ),
+                    footer: (data) => data.column.id,
+                    id: 'action',
+                    visible: true,
+                    canHide: false,
+                },
+            ];
+        } else if (tabType === 'assignments') {
+            return [
+                ...baseColumns,
+                {
+                    accessorKey: 'attachments',
+                    header: 'Attachments',
+                    cell: ({ row }) => (
+                        <span>{row.original.attachments?.length || 0}</span>
+                    ),
+                    footer: (data) => data.column.id,
+                    id: 'attachments',
+                    visible: !isMobile,
+                    canHide: true,
+                },
+                {
+                    accessorKey: 'actions',
+                    header: 'Actions',
+                    cell: ({ row }) => (
+                        <div
+                            className={`flex items-center ${isMobile ? 'flex-col' : 'flex-row'} gap-2`}
+                        >
+                            <Button
+                                size='sm'
+                                variant='default'
+                                disabled={
+                                    row.original.submission?.status ===
+                                        'completed' ||
+                                    row.original.submission?.status ===
+                                        'pending' ||
+                                    row.original.submission?.status ===
+                                        'rejected' ||
+                                    row.original.submission?.status ===
+                                        'accepted'
+                                }
+                                onClick={() =>
+                                    handleTestNowClick(row.original, row.index)
+                                }
+                                className='hover:bg-primary-light rounded-md px-3.5 py-2.5 h-auto w-fit'
+                            >
+                                {isMobile ? 'Test' : 'Test Now'}{' '}
+                                <span className='ml-1'>→</span>
+                            </Button>
+                            <Button
+                                size='sm'
+                                disabled={
+                                    !row.original.submission?.status ||
+                                    row.original.submission?.status ===
+                                        'not_answered'
+                                }
+                                onClick={() =>
+                                    handleSeeResultClick(
+                                        row.original,
+                                        row.index,
+                                    )
+                                }
+                                variant='primary_light'
+                                className='rounded-md px-3.5 py-2 h-auto flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-gray w-fit'
+                            >
+                                <Eye className='h-5 w-5' />
+                                {!isMobile && 'See Result'}
+                            </Button>
+                        </div>
+                    ),
+                    footer: (data) => data.column.id,
+                    id: 'action',
+                    visible: true,
+                    canHide: false,
+                },
+            ];
+        } else if (tabType === 'questions') {
+            return [
+                ...baseColumns,
+                {
+                    accessorKey: 'obtainedMark',
+                    header: 'Obtained Mark',
+                    cell: ({ row }) => (
+                        <span>{row.original.submission?.mark || 'N/A'}</span>
+                    ),
+                    footer: (data) => data.column.id,
+                    id: 'obtainedMark',
+                    visible: !isMobile,
+                    canHide: true,
+                },
+                {
+                    accessorKey: 'actions',
+                    header: 'Actions',
+                    cell: ({ row }) => (
+                        <div
+                            className={`flex items-center ${isMobile ? 'flex-col' : 'flex-row'} gap-2`}
+                        >
+                            <Button
+                                size='sm'
+                                variant='default'
+                                disabled={
+                                    row.original.submission?.status ===
+                                        'completed' ||
+                                    row.original.submission?.status ===
+                                        'pending' ||
+                                    row.original.submission?.status ===
+                                        'rejected' ||
+                                    row.original.submission?.status ===
+                                        'accepted'
+                                }
+                                onClick={() =>
+                                    handleTestNowClick(row.original, row.index)
+                                }
+                                className='hover:bg-primary-light rounded-md px-3.5 py-2.5 h-auto w-fit'
+                            >
+                                {isMobile ? 'Test' : 'Test Now'}{' '}
+                                <span className='ml-1'>→</span>
+                            </Button>
+                            <Button
+                                size='sm'
+                                disabled={
+                                    !row.original.submission?.status ||
+                                    row.original.submission?.status ===
+                                        'not_answered'
+                                }
+                                onClick={() =>
+                                    handleSeeResultClick(
+                                        row.original,
+                                        row.index,
+                                    )
+                                }
+                                variant='primary_light'
+                                className='rounded-md px-3.5 py-2 h-auto flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-gray w-fit'
+                            >
+                                <Eye className='h-5 w-5' />
+                                {!isMobile && 'See Result'}
+                            </Button>
+                        </div>
+                    ),
+                    footer: (data) => data.column.id,
+                    id: 'action',
+                    visible: true,
+                    canHide: false,
+                },
+            ];
+        }
+
+        return [
+            ...baseColumns,
             {
                 accessorKey: 'actions',
                 header: 'Actions',
@@ -407,63 +623,11 @@ const TechnicalTest = () => {
                     </div>
                 ),
                 footer: (data) => data.column.id,
-                id: 'actions',
+                id: 'action',
                 visible: true,
                 canHide: false,
             },
         ];
-
-        // Add tab-specific columns
-        if (tabType === 'tasks') {
-            return [
-                ...baseColumns,
-                {
-                    accessorKey: 'category',
-                    header: 'Category',
-                    cell: ({ row }) => (
-                        <span className='capitalize'>
-                            {row.original.category}
-                        </span>
-                    ),
-                    footer: (data) => data.column.id,
-                    id: 'category',
-                    visible: !isMobile,
-                    canHide: true,
-                },
-            ];
-        } else if (tabType === 'assignments') {
-            return [
-                ...baseColumns,
-                {
-                    accessorKey: 'attachments',
-                    header: 'Attachments',
-                    cell: ({ row }) => (
-                        <span>{row.original.attachments?.length || 0}</span>
-                    ),
-                    footer: (data) => data.column.id,
-                    id: 'attachments',
-                    visible: !isMobile,
-                    canHide: true,
-                },
-            ];
-        } else if (tabType === 'questions') {
-            return [
-                ...baseColumns,
-                {
-                    accessorKey: 'obtainedMark',
-                    header: 'Obtained Mark',
-                    cell: ({ row }) => (
-                        <span>{row.original.submission?.mark || 'N/A'}</span>
-                    ),
-                    footer: (data) => data.column.id,
-                    id: 'obtainedMark',
-                    visible: !isMobile,
-                    canHide: true,
-                },
-            ];
-        }
-
-        return baseColumns;
     };
 
     return (
@@ -624,15 +788,14 @@ const TechnicalTest = () => {
                                 ))}
                             </div>
                         ) : (
-                            <div className='overflow-x-auto'>
-                                <GlobalTable
-                                    isLoading={isLoading}
-                                    limit={limit}
-                                    data={assignments}
-                                    defaultColumns={getColumnsForTab('tasks')}
-                                    tableName='technical-tasks-table'
-                                />
-                            </div>
+                            <GlobalTable
+                                actionsMinSize={300}
+                                isLoading={isLoading}
+                                limit={limit}
+                                data={assignments}
+                                defaultColumns={getColumnsForTab('tasks')}
+                                tableName='technical-tasks-table'
+                            />
                         )}
                     </TabsContent>
 
@@ -681,17 +844,14 @@ const TechnicalTest = () => {
                                 ))}
                             </div>
                         ) : (
-                            <div className='overflow-x-auto'>
-                                <GlobalTable
-                                    isLoading={isLoading}
-                                    limit={limit}
-                                    data={assignments}
-                                    defaultColumns={getColumnsForTab(
-                                        'assignments',
-                                    )}
-                                    tableName='technical-assignments-table'
-                                />
-                            </div>
+                            <GlobalTable
+                                actionsMinSize={300}
+                                isLoading={isLoading}
+                                limit={limit}
+                                data={assignments}
+                                defaultColumns={getColumnsForTab('assignments')}
+                                tableName='technical-assignments-table'
+                            />
                         )}
                     </TabsContent>
 
@@ -737,17 +897,14 @@ const TechnicalTest = () => {
                                 ))}
                             </div>
                         ) : (
-                            <div className='overflow-x-auto'>
-                                <GlobalTable
-                                    isLoading={isLoading}
-                                    limit={limit}
-                                    data={assignments}
-                                    defaultColumns={getColumnsForTab(
-                                        'questions',
-                                    )}
-                                    tableName='technical-questions-table'
-                                />
-                            </div>
+                            <GlobalTable
+                                actionsMinSize={300}
+                                isLoading={isLoading}
+                                limit={limit}
+                                data={assignments}
+                                defaultColumns={getColumnsForTab('questions')}
+                                tableName='technical-questions-table'
+                            />
                         )}
                     </TabsContent>
                 </Tabs>

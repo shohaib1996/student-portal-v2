@@ -20,6 +20,7 @@ import {
     Share,
     Volume2,
     Gauge,
+    ChevronDown,
 } from 'lucide-react';
 import Image from 'next/image';
 import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
@@ -29,6 +30,7 @@ import GlobalModal from '@/components/global/GlobalModal';
 import GlobalComment from '@/components/global/GlobalComments/GlobalComment';
 import { toast } from 'sonner';
 import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
+import NewAddNote from '../../program/[slug]/_components/NewAddNote';
 
 // Define the media item type if not already defined
 type TMediaItem = {
@@ -65,6 +67,7 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
     const [duration, setDuration] = useState(0);
     const [volume, setVolume] = useState(1);
     const [currentMedia, setCurrentMedia] = useState<TMediaItem>(media);
+    const [visibleItems, setVisibleItems] = useState(10); // Number of items to show initially
     const videoRef = useRef<HTMLVideoElement>(null);
     // Fetch related videos
     const { data, isLoading } = useMyAudioVideoQuery({});
@@ -145,6 +148,17 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
         }
     };
 
+    // Function to load more items
+    const loadMoreItems = () => {
+        setVisibleItems((prev) => prev + 10);
+    };
+
+    // Filter videos by current media type
+    const filteredVideos = relatedVideos.filter(
+        (relatedMedia: any) =>
+            relatedMedia.mediaType === currentMedia?.mediaType,
+    );
+
     // Check if next/previous buttons should be disabled
     const isNextDisabled =
         relatedVideos.findIndex((v: any) => v._id === currentMedia._id) ===
@@ -154,18 +168,15 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
 
     // Custom footer with related videos
     const sideBar = (
-        <div className='p-2 flex flex-col h-full bg-background rounded-lg border'>
+        <div className='p-2 flex flex-col bg-background rounded-lg border fixed top-[73px] h-[calc(100vh-80px)]'>
             <h3 className='font-semibold mb-2 pb-2 border-b'>
                 {currentMedia?.mediaType === 'audio'
                     ? 'Upcoming Audio'
                     : 'Upcoming Videos'}
             </h3>
-            <div className='space-y-4 overflow-y-auto max-h-[calc(100vh-300px)]'>
-                {relatedVideos
-                    .filter(
-                        (relatedMedia: any) =>
-                            relatedMedia.mediaType === currentMedia?.mediaType,
-                    )
+            <div className='space-y-4 overflow-y-auto'>
+                {filteredVideos
+                    .slice(0, visibleItems)
                     .map((relatedMedia: any) => (
                         <div
                             key={relatedMedia._id}
@@ -201,11 +212,6 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                                     fill
                                     className='object-cover rounded-md'
                                 />
-                                {/* <div className='absolute inset-0 flex items-center justify-center'>
-                                    <div className='h-8 w-8 rounded-full bg-foreground/40 flex items-center justify-center'>
-                                        <Play className='h-4 w-4 text-white ml-0.5' />
-                                    </div>
-                                </div> */}
                             </div>
                             <div className='flex-1 min-w-0'>
                                 <div
@@ -284,6 +290,26 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                             </div>
                         </div>
                     ))}
+
+                {/* Load More Button - only show if there are more items to load */}
+                {visibleItems < filteredVideos.length && (
+                    <div className='flex justify-center pt-2'>
+                        <Button
+                            variant='secondary'
+                            size='sm'
+                            onClick={loadMoreItems}
+                            className='w-full flex items-center justify-center'
+                        >
+                            Load More <ChevronDown className='ml-1 h-4 w-4' />
+                        </Button>
+                    </div>
+                )}
+
+                {/* Show count message */}
+                <div className='text-xs text-center text-muted-foreground pt-1'>
+                    Showing {Math.min(visibleItems, filteredVideos.length)} of{' '}
+                    {filteredVideos.length} videos
+                </div>
             </div>
         </div>
     );
@@ -314,8 +340,7 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                     </p>
                 </div>
             </div>
-            {/* Replace the navigation buttons section in the customTitle with
-            this code: */}
+            {/* Navigation buttons */}
             <div className='flex items-center gap-2'>
                 {!isPreviousDisabled && (
                     <Button
@@ -408,92 +433,6 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                                     <div className='absolute inset-0 bg-black/40' />
                                 </div>
                             )}
-
-                            {/* Play button overlay */}
-                            {/* <div className='absolute inset-0 flex items-center justify-center'>
-                                <Button
-                                    variant='secondary'
-                                    size='icon'
-                                    className='h-16 w-16 rounded-full border-pure-white bg-pure-white/70 backdrop-blur-lg text-white hover:bg-primary/90'
-                                    onClick={togglePlay}
-                                >
-                                    <div className='rounded-full bg-pure-white h-12 w-12 flex items-center justify-center'>
-                                        {isPlaying ? (
-                                            <div className='h-8 w-8' />
-                                        ) : (
-                                            <Play className='h-8 w-8 ml-1 text-primary' />
-                                        )}
-                                    </div>
-                                </Button>
-                            </div> */}
-
-                            {/* Video Controls */}
-                            {/* <div className='absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent'>
-                                <div className='flex flex-col gap-2'>
-                                    <div className='relative w-full h-1 bg-foreground/30 rounded-full'>
-                                        <input
-                                            type='range'
-                                            min='0'
-                                            max={duration || 100}
-                                            value={currentTime}
-                                            onChange={handleSeek}
-                                            className='absolute w-full h-1 opacity-0 cursor-pointer z-10'
-                                        />
-                                        <div
-                                            className='absolute left-0 top-0 h-full bg-primary rounded-full'
-                                            style={{
-                                                width: `${(currentTime / (duration || 1)) * 100}%`,
-                                            }}
-                                        />
-                                        <div
-                                            className='absolute top-0 h-3 w-3 -mt-1 bg-primary rounded-full'
-                                            style={{
-                                                left: `${(currentTime / (duration || 1)) * 100}%`,
-                                            }}
-                                        />
-                                    </div>
-
-                                    <div className='flex items-center justify-between'>
-                                        <div className='flex items-center gap-2'>
-                                            <Button
-                                                variant='ghost'
-                                                size='icon'
-                                                className='h-8 w-8 text-white'
-                                                onClick={togglePlay}
-                                            >
-                                                {isPlaying ? (
-                                                    <div className='h-4 w-4 flex items-center justify-center'>
-                                                        <div className='h-3 w-3 bg-foreground' />
-                                                    </div>
-                                                ) : (
-                                                    <Play className='h-4 w-4' />
-                                                )}
-                                            </Button>
-                                            <span className='text-xs text-white'>
-                                                {formatTime(currentTime)} /{' '}
-                                                {formatTime(duration || 0)}
-                                            </span>
-                                        </div>
-
-                                        <div className='flex items-center gap-2'>
-                                            <div className='flex items-center gap-1 w-24'>
-                                                <Volume2 className='h-4 w-4 text-white' />
-                                                <input
-                                                    type='range'
-                                                    min='0'
-                                                    max='1'
-                                                    step='0.01'
-                                                    value={volume}
-                                                    onChange={
-                                                        handleVolumeChange
-                                                    }
-                                                    className='w-full h-1 bg-foreground/30 rounded-full'
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> */}
                         </div>
                     ) : (
                         /* Audio Player - styled like the image */
@@ -646,7 +585,7 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                     </div>
 
                     {/* Tabs */}
-                    <div className='border-b'>
+                    <div className='border-b mt-2'>
                         <Tabs
                             defaultValue='overview'
                             value={activeTab}
@@ -667,8 +606,8 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                                     <TabsTrigger
                                         value='notes'
                                         className={cn(
-                                            ' data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none px-4 py-2',
-                                            'data-[state=inactive]:bg-transparent data-[state=inactive]:text-gray',
+                                            'data-[state=active]:border-b-2 data-[state=active]:border-primary-white data-[state=active]:shadow-none rounded-none px-4 py-2',
+                                            'data-[state=inactive]:bg-transparent data-[state=active]:bg-transparent data-[state=inactive]:text-gray data-[state=active]:text-primary-white',
                                         )}
                                     >
                                         <FileText className='h-4 w-4 mr-2' />
@@ -816,12 +755,6 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
 
                                     {/* Comments */}
                                     <div>
-                                        {/* <div className='flex items-center gap-2 mb-4'>
-                                            <MessageCircle className='h-5 w-5' />
-                                            <h3 className='text-lg font-medium'>
-                                                Comments
-                                            </h3>
-                                        </div> */}
                                         <GlobalComment
                                             contentId={currentMedia._id || ''}
                                             bgColor='foreground'
@@ -831,18 +764,7 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                             </TabsContent>
 
                             <TabsContent value='notes' className='p-4 mt-0'>
-                                <div className='border rounded-md p-4'>
-                                    <h3 className='text-lg font-medium mb-2'>
-                                        Add Notes
-                                    </h3>
-                                    <textarea
-                                        className='w-full border rounded-md p-3 min-h-[200px]'
-                                        placeholder='Write your notes here...'
-                                    />
-                                    <div className='flex justify-end mt-4'>
-                                        <Button>Save Notes</Button>
-                                    </div>
-                                </div>
+                                <NewAddNote contentId={currentMedia?._id} />
                             </TabsContent>
                         </Tabs>
                     </div>

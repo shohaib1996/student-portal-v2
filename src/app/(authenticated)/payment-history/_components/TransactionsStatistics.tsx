@@ -11,7 +11,7 @@ export default function TransactionsStatistics() {
     const dueAmount = data?.totalAmount - paidAmount;
 
     return (
-        <div className='flex flex-col md:flex-row gap-4 w-full'>
+        <div className='flex flex-col md:flex-row gap-4 w-full mt-1'>
             {/* Total Amount Card */}
             <div className='rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 p-4 flex-1 relative overflow-hidden'>
                 <div className='absolute inset-0 bg-white/10 rounded-full scale-150 translate-x-1/3 translate-y-1/3 opacity-20'></div>

@@ -289,7 +289,7 @@ const GlobalComment: React.FC<GlobalCommentProps> = ({
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
                             placeholder='Type your comment'
-                            autoFocus={focused}
+                            // autoFocus={focused}
                         ></textarea>
                         <button
                             className='send-button'

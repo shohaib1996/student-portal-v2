@@ -5,23 +5,11 @@ import GlobalTable, {
 } from '@/components/global/GlobalTable/GlobalTable';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import { Button } from '@/components/ui/button';
-import {
-    BadgeCheck,
-    CircleDot,
-    Eye,
-    Download,
-    ExternalLink,
-    FileText,
-    Receipt,
-    Paperclip,
-} from 'lucide-react';
+import { BadgeCheck, CircleDot, Eye, Paperclip } from 'lucide-react';
 
 import { usePaymentHistoryApiQuery } from '@/redux/api/payment-history/paymentHistory';
-import LoadingSpinner from '@/components/global/Community/LoadingSpinner/LoadingSpinner';
 import dayjs from 'dayjs';
-import { Card, CardContent } from '@/components/ui/card';
 import GlobalModal from '@/components/global/GlobalModal';
-import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 
 const TransactionTable = () => {
@@ -29,10 +17,7 @@ const TransactionTable = () => {
     const [limit, setLimit] = useState<number>(10);
     const [item, setItem] = useState<any>(null);
     const [open, setOpen] = useState<boolean>(false);
-    const { data, isLoading, error } = usePaymentHistoryApiQuery({
-        page: currentPage,
-        limit: limit,
-    });
+    const { data, isLoading, error } = usePaymentHistoryApiQuery(undefined);
     const transactions = data?.transactions;
 
     // Calculate total pages
@@ -43,21 +28,11 @@ const TransactionTable = () => {
         setLimit(newLimit);
     };
 
-    if (isLoading) {
-        return <LoadingSpinner />;
-    } else if (data?.transactions?.length === 0) {
-        return (
-            <div className='text-center text-black font-bold text-2xl my-4'>
-                No payment history available
-            </div>
-        );
-    } else if (error) {
-        return (
-            <div className='text-center text-red-500 font-bold text-xl my-4'>
-                Error loading payment history
-            </div>
-        );
-    }
+    const paginatedTransactions = useMemo(() => {
+        const startIndex = (currentPage - 1) * limit;
+        const endIndex = startIndex + limit;
+        return transactions?.slice(startIndex, endIndex) || [];
+    }, [transactions, currentPage, limit]);
 
     const handleModalOpen = (item: any) => {
         if (item) {
@@ -92,7 +67,7 @@ const TransactionTable = () => {
             ),
             id: 'method',
             visible: true,
-            canHide: false,
+            canHide: true,
         },
         {
             accessorKey: 'dateTime',
@@ -104,7 +79,7 @@ const TransactionTable = () => {
             ),
             id: 'dateTime',
             visible: true,
-            canHide: false,
+            canHide: true,
         },
         {
             accessorKey: 'attachment',
@@ -159,7 +134,7 @@ const TransactionTable = () => {
             },
             id: 'attachment',
             visible: true,
-            canHide: false,
+            canHide: true,
         },
         {
             accessorKey: 'note',
@@ -167,7 +142,7 @@ const TransactionTable = () => {
             cell: ({ row }) => <span>{row.original.note}</span>,
             id: 'note',
             visible: true,
-            canHide: false,
+            canHide: true,
         },
         {
             accessorKey: 'status',
@@ -193,7 +168,7 @@ const TransactionTable = () => {
             ),
             id: 'status',
             visible: true,
-            canHide: false,
+            canHide: true,
         },
         {
             accessorKey: 'actions',
@@ -216,27 +191,23 @@ const TransactionTable = () => {
         },
     ];
 
-    // const isImage = item.attachment?.match(/\.(jpeg|jpg|gif|png)$/i) !== null;
-    // const isPdf = item.attachment?.match(/\.(pdf)$/i) !== null;
-
     return (
-        <div className='py-4'>
-            <div className='h-[calc(100vh-230px)] flex flex-col justify-between'>
-                <GlobalTable
-                    isLoading={isLoading}
-                    limit={limit}
-                    data={transactions}
-                    defaultColumns={transactionColumns}
-                    tableName='transaction-table'
-                />
+        <div className='pt-2 h-[calc(100vh-210px)] flex flex-col justify-between'>
+            <GlobalTable
+                height='max-h-[calc(100vh-290px)]'
+                isLoading={isLoading}
+                limit={limit}
+                data={paginatedTransactions}
+                defaultColumns={transactionColumns}
+                tableName='transaction-table'
+            />
 
-                <GlobalPagination
-                    currentPage={currentPage}
-                    totalItems={totalItems}
-                    itemsPerPage={limit}
-                    onPageChange={handlePageChange}
-                />
-            </div>
+            <GlobalPagination
+                currentPage={currentPage}
+                totalItems={totalItems}
+                itemsPerPage={limit}
+                onPageChange={handlePageChange}
+            />
 
             <GlobalModal
                 open={open}
