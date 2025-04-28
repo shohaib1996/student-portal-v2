@@ -219,7 +219,7 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
                         (isPlaying ? (
                             <Button
                                 onClick={handlePauseRecording}
-                                className='text-primary transition-colors bg-transparent hover:bg-transparent'
+                                className='text-primary transition-colors bg-transparent hover:bg-transparent rounded-full shadow-none'
                                 tooltip='Pause audio'
                             >
                                 <Pause size={20} />
@@ -228,7 +228,7 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
                         ) : (
                             <Button
                                 onClick={handlePlayRecording}
-                                className='text-primary transition-colors bg-transparent hover:bg-transparent'
+                                className='text-primary transition-colors bg-transparent hover:bg-transparent rounded-full shadow-none'
                                 tooltip='Play audio'
                             >
                                 <Play size={20} />
@@ -252,7 +252,7 @@ const CaptureAudio: React.FC<CaptureAudioProps> = ({
                         <Button
                             onClick={() => setIsRecorderVisible(false)}
                             variant={'destructive'}
-                            className='text-danger bg-red-500/10 rounded-full h-9 w-9 transition-colors'
+                            className='text-danger bg-red-500/10 hover:bg-red-500/20 rounded-full h-9 w-9 transition-colors'
                             tooltip='Delete recording'
                         >
                             <Trash size={17} />

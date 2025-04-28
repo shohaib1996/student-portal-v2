@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ChatFooter, { type ChatData } from '../ChatFooter';
 import Cookies from 'js-cookie';
-import { Loader2, Pin, SearchIcon } from 'lucide-react';
+import { Loader2, Pin, PinIcon, SearchIcon } from 'lucide-react';
 import {
     markRead,
     pushHistoryMessages,
@@ -861,28 +861,47 @@ const PopUpChatBody: React.FC<PopUpChatBodyProps> = ({
                         </div>
                     ) : showPinnedMessages ? (
                         <div className='p-4'>
-                            {messages
-                                .filter(
-                                    (message) =>
-                                        message.pinnedBy &&
-                                        message?.type !== 'delete',
-                                )
-                                .map((message) => (
-                                    <Message
-                                        isPopUp
-                                        isAi={isAi}
-                                        key={message._id}
-                                        hideOptions={false}
-                                        source='pinned'
-                                        message={message}
-                                        setEditMessage={setEditMessage}
-                                        setThreadMessage={setThreadMessage}
-                                        bottomRef={bottomTextRef}
-                                        reload={reload}
-                                        setReload={setReload}
-                                        searchQuery={searchQuery}
-                                    />
-                                ))}
+                            {messages.filter(
+                                (message) =>
+                                    message.pinnedBy &&
+                                    message?.type !== 'delete',
+                            ).length > 0 ? (
+                                messages
+                                    .filter(
+                                        (message) =>
+                                            message.pinnedBy &&
+                                            message?.type !== 'delete',
+                                    )
+                                    .map((message) => (
+                                        <Message
+                                            isPopUp
+                                            isAi={isAi}
+                                            key={message._id}
+                                            hideOptions={false}
+                                            source='pinned'
+                                            message={message}
+                                            setEditMessage={setEditMessage}
+                                            setThreadMessage={setThreadMessage}
+                                            bottomRef={bottomTextRef}
+                                            reload={reload}
+                                            setReload={setReload}
+                                            searchQuery={searchQuery}
+                                        />
+                                    ))
+                            ) : (
+                                <div className='flex flex-col items-center justify-center p-6'>
+                                    <div className='rounded-full p-2 bg-primary-light text-primary-white mb-2'>
+                                        <PinIcon size={30} />
+                                    </div>
+                                    <p className='text-black text-center'>
+                                        No pinned messages available
+                                    </p>
+                                    <p className='text-sm text-gray mt-2 text-center'>
+                                        Pin messages to keep important
+                                        information easily accessible
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div>

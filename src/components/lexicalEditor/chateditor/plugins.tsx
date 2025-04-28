@@ -229,25 +229,37 @@ export function Plugins({
                                         'fontFormat',
                                         'bold',
                                     ) && (
-                                        <FontFormatToolbarPlugin format='bold' />
+                                        <FontFormatToolbarPlugin
+                                            format='bold'
+                                            tooltip='Bold text'
+                                        />
                                     )}
                                     {isToolbarOptionEnabled(
                                         'fontFormat',
                                         'italic',
                                     ) && (
-                                        <FontFormatToolbarPlugin format='italic' />
+                                        <FontFormatToolbarPlugin
+                                            format='italic'
+                                            tooltip='Italic font style'
+                                        />
                                     )}
                                     {isToolbarOptionEnabled(
                                         'fontFormat',
                                         'underline',
                                     ) && (
-                                        <FontFormatToolbarPlugin format='underline' />
+                                        <FontFormatToolbarPlugin
+                                            format='underline'
+                                            tooltip='Text underline'
+                                        />
                                     )}
                                     {isToolbarOptionEnabled(
                                         'fontFormat',
                                         'strikethrough',
                                     ) && (
-                                        <FontFormatToolbarPlugin format='strikethrough' />
+                                        <FontFormatToolbarPlugin
+                                            format='strikethrough'
+                                            tooltip='Line through'
+                                        />
                                     )}
 
                                     {/* {isToolbarOptionEnabled('subSuper') && <SubSuperToolbarPlugin />} */}

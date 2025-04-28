@@ -1012,8 +1012,8 @@ const PopupChatNav: React.FC<PopupChatNavProps> = ({
                                                 )}
 
                                                 {/* Bell icon (muted or not) */}
-                                                {isNotification && (
-                                                    <BellOff className='h-4 w-4 text-gray-400' />
+                                                {!isNotification && (
+                                                    <BellOff className='h-4 w-4 text-gray' />
                                                 )}
 
                                                 {/* Unread indicator */}

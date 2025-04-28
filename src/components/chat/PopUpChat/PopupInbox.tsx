@@ -112,7 +112,12 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
             instance
                 .put('/chat/favourite', data)
                 .then((res) => {
-                    toast.success('Favorite saved successfully');
+                    console.log({ PinnedData: res?.data });
+                    toast.success(
+                        res?.data?.member?.isFavourite
+                            ? 'Pinned this conversation successfully'
+                            : 'Unpinned this conversation successfully',
+                    );
                     dispatch(
                         updateMyData({
                             _id: chat._id,

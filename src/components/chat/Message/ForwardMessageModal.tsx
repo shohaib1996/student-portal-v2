@@ -408,7 +408,11 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
                                 <div
                                     key={chat._id}
                                     className={`flex items-center justify-between p-2 hover:bg-primary-light border-b pb-2  ${isReadOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                                    onClick={() => handleSelectChat(chat)}
+                                    onClick={() =>
+                                        isReadOnly
+                                            ? null
+                                            : handleSelectChat(chat)
+                                    }
                                 >
                                     <div className='flex items-center gap-2'>
                                         <div className='relative'>

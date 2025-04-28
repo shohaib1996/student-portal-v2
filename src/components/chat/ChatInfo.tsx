@@ -548,6 +548,11 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
 
     const handleInlineUpdate = useCallback(
         (value: any, field: any) => {
+            // Add validation for name field to prevent empty values
+            if (field === 'name' && (!value || value.trim() === '')) {
+                toast.error('Crowd name cannot be empty');
+                return;
+            }
             if (chat?._id) {
                 setIsUpdating(true);
                 setUpdateField(field);
@@ -779,7 +784,11 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                     </SelectTrigger>
                     <SelectContent>
                         {options.map((option: any) => (
-                            <SelectItem key={option.value} value={option.value}>
+                            <SelectItem
+                                key={option.value}
+                                value={option.value}
+                                className='hover:bg-primary-light hover:text-primary-white border border-transparent hover:border-primary-white'
+                            >
                                 {option.label}
                             </SelectItem>
                         ))}
@@ -799,12 +808,12 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                         }
                         onClick={handleSave}
                         disabled={isLoading}
-                        className='h-7 w-7'
+                        className='h-7 max-h-7 w-7 max-w-7 '
                     ></Button>
                     <Button
                         tooltip='Cancel Update'
                         size='icon'
-                        className='bg-red-500/10 h-7 w-7'
+                        className='bg-red-500/10 h-7 max-h-7 w-7 max-w-7 '
                         icon={<X size={16} className='text-danger' />}
                         onClick={handleCancel}
                         disabled={isLoading}

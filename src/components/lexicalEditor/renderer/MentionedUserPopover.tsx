@@ -247,7 +247,7 @@ const MentionedUserPopover: React.FC<MentionedUserPopoverProps> = ({
                                             >
                                                 <Button
                                                     size='icon'
-                                                    className=' text-xs rounded-full !text-pure-white'
+                                                    className=' text-xs rounded-full hover:bg-primary-light text-pure-white  hover:text-primary-white border border-primary hover:border-primary-white'
                                                     onClick={() =>
                                                         handleCreateChat(userId)
                                                     }

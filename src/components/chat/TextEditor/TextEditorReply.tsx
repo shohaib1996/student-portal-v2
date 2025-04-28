@@ -32,6 +32,7 @@ import {
     PluginOptions,
 } from '@/components/lexicalEditor/chateditor/editor';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
+import { Button } from '@/components/ui/button';
 
 // Dynamically import EmojiPicker to prevent blocking the main bundle
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
@@ -705,11 +706,13 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                                                     <DropdownMenuTrigger
                                                         asChild
                                                     >
-                                                        <button className='p-2 rounded-full hover:bg-muted transition-colors'>
-                                                            <GlobalTooltip tooltip='Send attachment'>
-                                                                <Paperclip className='h-5 w-5 text-muted-foreground' />
-                                                            </GlobalTooltip>
-                                                        </button>
+                                                        <Button
+                                                            className='bg-transparent hover:bg-transparent text-gray hover:!text-primary-white h-8 w-8 min-h-8 rounded-full shadow-none'
+                                                            tooltip='Send attachment'
+                                                            size={'icon'}
+                                                        >
+                                                            <Paperclip className='h-5 w-5' />
+                                                        </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent
                                                         side='top'
@@ -733,18 +736,18 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
 
                                         {text?.length === 0 &&
                                         uploadFiles?.length === 0 ? (
-                                            <button
-                                                className='p-2 rounded-full hover:bg-muted transition-colors'
+                                            <Button
+                                                className='bg-transparent hover:bg-transparent text-gray hover:!text-primary-white h-8 w-8 min-h-8 rounded-full shadow-none'
+                                                tooltip='Send voice recording'
+                                                size={'icon'}
                                                 onClick={() =>
                                                     setIsVoiceRecordVisible(
                                                         true,
                                                     )
                                                 }
                                             >
-                                                <GlobalTooltip tooltip='Send voice recording'>
-                                                    <Mic className='h-5 w-5 text-muted-foreground' />
-                                                </GlobalTooltip>
-                                            </button>
+                                                <Mic className='h-5 w-5' />
+                                            </Button>
                                         ) : null}
                                     </div>
 

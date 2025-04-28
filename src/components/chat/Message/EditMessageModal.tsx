@@ -46,6 +46,7 @@ const EditMessageModal: React.FC<EditMessageModalProps> = ({
                 <ChatFooter
                     isEdit={true}
                     reply={true}
+                    chat={chat}
                     selectedMessage={selectedMessage}
                     onSentCallback={handleCloseEdit}
                     className={`chat_${chat?._id}`}

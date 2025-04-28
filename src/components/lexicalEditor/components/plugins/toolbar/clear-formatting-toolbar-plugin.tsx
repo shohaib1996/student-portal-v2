@@ -17,6 +17,7 @@ import { EraserIcon } from 'lucide-react';
 import { Button } from '../../../ui/button';
 
 import { useToolbarContext } from '../../context/toolbar-context';
+import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 export function ClearFormattingToolbarPlugin() {
     const { activeEditor } = useToolbarContext();
@@ -89,13 +90,15 @@ export function ClearFormattingToolbarPlugin() {
     }, [activeEditor]);
 
     return (
-        <Button
-            size={'sm'}
-            variant={'outline'}
-            className='h-8 w-8 border border-forground-border !bg-foreground text-dark-gray hover:!bg-primary-light hover:!text-primary-white hover:border-primary'
-            onClick={clearFormatting}
-        >
-            <EraserIcon className='h-4 w-4' />
-        </Button>
+        <GlobalTooltip tooltip='Clear formatting'>
+            <Button
+                size={'sm'}
+                variant={'outline'}
+                className='h-8 w-8 border border-forground-border !bg-foreground text-dark-gray hover:!bg-primary-light hover:!text-primary-white hover:border-primary'
+                onClick={clearFormatting}
+            >
+                <EraserIcon className='h-4 w-4' />
+            </Button>
+        </GlobalTooltip>
     );
 }

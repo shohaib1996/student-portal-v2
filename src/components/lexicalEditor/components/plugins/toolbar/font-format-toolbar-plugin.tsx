@@ -21,6 +21,7 @@ import { Toggle } from '../../../ui/toggle';
 
 import { useToolbarContext } from '../../context/toolbar-context';
 import { useUpdateToolbarHandler } from '../../editor-hooks/use-update-toolbar';
+import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 const Icons: Partial<Record<TextFormatType, React.ElementType>> = {
     bold: BoldIcon,
@@ -32,8 +33,10 @@ const Icons: Partial<Record<TextFormatType, React.ElementType>> = {
 
 export function FontFormatToolbarPlugin({
     format,
+    tooltip,
 }: {
     format: Omit<TextFormatType, 'highlight' | 'subscript' | 'superscript'>;
+    tooltip?: string;
 }) {
     const { activeEditor } = useToolbarContext();
     const [isSelected, setIsSelected] = useState<boolean>(false);
@@ -49,11 +52,11 @@ export function FontFormatToolbarPlugin({
 
     const Icon = Icons[format as TextFormatType] as React.ElementType;
 
-    return (
+    const toggleButton = (
         <Toggle
-            aria-label='Toggle bold'
+            aria-label={`Toggle ${format}`}
             variant='outline'
-            className={` border border-forground-border ${!isSelected ? '!bg-foreground !text-dark-black' : '!bg-primary-light text-primary-white border-primary'}`}
+            className={`border border-forground-border ${!isSelected ? '!bg-foreground !text-dark-black' : '!bg-primary-light text-primary-white border-primary'}`}
             size='sm'
             defaultPressed={isSelected}
             pressed={isSelected}
@@ -69,5 +72,15 @@ export function FontFormatToolbarPlugin({
                 className={`h-4 w-4 ${!isSelected ? '!text-dark-black' : '!text-primary-white'}`}
             />
         </Toggle>
+    );
+
+    return (
+        <>
+            {tooltip ? (
+                <GlobalTooltip tooltip={tooltip}>{toggleButton}</GlobalTooltip>
+            ) : (
+                toggleButton
+            )}
+        </>
     );
 }
