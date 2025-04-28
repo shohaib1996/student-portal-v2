@@ -1,155 +1,333 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTheme } from 'next-themes';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
-import rehypeSanitize from 'rehype-sanitize';
-import remarkBreaks from 'remark-breaks';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import {
-    oneLight,
-    oneDark,
-} from 'react-syntax-highlighter/dist/cjs/styles/prism';
-import styles from './CustomMarkdownPreview.module.css';
+import { Popover, PopoverTrigger } from '@/components/ui/popover';
+import MentionedUserPopover from '../MentionedUserPopover';
+import { useGetMentionedUserDetailsQuery } from '@/redux/api/chats/chatApi';
 
-interface CustomMarkdownPreviewProps {
-    source: string;
-    components?: Record<string, React.ComponentType<any>>;
-    className?: string;
-    wrapperElement?: any;
+interface CustomMarkdownRendererProps {
+    text: string;
+    isUser?: boolean;
 }
 
-const CustomMarkdownPreview: React.FC<CustomMarkdownPreviewProps> = ({
-    source,
-    components: customComponents = {},
-    className = '',
-    wrapperElement = {},
+// MentionTag component that integrates the popover
+const MentionTag = ({
+    userId,
+    userName,
+}: {
+    userId: string;
+    userName: string;
 }) => {
-    const { theme } = useTheme();
-    const [mounted, setMounted] = useState(false);
+    const [open, setOpen] = React.useState(false);
+    const triggerRef = useRef<HTMLSpanElement>(null);
 
-    // Handle hydration issues
+    // Use RTK Query to fetch user details
+    const { data: userData, isLoading } = useGetMentionedUserDetailsQuery(
+        userId,
+        {
+            skip: !open, // Only fetch when popover is open
+        },
+    );
+
     useEffect(() => {
-        setMounted(true);
-    }, []);
+        const handleScroll = () => {
+            if (open) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener('scroll', handleScroll, true); // use capture phase
+        return () => {
+            document.removeEventListener('scroll', handleScroll, true);
+        };
+    }, [open]);
 
-    // Handle empty or undefined source
-    if (!source) {
-        return null;
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <span
+                    ref={triggerRef}
+                    className='mention-tag text-blue-700 bg-blue-200 hover:bg-blue-200 dark:bg-blue-300 dark:hover:bg-blue-300 text-xs rounded-full px-1 hover:underline cursor-pointer'
+                    data-userid={userId}
+                    data-username={userName}
+                >
+                    @{userName}
+                </span>
+            </PopoverTrigger>
+            {userId !== 'everyone' && (
+                <MentionedUserPopover
+                    userId={userId}
+                    userData={userData}
+                    isLoading={isLoading}
+                    userName={userName}
+                />
+            )}
+        </Popover>
+    );
+};
+
+// Transform @mention pattern to the format we handle
+const transformMentions = (text?: string): React.ReactNode[] => {
+    if (!text) {
+        return [];
     }
 
-    // Preprocess the source to handle consecutive newlines more effectively
-    // This will help maintain the visual separation seen in the chat bubble
-    const processedSource = source.replace(/\n/g, '\n\n');
+    // Split the text by the @[name](id) pattern
+    const parts = [];
+    let lastIndex = 0;
+    const regex = /@\[(.*?)\]\((.*?)\)/g;
+    let match;
 
-    const isDarkMode =
-        theme === 'dark' || wrapperElement['data-color-mode'] === 'dark';
+    while ((match = regex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+            // Add text before the match
+            parts.push(text.substring(lastIndex, match.index));
+        }
 
-    // Combine default components with custom components
-    const components = {
-        // Add code block syntax highlighting
-        code({ node, inline, className, children, ...props }: any) {
-            const match = /language-(\w+)/.exec(className || '');
-            const language = match && match[1] ? match[1] : '';
+        // Add the mention component
+        const [fullMatch, name, id] = match;
+        parts.push(
+            <MentionTag
+                key={`mention-${id}-${match.index}`}
+                userId={id}
+                userName={name}
+            />,
+        );
 
-            return !inline && language ? (
-                <SyntaxHighlighter
-                    style={isDarkMode ? oneDark : oneLight}
-                    language={language}
-                    PreTag='div'
-                    {...props}
-                >
-                    {String(children).replace(/\n$/, '')}
-                </SyntaxHighlighter>
-            ) : (
-                <code className={className} {...props}>
-                    {children}
-                </code>
-            );
-        },
+        lastIndex = match.index + fullMatch.length;
+    }
 
-        // Use pre tag for proper content spacing
-        pre({ children, ...props }: any) {
-            return (
-                <pre className={styles.pre} {...props}>
-                    {children}
-                </pre>
-            );
-        },
+    // Add any remaining text
+    if (lastIndex < text.length) {
+        parts.push(text.substring(lastIndex));
+    }
 
-        // Enhanced paragraph component for better line breaks
-        p({ children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
-            // For basic strings without links, use the div-based approach
-            if (typeof children === 'string' && !children.includes('[')) {
-                return (
-                    <div className={styles.lineBreaksEnhanced}>
-                        {children.split('\n').map((line, i) => (
-                            <div key={i} style={{ marginBottom: '1em' }}>
-                                {line}
-                            </div>
-                        ))}
-                    </div>
+    return parts;
+};
+
+// Transform dates
+const transformDates = (text?: string): string => {
+    if (!text) {
+        return '';
+    }
+    const regexPattern = /\{\{DATE:(.*?)\}\}/g;
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return text.replace(regexPattern, (_, startTime) => {
+        return `${new Date(startTime).toLocaleString()} (${userTimezone})`;
+    });
+};
+
+// Pre-process text to handle markdown and HTML correctly
+const preprocessText = (text?: string): string => {
+    if (!text) {
+        return '';
+    }
+
+    let processed = text;
+
+    // First process text for dates
+    processed = transformDates(processed);
+
+    // Convert the text to handle the line breaks first
+    // Replace single newlines with <br> tags (only when not inside a list item)
+    const lines = processed.split('\n');
+    const processedLines = [];
+    let inList = false;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Check if this line starts a list item
+        if (line.match(/^\d+\.\s/) || line.match(/^\*\s/)) {
+            inList = true;
+            processedLines.push(line);
+        }
+        // Check if this line is empty (which might end a list)
+        else if (line.trim() === '') {
+            inList = false;
+            processedLines.push(line);
+        }
+        // Normal line
+        else {
+            if (!inList && i > 0 && lines[i - 1].trim() !== '') {
+                // Add <br> before the line if it's not in a list and the previous line wasn't empty
+                processedLines.push(line);
+            } else {
+                processedLines.push(line);
+            }
+        }
+    }
+
+    processed = processedLines.join('\n');
+
+    // Handle ordered lists
+    processed = processed.replace(
+        /^(\d+)\.\s(.*)$/gm,
+        '<li value="$1">$2</li>',
+    );
+    processed = processed.replace(/(<li[^>]*>.*<\/li>\s*)+/g, '<ol>$&</ol>');
+
+    // Handle unordered lists
+    processed = processed.replace(/^\*\s(.*)$/gm, '<li>$1</li>');
+    processed = processed.replace(/(<li>.*<\/li>\s*)+/g, (match) => {
+        // Only wrap in <ul> if not already inside an <ol>
+        if (!match.includes('<li value=')) {
+            return '<ul>' + match + '</ul>';
+        }
+        return match;
+    });
+
+    // Replace ** for strong/bold with <strong> tags
+    processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // Replace * for emphasis/italic with <em> tags
+    processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+    // Replace single newlines with <br> tags (only when not followed by another newline)
+    // But avoid adding <br> after list items
+    processed = processed.replace(/(?<!\n)(?<!<\/li>)\n(?!\n)/g, '<br />');
+
+    // Replace double newlines with paragraph breaks
+    processed = processed.replace(/\n\n+/g, '</p><p>');
+
+    // Wrap content in paragraphs
+    processed = '<p>' + processed + '</p>';
+
+    // Clean up empty paragraphs
+    processed = processed.replace(/<p>\s*<\/p>/g, '');
+
+    return processed;
+};
+
+const CustomMarkdownPreview = ({
+    text,
+    isUser = false,
+}: CustomMarkdownRendererProps) => {
+    const { theme } = useTheme();
+    const isDarkMode = theme === 'dark' || isUser;
+
+    // First handle mentions which need to be React components
+    const textParts = [];
+
+    // Check for mentions in the text
+    const hasMentions = /@\[(.*?)\]\((.*?)\)/g.test(text);
+
+    if (hasMentions) {
+        // If there are mentions, we need to split the text and process each part
+        const splitByMention = text.split(/(@\[.*?\]\(.*?\))/g);
+
+        splitByMention.forEach((part, index) => {
+            if (part.match(/^@\[(.*?)\]\((.*?)\)$/)) {
+                // This is a mention
+                const mentionMatch = part.match(/^@\[(.*?)\]\((.*?)\)$/);
+                if (mentionMatch) {
+                    const [_, name, id] = mentionMatch;
+                    textParts.push(
+                        <MentionTag
+                            key={`mention-${id}-${index}`}
+                            userId={id}
+                            userName={name}
+                        />,
+                    );
+                }
+            } else if (part.trim()) {
+                // This is regular text - process it normally
+                const processedPart = preprocessText(transformDates(part));
+                textParts.push(
+                    <span
+                        key={`text-${index}`}
+                        dangerouslySetInnerHTML={{ __html: processedPart }}
+                    />,
                 );
             }
+        });
+    } else {
+        // No mentions, process text normally
+        const processedText = preprocessText(transformDates(text));
+        textParts.push(
+            <span
+                key='text-content'
+                dangerouslySetInnerHTML={{ __html: processedText }}
+            />,
+        );
+    }
 
-            // For content that might contain links (including mentions),
-            // use the standard paragraph with pre-line styling to preserve both links and line breaks
-            return (
-                <p style={{ whiteSpace: 'pre-line' }} {...props}>
-                    {children}
-                </p>
-            );
-        },
-
-        // Ensure links open in new tab by default
-        a({
-            node,
-            href,
-            children,
-            ...props
-        }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { node?: any }) {
-            if (customComponents.a) {
-                const CustomLink = customComponents.a;
-                return (
-                    <CustomLink node={node} href={href} {...props}>
-                        {children}
-                    </CustomLink>
-                );
-            }
-
-            return (
-                <a
-                    href={href}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    {...props}
-                >
-                    {children}
-                </a>
-            );
-        },
-
-        // Add any additional custom components
-        ...customComponents,
-    };
-
-    return mounted ? (
-        <div
-            className={`${styles.markdownContainer} ${className}`}
-            data-color-mode={wrapperElement['data-color-mode'] || theme}
-        >
-            <ReactMarkdown
-                remarkPlugins={[remarkGfm, remarkBreaks]}
-                rehypePlugins={[rehypeRaw, rehypeSanitize]}
-                components={components}
+    return (
+        <>
+            <div
+                className={`custom-text ${isDarkMode ? 'dark' : 'light'} ${
+                    isUser ? 'text-pure-white/80' : 'text-dark-gray'
+                }`}
             >
-                {processedSource}
-            </ReactMarkdown>
-        </div>
-    ) : (
-        <div className='markdown-preview-loading'>Loading...</div>
+                {textParts}
+            </div>
+
+            <style jsx global>{`
+                .custom-text.dark {
+                    color: #ffffff;
+                }
+                .custom-text.light {
+                    color: #374151;
+                }
+                .custom-text.text-pure-white {
+                    color: #ffffff;
+                }
+                .custom-text.text-dark-gray {
+                    color: #374151;
+                }
+                /* List styling */
+                .custom-text ol {
+                    list-style-type: decimal;
+                    padding-left: 2rem;
+                    margin-bottom: 1rem;
+                }
+                .custom-text ul {
+                    list-style-type: disc;
+                    padding-left: 2rem;
+                    margin-bottom: 1rem;
+                }
+                .custom-text li {
+                    padding-left: 0.25rem;
+                    margin-bottom: 0.25rem;
+                }
+                /* Text formatting */
+                .custom-text strong {
+                    font-weight: 700;
+                }
+                .custom-text em {
+                    font-style: italic;
+                }
+                /* Links */
+                .custom-text a:not(.mention) {
+                    color: #2563eb;
+                    text-decoration: underline;
+                }
+                .custom-text.dark a:not(.mention) {
+                    color: #60a5fa;
+                }
+                /* Ensure mentions display correctly */
+                .mention-tag,
+                .mention {
+                    display: inline-block;
+                }
+                /* Ensure paragraphs have proper spacing */
+                .custom-text p {
+                    margin-bottom: 1rem;
+                }
+                .custom-text p:last-child {
+                    margin-bottom: 0;
+                }
+                .mention-tag,
+                .mention {
+                    display: inline-block;
+                    cursor: pointer;
+                    border-radius: 9999px; /* rounded-full */
+
+                    padding: 0px 4px;
+                    transition: background-color 0.2s ease;
+                }
+            `}</style>
+        </>
     );
 };
 

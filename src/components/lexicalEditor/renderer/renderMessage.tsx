@@ -1,8 +1,8 @@
 import React from 'react';
-import MessagePreview from '@/components/lexicalEditor/renderer/MessagePreview';
 import LexicalJsonRenderer from '@/components/lexicalEditor/renderer/JsonRenderer';
 import ReactHtmlParser from 'react-html-parser';
 import { useTheme } from 'next-themes';
+import MessageRenderer from './MessageRenderer';
 
 /**
  * Interface for Quill operation attributes
@@ -44,14 +44,16 @@ interface QuillData {
  * @param text The text content to render
  * @returns A React component rendering the appropriate format
  */
-export const renderText = ({
+export const renderMessage = ({
     text,
     bgColor,
     toc,
+    isUser = false,
 }: {
     text: string;
     bgColor?: 'background' | 'foreground';
     toc?: boolean;
+    isUser?: boolean;
 }): React.ReactNode => {
     if (!text) {
         return null; // Handle empty text case
@@ -77,26 +79,36 @@ export const renderText = ({
             );
         } else {
             // If JSON parsed but isn't the right object type, check if it contains HTML
-            return determineAndRenderContent(text);
+            return determineAndRenderContent(text, isUser);
         }
     } catch (error) {
         // If parsing fails (not JSON), check if it contains HTML
-        return determineAndRenderContent(text);
+        return determineAndRenderContent(text, isUser);
     }
 };
 
 /**
  * Helper function to determine if text is primarily HTML and render appropriately
  */
-const determineAndRenderContent = (text: string): React.ReactNode => {
+const determineAndRenderContent = (
+    text: string,
+    isUser?: boolean,
+): React.ReactNode => {
     // Check for markdown code blocks that might contain HTML
     const codeBlockRegex = /```[\s\S]*?```/g;
     const hasCodeBlocks = codeBlockRegex.test(text);
     const { theme } = useTheme();
-
+    // Check if text contains inline code blocks
+    const inlineCodeRegex = /`[^`]+`/g;
+    const hasInlineCode = inlineCodeRegex.test(text);
+    // Determine if the text contains any code
+    const hasCode = hasCodeBlocks || hasInlineCode;
     // If there are code blocks, treat as markdown to preserve them
-    if (hasCodeBlocks) {
-        return <MessagePreview text={text} />;
+    // If there are code blocks, treat as markdown to preserve them
+    if (hasCodeBlocks || hasInlineCode) {
+        return (
+            <MessageRenderer text={text} hasCode={hasCode} isUser={isUser} />
+        );
     }
 
     // Check if text appears to be primarily HTML
@@ -120,7 +132,7 @@ const determineAndRenderContent = (text: string): React.ReactNode => {
         );
     } else {
         // Render as plain text or markdown
-        return <MessagePreview text={text} />;
+        return <MessageRenderer text={text} isUser={isUser} />;
     }
 };
 

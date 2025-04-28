@@ -18,6 +18,7 @@ interface MessagePreviewProps {
     text: string;
     searchQuery?: string;
     isUser?: boolean;
+    hasCode?: any;
 }
 
 // Popover component for mentions
@@ -144,26 +145,46 @@ const components = {
     },
 };
 
-function MessagePreview({ text, searchQuery, isUser }: MessagePreviewProps) {
+function MessagePreview({
+    text,
+    searchQuery,
+    isUser,
+    hasCode,
+}: MessagePreviewProps) {
     const { theme } = useTheme();
 
     // 1. Transform mentions and dates
     const processedText = transformDate(transformMessage(text));
-
+    console.log({ hasCode });
     return (
         <div className='message-preview'>
-            <MarkdownPreview
-                source={processedText}
-                components={components}
-                wrapperElement={{
-                    'data-color-mode': theme === 'dark' ? 'dark' : 'light',
-                }}
-                className={`${
-                    isUser
-                        ? '!text-pure-white/80 dark:!text-pure-white/80'
-                        : '!text-gray dark:!text-pure-white/90'
-                }`}
-            />
+            {hasCode === true ? (
+                <MarkdownPreview
+                    source={processedText}
+                    components={components}
+                    wrapperElement={{
+                        'data-color-mode': isUser
+                            ? 'dark'
+                            : theme === 'dark'
+                              ? 'dark'
+                              : 'light',
+                    }}
+                    className='!text-gray dark:!text-pure-white/90'
+                />
+            ) : (
+                <MarkdownPreview
+                    source={processedText}
+                    components={components}
+                    wrapperElement={{
+                        'data-color-mode': theme === 'dark' ? 'dark' : 'light',
+                    }}
+                    className={`${
+                        isUser
+                            ? '!text-pure-white/80 dark:!text-pure-white/80'
+                            : '!text-gray dark:!text-pure-white/90'
+                    }`}
+                />
+            )}
 
             {searchQuery && (
                 <div className='hidden'>

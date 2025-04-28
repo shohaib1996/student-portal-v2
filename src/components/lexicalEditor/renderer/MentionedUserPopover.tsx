@@ -92,7 +92,7 @@ const MentionedUserPopover: React.FC<MentionedUserPopoverProps> = ({
     );
     return (
         <PopoverContent
-            className={`w-fit max-w-[350px] p-0 bg-background shadow-lg ${gradientBorderClass}`}
+            className={`w-fit max-w-[300px] p-0 bg-background shadow-lg ${gradientBorderClass}`}
             align={align}
             sideOffset={5}
         >
@@ -376,7 +376,7 @@ const MentionedUserPopover: React.FC<MentionedUserPopoverProps> = ({
                                                                         group.title
                                                                     }
                                                                     {group.description && (
-                                                                        <span className='ml-1 text-gray-400 text-xs'>
+                                                                        <span className='ml-1 text-gray truncate text-xs w-[200px]'>
                                                                             (
                                                                             {
                                                                                 group.description

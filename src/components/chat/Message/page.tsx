@@ -417,7 +417,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                 </div>
                             )}
                         </div>
-                        <div className='flex flex-col w-full'>
+                        <div className='flex flex-col w-[calc(100%-56px)]'>
                             <div className='flex flex-col w-full'>
                                 <div
                                     className={`rounded-lg p-2 ${

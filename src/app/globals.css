@@ -306,3 +306,5 @@ body {
 .wmde-markdown h6 a {
     @apply !hidden;
 }
+
+/* code block message preview background color */
