@@ -24,3 +24,16 @@ export type TNote = {
     createdAt: Date;
     updatedAt: Date;
 };
+
+export interface NoteResponse {
+    notes: TNote[];
+    success: boolean;
+    pagination: {
+        total: number;
+        currentPage: number;
+        totalPages: number;
+        hasNext: boolean;
+        hasPrev: boolean;
+        limit: number;
+    };
+}

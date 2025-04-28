@@ -467,7 +467,7 @@ const VideoContent: React.FC<VideoContentProps> = ({
                                                 className='mt-0'
                                             >
                                                 <>
-                                                    {tab.data && (
+                                                    {tab.data ? (
                                                         <div className='py-2 px-2'>
                                                             <p className='whitespace-pre-line text-sm font-semibold text-gray'>
                                                                 {
@@ -475,6 +475,16 @@ const VideoContent: React.FC<VideoContentProps> = ({
                                                                 }
                                                             </p>
                                                         </div>
+                                                    ) : (
+                                                        <>
+                                                            <div className='flex items-center gap-2 text-graytext-sm mt-1 p-3 bg-primary-foreground rounded-md line-clamp-2  transition-all '>
+                                                                <span className='text-center w-full text-primary font-bold'>
+                                                                    No{' '}
+                                                                    {tab?.title}{' '}
+                                                                    available
+                                                                </span>
+                                                            </div>
+                                                        </>
                                                     )}
                                                 </>
                                             </TabsContent>

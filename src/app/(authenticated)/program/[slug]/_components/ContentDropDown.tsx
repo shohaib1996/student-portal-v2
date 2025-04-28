@@ -16,7 +16,15 @@ import { Progress } from '@/components/ui/progress';
 import GlobalModal from '@/components/global/GlobalModal';
 
 // Icons and SVGs
-import { File, Folder, Play, MoreVertical, Clock, Brain } from 'lucide-react';
+import {
+    File,
+    Folder,
+    Play,
+    MoreVertical,
+    Clock,
+    Brain,
+    PanelLeft,
+} from 'lucide-react';
 import LecturesSvg from '@/components/svgs/common/LecturesSvg';
 import MemoizedLoadingIndicator from '@/components/svgs/common/LoadingIndicator';
 import MemoizedEmptyState from '@/components/svgs/common/EmptyState';
@@ -649,31 +657,40 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         ],
     );
 
+    const [clopes, setClopas] = useState(false);
+    console.log({ clopes });
+
     return (
-        <div
-            className={cn(
-                'space-y-4',
-                videoData?.isSideOpen
-                    ? `no-scrollbar lg:col-span-1 xl:sticky top-0 h-[607px] overflow-y-auto bottom-[20px]`
-                    : 'w-full',
-            )}
-        >
-            <Accordion type='multiple' className='w-full'>
-                {option?.courseProgramsLoading ? (
-                    <MemoizedLoadingIndicator />
-                ) : treeData && treeData.length > 0 ? (
-                    renderContent(treeData)
-                ) : (
-                    <MemoizedEmptyState />
+        <div className='flex'>
+            <div onClick={() => setClopas(!clopes)}>
+                <PanelLeft className='h-5 w-5' />
+            </div>
+            <div
+                className={cn(
+                    clopes && 'hidden',
+                    'space-y-4',
+                    videoData?.isSideOpen
+                        ? `no-scrollbar  lg:col-span-1 xl:sticky top-0 h-[607px] overflow-y-auto bottom-[20px]`
+                        : 'w-full ',
                 )}
-            </Accordion>
-            <GlobalModal
-                open={openQuiz}
-                setOpen={handleQuizClose}
-                title='Give your quiz ans'
             >
-                <QuizModalContent lesson={lesson as any} />
-            </GlobalModal>
+                <Accordion type='multiple' className='w-full'>
+                    {option?.courseProgramsLoading ? (
+                        <MemoizedLoadingIndicator />
+                    ) : treeData && treeData.length > 0 ? (
+                        renderContent(treeData)
+                    ) : (
+                        <MemoizedEmptyState />
+                    )}
+                </Accordion>
+                <GlobalModal
+                    open={openQuiz}
+                    setOpen={handleQuizClose}
+                    title='Give your quiz ans'
+                >
+                    <QuizModalContent lesson={lesson as any} />
+                </GlobalModal>
+            </div>
         </div>
     );
 };

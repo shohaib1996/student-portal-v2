@@ -202,9 +202,9 @@ const LessionActionMenu = ({
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent
-                    className={cn(
-                        'absolute right-0 top-full mt-1 z-50 bg-foreground rounded-md shadow-md border border-border w-[200px] py-1 overflow-hidden',
-                    )}
+                    // className={cn(
+                    //     'absolute right-0 top-full mt-1 z-50 bg-foreground rounded-md shadow-md border border-border w-[200px] py-1 overflow-hidden',
+                    // )}
                     align='end'
                     side='bottom'
                 >

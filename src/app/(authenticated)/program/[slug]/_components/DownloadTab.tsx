@@ -37,7 +37,7 @@ const DownloadTab = () => {
         },
         {
             id: 2,
-            name: 'CI-CD Pipeline Documentation.pdf',
+            name: 'CI-CD Pipeline.pdf',
             date: 'Jan 28, 2024',
             time: '10:15 AM',
             size: '1.8MB',
@@ -271,7 +271,7 @@ const DownloadTab = () => {
                         </Button>
                     </div>
                 ) : (
-                    <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border'>
+                    <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border overflow-hidden'>
                         {/* Left Column */}
                         <div className='divide-y divide-border'>
                             {filteredMaterials
@@ -284,7 +284,7 @@ const DownloadTab = () => {
                                         <div className='flex items-center gap-3'>
                                             {getFileIcon(material.type)}
                                             <div className='min-w-0 flex-1'>
-                                                <h4 className='font-medium text-black truncate'>
+                                                <h4 className='font-medium text-black overflow-hidden  text-wrap'>
                                                     {material.name}
                                                 </h4>
                                                 <div className='flex items-center gap-1 text-sm text-gray'>

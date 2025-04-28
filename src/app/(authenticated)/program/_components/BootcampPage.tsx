@@ -184,6 +184,7 @@ const ProgramStats = ({
     bootcamp: TBootcampResult[];
 }) => {
     // const newBootcamp = bootcamp?.map((item: TBootcampResult, idxnumber) => {return [...item, icon: idx === 0 ? <Clock className='h-6 w-6 text-blue-600' /> : idx === 1  'bg-red-100']});
+
     return (
         <div className='grid grid-cols-1 lg:grid-cols-4 gap-4 my-2.5'>
             {bootcamp?.map((item: TBootcampResult, index: number) => (
