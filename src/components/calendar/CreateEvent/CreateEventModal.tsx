@@ -34,6 +34,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import CalendarModal from '../ui/CalendarModal';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 export const updateOptionsOptions: {
     label: string;
@@ -447,12 +448,14 @@ const CreateEventModal = () => {
                         )}
                         {!isFullScreen && submitButton()}
                         <div className='flex gap-2'>
-                            <Button
-                                tooltip='My Availibility'
-                                size={'icon'}
-                                variant={'secondary'}
-                                icon={<AvailabilityIcon />}
-                            />
+                            <Link href={'/calendar/availability'}>
+                                <Button
+                                    tooltip='My Availibility'
+                                    size={'icon'}
+                                    variant={'secondary'}
+                                    icon={<AvailabilityIcon />}
+                                />
+                            </Link>
                             <Button
                                 onClick={handleClose}
                                 variant={'secondary'}
@@ -579,8 +582,8 @@ const CreateEventModal = () => {
                         </Button>
                     </div>
                 }
-                subTitle='Select events to update from the series.'
-                title='Update recurring event'
+                subTitle={`Select ${event?.type}s to update from the series.`}
+                title={`Update recurring ${event?.type}`}
             >
                 <div className='flex flex-col gap-2 py-2'>
                     {updateOptionsOptions.map((item) => (

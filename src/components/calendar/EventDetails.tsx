@@ -639,8 +639,8 @@ const EventDetails = () => {
                         </Button>
                     </div>
                 }
-                subTitle='Select events to update from the series.'
-                title='Update recurring event'
+                subTitle={`Select ${event?.type}s to update from the series.`}
+                title={`Update recurring ${event?.type}`}
             >
                 <div className='flex flex-col gap-2 py-2'>
                     {updateOptionsOptions.map((item) => (
