@@ -1,13 +1,6 @@
 'use client';
 
-import {
-    Dispatch,
-    SetStateAction,
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
     ChevronDown,
     Users,
@@ -166,6 +159,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                         {isFullScreen && <FormLabel reqired>Name</FormLabel>}
                         <FormControl>
                             <Input
+                                autoFocus
                                 className='bg-foreground'
                                 placeholder='Enter event name *'
                                 {...field}
@@ -749,6 +743,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                         onChange={(value) => {
                             form.setValue('description', value);
                         }}
+                        autoFocus={false}
                     />
                 </div>
             </div>

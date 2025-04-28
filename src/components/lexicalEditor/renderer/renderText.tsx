@@ -1,7 +1,7 @@
 import React from 'react';
 import MessagePreview from '@/components/lexicalEditor/renderer/MessagePreview';
 import LexicalJsonRenderer from '@/components/lexicalEditor/renderer/JsonRenderer';
-import parse from 'html-react-parser';
+import ReactHtmlParser from 'react-html-parser';
 
 /**
  * Interface for Quill operation attributes
@@ -76,25 +76,44 @@ export const renderText = ({
             );
         } else {
             // If JSON parsed but isn't the right object type, check if it contains HTML
-            return checkAndRenderHtml(text);
+            return determineAndRenderContent(text);
         }
     } catch (error) {
         // If parsing fails (not JSON), check if it contains HTML
-        return checkAndRenderHtml(text);
+        return determineAndRenderContent(text);
     }
 };
 
 /**
- * Helper function to check if text contains HTML and render appropriately
+ * Helper function to determine if text is primarily HTML and render appropriately
  */
-const checkAndRenderHtml = (text: string): React.ReactNode => {
-    // Check if text contains HTML tags
-    const containsHtml = /<[a-z][\s\S]*>/i.test(text);
-    if (containsHtml) {
+const determineAndRenderContent = (text: string): React.ReactNode => {
+    // Check for markdown code blocks that might contain HTML
+    const codeBlockRegex = /```[\s\S]*?```/g;
+    const hasCodeBlocks = codeBlockRegex.test(text);
+
+    // If there are code blocks, treat as markdown to preserve them
+    if (hasCodeBlocks) {
+        return <MessagePreview text={text} />;
+    }
+
+    // Check if text appears to be primarily HTML
+    // More robust check for HTML - looking for common HTML document structure
+    const htmlTags = text.match(/<[^>]+>/g);
+    const isPrimarilyHtml =
+        // If it starts with <!DOCTYPE html> or <html>
+        /^\s*(?:<!DOCTYPE\s+html|<html)/i.test(text) ||
+        // Or if it contains multiple HTML tags and they make up a significant portion of the content
+        (/<[a-z][\s\S]*>/i.test(text) &&
+            htmlTags !== null &&
+            htmlTags.length > 3 &&
+            htmlTags.join('').length > text.length * 0.3);
+
+    if (isPrimarilyHtml) {
         // Use html-react-parser to render HTML
-        return <div className='html-content'>{parse(text)}</div>;
+        return <div className='html-content'>{ReactHtmlParser(text)}</div>;
     } else {
-        // Render as plain text
+        // Render as plain text or markdown
         return <MessagePreview text={text} />;
     }
 };
@@ -145,5 +164,5 @@ const renderQuillContent = (quillData: QuillData): React.ReactNode => {
     // Wrap with line breaks as needed
     html = html.replace(/\n/g, '<br />');
 
-    return <div className='quill-content'>{parse(html)}</div>;
+    return <div className='quill-content'>{ReactHtmlParser(html)}</div>;
 };

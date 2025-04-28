@@ -45,6 +45,7 @@ const EventButton = memo(
         return (
             <button
                 onClick={(e) => {
+                    e.stopPropagation();
                     router.push(`/calendar?detail=${event._id}`);
                 }}
                 key={event._id}

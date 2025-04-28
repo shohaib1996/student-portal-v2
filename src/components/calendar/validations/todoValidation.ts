@@ -24,15 +24,29 @@ export const TodoFormSchema = z
             .object({
                 isRecurring: z.boolean(),
                 frequency: z
-                    .enum(['daily', 'weekly', 'monthly', 'yearly'])
+                    .enum(['daily', 'weekly', 'monthly', 'yearly', ''])
                     .optional(),
                 interval: z.number().int().positive(), // Ensures a positive integer
-                daysOfWeek: z.array(z.number().int().max(7)).optional(), // 1 = Monday, 7 = Sunday
-                endRecurrence: z
-                    .string()
-                    .refine((val) => !isNaN(Date.parse(val)), {
-                        message: 'Invalid ISO 8601 date format',
-                    }),
+                daysOfWeek: z.array(z.number().int()).max(7).optional(), // 1 = Monday, 7 = Sunday
+                endRecurrence: z.string().nullable().optional(),
+            })
+            .superRefine((data, ctx) => {
+                if (data.isRecurring) {
+                    if (!data.endRecurrence) {
+                        ctx.addIssue({
+                            path: ['endRecurrence'],
+                            message:
+                                'End Recurrence date is required for recurring events',
+                            code: z.ZodIssueCode.custom,
+                        });
+                    } else if (isNaN(Date.parse(data.endRecurrence))) {
+                        ctx.addIssue({
+                            path: ['endRecurrence'],
+                            message: 'Invalid ISO 8601 date format',
+                            code: z.ZodIssueCode.custom,
+                        });
+                    }
+                }
             })
             .optional(),
         isAllDay: z.boolean().default(false),
