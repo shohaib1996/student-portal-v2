@@ -95,13 +95,6 @@ const TodoForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
         handleSetAvailibility(date);
     }, [userAvailability]);
 
-    const handleDateSelect = (date: Date | undefined) => {
-        if (date) {
-            setDate(date);
-            handleSetAvailibility(date);
-        }
-    };
-
     const days = [
         { value: 0, label: 'Sun' },
         { value: 1, label: 'Mon' },
@@ -124,8 +117,9 @@ const TodoForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
                         {isFullScreen && <FormLabel reqired>Name</FormLabel>}
                         <FormControl>
                             <Input
+                                autoFocus
                                 className='bg-foreground'
-                                placeholder='Enter event name *'
+                                placeholder='Enter task name *'
                                 {...field}
                             />
                         </FormControl>
@@ -537,17 +531,16 @@ const TodoForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
     const agendaField = (className?: string) => {
         return (
             <div className={isFullScreen ? '' : ''}>
-                {isFullScreen && (
-                    <FormLabel>Meeting Agenda/Follow up/Action Item</FormLabel>
-                )}
+                {isFullScreen && <FormLabel>Task details</FormLabel>}
                 <div className='my-2 md:h-[60vh] sm:h-[50vh] h-[40vh]'>
                     <GlobalEditor
                         className='bg-foreground'
-                        placeholder='Write Agenda/Follow up/Action Item'
+                        placeholder='Write Task details'
                         value={form.watch('description') || ''}
                         onChange={(value) => {
                             form.setValue('description', value);
                         }}
+                        autoFocus={false}
                     />
                 </div>
             </div>
@@ -626,9 +619,13 @@ const TodoForm = ({ form, onSubmit, setCurrentDate, edit }: TProps) => {
                     ) : (
                         <div className='space-y-2 h-full w-full pb-2'>
                             <div className='grid grid-cols-10 gap-2 items-start'>
-                                {titleField('col-span-10 md:col-span-5')}
-                                {courseLink('col-span-5 md:col-span-3')}
-                                {priorityField('col-span-5 md:col-span-2')}
+                                {titleField('col-span-10 2xl:col-span-5')}
+                                {courseLink(
+                                    'col-span-10 sm:col-span-5 2xl:col-span-3',
+                                )}
+                                {priorityField(
+                                    'col-span-10 sm:col-span-5 2xl:col-span-2',
+                                )}
                             </div>
                             <div className='grid grid-cols-1 lg:grid-cols-2 gap-2'>
                                 {dateField('')}

@@ -51,6 +51,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { isBefore } from 'date-fns';
 
 interface TaskCardProps {
     task: TEvent;
@@ -167,15 +168,22 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
                             className='w-40'
                             dropdownRender={
                                 <div className='flex flex-col p-2 gap-2'>
-                                    <EventPopoverTrigger updateId={task?._id}>
-                                        <Button
-                                            className='w-full h-8'
-                                            variant={'primary_light'}
-                                            icon={<Pencil size={16} />}
+                                    {!isBefore(
+                                        new Date(task.startTime),
+                                        new Date(),
+                                    ) && (
+                                        <EventPopoverTrigger
+                                            updateId={task?._id}
                                         >
-                                            Edit
-                                        </Button>
-                                    </EventPopoverTrigger>
+                                            <Button
+                                                className='w-full h-8'
+                                                variant={'primary_light'}
+                                                icon={<Pencil size={16} />}
+                                            >
+                                                Edit
+                                            </Button>
+                                        </EventPopoverTrigger>
+                                    )}
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                             <Button

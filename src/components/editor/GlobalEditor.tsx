@@ -22,6 +22,7 @@ type TProps = {
     className?: string;
     pluginOptions?: PluginOptions;
     placeholder?: string;
+    autoFocus?: boolean;
 };
 
 export default function GlobalEditor({
@@ -32,6 +33,7 @@ export default function GlobalEditor({
     placeholder = 'Enter description',
     className,
     pluginOptions,
+    autoFocus = true,
 }: TProps) {
     const [editorState, setEditorState] = useState<string>(value);
     const [
@@ -42,7 +44,7 @@ export default function GlobalEditor({
     const defaultPluginOptions: PluginOptions = {
         // Enable only essential features
         history: true,
-        autoFocus: true,
+        autoFocus: autoFocus,
         richText: true,
         list: true,
         link: true,

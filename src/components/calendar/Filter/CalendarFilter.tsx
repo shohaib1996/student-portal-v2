@@ -19,16 +19,11 @@ import {
     todoOptions,
     typeOptions,
 } from '../CalendarSidebar';
-import {
-    CalendarFold,
-    ChevronDown,
-    ChevronRight,
-    PocketKnife,
-    SquareChartGantt,
-} from 'lucide-react';
+import { CalendarFold, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import TodoIcon from '../svgs/calendar/TodoIcon';
 import HolidayIcon from '../svgs/calendar/HolidayIcon';
+import useResponsive from '@/hooks/useResponsive';
 
 const CalendarFilter = () => {
     const {
@@ -41,6 +36,8 @@ const CalendarFilter = () => {
     } = useAppSelector((s) => s.calendar);
 
     const dispatch = useAppDispatch();
+    const isMobile = useResponsive('max-width: 740px');
+    console.log(isMobile);
 
     const [eventOpen, setEventOpen] = useState(false);
     const [todoOpen, setTodoOpen] = useState(false);
@@ -150,7 +147,7 @@ const CalendarFilter = () => {
                                 </div>
                             </button>
                         </PopoverTrigger>
-                        <PopoverContent side='right'>
+                        <PopoverContent side={isMobile ? 'bottom' : 'right'}>
                             <div className='p-3 py-0 space-y-2'>
                                 {eventOptions.map((item) => (
                                     <div
@@ -220,7 +217,7 @@ const CalendarFilter = () => {
                                 </div>
                             </button>
                         </PopoverTrigger>
-                        <PopoverContent side='right'>
+                        <PopoverContent side={isMobile ? 'bottom' : 'right'}>
                             <div className='p-3 py-0 space-y-2'>
                                 {todoOptions.map((item) => (
                                     <div
@@ -290,7 +287,7 @@ const CalendarFilter = () => {
                                 </div>
                             </button>
                         </PopoverTrigger>
-                        <PopoverContent side='right'>
+                        <PopoverContent side={isMobile ? 'bottom' : 'right'}>
                             <div className='p-3 py-0 space-y-2'>
                                 {priorityOptions.map((item) => (
                                     <div
@@ -362,7 +359,7 @@ const CalendarFilter = () => {
                                 </div>
                             </button>
                         </PopoverTrigger>
-                        <PopoverContent side='right'>
+                        <PopoverContent side={isMobile ? 'bottom' : 'right'}>
                             <div className='p-3 py-0 space-y-2'>
                                 {typeOptions.map((item) => (
                                     <div
