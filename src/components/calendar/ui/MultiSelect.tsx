@@ -5,7 +5,6 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 import { Search, XIcon } from 'lucide-react';
 import { Input } from '../ui/input';
@@ -25,6 +24,7 @@ type TProps = {
     className?: string;
     wrapperClassName?: string;
     disabled?: boolean;
+    id?: string;
     max?: number;
 };
 
@@ -36,6 +36,7 @@ const MultiSelect = ({
     wrapperClassName,
     disabled,
     className,
+    id = `dropdown-${Math.random().toString(36).substring(2, 9)}`,
     searchable = false,
     max,
 }: TProps) => {
@@ -43,6 +44,37 @@ const MultiSelect = ({
     const [searchQuery, setSearchQuery] = useState('');
     const menuRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
+
+    const dropdownEventTarget =
+        typeof window !== 'undefined' ? new EventTarget() : null;
+
+    useEffect(() => {
+        if (!dropdownEventTarget) {
+            return;
+        }
+
+        const handleDropdownChange = (e: Event) => {
+            if (e instanceof CustomEvent) {
+                const { dropdownId } = e.detail;
+                // Close this dropdown if another one was opened
+                if (dropdownId !== id && open) {
+                    setOpen(false);
+                }
+            }
+        };
+
+        dropdownEventTarget.addEventListener(
+            'dropdown-changed',
+            handleDropdownChange,
+        );
+
+        return () => {
+            dropdownEventTarget.removeEventListener(
+                'dropdown-changed',
+                handleDropdownChange,
+            );
+        };
+    }, [id, open]);
 
     useEffect(() => {
         const handleOutsideClick = (e: MouseEvent) => {

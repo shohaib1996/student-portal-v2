@@ -100,11 +100,11 @@ const documentsApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getLabContent: build.query<
             LabContentResponse,
-            { page?: number; limit?: number }
+            { page?: number; limit?: number; query?: string; date?: string }
         >({
-            query: ({ page = 1, limit = 8 }) => ({
+            query: (params) => ({
                 url: '/content/labcontent',
-                params: { page, limit },
+                params,
             }),
         }),
         getMyDocument: build.query<
@@ -133,11 +133,11 @@ const documentsApi = baseApi.injectEndpoints({
 
         getMySlides: build.query<
             MySlidesResponse,
-            { page?: number; limit?: number }
+            { page?: number; limit?: number; date?: string; query?: string }
         >({
-            query: ({ page = 1, limit = 8 }) => ({
+            query: (params) => ({
                 url: '/slide/myslides',
-                params: { page, limit },
+                params,
             }),
         }),
         getMyTemplates: build.query<

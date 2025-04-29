@@ -168,7 +168,7 @@ const CreateEventModal = () => {
         isAllDay: false,
         reminders: [
             {
-                chatGroups: [],
+                crowds: [],
                 methods: ['push'],
                 offsetMinutes: 15,
             },
@@ -199,7 +199,7 @@ const CreateEventModal = () => {
         isAllDay: false,
         reminders: [
             {
-                chatGroups: [],
+                crowds: [],
                 methods: ['push'],
                 offsetMinutes: 15,
             },
@@ -240,8 +240,8 @@ const CreateEventModal = () => {
                 );
             } else if (eventForm.formState.errors.reminders) {
                 const reminderError = eventForm.formState.errors.reminders;
-                if (reminderError[0]?.chatGroups?.message) {
-                    toast.error(reminderError[0]?.chatGroups?.message);
+                if (reminderError[0]?.crowds?.message) {
+                    toast.error(reminderError[0]?.crowds?.message);
                 } else if (reminderError[0]?.methods?.message) {
                     toast.error(reminderError[0]?.methods?.message);
                 }
@@ -255,8 +255,8 @@ const CreateEventModal = () => {
                 );
             } else if (todoForm.formState.errors.reminders) {
                 const reminderError = todoForm.formState.errors.reminders;
-                if (reminderError[0]?.chatGroups?.message) {
-                    toast.error(reminderError[0]?.chatGroups?.message);
+                if (reminderError[0]?.crowds?.message) {
+                    toast.error(reminderError[0]?.crowds?.message);
                 } else if (reminderError[0]?.methods?.message) {
                     toast.error(reminderError[0]?.methods?.message);
                 }
