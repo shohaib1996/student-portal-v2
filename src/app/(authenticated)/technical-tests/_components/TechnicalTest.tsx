@@ -134,7 +134,6 @@ const TechnicalTest = () => {
     const { data, isLoading } = useGetTechnicalTestsQuery({
         page: currentPage,
         limit: limit,
-        workshop: selectedDate || null,
         category: getCategoryForTab(activeTab),
         query: searchQuery,
         type: type,
@@ -143,38 +142,6 @@ const TechnicalTest = () => {
 
     const assignments: Assignment[] = data?.assignments || [];
     const totalItems = data?.count || 0;
-
-    // Get counts for each tab by making separate requests with skip: false
-    const { data: tasksData } = useGetTechnicalTestsQuery(
-        {
-            page: 1,
-            limit: 1,
-            category: 'task',
-        },
-        { skip: false },
-    );
-
-    const { data: assignmentsData } = useGetTechnicalTestsQuery(
-        {
-            page: 1,
-            limit: 1,
-            category: 'assignment',
-        },
-        { skip: false },
-    );
-
-    const { data: questionsData } = useGetTechnicalTestsQuery(
-        {
-            page: 1,
-            limit: 1,
-            category: 'question',
-        },
-        { skip: false },
-    );
-
-    const taskCount = tasksData?.count || 0;
-    const assignmentCount = assignmentsData?.count || 0;
-    const questionCount = questionsData?.count || 0;
 
     const handleTestNowClick = (item: Assignment, index: number) => {
         setModalMode('test');
@@ -666,10 +633,6 @@ const TechnicalTest = () => {
                                         type: 'select',
                                         options: [
                                             {
-                                                value: 'all',
-                                                label: 'All Status',
-                                            },
-                                            {
                                                 value: 'pending',
                                                 label: 'Pending',
                                             },
@@ -682,10 +645,6 @@ const TechnicalTest = () => {
                                                 label: 'Rejected',
                                             },
                                         ],
-                                    },
-                                    {
-                                        label: 'Workshop Date',
-                                        value: 'date',
                                     },
                                     {
                                         label: 'Type',
@@ -723,7 +682,7 @@ const TechnicalTest = () => {
                         >
                             <FileText className='h-5 w-5' />
                             <span className={isMobile ? 'text-xs' : ''}>
-                                Technical Task ({taskCount})
+                                Technical Task
                             </span>
                         </TabsTrigger>
                         <TabsTrigger
@@ -732,7 +691,7 @@ const TechnicalTest = () => {
                         >
                             <ClipboardList className='h-5 w-5' />
                             <span className={isMobile ? 'text-xs' : ''}>
-                                Assignments ({assignmentCount})
+                                Assignments
                             </span>
                         </TabsTrigger>
                         <TabsTrigger
@@ -741,7 +700,7 @@ const TechnicalTest = () => {
                         >
                             <MessageCircleQuestion className='h-5 w-5' />
                             <span className={isMobile ? 'text-xs' : ''}>
-                                Technical Question ({questionCount})
+                                Technical Question
                             </span>
                         </TabsTrigger>
                     </TabsList>
