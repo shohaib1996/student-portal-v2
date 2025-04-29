@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { markRead, updateMyData } from '@/redux/features/chatReducer';
-import onlineUsers from '../onlineUsers.json';
+const { onlineUsers } = useAppSelector((state) => state.chat);
 import NotificationOptionModal from '../ChatForm/NotificationModal';
 import { Input } from '@/components/ui/input';
 import PopUpChatBody from './PopupchatBody';
@@ -42,6 +42,7 @@ import {
 } from '@/components/calendar/CreateEvent/EventPopover';
 import CreateEventModal from '@/components/calendar/CreateEvent/CreateEventModal';
 import { Switch } from '@/components/ui/switch';
+import { useAppSelector } from '@/redux/hooks';
 
 // Dynamic imports
 const ChatBody = lazy(() => import('../ChatBody'));

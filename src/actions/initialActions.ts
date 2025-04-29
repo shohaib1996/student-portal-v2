@@ -57,10 +57,8 @@ interface GetCommunityPostsParams {
 
 export const loadChats = (): AppThunk => {
     return async (dispatch) => {
-        console.log('Load chats called ------------');
         try {
             const res = await instance.get('/chat/mychats');
-            console.log('dispatching the chats ------------');
             dispatch(setChats(res.data.chats));
         } catch (err: any) {
             console.error(err);

@@ -663,13 +663,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         {message?.type !== 'delete' &&
                                             message?.editedAt && (
                                                 <span
-                                                    className={`text-xs italic ${
-                                                        message?.sender?._id ===
-                                                            user?._id &&
-                                                        !isThread
-                                                            ? 'text-pure-white/80'
-                                                            : 'text-primary-white'
-                                                    }`}
+                                                    className={`text-xs italic text-primary-white `}
                                                 >
                                                     (Edited)
                                                 </span>

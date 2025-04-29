@@ -35,8 +35,6 @@ import {
     ChevronDown,
 } from 'lucide-react';
 
-import onlineUsers from '../onlineUsers.json';
-import { TChat } from '../ChatNav';
 import { useAppSelector } from '@/redux/hooks';
 import {
     ChatData,
