@@ -29,7 +29,6 @@ import TdDate from '@/components/global/TdDate';
 import { TdUser } from '@/components/global/TdUser';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import { MyDocumentDetailsModal } from './MyDocumentDetailsModal';
-import { UploadDocumentModal } from './UploadDocumentModal';
 import CardLoader from '@/components/loading-skeletons/CardLoader';
 import { instance } from '@/lib/axios/axiosInstance';
 import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
@@ -330,84 +329,81 @@ export default function MyDocumentsPage() {
     }
 
     return (
-        <div>
-            <div className='my-2'>
-                <GlobalHeader
-                    title='My Documents'
-                    subTitle='Resource Library: Access All Essential Documents'
-                    tooltip={
-                        <div>
-                            <h5>
-                                This page displays all your documents in one
-                                place.
-                            </h5>
-                            <h5>
-                                You can view, filter, and manage your documents.
-                                Use the grid view for a visual representation or
-                                list view for detailed information.
-                            </h5>
-                        </div>
-                    }
-                    buttons={
-                        <div className='flex items-center gap-2'>
-                            {/* View mode toggles */}
-                            <Button
-                                variant={!isGridView ? 'outline' : 'default'}
-                                onClick={() => toggleViewMode(true)}
-                            >
-                                <LayoutGrid size={16} />
-                            </Button>
-                            <Button
-                                variant={isGridView ? 'outline' : 'default'}
-                                onClick={() => toggleViewMode(false)}
-                            >
-                                <List size={16} />
-                            </Button>
+        <div className='my-2'>
+            <GlobalHeader
+                title='My Documents'
+                subTitle='Resource Library: Access All Essential Documents'
+                tooltip={
+                    <div>
+                        <h5>
+                            This page displays all your documents in one place.
+                        </h5>
+                        <h5>
+                            You can view, filter, and manage your documents. Use
+                            the grid view for a visual representation or list
+                            view for detailed information.
+                        </h5>
+                    </div>
+                }
+                buttons={
+                    <div className='flex items-center gap-2'>
+                        {/* View mode toggles */}
+                        <Button
+                            variant={!isGridView ? 'outline' : 'default'}
+                            onClick={() => toggleViewMode(true)}
+                        >
+                            <LayoutGrid size={16} />
+                        </Button>
+                        <Button
+                            variant={isGridView ? 'outline' : 'default'}
+                            onClick={() => toggleViewMode(false)}
+                        >
+                            <List size={16} />
+                        </Button>
 
-                            {/* Filter modal */}
-                            <FilterModal
-                                value={filterData}
-                                onChange={handleFilter}
-                                columns={[
-                                    {
-                                        label: 'Search (Name/Description/Creator)',
-                                        value: 'query',
-                                    },
-                                    {
-                                        label: 'Priority',
-                                        value: 'priority',
-                                        type: 'select',
-                                        options: [
-                                            { value: 'high', label: 'High' },
-                                            {
-                                                value: 'medium',
-                                                label: 'Medium',
-                                            },
-                                            { value: 'low', label: 'Low' },
-                                        ],
-                                    },
-                                    {
-                                        label: 'Creation Date',
-                                        value: 'date',
-                                    },
-                                ]}
-                            />
+                        {/* Filter modal */}
+                        <FilterModal
+                            value={filterData}
+                            onChange={handleFilter}
+                            columns={[
+                                {
+                                    label: 'Search (Name/Description/Creator)',
+                                    value: 'query',
+                                },
+                                {
+                                    label: 'Priority',
+                                    value: 'priority',
+                                    type: 'select',
+                                    options: [
+                                        { value: 'high', label: 'High' },
+                                        {
+                                            value: 'medium',
+                                            label: 'Medium',
+                                        },
+                                        { value: 'low', label: 'Low' },
+                                    ],
+                                },
+                                {
+                                    label: 'Creation Date',
+                                    value: 'date',
+                                },
+                            ]}
+                        />
 
-                            {/* Sort menu */}
-                            <SortMenu
-                                value={sortData}
-                                onChange={(val) => setSortData(val)}
-                                columns={defaultColumns.filter(
-                                    (col) =>
-                                        !['actions'].includes(
-                                            col.accessorKey as string,
-                                        ),
-                                )}
-                            />
-                        </div>
-                    }
-                />
-            </div>
+                        {/* Sort menu */}
+                        <SortMenu
+                            value={sortData}
+                            onChange={(val) => setSortData(val)}
+                            columns={defaultColumns.filter(
+                                (col) =>
+                                    !['actions'].includes(
+                                        col.accessorKey as string,
+                                    ),
+                            )}
+                        />
+                    </div>
+                }
+            />
 
             <div className='flex h-[calc(100vh-125px)] flex-col justify-between'>
                 {isGridView ? (

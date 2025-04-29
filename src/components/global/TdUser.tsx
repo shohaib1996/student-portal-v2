@@ -21,7 +21,7 @@ export function TdUser({
 
     // Determine user's active status based on last activity
     const getUserActiveStatus = () => {
-        if (!user.lastActive) {
+        if (!user?.lastActive) {
             return {
                 isActive: false,
                 activityBadge: '',
@@ -30,7 +30,7 @@ export function TdUser({
 
         // Check if user is in online users list or recently active
         const now = dayjs();
-        const lastActive = dayjs(user.lastActive);
+        const lastActive = dayjs(user?.lastActive);
         const diffSeconds = now.diff(lastActive, 'second');
         const diffMinutes = now.diff(lastActive, 'minute');
         const diffHours = now.diff(lastActive, 'hour');

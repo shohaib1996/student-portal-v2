@@ -20,10 +20,6 @@ import { renderText } from '@/components/lexicalEditor/renderer/renderText';
 import GlobalComment from '@/components/global/GlobalComments/GlobalComment';
 import { Card, CardContent } from '@/components/ui/card';
 import { useGetMySingleDocumentQuery } from '@/redux/api/documents/documentsApi';
-import DownloadIcon from '@/components/svgs/common/DownloadIcon';
-import EditPenIcon from '@/components/svgs/common/EditPenIcon';
-import DeleteTrashIcon from '@/components/svgs/common/DeleteTrashIcon';
-import { EditDocumentModal } from './edit-document-modal';
 import dayjs from 'dayjs';
 import DocumentList from './documentsList';
 
@@ -691,25 +687,6 @@ export function MyDocumentDetailsModal({
                     </div>
                 </div>
             </GlobalDocumentDetailsModal>
-
-            {/* Edit Modal */}
-            {document && (
-                <EditDocumentModal
-                    isOpen={isEditModalOpen}
-                    onClose={handleEditModalClose}
-                    documentId={id || ''}
-                    defaultValues={{
-                        description: document.content,
-                        name: document.title,
-                        categories: document.tags.slice(0, 2), // Assuming 2 categories
-                        tags: document.tags.join(', '),
-                        thumbnailUrl: document.imageUrl,
-                        attachedFileUrls: document.attachedFiles.map(
-                            (file: any) => file.name,
-                        ),
-                    }}
-                />
-            )}
         </>
     );
 }

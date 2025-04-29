@@ -54,20 +54,6 @@ export function GlobalDocumentCard({
     imageHeight = 150,
 }: GlobalDocumentCardProps) {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    // const { data } = useGetMySingleDocumentQuery(searchParams.get('id') || '');
-    // const [des, setDes] = useState(description);
-
-    // useEffect(() => {
-    //     (async () => {
-    //         try {
-    //             const res = await instance.get(`/content/singlecontent/${id}`);
-    //             setDes(res.data.content?.description);
-    //         } catch (error) {
-    //             console.error((error as Error).message);
-    //         }
-    //     })();
-    // }, [id]);
 
     const handleReadMore: (e: React.MouseEvent) => void = (
         e: React.MouseEvent,

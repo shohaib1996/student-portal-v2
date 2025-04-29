@@ -12,6 +12,7 @@ import {
     Eye,
     FileIcon,
     PencilLine,
+    Trash,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -29,7 +30,8 @@ import {
     useGetSingleUpdatedDocumentByIdQuery,
     useGetSingleUploadDocumentQuery,
 } from '@/redux/api/documents/documentsApi';
-import { EditDocumentModal } from './edit-document-modal';
+import { TdUser } from '@/components/global/TdUser';
+import DocumentList from '../../my-documents/_components/documentsList';
 
 export interface DocumentContent {
     title: string;
@@ -127,76 +129,7 @@ export function UploadedDocumentDetailsModal({
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Format the document data based on its structure
-    const formatDocumentData = () => {
-        // If on upload-documents page, format data accordingly
-        if (pathName === '/upload-documents' && uploadDocumentData) {
-            const document = uploadDocumentData.document;
-            return {
-                title: document?.name || 'Untitled',
-                author: document?.user || 'Unknown Author',
-                uploadDate: document?.createdAt || new Date().toISOString(),
-                lastUpdate: document?.updatedAt || new Date().toISOString(),
-                tags: Array.isArray(document?.category)
-                    ? document.category
-                    : [],
-                content: document?.description || '',
-                imageUrl: document?.thumbnail || '/default_image.png',
-                attachedFiles: Array.isArray(document?.attachment)
-                    ? document.attachment.map((file: any, index: number) => ({
-                          id: `file-${index}`,
-                          name:
-                              typeof file === 'string'
-                                  ? file
-                                  : file?.name || `File ${index}`,
-                          type: 'document',
-                          size: '1.0 MB',
-                      }))
-                    : [],
-            };
-        }
-
-        // For other pages, format accordingly
-        if (contentDetailsData) {
-            const content = contentDetailsData.document;
-            return {
-                title: content?.title || content?.name || 'Untitled',
-                author: content?.createdBy?.fullName || 'Unknown Author',
-                uploadDate: content?.createdAt || new Date().toISOString(),
-                lastUpdate: content?.updatedAt || new Date().toISOString(),
-                tags: Array.isArray(content?.tags)
-                    ? content.tags
-                    : Array.isArray(content?.category)
-                      ? content.category
-                      : [],
-                content: content?.content || content?.description || '',
-                imageUrl:
-                    content?.imageUrl ||
-                    content?.thumbnail ||
-                    '/images/documents-and-labs-thumbnail.png',
-                attachedFiles:
-                    content?.attachedFiles ||
-                    (Array.isArray(content?.attachment)
-                        ? content.attachment.map(
-                              (file: any, index: number) => ({
-                                  id: `file-${index}`,
-                                  name:
-                                      typeof file === 'string'
-                                          ? file
-                                          : file?.name || `File ${index}`,
-                                  type: 'document',
-                                  size: '1.0 MB',
-                              }),
-                          )
-                        : []),
-            };
-        }
-
-        // Default empty document
-        return null;
-    };
-
-    const content = formatDocumentData();
+    const content = uploadDocumentData?.document;
 
     const handleEditClick = () => {
         setSelected(apiData?.document);
@@ -326,18 +259,16 @@ export function UploadedDocumentDetailsModal({
             <GlobalDocumentDetailsModal isOpen={isOpen} onClose={onClose}>
                 <div className='flex h-full flex-col'>
                     {/* Header */}
-                    <div className='sticky top-0 z-10 flex items-center justify-between border-b bg-background p-4'>
+                    <div className='sticky top-0 z-10 flex items-center justify-between border-b bg-background px-4 py-2'>
                         <div>
                             <h1 className='flex items-center gap-1 text-xl font-semibold'>
-                                <Button
-                                    variant='ghost'
-                                    size='icon'
+                                <button
                                     onClick={onClose}
                                     className='h-auto w-auto p-0'
                                 >
-                                    <ArrowLeft className='h-4 w-4' />
+                                    <ArrowLeft size={18} />
                                     <span className='sr-only'>Back</span>
-                                </Button>
+                                </button>
                                 Uploaded Document Details
                             </h1>
                             <p className='text-sm text-muted-foreground'>
@@ -346,11 +277,11 @@ export function UploadedDocumentDetailsModal({
                         </div>
                         <div className='flex items-center gap-2'>
                             <Button
-                                size='icon'
                                 className='text-pure-white'
                                 onClick={handleEditClick}
+                                icon={<PencilLine className='h-4 w-4' />}
                             >
-                                <PencilLine className='h-4 w-4' />
+                                Edit
                             </Button>
                             <GlobalDeleteModal
                                 deleteFun={deleteUserDocument}
@@ -359,8 +290,15 @@ export function UploadedDocumentDetailsModal({
                                 loading={isDeleting}
                                 modalTitle='Delete Document?'
                                 modalSubTitle='This action cannot be undone. This will permanently delete your document and remove your data from our servers.'
-                                isButton={true}
-                            />
+                                // isButton={true}
+                            >
+                                <Button
+                                    variant={'danger_light'}
+                                    icon={<Trash className='h-4 w-4' />}
+                                >
+                                    Delete
+                                </Button>
+                            </GlobalDeleteModal>
                         </div>
                     </div>
 
@@ -368,43 +306,30 @@ export function UploadedDocumentDetailsModal({
                     <div className='flex-1 overflow-y-auto p-4 document-container'>
                         <div className='mx-auto'>
                             {/* Top section - full width */}
-                            <div className='mb-6'>
+                            <div className='mb-3'>
                                 {/* Created date */}
                                 <div className='text-sm text-muted-foreground mb-2 flex flex-row items-center gap-4'>
                                     <div className='flex flex-row items-center gap-1'>
                                         <Calendar className='h-4 w-4' />
-                                        {dayjs(content.uploadDate).format(
+                                        {dayjs(content.createdAt).format(
                                             'MMM DD, YYYY',
                                         )}
                                     </div>
                                     <div className='flex flex-row items-center gap-1'>
                                         <Clock className='h-4 w-4' />
-                                        {dayjs(content.uploadDate).format(
+                                        {dayjs(content.createdAt).format(
                                             'hh:mm A',
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Title */}
-                                <h1 className='text-3xl font-bold mb-4'>
-                                    {content.title}
+                                <h1 className='text-3xl font-bold mb-3'>
+                                    {content?.name}
                                 </h1>
 
                                 {/* Created by */}
-                                <div className='mb-4 flex flex-row items-center gap-1'>
-                                    <div className='h-8 w-8 rounded-full overflow-hidden bg-muted'>
-                                        <Image
-                                            src='/avatar.png'
-                                            alt={content.author}
-                                            width={32}
-                                            height={32}
-                                            className='object-cover'
-                                        />
-                                    </div>
-                                    <p className='text-lg text-dark-gray font-semibold'>
-                                        {content.author}
-                                    </p>
-                                </div>
+                                <TdUser user={content?.user} />
                             </div>
 
                             {/* Two-column layout */}
@@ -417,7 +342,7 @@ export function UploadedDocumentDetailsModal({
                                 >
                                     <div className='prose prose-gray max-w-none dark:prose-invert'>
                                         {renderText({
-                                            text: content?.content,
+                                            text: content?.description,
                                             toc: true,
                                         })}
                                     </div>
@@ -429,44 +354,18 @@ export function UploadedDocumentDetailsModal({
                                         className={`space-y-6 ${isSidebarSticky ? 'lg:sticky lg:top-24' : ''}`}
                                     >
                                         {/* Thumbnail */}
-                                        <div className='rounded-lg overflow-hidden mb-6'>
+                                        <div className='rounded-lg border border-forground-border overflow-hidden mb-3'>
                                             <Image
                                                 src={
-                                                    content.imageUrl ||
+                                                    content.thumbnail ||
                                                     '/default_image.png'
                                                 }
-                                                alt={content.title}
+                                                alt={content?.name}
                                                 width={400}
                                                 height={225}
                                                 className='w-full object-cover aspect-video'
                                             />
                                         </div>
-
-                                        {/* Table of contents */}
-                                        {headings.length > 0 && (
-                                            <div className='border rounded-lg p-4 bg-background'>
-                                                <h3 className='font-semibold mb-3'>
-                                                    Table of Contents
-                                                </h3>
-                                                <nav className='space-y-1'>
-                                                    {headings.map((heading) => (
-                                                        <button
-                                                            key={heading.id}
-                                                            onClick={() =>
-                                                                scrollToSection(
-                                                                    heading.id,
-                                                                )
-                                                            }
-                                                            className={`block text-sm w-full text-left px-2 py-1 rounded hover:bg-muted transition-colors
-                                ${activeSection === heading.id ? 'bg-muted font-medium' : 'text-muted-foreground'}
-                                ${heading.level === 1 ? '' : `ml-${(heading.level - 1) * 2}`}`}
-                                                        >
-                                                            {heading.text}
-                                                        </button>
-                                                    ))}
-                                                </nav>
-                                            </div>
-                                        )}
 
                                         {/* Tags */}
                                         {documentTags &&
@@ -495,63 +394,18 @@ export function UploadedDocumentDetailsModal({
                                             )}
 
                                         {/* Attached Files */}
-                                        {content.attachedFiles &&
-                                            content.attachedFiles.length >
-                                                0 && (
-                                                <div className='border rounded-lg p-4 bg-foreground'>
-                                                    <h3 className='font-semibold mb-3'>
-                                                        Attached Files
-                                                    </h3>
-                                                    <div className='space-y-2'>
-                                                        {content.attachedFiles.map(
-                                                            (
-                                                                file: any,
-                                                                index: number,
-                                                            ) => (
-                                                                <div
-                                                                    key={index}
-                                                                    className='flex items-center justify-between'
-                                                                >
-                                                                    <div className='flex items-center gap-2'>
-                                                                        <div className='h-8 w-8 min-w-8 flex items-center justify-center bg-background rounded'>
-                                                                            <FileIcon className='h-4 w-4' />
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className='text-sm font-medium line-clamp-1 w-full'>
-                                                                                {
-                                                                                    file.name
-                                                                                }
-                                                                            </p>
-                                                                            <p className='text-xs text-muted-foreground'>
-                                                                                {
-                                                                                    file.size
-                                                                                }
-                                                                            </p>
-                                                                        </div>
-                                                                    </div>
-                                                                    <Button
-                                                                        variant='secondary'
-                                                                        size='sm'
-                                                                        className='bg-background w-8 h-8'
-                                                                    >
-                                                                        <Download
-                                                                            size={
-                                                                                16
-                                                                            }
-                                                                        />
-                                                                    </Button>
-                                                                </div>
-                                                            ),
-                                                        )}
-                                                    </div>
-                                                </div>
+                                        {content?.attachments &&
+                                            content.attachments.length > 0 && (
+                                                <DocumentList
+                                                    files={content?.attachments}
+                                                />
                                             )}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Comments section - full width */}
-                            <div className='mt-12' ref={commentsRef}>
+                            <div className='mt-3' ref={commentsRef}>
                                 <GlobalComment
                                     contentId={id || ''}
                                     bgColor='foreground'
@@ -559,8 +413,8 @@ export function UploadedDocumentDetailsModal({
                             </div>
 
                             {/* Related content - full width */}
-                            <div className='mt-12 pt-6 border-t'>
-                                <div className='flex items-center justify-between mb-6'>
+                            <div className='mt-3 pt-1 border-t'>
+                                <div className='flex items-center justify-between mb-2'>
                                     <h2 className='text-2xl font-bold'>
                                         Related Documents
                                     </h2>

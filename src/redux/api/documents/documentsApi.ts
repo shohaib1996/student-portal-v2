@@ -70,9 +70,10 @@ export interface UploadDoc {
     user: string;
     createdAt: string;
     updatedAt: string;
-    attachment: any[];
+    attachments: { name: string; type: string; size: number; url: string }[];
     thumbnail: string;
     comments: any[];
+    priority?: 'low' | 'medium' | 'high';
 }
 
 export interface UploadDocumentResponse {
@@ -190,13 +191,10 @@ const documentsApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: [tagTypes.documents],
         }),
-        getUploadDocuments: build.query<
-            UploadDocumentResponse,
-            { page?: number; limit?: number }
-        >({
-            query: ({ page = 1, limit = 8 }) => ({
+        getUploadDocuments: build.query<UploadDocumentResponse, any>({
+            query: (params) => ({
                 url: '/document/userdocument/get',
-                params: { page, limit },
+                params,
             }),
             providesTags: [tagTypes.documents],
         }),
