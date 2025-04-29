@@ -22,7 +22,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { markRead, updateMyData } from '@/redux/features/chatReducer';
-const { onlineUsers } = useAppSelector((state) => state.chat);
 import NotificationOptionModal from '../ChatForm/NotificationModal';
 import { Input } from '@/components/ui/input';
 import PopUpChatBody from './PopupchatBody';
@@ -82,6 +81,7 @@ const PopupInbox: React.FC<PopupInboxProps> = ({
     const [isMeeting, setIsMeeting] = useState(false);
     const dispatch = useDispatch();
     const router = useRouter();
+    const { onlineUsers } = useAppSelector((state) => state.chat);
     // Search state: controls whether the search box is open and holds the search query
     const [search, setSearch] = useState({
         isOpen: false,
