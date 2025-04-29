@@ -12,6 +12,7 @@ import { useGetMySingleDocumentQuery } from '@/redux/api/documents/documentsApi'
 import { useEffect, useState } from 'react';
 import { instance } from '@/lib/axios/axiosInstance';
 import { renderText } from '@/components/lexicalEditor/renderer/renderText';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 export interface GlobalDocumentCardProps {
     id: string;
@@ -55,18 +56,18 @@ export function GlobalDocumentCard({
     const router = useRouter();
     const searchParams = useSearchParams();
     // const { data } = useGetMySingleDocumentQuery(searchParams.get('id') || '');
-    const [des, setDes] = useState(description);
+    // const [des, setDes] = useState(description);
 
-    useEffect(() => {
-        (async () => {
-            try {
-                const res = await instance.get(`/content/singlecontent/${id}`);
-                setDes(res.data.content?.description);
-            } catch (error) {
-                console.error((error as Error).message);
-            }
-        })();
-    }, [id]);
+    // useEffect(() => {
+    //     (async () => {
+    //         try {
+    //             const res = await instance.get(`/content/singlecontent/${id}`);
+    //             setDes(res.data.content?.description);
+    //         } catch (error) {
+    //             console.error((error as Error).message);
+    //         }
+    //     })();
+    // }, [id]);
 
     const handleReadMore: (e: React.MouseEvent) => void = (
         e: React.MouseEvent,
@@ -166,9 +167,8 @@ export function GlobalDocumentCard({
                     </h3>
                     <p className='!line-clamp-2 !text-sm text-gray opacity-80 max-h-[80px] overflow-hidden'>
                         {description
-                            ? renderText({ text: description, toc: false })
-                            : renderText({ text: des as string, toc: false }) ||
-                              'No description available'}
+                            ? renderPlainText({ text: description })
+                            : 'No description available'}
                     </p>
                     <Button
                         variant='link'

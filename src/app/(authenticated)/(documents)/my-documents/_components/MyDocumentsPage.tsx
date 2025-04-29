@@ -32,6 +32,7 @@ import { MyDocumentDetailsModal } from './MyDocumentDetailsModal';
 import { UploadDocumentModal } from './UploadDocumentModal';
 import CardLoader from '@/components/loading-skeletons/CardLoader';
 import { instance } from '@/lib/axios/axiosInstance';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 interface DocumentDescription {
     [key: string]: string;
@@ -102,6 +103,8 @@ export default function MyDocumentsPage() {
     }, [viewMode]);
 
     const allDocuments = data?.documents || [];
+
+    console.log(allDocuments);
 
     // Fetch descriptions for documents that don't have one
     useEffect(() => {
@@ -210,14 +213,7 @@ export default function MyDocumentsPage() {
         {
             accessorKey: 'createdBy',
             header: 'Created By',
-            cell: ({ row }) => (
-                <TdUser
-                    user={{
-                        _id: row.original.createdBy?._id || '',
-                        fullName: row.original.createdBy?.fullName || 'Unknown',
-                    }}
-                />
-            ),
+            cell: ({ row }) => <TdUser user={row.original.createdBy} />,
             footer: (data) => data.column.id,
             id: 'createdBy',
             visible: true,
@@ -266,7 +262,7 @@ export default function MyDocumentsPage() {
                     '';
                 return (
                     <span className={description ? '' : 'text-gray-400'}>
-                        {description || 'No description'}
+                        {renderPlainText({ text: description, lineClamp: 2 })}
                     </span>
                 );
             },
@@ -413,7 +409,7 @@ export default function MyDocumentsPage() {
                 />
             </div>
 
-            <div className='flex h-[calc(100vh-120px)] flex-col justify-between'>
+            <div className='flex h-[calc(100vh-125px)] flex-col justify-between'>
                 {isGridView ? (
                     <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
                         {allDocuments.length > 0 ? (
@@ -474,15 +470,13 @@ export default function MyDocumentsPage() {
                         )}
                     </div>
                 ) : (
-                    <div>
-                        <GlobalTable
-                            isLoading={false}
-                            limit={limit}
-                            data={allDocuments}
-                            defaultColumns={defaultColumns}
-                            tableName='my-documents-table'
-                        />
-                    </div>
+                    <GlobalTable
+                        isLoading={false}
+                        limit={limit}
+                        data={allDocuments}
+                        defaultColumns={defaultColumns}
+                        tableName='my-documents-table'
+                    />
                 )}
                 {/* Update the GlobalPagination component call */}
                 {allDocuments.length > 0 && (
