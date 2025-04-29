@@ -70,9 +70,10 @@ export interface UploadDoc {
     user: string;
     createdAt: string;
     updatedAt: string;
-    attachment: any[];
+    attachments: { name: string; type: string; size: number; url: string }[];
     thumbnail: string;
     comments: any[];
+    priority?: 'low' | 'medium' | 'high';
 }
 
 export interface UploadDocumentResponse {
@@ -99,11 +100,11 @@ const documentsApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getLabContent: build.query<
             LabContentResponse,
-            { page?: number; limit?: number }
+            { page?: number; limit?: number; query?: string; date?: string }
         >({
-            query: ({ page = 1, limit = 8 }) => ({
+            query: (params) => ({
                 url: '/content/labcontent',
-                params: { page, limit },
+                params,
             }),
         }),
         getMyDocument: build.query<
@@ -132,11 +133,11 @@ const documentsApi = baseApi.injectEndpoints({
 
         getMySlides: build.query<
             MySlidesResponse,
-            { page?: number; limit?: number }
+            { page?: number; limit?: number; date?: string; query?: string }
         >({
-            query: ({ page = 1, limit = 8 }) => ({
+            query: (params) => ({
                 url: '/slide/myslides',
-                params: { page, limit },
+                params,
             }),
         }),
         getMyTemplates: build.query<
@@ -190,13 +191,10 @@ const documentsApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: [tagTypes.documents],
         }),
-        getUploadDocuments: build.query<
-            UploadDocumentResponse,
-            { page?: number; limit?: number }
-        >({
-            query: ({ page = 1, limit = 8 }) => ({
+        getUploadDocuments: build.query<UploadDocumentResponse, any>({
+            query: (params) => ({
                 url: '/document/userdocument/get',
-                params: { page, limit },
+                params,
             }),
             providesTags: [tagTypes.documents],
         }),

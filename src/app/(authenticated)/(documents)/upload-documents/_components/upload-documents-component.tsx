@@ -23,6 +23,10 @@ import {
     UploadedDocumentDetailsModal,
 } from './UploadedDocumentDetailsModal';
 import CardLoader from '@/components/loading-skeletons/CardLoader';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
+import { TConditions } from '@/components/global/FilterModal/QueryBuilder';
+import { Badge } from '@/components/ui/badge';
+import { TUser } from '@/types/auth';
 
 interface FilterValues {
     query?: string;
@@ -44,12 +48,19 @@ export default function UploadDocumentComponent() {
     const isGridView = viewMode === 'grid';
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
-    const [filters, setFilters] = useState<FilterValues>({});
+    const [query, setQuery] = useState('');
+    const [priority, setPriority] = useState('');
+    const [date, setDate] = useState('');
+
+    const [filterValues, setFilterValues] = useState<TConditions[]>([]);
     const documentId = searchParams.get('documentId');
     const mode = searchParams.get('mode');
     const { data, error, isLoading } = useGetUploadDocumentsQuery({
         page: currentPage,
         limit: limit,
+        ...(query ? { query: query } : {}),
+        ...(priority ? { priority: priority } : {}),
+        ...(date ? { date: date } : {}),
     });
 
     useEffect(() => {
@@ -63,26 +74,24 @@ export default function UploadDocumentComponent() {
     const allDocuments = data?.documents || [];
     const total = data?.count || 0;
 
-    if (isLoading) {
-        if (isGridView) {
-            return (
-                <div className='flex flex-col gap-3 mt-3'>
-                    <h3 className='text-black font-2xl'>Loading...</h3>
-                    <div className='mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
-                        {Array(10)
-                            .fill(0)
-                            .map((_, index) => (
-                                <div
-                                    key={index}
-                                    className={`${index >= 3 ? 'hidden sm:block' : ''} ${index >= 10 ? 'hidden' : ''}`}
-                                >
-                                    <CardLoader />
-                                </div>
-                            ))}
-                    </div>
+    if (isLoading && isGridView) {
+        return (
+            <div className='flex flex-col gap-3 mt-3'>
+                <h3 className='text-black font-2xl'>Loading...</h3>
+                <div className='mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
+                    {Array(10)
+                        .fill(0)
+                        .map((_, index) => (
+                            <div
+                                key={index}
+                                className={`${index >= 3 ? 'hidden sm:block' : ''} ${index >= 10 ? 'hidden' : ''}`}
+                            >
+                                <CardLoader />
+                            </div>
+                        ))}
                 </div>
-            );
-        }
+            </div>
+        );
     }
     if (error) {
         return (
@@ -100,11 +109,10 @@ export default function UploadDocumentComponent() {
         conditions: any[],
         queryObj: Record<string, string>,
     ) => {
-        setFilters({
-            query: queryObj.query,
-            priority: queryObj.priority,
-            date: queryObj.date,
-        });
+        setFilterValues(conditions);
+        setQuery(queryObj['query'] ?? '');
+        setDate(queryObj['date'] ?? '');
+        setPriority(queryObj['priority'] ?? '');
         setCurrentPage(1); // Reset to first page when filtering
     };
 
@@ -134,6 +142,19 @@ export default function UploadDocumentComponent() {
         setLimit(newLimit);
     };
 
+    const getPriorityBadgeClassName = (priority?: string) => {
+        switch (priority) {
+            case 'high':
+                return 'bg-blue-500 hover:bg-blue-600 text-white';
+            case 'medium':
+                return 'bg-yellow-500 hover:bg-yellow-600 text-black';
+            case 'low':
+                return 'bg-red-500 hover:bg-red-600 text-white';
+            default:
+                return 'bg-gray-200 hover:bg-gray-300 text-gray-800';
+        }
+    };
+
     const defaultColumns: TCustomColumnDef<(typeof allDocuments)[0]>[] = [
         {
             accessorKey: 'name',
@@ -148,14 +169,7 @@ export default function UploadDocumentComponent() {
             accessorKey: 'createdBy',
             header: 'Created By',
             cell: ({ row }) => (
-                <TdUser
-                    user={{
-                        _id: (row.original as any).createdBy?._id || '',
-                        fullName:
-                            (row.original as any).createdBy?.fullName ||
-                            'Unknown',
-                    }}
-                />
+                <TdUser user={row.original?.user as unknown as TUser} />
             ),
             footer: (data) => data.column.id,
             id: 'createdBy',
@@ -183,7 +197,13 @@ export default function UploadDocumentComponent() {
         {
             accessorKey: 'priority',
             header: 'Priority',
-            cell: ({ row }) => <span className='text-gray-400'>Not Set</span>,
+            cell: ({ row }) => (
+                <Badge
+                    className={getPriorityBadgeClassName(row.original.priority)}
+                >
+                    {row.original.priority || 'not defined'}
+                </Badge>
+            ),
             footer: (data) => data.column.id,
             id: 'priority',
             visible: true,
@@ -193,11 +213,12 @@ export default function UploadDocumentComponent() {
             accessorKey: 'description',
             header: 'Description',
             cell: ({ row }) => (
-                <span
-                    className={row.original.description ? '' : 'text-gray-400'}
-                >
-                    {row.original.description || 'No description'}
-                </span>
+                <div className={'max-w-40 line-clamp-2'}>
+                    {renderPlainText({
+                        text: row.original.description,
+                        lineClamp: 2,
+                    })}
+                </div>
             ),
             footer: (data) => data.column.id,
             id: 'description',
@@ -233,61 +254,68 @@ export default function UploadDocumentComponent() {
     };
 
     return (
-        <div>
-            <div className='my-2'>
-                <GlobalHeader
-                    title='Upload Documents'
-                    subTitle='Securely upload and manage your files with ease'
-                    buttons={
-                        <div className='ml-auto flex items-center gap-2'>
-                            <Button
-                                variant={!isGridView ? 'outline' : 'default'}
-                                onClick={() => setViewMode('grid')}
-                            >
-                                <LayoutGrid size={16} />
-                            </Button>
-                            <Button
-                                variant={isGridView ? 'outline' : 'default'}
-                                onClick={() => setViewMode('list')}
-                            >
-                                <List size={16} />
-                            </Button>
-                            <FilterModal
-                                value={Object.entries(filters)
-                                    .filter(([_, value]) => value)
-                                    .map(([column, value]) => ({
-                                        field: column,
-                                        operator: 'eq',
-                                        value,
-                                    }))}
-                                onChange={handleFilter}
-                                columns={[
-                                    {
-                                        label: 'Search (Name/Description/Creator)',
-                                        value: 'query',
-                                    },
-                                    {
-                                        label: 'Priority',
-                                        value: 'priority',
-                                    },
-                                    {
-                                        label: 'Created Date',
-                                        value: 'date',
-                                    },
-                                ]}
-                            />
-                            <Button
-                                onClick={handleOpenUploadModal}
-                                size='sm'
-                                className='gap-2'
-                            >
-                                <Upload className='h-4 w-4' />
-                                Upload Document
-                            </Button>
-                        </div>
-                    }
-                />
-            </div>
+        <div className='mt-2'>
+            <GlobalHeader
+                title='Upload Documents'
+                subTitle='Securely upload and manage your files with ease'
+                buttons={
+                    <div className='ml-auto flex items-center gap-2'>
+                        <Button
+                            variant={!isGridView ? 'outline' : 'default'}
+                            onClick={() => setViewMode('grid')}
+                        >
+                            <LayoutGrid size={16} />
+                        </Button>
+                        <Button
+                            variant={isGridView ? 'outline' : 'default'}
+                            onClick={() => setViewMode('list')}
+                        >
+                            <List size={16} />
+                        </Button>
+                        <FilterModal
+                            value={filterValues}
+                            onChange={handleFilter}
+                            columns={[
+                                {
+                                    label: 'Search (Name/Description/Creator)',
+                                    value: 'query',
+                                },
+                                {
+                                    label: 'Priority',
+                                    value: 'priority',
+                                    type: 'select',
+                                    options: [
+                                        {
+                                            label: 'High',
+                                            value: 'high',
+                                        },
+                                        {
+                                            label: 'Medium',
+                                            value: 'medium',
+                                        },
+                                        {
+                                            label: 'Low',
+                                            value: 'low',
+                                        },
+                                    ],
+                                },
+                                {
+                                    label: 'Created Date',
+                                    value: 'date',
+                                },
+                            ]}
+                        />
+                        <Button
+                            onClick={handleOpenUploadModal}
+                            size='sm'
+                            className='gap-2'
+                        >
+                            <Upload className='h-4 w-4' />
+                            Upload Document
+                        </Button>
+                    </div>
+                }
+            />
 
             <div className='h-[calc(100vh-120px)] flex flex-col justify-between'>
                 {isGridView ? (
@@ -303,15 +331,13 @@ export default function UploadDocumentComponent() {
                         ))}
                     </div>
                 ) : (
-                    <div className='overflow-x-auto'>
-                        <GlobalTable
-                            isLoading={false}
-                            limit={limit}
-                            data={allDocuments}
-                            defaultColumns={defaultColumns}
-                            tableName='upload-documents-table'
-                        />
-                    </div>
+                    <GlobalTable
+                        isLoading={isLoading}
+                        limit={limit}
+                        data={allDocuments}
+                        defaultColumns={defaultColumns}
+                        tableName='upload-documents-table'
+                    />
                 )}
 
                 <GlobalPagination

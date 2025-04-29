@@ -29,9 +29,9 @@ import TdDate from '@/components/global/TdDate';
 import { TdUser } from '@/components/global/TdUser';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import { MyDocumentDetailsModal } from './MyDocumentDetailsModal';
-import { UploadDocumentModal } from './UploadDocumentModal';
 import CardLoader from '@/components/loading-skeletons/CardLoader';
 import { instance } from '@/lib/axios/axiosInstance';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 interface DocumentDescription {
     [key: string]: string;
@@ -102,6 +102,8 @@ export default function MyDocumentsPage() {
     }, [viewMode]);
 
     const allDocuments = data?.documents || [];
+
+    console.log(allDocuments);
 
     // Fetch descriptions for documents that don't have one
     useEffect(() => {
@@ -210,14 +212,7 @@ export default function MyDocumentsPage() {
         {
             accessorKey: 'createdBy',
             header: 'Created By',
-            cell: ({ row }) => (
-                <TdUser
-                    user={{
-                        _id: row.original.createdBy?._id || '',
-                        fullName: row.original.createdBy?.fullName || 'Unknown',
-                    }}
-                />
-            ),
+            cell: ({ row }) => <TdUser user={row.original.createdBy} />,
             footer: (data) => data.column.id,
             id: 'createdBy',
             visible: true,
@@ -266,7 +261,7 @@ export default function MyDocumentsPage() {
                     '';
                 return (
                     <span className={description ? '' : 'text-gray-400'}>
-                        {description || 'No description'}
+                        {renderPlainText({ text: description, lineClamp: 2 })}
                     </span>
                 );
             },
@@ -334,86 +329,83 @@ export default function MyDocumentsPage() {
     }
 
     return (
-        <div>
-            <div className='my-2'>
-                <GlobalHeader
-                    title='My Documents'
-                    subTitle='Resource Library: Access All Essential Documents'
-                    tooltip={
-                        <div>
-                            <h5>
-                                This page displays all your documents in one
-                                place.
-                            </h5>
-                            <h5>
-                                You can view, filter, and manage your documents.
-                                Use the grid view for a visual representation or
-                                list view for detailed information.
-                            </h5>
-                        </div>
-                    }
-                    buttons={
-                        <div className='flex items-center gap-2'>
-                            {/* View mode toggles */}
-                            <Button
-                                variant={!isGridView ? 'outline' : 'default'}
-                                onClick={() => toggleViewMode(true)}
-                            >
-                                <LayoutGrid size={16} />
-                            </Button>
-                            <Button
-                                variant={isGridView ? 'outline' : 'default'}
-                                onClick={() => toggleViewMode(false)}
-                            >
-                                <List size={16} />
-                            </Button>
+        <div className='my-2'>
+            <GlobalHeader
+                title='My Documents'
+                subTitle='Resource Library: Access All Essential Documents'
+                tooltip={
+                    <div>
+                        <h5>
+                            This page displays all your documents in one place.
+                        </h5>
+                        <h5>
+                            You can view, filter, and manage your documents. Use
+                            the grid view for a visual representation or list
+                            view for detailed information.
+                        </h5>
+                    </div>
+                }
+                buttons={
+                    <div className='flex items-center gap-2'>
+                        {/* View mode toggles */}
+                        <Button
+                            variant={!isGridView ? 'outline' : 'default'}
+                            onClick={() => toggleViewMode(true)}
+                        >
+                            <LayoutGrid size={16} />
+                        </Button>
+                        <Button
+                            variant={isGridView ? 'outline' : 'default'}
+                            onClick={() => toggleViewMode(false)}
+                        >
+                            <List size={16} />
+                        </Button>
 
-                            {/* Filter modal */}
-                            <FilterModal
-                                value={filterData}
-                                onChange={handleFilter}
-                                columns={[
-                                    {
-                                        label: 'Search (Name/Description/Creator)',
-                                        value: 'query',
-                                    },
-                                    {
-                                        label: 'Priority',
-                                        value: 'priority',
-                                        type: 'select',
-                                        options: [
-                                            { value: 'high', label: 'High' },
-                                            {
-                                                value: 'medium',
-                                                label: 'Medium',
-                                            },
-                                            { value: 'low', label: 'Low' },
-                                        ],
-                                    },
-                                    {
-                                        label: 'Creation Date',
-                                        value: 'date',
-                                    },
-                                ]}
-                            />
+                        {/* Filter modal */}
+                        <FilterModal
+                            value={filterData}
+                            onChange={handleFilter}
+                            columns={[
+                                {
+                                    label: 'Search (Name/Description/Creator)',
+                                    value: 'query',
+                                },
+                                {
+                                    label: 'Priority',
+                                    value: 'priority',
+                                    type: 'select',
+                                    options: [
+                                        { value: 'high', label: 'High' },
+                                        {
+                                            value: 'medium',
+                                            label: 'Medium',
+                                        },
+                                        { value: 'low', label: 'Low' },
+                                    ],
+                                },
+                                {
+                                    label: 'Creation Date',
+                                    value: 'date',
+                                },
+                            ]}
+                        />
 
-                            {/* Sort menu */}
-                            <SortMenu
-                                value={sortData}
-                                onChange={(val) => setSortData(val)}
-                                columns={defaultColumns.filter(
-                                    (col) =>
-                                        !['actions'].includes(
-                                            col.accessorKey as string,
-                                        ),
-                                )}
-                            />
-                        </div>
-                    }
-                />
-            </div>
+                        {/* Sort menu */}
+                        <SortMenu
+                            value={sortData}
+                            onChange={(val) => setSortData(val)}
+                            columns={defaultColumns.filter(
+                                (col) =>
+                                    !['actions'].includes(
+                                        col.accessorKey as string,
+                                    ),
+                            )}
+                        />
+                    </div>
+                }
+            />
 
-            <div className='flex h-[calc(100vh-120px)] flex-col justify-between'>
+            <div className='flex h-[calc(100vh-125px)] flex-col justify-between'>
                 {isGridView ? (
                     <div className='my-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
                         {allDocuments.length > 0 ? (
@@ -474,15 +466,13 @@ export default function MyDocumentsPage() {
                         )}
                     </div>
                 ) : (
-                    <div>
-                        <GlobalTable
-                            isLoading={false}
-                            limit={limit}
-                            data={allDocuments}
-                            defaultColumns={defaultColumns}
-                            tableName='my-documents-table'
-                        />
-                    </div>
+                    <GlobalTable
+                        isLoading={false}
+                        limit={limit}
+                        data={allDocuments}
+                        defaultColumns={defaultColumns}
+                        tableName='my-documents-table'
+                    />
                 )}
                 {/* Update the GlobalPagination component call */}
                 {allDocuments.length > 0 && (

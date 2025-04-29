@@ -21,6 +21,8 @@ import GlobalTable, {
 import TdDate from '@/components/global/TdDate';
 import { TdUser } from '@/components/global/TdUser';
 import { DocumentAndLabsDetailsModal } from './_components/DocumentAndLabsDetailsModal';
+import { TConditions } from '@/components/global/FilterModal/QueryBuilder';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 interface FilterValues {
     query?: string;
@@ -55,7 +57,9 @@ export default function DocumentsAndLabsPage() {
     const [isGridView, setIsGridView] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
-    const [filters, setFilters] = useState<FilterValues>({});
+    const [query, setQuery] = useState('');
+    const [date, setDate] = useState('');
+    const [filterValues, setFilterValues] = useState<TConditions[]>([]);
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -72,6 +76,8 @@ export default function DocumentsAndLabsPage() {
     } = useGetLabContentQuery({
         page: currentPage,
         limit: limit,
+        ...(query ? { query: query } : {}),
+        ...(date ? { date: date } : {}),
     });
     // Fetch single document data if documentId is present
     // Always call hooks at the top level with skip condition
@@ -107,30 +113,6 @@ export default function DocumentsAndLabsPage() {
         };
     }, [singleData]);
 
-    const filteredTemplates = useMemo(() => {
-        return allLabsData.filter((template: LabContent) => {
-            const matchesQuery = filters.query
-                ? template.name
-                      ?.toLowerCase()
-                      .includes(filters.query.toLowerCase()) ||
-                  template.description
-                      ?.toLowerCase()
-                      .includes(filters.query.toLowerCase())
-                : true;
-
-            // const matchesType = filters.type
-            //     ? template.type?.toLowerCase() === filters.type.toLowerCase()
-            //     : true;
-
-            const matchesDate = filters.date
-                ? new Date(template.createdAt).toDateString() ===
-                  new Date(filters.date).toDateString()
-                : true;
-
-            return matchesQuery && matchesDate;
-        });
-    }, [allLabsData, filters]);
-
     const handleDocumentClick = (documentId: string) => {
         setSelectedDocumentId(documentId);
         setIsModalOpen(true);
@@ -147,11 +129,9 @@ export default function DocumentsAndLabsPage() {
         conditions: any[],
         queryObj: Record<string, string>,
     ) => {
-        setFilters({
-            query: queryObj.query,
-            type: queryObj.type,
-            date: queryObj.date,
-        });
+        setFilterValues(conditions);
+        setQuery(queryObj['query'] ?? '');
+        setDate(queryObj['date'] ?? '');
         setCurrentPage(1); // Reset to first page when filtering
     };
 
@@ -228,7 +208,11 @@ export default function DocumentsAndLabsPage() {
                 <span
                     className={row.original.description ? '' : 'text-gray-400'}
                 >
-                    {row.original.description || 'No description'}
+                    {row.original.description
+                        ? renderPlainText({
+                              text: row.original.description || '-',
+                          })
+                        : '-'}
                 </span>
             ),
             footer: (data) => data.column.id,
@@ -300,13 +284,7 @@ export default function DocumentsAndLabsPage() {
                             <List size={16} />
                         </Button>
                         <FilterModal
-                            value={Object.entries(filters)
-                                .filter(([_, value]) => value)
-                                .map(([column, value]) => ({
-                                    field: column,
-                                    operator: 'equals', // or any other default operator
-                                    value,
-                                }))}
+                            value={filterValues}
                             onChange={handleFilter}
                             columns={[
                                 {
@@ -314,11 +292,7 @@ export default function DocumentsAndLabsPage() {
                                     value: 'query',
                                 },
                                 {
-                                    label: 'Type',
-                                    value: 'type',
-                                },
-                                {
-                                    label: 'Created Date',
+                                    label: 'Creation Date',
                                     value: 'date',
                                 },
                             ]}

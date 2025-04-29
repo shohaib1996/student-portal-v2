@@ -159,7 +159,7 @@ export function Editor({
     return (
         <div
             className={cn(
-                'overflow-hidden rounded-lg border bg-background shadow flex flex-col',
+                'overflow-hidden rounded-lg border bg-foreground shadow flex flex-col',
                 className,
             )}
             style={{ height }}

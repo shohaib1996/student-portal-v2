@@ -53,7 +53,7 @@ export const TodoFormSchema = z
         reminders: z.array(
             z
                 .object({
-                    chatGroups: z.array(z.string()).optional(),
+                    crowds: z.array(z.string()).optional(),
                     methods: z
                         .array(
                             z.enum([
@@ -71,15 +71,13 @@ export const TodoFormSchema = z
                 .refine(
                     (data) => {
                         if (data.methods.includes('crowds')) {
-                            return (
-                                !!data.chatGroups && data.chatGroups.length > 0
-                            );
+                            return !!data.crowds && data.crowds.length > 0;
                         }
                         return true;
                     },
                     {
                         message: 'Please select at least one chat group',
-                        path: ['chatGroups'],
+                        path: ['crowds'],
                     },
                 ),
         ),

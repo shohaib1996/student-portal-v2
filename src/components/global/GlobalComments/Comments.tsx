@@ -132,7 +132,7 @@ const Comments = ({
                 >
                     <div>
                         <Image
-                            src={user?.profilePicture || ''}
+                            src={user?.profilePicture || '/avatar.png'}
                             alt='user'
                             width={40}
                             height={40}
@@ -143,7 +143,7 @@ const Comments = ({
                             <textarea
                                 onFocus={(e) => handleFocus(e, text)}
                                 onInput={handleResize}
-                                className='text-black bg-background rounded-md p-2'
+                                className='text-black bg-background border-forground-border outline-none border rounded-md p-2 bg-foreground'
                                 defaultValue={text}
                                 autoFocus={true}
                                 onChange={(e) =>
@@ -196,10 +196,12 @@ const Comments = ({
                             {isReply && user._id === authUser?._id && (
                                 <button
                                     style={{ backgroundColor: 'transparent' }}
-                                ></button>
+                                >
+                                    <EllipsisVertical />
+                                </button>
                             )}
                         </PopoverTrigger>
-                        <PopoverContent className='p-2'>
+                        <PopoverContent className='p-2 max-w-36'>
                             <div className='flex flex-col items-start gap-1'>
                                 {!isReply && (
                                     <div
@@ -207,9 +209,9 @@ const Comments = ({
                                             setCurrentReply(id);
                                             setUpdate('');
                                         }}
-                                        className='flex items-center w-full bg-foreground py-1 px-3 text-dark-gray hover:bg-primary-light cursor-pointer gap-2 border border-forground-border rounded-md'
+                                        className='flex items-center w-full bg-background py-1 px-3 text-dark-gray hover:bg-primary-light cursor-pointer gap-2 border border-forground-border rounded-md'
                                     >
-                                        <MessageCircleReply />
+                                        <MessageCircleReply size={18} />
                                         Reply
                                     </div>
                                 )}
@@ -217,7 +219,7 @@ const Comments = ({
                                     <>
                                         <div
                                             onClick={() => setUpdate(id)}
-                                            className='flex items-center w-full bg-foreground py-1 px-3 text-dark-gray hover:bg-primary-light cursor-pointer gap-2 border border-forground-border rounded-md'
+                                            className='flex bg-background items-center w-full py-1 px-3 text-dark-gray hover:bg-primary-light cursor-pointer gap-2 border border-forground-border rounded-md'
                                         >
                                             <RefreshCcw size={18} />
                                             Update
@@ -225,9 +227,12 @@ const Comments = ({
 
                                         <div
                                             onClick={() => handleDelete(id)}
-                                            className='flex items-center w-full bg-foreground py-1 px-3 text-dark-gray border border-forground-border rounded-md hover:bg-primary-light cursor-pointer gap-2'
+                                            className='flex items-center w-full bg-background py-1 px-3 border border-forground-border rounded-md hover:bg-primary-light text-destructive cursor-pointer gap-2'
                                         >
-                                            <Trash className='deleteIcon' />
+                                            <Trash
+                                                size={18}
+                                                className='deleteIcon'
+                                            />
                                             <span
                                                 style={{ paddingTop: '.8px' }}
                                             >

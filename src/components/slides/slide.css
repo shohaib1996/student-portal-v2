@@ -171,3 +171,29 @@
 .slid p {
     @apply -space-y-0;
 }
+
+.preview-content h1 {
+    font-size: 1.2em !important;
+    font-weight: bold !important;
+    margin-bottom: 0.3em !important;
+    line-height: 1.1 !important;
+}
+
+.preview-content h2,
+.preview-content h3 {
+    font-size: 1em !important;
+    font-weight: bold !important;
+    margin-bottom: 0.2em !important;
+    line-height: 1.1 !important;
+}
+
+.preview-content p {
+    font-size: 0.8em !important;
+    line-height: 1.1 !important;
+    margin-bottom: 0.2em !important;
+}
+
+.preview-content * {
+    text-rendering: optimizeLegibility !important;
+    -webkit-font-smoothing: antialiased !important;
+}

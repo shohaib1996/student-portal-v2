@@ -21,6 +21,7 @@ import { useGetMySlidesQuery } from '@/redux/api/documents/documentsApi';
 import { useGetDocumentsAndLabsQuery } from '@/redux/api/slides/slideApi';
 
 import { ISlideApiResponse, TSlide } from '@/types';
+import { TConditions } from '@/components/global/FilterModal/QueryBuilder';
 
 interface FilterValues {
     query?: string;
@@ -36,7 +37,9 @@ const PresentationComponents = () => {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
-    const [filters, setFilters] = useState<FilterValues>({});
+    const [query, setQuery] = useState('');
+    const [date, setDate] = useState('');
+    const [filterValues, setFilterValues] = useState<TConditions[]>([]);
 
     // Fetch single slide if ID is provided
     const { data: singleSlide } = useGetDocumentsAndLabsQuery<{
@@ -50,7 +53,12 @@ const PresentationComponents = () => {
 
     // Fetch all slides
     const { data, error, isLoading } = useGetMySlidesQuery(
-        { page: currentPage, limit: itemsPerPage },
+        {
+            page: currentPage,
+            limit: itemsPerPage,
+            ...(query ? { query: query } : {}),
+            ...(date ? { date: date } : {}),
+        },
         {
             refetchOnMountOrArgChange: true,
             refetchOnReconnect: true,
@@ -71,12 +79,10 @@ const PresentationComponents = () => {
         conditions: any[],
         queryObj: Record<string, string>,
     ) => {
-        setFilters({
-            query: queryObj.query,
-            creationDate: queryObj.creationDate,
-            updateDate: queryObj.updateDate,
-        });
-        setCurrentPage(1);
+        setFilterValues(conditions);
+        setQuery(queryObj['query'] ?? '');
+        setDate(queryObj['date'] ?? '');
+        setCurrentPage(1); // Reset to first page when filtering
     };
 
     // Loading state
@@ -166,15 +172,16 @@ const PresentationComponents = () => {
             accessorKey: 'action',
             header: 'Action',
             cell: ({ row }) => (
-                <Button
-                    variant='default'
-                    size='sm'
-                    onClick={() => toast.info('New slide is coming soon!')}
-                    className='flex items-center gap-1'
-                >
-                    <Eye size={18} />
-                    View
-                </Button>
+                <Link href={`/presentation-slides/${row.original._id}`}>
+                    <Button
+                        variant='default'
+                        size='sm'
+                        className='flex items-center gap-1'
+                    >
+                        <Eye size={18} />
+                        View
+                    </Button>
+                </Link>
             ),
             id: 'action',
             visible: true,
@@ -186,6 +193,7 @@ const PresentationComponents = () => {
         <div className='flex flex-col pt-2'>
             {/* Header Section */}
             <GlobalHeader
+                withTooltip={false}
                 title='Presentations & Slides'
                 subTitle='Browse and manage your slide decks'
                 buttons={
@@ -211,21 +219,14 @@ const PresentationComponents = () => {
                             <List size={18} />
                         </Button>
                         <FilterModal
-                            value={Object.entries(filters)
-                                .filter(([_, value]) => value)
-                                .map(([column, value]) => ({
-                                    field: column,
-                                    operator: 'eq',
-                                    value,
-                                }))}
+                            value={filterValues}
                             onChange={handleFilter}
                             columns={[
                                 { label: 'Search (Title)', value: 'query' },
                                 {
                                     label: 'Creation Date',
-                                    value: 'creationDate',
+                                    value: 'date',
                                 },
-                                { label: 'Update Date', value: 'updateDate' },
                             ]}
                         />
                         <Link href='/dashboard'>

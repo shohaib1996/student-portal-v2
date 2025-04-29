@@ -4,10 +4,10 @@ import { tagTypes } from '../tagType/tagTypes';
 const technicalTests = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getTechnicalTests: build.query({
-            query: (data) => ({
+            query: (params) => ({
                 url: '/assignment/myassignments',
-                method: 'POST',
-                data: data,
+                method: 'GET',
+                params,
             }),
             providesTags: [tagTypes.technicalTests],
         }),

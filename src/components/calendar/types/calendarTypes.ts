@@ -7,7 +7,7 @@ export type TEventNotification = {
 };
 
 export type TNotification = {
-    chatGroups: string[];
+    crowds: string[];
     methods: ('email' | 'push' | 'text' | 'directMessage' | 'crowds')[];
     offsetMinutes: number;
 };

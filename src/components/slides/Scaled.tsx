@@ -91,20 +91,20 @@ function Scaled({
 
                     {/* Main content */}
                     <div
-                        className={`flex-grow overflow-hidden ${big ? 'p-10' : 'p-1'}`}
+                        className={`flex-grow  ${big ? 'p-10 overflow-y-auto' : 'p-1'}`}
                         style={
                             !big
                                 ? {
-                                      transform: 'scale(0.4)',
+                                      transform: 'scale(0.3 )',
                                       transformOrigin: 'top left',
-                                      width: '250%', // Scale factor reciprocal (1/0.4 = 2.5)
-                                      height: '250%',
-                                      maxHeight: '85%',
+                                      width: '350%', // Scale factor reciprocal (1/0.4 = 2.5)
+                                      height: '450%',
+                                      //   maxHeight: '85%',
                                   }
                                 : { minHeight: '80%' }
                         }
                     >
-                        <div className='slide-content'>
+                        <div className='slide-content '>
                             {renderText({ text: slide?.content || '' })}
                         </div>
                     </div>

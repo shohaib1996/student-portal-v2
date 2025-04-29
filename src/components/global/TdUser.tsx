@@ -21,7 +21,7 @@ export function TdUser({
 
     // Determine user's active status based on last activity
     const getUserActiveStatus = () => {
-        if (!user.lastActive) {
+        if (!user?.lastActive) {
             return {
                 isActive: false,
                 activityBadge: '',
@@ -30,7 +30,7 @@ export function TdUser({
 
         // Check if user is in online users list or recently active
         const now = dayjs();
-        const lastActive = dayjs(user.lastActive);
+        const lastActive = dayjs(user?.lastActive);
         const diffSeconds = now.diff(lastActive, 'second');
         const diffMinutes = now.diff(lastActive, 'minute');
         const diffHours = now.diff(lastActive, 'hour');
@@ -76,15 +76,15 @@ export function TdUser({
     const { isActive, activityBadge } = getUserActiveStatus();
 
     return (
-        <div className={cn('flex items-center gap-3', className)}>
+        <div className={cn('flex items-center gap-2', className)}>
             <div className='relative inline-block'>
-                <div className='size-10 rounded-full overflow-hidden'>
+                <div className='size-8 rounded-full overflow-hidden'>
                     <Image
                         src={user?.profilePicture || '/avatar.png'}
                         alt={`${user?.firstName}'s avatar`}
                         width={40}
                         height={40}
-                        className='object-cover'
+                        className='object-cover h-full'
                     />
                 </div>
 
@@ -104,7 +104,7 @@ export function TdUser({
                 )}
             </div>
             <div className='flex flex-col text-start'>
-                <span className='text-sm font-medium text-black'>
+                <span className='md:text-base text-sm font-medium text-black'>
                     {user?.fullName}
                 </span>
                 <span className={cn('text-xs text-gray')}>

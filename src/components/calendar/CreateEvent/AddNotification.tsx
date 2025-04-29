@@ -1,5 +1,4 @@
 'use client';
-import MultiSelect from '@/components/global/MultiSelect';
 import { FormControl } from '../ui/form';
 import {
     Select,
@@ -13,6 +12,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { Bell } from 'lucide-react';
 import React from 'react';
 import { TNotification } from '../types/calendarTypes';
+import MultiSelect from '../ui/MultiSelect';
 
 const timebeforeoptions = [
     { value: '5', label: '5 minutes before' },
@@ -111,15 +111,16 @@ const AddNotification = ({
                         Chat Groups (max:3)
                     </label>
                     <MultiSelect
+                        disabled={disabled}
                         max={3}
                         placeholder='Select Chat Groups (max:3)'
                         onChange={(val) =>
                             setNotification({
                                 ...notificaiton,
-                                chatGroups: val,
+                                crowds: val,
                             })
                         }
-                        value={notificaiton.chatGroups}
+                        value={notificaiton.crowds}
                         options={chats
                             ?.filter((x) => x?.isChannel)
                             ?.map((x) => ({

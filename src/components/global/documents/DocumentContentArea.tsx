@@ -105,7 +105,7 @@ export function DocumentContentArea({
             } // already found an image name
             if (
                 imageExtensions.some((ext) =>
-                    curr.name.toLowerCase().endsWith(ext),
+                    curr.name?.toLowerCase()?.endsWith(ext),
                 )
             ) {
                 return curr.name; // return the matched image name

@@ -1,5 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useUploadUserDocumentFileMutation } from '@/redux/api/documents/documentsApi';
 import { ImageIcon, Loader, X } from 'lucide-react';
 import NextImage from 'next/image';
@@ -11,6 +12,7 @@ type TProps = {
     ratio?: string;
     maxWidth?: number;
     maxSize?: number;
+    className?: string;
 };
 
 const UploadThumbnail = ({
@@ -18,6 +20,7 @@ const UploadThumbnail = ({
     onChange,
     ratio = '1:1',
     maxWidth = 1200,
+    className,
     maxSize = 5,
 }: TProps) => {
     const [uploadingThumb, setUploadingThumb] = useState(false);
@@ -267,7 +270,10 @@ const UploadThumbnail = ({
     return (
         <div
             onClick={() => !value && handleButtonClick()}
-            className={`mt-1 flex justify-center bg-background rounded-lg border border-dashed ${dragActive ? 'border-primary border-2' : 'border-border'} ${value ? '' : 'cursor-pointer'} px-6 py-10`}
+            className={cn(
+                `mt-1 flex justify-center bg-background rounded-lg border border-dashed ${dragActive ? 'border-primary border-2' : 'border-border'} ${value ? '' : 'cursor-pointer'} px-6 py-10`,
+                className,
+            )}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}

@@ -30,6 +30,14 @@ import { TagsInput } from '@/components/global/TagsInput';
 import UploadThumbnail from '@/components/global/UploadThumbnail/UploadThumbnail';
 import UploadAttatchment from '@/components/global/UploadAttatchment/UploadAttatchment';
 import GlobalBlockEditor from '@/components/editor/GlobalBlockEditor';
+import { useUpdateUserDocumentMutation } from '@/redux/api/documents/documentsApi';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 export interface UploadDocumentModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -48,7 +56,8 @@ const documentSchema = z.object({
         }),
     tags: z.array(z.string()).optional(),
     thumbnail: z.string().optional(),
-    attachment: z
+    priority: z.enum(['high', 'medium', 'low']).optional(),
+    attachments: z
         .array(
             z.object({
                 name: z.string(),
@@ -65,7 +74,6 @@ export function UploadDocumentModal({
     onClose,
     selected,
 }: UploadDocumentModalProps) {
-    const [isUploading, setIsUploading] = useState(false);
     const [
         addUserDocument,
         {
@@ -75,6 +83,8 @@ export function UploadDocumentModal({
             data: submitResponse,
         },
     ] = useAddUserDocumentMutation();
+    const [updateUserDocument, { isLoading: isUpdating }] =
+        useUpdateUserDocumentMutation();
 
     // Initialize form with react-hook-form and zod resolver
     const form = useForm<z.infer<typeof documentSchema>>({
@@ -92,13 +102,26 @@ export function UploadDocumentModal({
             name: values.documentName,
             tags: values.tags,
             thumbnail: values.thumbnail,
-            attachment: values.attachment?.map((at) => at.url) || [],
+            attachments: values.attachments || [],
+            priority: values.priority,
         };
 
         try {
-            await addUserDocument(submissionData).unwrap();
-            toast.success('Document added successfully!');
-            onClose();
+            if (selected) {
+                const result = await updateUserDocument({
+                    id: selected._id,
+                    data: submissionData,
+                }).unwrap();
+
+                if (result.success) {
+                    toast.success('Document updated successfully!');
+                    onClose();
+                }
+            } else {
+                await addUserDocument(submissionData).unwrap();
+                toast.success('Document added successfully!');
+                onClose();
+            }
         } catch (error) {
             console.error(error);
         }
@@ -110,8 +133,9 @@ export function UploadDocumentModal({
                 description: selected.description,
                 documentName: selected.name,
                 tags: [],
-                thumbnail: selected.thumbnail,
-                attachment: selected.attachment || [],
+                thumbnail: selected?.thumbnail,
+                attachments: selected?.attachments || [],
+                priority: selected?.priority,
             });
         }
     }, [selected]);
@@ -138,7 +162,7 @@ export function UploadDocumentModal({
                                         : 'Add New Document'}
                                 </h1>
                                 <p className='text-sm text-muted-foreground'>
-                                    Fill out the form to add new document
+                                    Fill out the form to update document
                                 </p>
                             </div>
                         </div>
@@ -154,9 +178,7 @@ export function UploadDocumentModal({
                                 size='sm'
                                 type='submit'
                                 form='upload-document-form'
-                                disabled={
-                                    isSubmitting || !form.formState.isValid
-                                }
+                                disabled={isSubmitting || isUpdating}
                             >
                                 {isSubmitting ? 'Saving...' : 'Save & Close'}
                             </Button>
@@ -173,64 +195,50 @@ export function UploadDocumentModal({
                             >
                                 {/* Left column - 2/3 width on large screens */}
                                 <div className='lg:col-span-2'>
-                                    <div className='space-y-4'>
-                                        <FormField
-                                            control={form.control}
-                                            name='description'
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className='mb-2 flex items-center gap-1'>
-                                                        Description
-                                                        <span className='text-muted-foreground'>
-                                                            <svg
-                                                                xmlns='http://www.w3.org/2000/svg'
-                                                                width='16'
-                                                                height='16'
-                                                                viewBox='0 0 24 24'
-                                                                fill='none'
-                                                                stroke='currentColor'
-                                                                strokeWidth='2'
-                                                                strokeLinecap='round'
-                                                                strokeLinejoin='round'
-                                                                className='h-4 w-4'
-                                                            >
-                                                                <circle
-                                                                    cx='12'
-                                                                    cy='12'
-                                                                    r='10'
-                                                                />
-                                                                <path d='M12 16v-4' />
-                                                                <path d='M12 8h.01' />
-                                                            </svg>
-                                                        </span>
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <div
-                                                            className='h-[80vh] !max-w-[calc(100vw-40px)]'
-                                                            style={{
-                                                                maxWidth:
-                                                                    'calc(100vw-40px)',
-                                                            }}
+                                    <FormField
+                                        control={form.control}
+                                        name='description'
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className='mb-2 flex items-center gap-1'>
+                                                    Description
+                                                    <span className='text-muted-foreground'>
+                                                        <svg
+                                                            xmlns='http://www.w3.org/2000/svg'
+                                                            width='16'
+                                                            height='16'
+                                                            viewBox='0 0 24 24'
+                                                            fill='none'
+                                                            stroke='currentColor'
+                                                            strokeWidth='2'
+                                                            strokeLinecap='round'
+                                                            strokeLinejoin='round'
+                                                            className='h-4 w-4'
                                                         >
-                                                            <GlobalBlockEditor
-                                                                value={
-                                                                    field.value ||
-                                                                    ''
-                                                                }
-                                                                onChange={(
-                                                                    val,
-                                                                ) =>
-                                                                    field.onChange(
-                                                                        val,
-                                                                    )
-                                                                }
+                                                            <circle
+                                                                cx='12'
+                                                                cy='12'
+                                                                r='10'
                                                             />
-                                                        </div>
-                                                    </FormControl>
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
+                                                            <path d='M12 16v-4' />
+                                                            <path d='M12 8h.01' />
+                                                        </svg>
+                                                    </span>
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <GlobalBlockEditor
+                                                        value={
+                                                            field.value || ''
+                                                        }
+                                                        onChange={(val) =>
+                                                            field.onChange(val)
+                                                        }
+                                                        className='min-h-[calc(100vh-300px)]'
+                                                    />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
                                 </div>
 
                                 {/* Right column - 1/3 width on large screens */}
@@ -259,95 +267,43 @@ export function UploadDocumentModal({
                                             )}
                                         />
 
-                                        {/* <FormField
+                                        <FormField
                                             control={form.control}
-                                            name='category1'
+                                            name='priority'
                                             render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className='mb-2 flex items-center gap-1'>
-                                                        Category
-                                                        <span className='text-red-500'>
-                                                            *
-                                                        </span>
+                                                <FormItem key={field.value}>
+                                                    <FormLabel>
+                                                        Priority
                                                     </FormLabel>
-                                                    <Select
-                                                        onValueChange={
-                                                            field.onChange
-                                                        }
-                                                        defaultValue={
-                                                            field.value
-                                                        }
-                                                    >
-                                                        <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder='Select Category' />
+                                                    <FormControl>
+                                                        <Select
+                                                            defaultValue={
+                                                                field.value
+                                                            }
+                                                            onValueChange={
+                                                                field.onChange
+                                                            }
+                                                            {...field}
+                                                        >
+                                                            <SelectTrigger className='bg-foreground'>
+                                                                <SelectValue placeholder='Select Priority' />
                                                             </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            <SelectItem value='development'>
-                                                                Development
-                                                            </SelectItem>
-                                                            <SelectItem value='technology'>
-                                                                Technology
-                                                            </SelectItem>
-                                                            <SelectItem value='design'>
-                                                                Design
-                                                            </SelectItem>
-                                                            <SelectItem value='marketing'>
-                                                                Marketing
-                                                            </SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
+                                                            <SelectContent>
+                                                                <SelectItem value='high'>
+                                                                    High
+                                                                </SelectItem>
+                                                                <SelectItem value='medium'>
+                                                                    Medium
+                                                                </SelectItem>
+                                                                <SelectItem value='low'>
+                                                                    low
+                                                                </SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormControl>
                                                 </FormItem>
                                             )}
-                                        /> */}
-
-                                        {/* <FormField
-                                            control={form.control}
-                                            name='category2'
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className='mb-2 flex items-center gap-1'>
-                                                        Category
-                                                        <span className='text-red-500'>
-                                                            *
-                                                        </span>
-                                                    </FormLabel>
-                                                    <Select
-                                                        onValueChange={
-                                                            field.onChange
-                                                        }
-                                                        defaultValue={
-                                                            field.value
-                                                        }
-                                                    >
-                                                        <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder='Select Category' />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            <SelectItem value='web-development'>
-                                                                Web Development
-                                                            </SelectItem>
-                                                            <SelectItem value='mobile-development'>
-                                                                Mobile
-                                                                Development
-                                                            </SelectItem>
-                                                            <SelectItem value='technical-test'>
-                                                                Technical Test
-                                                            </SelectItem>
-                                                            <SelectItem value='resources'>
-                                                                Resources
-                                                            </SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        /> */}
-
+                                        />
                                         <FormField
                                             control={form.control}
                                             name='tags'
@@ -381,6 +337,7 @@ export function UploadDocumentModal({
                                                     </FormLabel>
                                                     <FormControl>
                                                         <UploadThumbnail
+                                                            className='bg-foreground'
                                                             value={
                                                                 field.value ||
                                                                 ''
@@ -395,7 +352,7 @@ export function UploadDocumentModal({
                                         />
                                         <FormField
                                             control={form.control}
-                                            name='attachment'
+                                            name='attachments'
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>
@@ -403,6 +360,9 @@ export function UploadDocumentModal({
                                                     </FormLabel>
                                                     <FormControl>
                                                         <UploadAttatchment
+                                                            className='bg-foreground'
+                                                            uploadClassName='bg-background'
+                                                            itemClassName='bg-background'
                                                             attachments={
                                                                 field.value ||
                                                                 []

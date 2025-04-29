@@ -20,11 +20,8 @@ import { renderText } from '@/components/lexicalEditor/renderer/renderText';
 import GlobalComment from '@/components/global/GlobalComments/GlobalComment';
 import { Card, CardContent } from '@/components/ui/card';
 import { useGetMySingleDocumentQuery } from '@/redux/api/documents/documentsApi';
-import DownloadIcon from '@/components/svgs/common/DownloadIcon';
-import EditPenIcon from '@/components/svgs/common/EditPenIcon';
-import DeleteTrashIcon from '@/components/svgs/common/DeleteTrashIcon';
-import { EditDocumentModal } from './edit-document-modal';
 import dayjs from 'dayjs';
+import DocumentList from './documentsList';
 
 export interface DocumentDetailsProps {
     isOpen: boolean;
@@ -140,7 +137,7 @@ export function MyDocumentDetailsModal({
                                         ? file
                                         : file.name || `File ${index}`,
                                 type: 'document',
-                                size: '1.0 MB',
+                                url: file,
                             }),
                         )
                       : []
@@ -345,7 +342,7 @@ export function MyDocumentDetailsModal({
                                     variant='ghost'
                                     size='icon'
                                     onClick={onClose}
-                                    className='h-auto w-auto p-0'
+                                    className='h-auto p-0 sm:p-0 w-fit sm:w-fit'
                                 >
                                     <ArrowLeft className='h-4 w-4' />
                                     <span className='sr-only'>Back</span>
@@ -398,7 +395,7 @@ export function MyDocumentDetailsModal({
                     <div className='flex-1 overflow-y-auto p-4 document-container'>
                         <div className='max-w-6xl mx-auto'>
                             {/* Top section - full width */}
-                            <div className='mb-6'>
+                            <div className='mb-3'>
                                 {/* Created date */}
                                 <div className='text-sm text-muted-foreground mb-2 flex flex-row items-center gap-4'>
                                     <div className='flex flex-row items-center gap-1'>
@@ -416,12 +413,12 @@ export function MyDocumentDetailsModal({
                                 </div>
 
                                 {/* Title */}
-                                <h1 className='text-3xl font-bold mb-4'>
+                                <h1 className='text-3xl font-bold mb-2'>
                                     {document.title}
                                 </h1>
 
                                 {/* Created by */}
-                                <div className='mb-4 flex flex-row items-center gap-1'>
+                                <div className='mb-2 flex flex-row items-center gap-1'>
                                     <div className='h-8 w-8 rounded-full overflow-hidden bg-muted'>
                                         <Image
                                             src='/avatar.png'
@@ -458,7 +455,7 @@ export function MyDocumentDetailsModal({
                                         className={`space-y-4 ${isSidebarSticky ? 'lg:sticky lg:top-24' : ''}`}
                                     >
                                         {/* Thumbnail */}
-                                        <div className='rounded-lg overflow-hidden mb-6'>
+                                        <div className='rounded-lg overflow-hidden mb-3'>
                                             <Image
                                                 src={getImageUrl}
                                                 alt={document.title}
@@ -531,55 +528,18 @@ export function MyDocumentDetailsModal({
                                         {document.attachedFiles &&
                                             document.attachedFiles.length >
                                                 0 && (
-                                                <div className='border rounded-lg p-4 bg-foreground'>
-                                                    <h3 className='font-semibold mb-3'>
-                                                        Attached Files
-                                                    </h3>
-                                                    <div className='space-y-2'>
-                                                        {document.attachedFiles.map(
-                                                            (
-                                                                file: any,
-                                                                index: number,
-                                                            ) => (
-                                                                <div
-                                                                    key={index}
-                                                                    className='flex items-center justify-between'
-                                                                >
-                                                                    <div className='flex items-center gap-2'>
-                                                                        <div className='h-8 w-8 min-w-8 flex items-center justify-center bg-background rounded'>
-                                                                            <FileIcon className='h-4 w-4' />
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className='text-sm font-medium line-clamp-1'>
-                                                                                {
-                                                                                    file.name
-                                                                                }
-                                                                            </p>
-                                                                            <p className='text-xs text-muted-foreground'>
-                                                                                {
-                                                                                    file.size
-                                                                                }
-                                                                            </p>
-                                                                        </div>
-                                                                    </div>
-                                                                    <Button
-                                                                        variant='ghost'
-                                                                        size='sm'
-                                                                    >
-                                                                        <DownloadIcon className='h-4 w-4' />
-                                                                    </Button>
-                                                                </div>
-                                                            ),
-                                                        )}
-                                                    </div>
-                                                </div>
+                                                <DocumentList
+                                                    files={
+                                                        document.attachedFiles
+                                                    }
+                                                />
                                             )}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Comments section - full width */}
-                            <div className='mt-12' ref={commentsRef}>
+                            <div className='mt-3' ref={commentsRef}>
                                 <GlobalComment
                                     contentId={id || ''}
                                     bgColor='foreground'
@@ -587,7 +547,7 @@ export function MyDocumentDetailsModal({
                             </div>
 
                             {/* Related content - full width */}
-                            <div className='mt-12 pt-6 border-t max-w-full'>
+                            <div className='mt-3 pt-3 border-t max-w-full'>
                                 <div className='flex items-center justify-between mb-6'>
                                     <h2 className='text-2xl font-bold'>
                                         Related Documents
@@ -727,25 +687,6 @@ export function MyDocumentDetailsModal({
                     </div>
                 </div>
             </GlobalDocumentDetailsModal>
-
-            {/* Edit Modal */}
-            {document && (
-                <EditDocumentModal
-                    isOpen={isEditModalOpen}
-                    onClose={handleEditModalClose}
-                    documentId={id || ''}
-                    defaultValues={{
-                        description: document.content,
-                        name: document.title,
-                        categories: document.tags.slice(0, 2), // Assuming 2 categories
-                        tags: document.tags.join(', '),
-                        thumbnailUrl: document.imageUrl,
-                        attachedFileUrls: document.attachedFiles.map(
-                            (file: any) => file.name,
-                        ),
-                    }}
-                />
-            )}
         </>
     );
 }
