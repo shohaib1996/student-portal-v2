@@ -365,7 +365,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                 url: x?.url,
             }));
 
-        const messageText = localText.replace(/\s+/g, ' ').trim();
+        const messageText = localText.trim();
         console.log({ messageText });
         if (!messageText && successFiles.length === 0) {
             store.dispatch(setDraft({ chat: chatId as string, message: '' }));
