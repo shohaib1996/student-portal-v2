@@ -9,6 +9,7 @@ import { useGetMentionedUserDetailsQuery } from '@/redux/api/chats/chatApi';
 interface CustomMarkdownRendererProps {
     text: string;
     isUser?: boolean;
+    isThread?: boolean;
 }
 
 // MentionTag component that integrates the popover
@@ -202,6 +203,7 @@ const preprocessText = (text?: string): string => {
 const CustomMarkdownPreview = ({
     text,
     isUser = false,
+    isThread = false,
 }: CustomMarkdownRendererProps) => {
     const { theme } = useTheme();
     const isDarkMode = theme === 'dark' || isUser;
@@ -256,25 +258,28 @@ const CustomMarkdownPreview = ({
         <>
             <div
                 className={`custom-text ${isDarkMode ? 'dark' : 'light'} ${
-                    isUser ? 'text-pure-white/80' : 'text-dark-gray'
+                    isUser && !isThread
+                        ? 'text-pure-white/90'
+                        : !isThread && 'text-dark-gray'
                 }`}
             >
                 {textParts}
             </div>
 
+            {/* .custom-text.dark {
+                 color: #ffffff;
+             }
+             .custom-text.light {
+                 color: #374151;
+             } 
+             .custom-text.text-pure-white {
+                 color: #ffffff;
+             }
+             .custom-text.text-dark-gray {
+                 color: #374151;
+             }
+              */}
             <style jsx global>{`
-                .custom-text.dark {
-                    color: #ffffff;
-                }
-                .custom-text.light {
-                    color: #374151;
-                }
-                .custom-text.text-pure-white {
-                    color: #ffffff;
-                }
-                .custom-text.text-dark-gray {
-                    color: #374151;
-                }
                 /* List styling */
                 .custom-text ol {
                     list-style-type: decimal;
@@ -302,9 +307,7 @@ const CustomMarkdownPreview = ({
                     color: #2563eb;
                     text-decoration: underline;
                 }
-                .custom-text.dark a:not(.mention) {
-                    color: #60a5fa;
-                }
+
                 /* Ensure mentions display correctly */
                 .mention-tag,
                 .mention {

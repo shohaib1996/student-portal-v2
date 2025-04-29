@@ -579,6 +579,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                     message?.sender?._id ===
                                                         user?._id && true
                                                 }
+                                                isThread={isThread}
                                             />
                                         )}
 
@@ -661,7 +662,15 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
 
                                         {message?.type !== 'delete' &&
                                             message?.editedAt && (
-                                                <span className='text-xs italic text-primary'>
+                                                <span
+                                                    className={`text-xs italic ${
+                                                        message?.sender?._id ===
+                                                            user?._id &&
+                                                        !isThread
+                                                            ? 'text-pure-white/80'
+                                                            : 'text-primary-white'
+                                                    }`}
+                                                >
                                                     (Edited)
                                                 </span>
                                             )}
@@ -929,7 +938,16 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                                 {reply?.type !==
                                                                     'delete' &&
                                                                     reply?.editedAt && (
-                                                                        <span className='text-xs italic text-primary-white'>
+                                                                        <span
+                                                                            className={`text-xs italic ${
+                                                                                reply
+                                                                                    ?.sender
+                                                                                    ?._id ===
+                                                                                user?._id
+                                                                                    ? 'text-pure-white/80'
+                                                                                    : 'text-primary-white'
+                                                                            } `}
+                                                                        >
                                                                             (Edited)
                                                                         </span>
                                                                     )}

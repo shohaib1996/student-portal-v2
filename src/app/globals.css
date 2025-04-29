@@ -308,3 +308,6 @@ body {
 }
 
 /* code block message preview background color */
+.code-highlight {
+    @apply !text-black !border-[1px] !border-forground-border !shadow-lg;
+}

@@ -249,6 +249,14 @@ const ChatBody: React.FC<ChatBodyProps> = ({
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const lastMessageRef = useRef<HTMLDivElement>(null);
 
+    // 1. Add this useEffect to control initial rendering
+    useEffect(() => {
+        // Don't render any messages until we're ready to scroll to bottom
+        if (params?.chatid && !initialLoaded) {
+            setIsLoading(true); // Show loading state instead of messages
+        }
+    }, [params?.chatid, initialLoaded]);
+
     // Modified useEffect for fetching initial messages
     useEffect(() => {
         if (params?.chatid) {
@@ -275,6 +283,7 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                         }),
                     );
                     setInitalLoaded(true);
+
                     if (res.data?.messages?.length < limit) {
                         setHasMore(false);
                     } else {
@@ -284,6 +293,16 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                         dispatch(markRead({ chatId: params.chatid as string }));
                     }
                     setIsFetching(false);
+                    // Set initialLoaded in the next render cycle
+                    // This ensures DOM is ready before we scroll
+                    requestAnimationFrame(() => {
+                        if (chatContainerRef.current) {
+                            // Pre-position the scroll before revealing messages
+                            chatContainerRef.current.scrollTop =
+                                chatContainerRef.current.scrollHeight;
+                            setInitalLoaded(true);
+                        }
+                    });
                 })
                 .catch((err) => {
                     setIsLoading(false);

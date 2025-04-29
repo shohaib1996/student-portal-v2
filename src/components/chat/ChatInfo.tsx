@@ -2,7 +2,15 @@
 
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import type React from 'react';
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import {
+    Suspense,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+    createContext,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import AddUserModal from './AddUserModal';
@@ -733,7 +741,26 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
             </>
         );
     };
+    // Modified InlineSelectEdit component
+    // Create a context to manage open select dropdowns
 
+    const SelectContext = createContext({
+        openSelectId: null,
+        setOpenSelectId: (id: any) => {},
+    });
+
+    // Provider component to wrap around areas that contain select dropdowns
+    // This should be added near the beginning of your ChatInfo component
+    const SelectProvider = ({ children }: { children: any }) => {
+        const [openSelectId, setOpenSelectId] = useState(null);
+        return (
+            <SelectContext.Provider value={{ openSelectId, setOpenSelectId }}>
+                {children}
+            </SelectContext.Provider>
+        );
+    };
+
+    // Modified InlineSelectEdit component
     const InlineSelectEdit = ({
         value,
         options,
@@ -741,18 +768,32 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
         isLoading = false,
         fieldName = '',
     }: {
-        value: any;
-        options: any;
-        onSave: any;
-        isLoading: boolean;
-        fieldName: string;
+        value?: any;
+        options?: any[];
+        onSave?: any;
+        isLoading?: boolean;
+        fieldName?: string;
     }) => {
         const [isEditing, setIsEditing] = useState(false);
         const [selectedValue, setSelectedValue] = useState(String(value));
+        const [isOpen, setIsOpen] = useState(false);
+        const selectId = useRef(
+            `select-${fieldName}-${Math.random().toString(36).substring(2, 9)}`,
+        ).current;
+
+        // Get context values to track which select is open
+        const { openSelectId, setOpenSelectId } = useContext(SelectContext);
 
         useEffect(() => {
             setSelectedValue(String(value));
         }, [value]);
+
+        // When another select opens, close this one if it's open
+        useEffect(() => {
+            if (openSelectId && openSelectId !== selectId && isOpen) {
+                setIsOpen(false);
+            }
+        }, [openSelectId, selectId, isOpen]);
 
         const handleSave = () => {
             // Convert string "true"/"false" to boolean if needed
@@ -772,22 +813,38 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
             setIsEditing(false);
         };
 
+        const handleOpenChange = (open: boolean) => {
+            setIsOpen(open);
+            if (open) {
+                setOpenSelectId(selectId);
+            } else if (openSelectId === selectId) {
+                setOpenSelectId(null);
+            }
+        };
+
         return isEditing ? (
             <div className='flex flex-row gap-1'>
                 <Select
                     value={selectedValue}
                     onValueChange={setSelectedValue}
                     disabled={isLoading}
+                    id={selectId as string}
+                    open={isOpen}
+                    onOpenChange={handleOpenChange}
                 >
                     <SelectTrigger className='w-full h-7'>
                         <SelectValue placeholder='Select option' />
                     </SelectTrigger>
-                    <SelectContent>
-                        {options.map((option: any) => (
+                    <SelectContent
+                        className='bg-background z-50'
+                        position='popper'
+                        sideOffset={5}
+                    >
+                        {options?.map((option: any) => (
                             <SelectItem
-                                key={option.value}
+                                key={`${selectId}-${option.value}`}
                                 value={option.value}
-                                className='hover:bg-primary-light hover:text-primary-white border border-transparent hover:border-primary-white'
+                                className='hover:bg-primary-light hover:text-primary-white border border-transparent hover:border-primary-white focus:bg-primary-light focus:text-primary-white'
                             >
                                 {option.label}
                             </SelectItem>
@@ -808,12 +865,12 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                         }
                         onClick={handleSave}
                         disabled={isLoading}
-                        className='h-7 max-h-7 w-7 max-w-7 '
+                        className='h-7 max-h-7 w-7 max-w-7'
                     ></Button>
                     <Button
                         tooltip='Cancel Update'
                         size='icon'
-                        className='bg-red-500/10 h-7 max-h-7 w-7 max-w-7 '
+                        className='bg-red-500/10 h-7 max-h-7 w-7 max-w-7'
                         icon={<X size={16} className='text-danger' />}
                         onClick={handleCancel}
                         disabled={isLoading}
@@ -822,7 +879,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
             </div>
         ) : (
             <>
-                {options.find((o: any) => String(o.value) === String(value))
+                {options?.find((o) => String(o.value) === String(value))
                     ?.label || value}
                 <button onClick={() => setIsEditing(true)} className='ml-2'>
                     <PencilLine size={16} />
@@ -830,7 +887,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
             </>
         );
     };
-
     const [
         leaveConfirmOpened,
         { open: leaveConfirmOpen, close: leaveConfirmClose },
@@ -1275,84 +1331,93 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                             </div>
                                         )}
                                         {chat?.isChannel && (
-                                            <div className='type_readonly grid grid-cols-2 gap-2 w-full'>
-                                                <div className='type flex flex-row items-center gap-2 text-start text-dark-gray text-sm font-semibold '>
-                                                    Type:{' '}
-                                                    {chat?.isChannel &&
-                                                    ['owner', 'admin'].includes(
-                                                        chat?.myData?.role,
-                                                    ) ? (
-                                                        <InlineSelectEdit
-                                                            value={
-                                                                chat?.isPublic
-                                                            }
-                                                            options={[
-                                                                {
-                                                                    value: 'true',
-                                                                    label: 'Public',
-                                                                },
-                                                                {
-                                                                    value: 'false',
-                                                                    label: 'Private',
-                                                                },
-                                                            ]}
-                                                            onSave={
-                                                                handleInlineUpdate
-                                                            }
-                                                            isLoading={
-                                                                isUpdating &&
-                                                                updateField ===
-                                                                    'isPublic'
-                                                            }
-                                                            fieldName='isPublic'
-                                                        />
-                                                    ) : (
-                                                        <p className='text-gray font-normal'>
-                                                            {chat?.isPublic
-                                                                ? 'Public'
-                                                                : 'Private'}
-                                                        </p>
-                                                    )}
+                                            // In your ChatInfo component, around the area with the Type and Read Only fields
+                                            <SelectProvider>
+                                                <div className='type_readonly grid grid-cols-2 gap-2 w-full'>
+                                                    <div className='type flex flex-row items-center gap-2 text-start text-dark-gray text-sm font-semibold '>
+                                                        Type:{' '}
+                                                        {chat?.isChannel &&
+                                                        [
+                                                            'owner',
+                                                            'admin',
+                                                        ].includes(
+                                                            chat?.myData?.role,
+                                                        ) ? (
+                                                            <InlineSelectEdit
+                                                                value={
+                                                                    chat?.isPublic
+                                                                }
+                                                                options={[
+                                                                    {
+                                                                        value: 'true',
+                                                                        label: 'Public',
+                                                                    },
+                                                                    {
+                                                                        value: 'false',
+                                                                        label: 'Private',
+                                                                    },
+                                                                ]}
+                                                                onSave={
+                                                                    handleInlineUpdate
+                                                                }
+                                                                isLoading={
+                                                                    isUpdating &&
+                                                                    updateField ===
+                                                                        'isPublic'
+                                                                }
+                                                                fieldName='isPublic'
+                                                            />
+                                                        ) : (
+                                                            <p className='text-gray font-normal'>
+                                                                {chat?.isPublic
+                                                                    ? 'Public'
+                                                                    : 'Private'}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <div className='readonly flex flex-row items-center gap-2 text-start text-dark-gray text-sm font-semibold '>
+                                                        Read Only:{' '}
+                                                        {chat?.isChannel &&
+                                                        [
+                                                            'owner',
+                                                            'admin',
+                                                        ].includes(
+                                                            chat?.myData?.role,
+                                                        ) ? (
+                                                            <InlineSelectEdit
+                                                                value={
+                                                                    chat?.isReadOnly
+                                                                }
+                                                                options={[
+                                                                    {
+                                                                        value: 'true',
+                                                                        label: 'Yes',
+                                                                    },
+                                                                    {
+                                                                        value: 'false',
+                                                                        label: 'No',
+                                                                    },
+                                                                ]}
+                                                                onSave={
+                                                                    handleInlineUpdate
+                                                                }
+                                                                isLoading={
+                                                                    isUpdating &&
+                                                                    updateField ===
+                                                                        'isReadOnly'
+                                                                }
+                                                                fieldName='isReadOnly'
+                                                            />
+                                                        ) : (
+                                                            <p className='text-gray font-normal'>
+                                                                {chat?.isReadOnly
+                                                                    ? 'Yes'
+                                                                    : 'No'}
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <div className='readonly flex flex-row items-center gap-2 text-start text-dark-gray text-sm font-semibold '>
-                                                    Read Only:{' '}
-                                                    {chat?.isChannel &&
-                                                    ['owner', 'admin'].includes(
-                                                        chat?.myData?.role,
-                                                    ) ? (
-                                                        <InlineSelectEdit
-                                                            value={
-                                                                chat?.isReadOnly
-                                                            }
-                                                            options={[
-                                                                {
-                                                                    value: 'true',
-                                                                    label: 'Yes',
-                                                                },
-                                                                {
-                                                                    value: 'false',
-                                                                    label: 'No',
-                                                                },
-                                                            ]}
-                                                            onSave={
-                                                                handleInlineUpdate
-                                                            }
-                                                            isLoading={
-                                                                isUpdating &&
-                                                                updateField ===
-                                                                    'isReadOnly'
-                                                            }
-                                                            fieldName='isReadOnly'
-                                                        />
-                                                    ) : (
-                                                        <p className='text-gray font-normal'>
-                                                            {chat?.isReadOnly
-                                                                ? 'Yes'
-                                                                : 'No'}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
+                                            </SelectProvider>
                                         )}
                                         {chat?.isChannel && (
                                             <div className='description flex flex-col gap-1 bg-background border rounded-md p-2 w-full'>

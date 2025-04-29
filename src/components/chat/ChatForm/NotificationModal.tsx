@@ -127,6 +127,20 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
             toast.error('Please select a option first');
             return;
         }
+        // Add time validation for option 4 (custom time)
+        if (selectedOption === 4 && dateUntil) {
+            const selectedDateTime = dayjs(dateUntil);
+            const currentTime = dayjs();
+            const minRequiredTime = currentTime.add(10, 'minute');
+
+            // Check if selected time is at least 10 minutes in the future
+            if (selectedDateTime.isBefore(minRequiredTime)) {
+                toast.error(
+                    'Please select a time at least 10 minutes in the future',
+                );
+                return;
+            }
+        }
 
         const data = {
             member: member._id,
@@ -183,6 +197,39 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
         updateNotificationSettings,
         handleUpdateCallback,
     ]);
+
+    const validateTimeAndClosePicker = useCallback(() => {
+        // Only validate if today's date is selected
+        if (date && timeValue) {
+            const today = new Date();
+            const isToday =
+                date.getDate() === today.getDate() &&
+                date.getMonth() === today.getMonth() &&
+                date.getFullYear() === today.getFullYear();
+
+            if (isToday) {
+                const selectedDateTime = new Date(date);
+                selectedDateTime.setHours(
+                    timeValue.getHours(),
+                    timeValue.getMinutes(),
+                );
+
+                const currentTime = new Date();
+                const minRequiredTime = new Date(
+                    currentTime.getTime() + 10 * 60 * 1000,
+                ); // Add 10 minutes
+
+                if (selectedDateTime < minRequiredTime) {
+                    toast.error(
+                        'Please select a time at least 10 minutes in the future',
+                    );
+                    return;
+                }
+            }
+        }
+
+        setShowDateTimePicker(false);
+    }, [date, timeValue]);
 
     const handleUnmute = useCallback(() => {
         if (isUpdating) {
@@ -498,8 +545,8 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                                         <div className='p-2 bg-background text-right'>
                                             <Button
                                                 size='sm'
-                                                onClick={() =>
-                                                    setShowDateTimePicker(false)
+                                                onClick={
+                                                    validateTimeAndClosePicker
                                                 }
                                                 type='button'
                                             >

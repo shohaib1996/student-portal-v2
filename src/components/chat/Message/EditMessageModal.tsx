@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ChatFooter from '../ChatFooter';
 import { parseMentionToEdit } from '@/helper/utilities';
-import GlobalDialog from '@/components/global/GlobalDialogModal/GlobalDialog';
+import GlobalModal from '@/components/global/GlobalModal'; // Changed import
 
 interface EditMessageModalProps {
     selectedMessage: any;
@@ -16,6 +16,7 @@ const EditMessageModal: React.FC<EditMessageModalProps> = ({
 }) => {
     const [text, setText] = useState('');
     const [isTyping, setIsTyping] = useState<boolean>(false);
+
     useEffect(() => {
         if (selectedMessage) {
             const newString = parseMentionToEdit(selectedMessage?.text || '');
@@ -30,7 +31,7 @@ const EditMessageModal: React.FC<EditMessageModalProps> = ({
     };
 
     return (
-        <GlobalDialog
+        <GlobalModal
             open={Boolean(selectedMessage)}
             setOpen={(isOpen) => {
                 if (!isOpen) {
@@ -39,10 +40,9 @@ const EditMessageModal: React.FC<EditMessageModalProps> = ({
             }}
             title='Edit Message'
             className='edit-message-modal max-w-[600px]'
-            showCloseButton={true}
             allowFullScreen={false}
         >
-            <div className='inbox-container'>
+            <div className='inbox-container pt-4'>
                 <ChatFooter
                     isEdit={true}
                     reply={true}
@@ -54,7 +54,7 @@ const EditMessageModal: React.FC<EditMessageModalProps> = ({
                     sendTypingIndicator={sendTypingIndicator}
                 />
             </div>
-        </GlobalDialog>
+        </GlobalModal>
     );
 };
 

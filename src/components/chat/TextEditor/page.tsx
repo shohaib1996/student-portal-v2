@@ -365,14 +365,15 @@ const TextEditor: React.FC<TextEditorProps> = ({
                 url: x?.url,
             }));
 
-        const messageText = localText.trim();
+        const messageText = localText.replace(/\s+/g, ' ').trim();
+        console.log({ messageText });
         if (!messageText && successFiles.length === 0) {
             store.dispatch(setDraft({ chat: chatId as string, message: '' }));
             return toast.error('Please write something or attach a file');
         }
 
         const data = {
-            text: localText,
+            text: messageText,
             files: successFiles,
         } as any;
 

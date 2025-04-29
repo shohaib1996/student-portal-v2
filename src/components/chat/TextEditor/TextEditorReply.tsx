@@ -329,7 +329,7 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                 url: x?.url,
             }));
 
-        const messageText = text.trim();
+        const messageText = text.replace(/\s+/g, ' ').trim();
 
         if (!messageText && successFiles.length === 0) {
             setText('');

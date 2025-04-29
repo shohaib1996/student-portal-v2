@@ -67,14 +67,14 @@ const AudioCard = ({ audioUrl }: AudioCardProps) => {
         });
 
         wavesurfer.on('error', (error: any) => {
-            toast.error('Error loading audio file');
+            console.error('Error loading audio file');
             setIsLoading(false);
         });
 
         if (audioUrl) {
             wavesurfer.load(audioUrl).catch((error: any) => {
                 console.error('Error loading audio:', error);
-                toast.error('Failed to load audio');
+                // toast.error('Failed to load audio');
                 setIsLoading(false);
             });
         }

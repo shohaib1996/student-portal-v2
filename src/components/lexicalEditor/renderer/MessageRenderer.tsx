@@ -20,6 +20,7 @@ interface MessageRendererProps {
     searchQuery?: string;
     isUser?: boolean;
     hasCode?: boolean;
+    isThread?: boolean;
 }
 
 // Popover component for mentions
@@ -106,6 +107,7 @@ function MessageRenderer({
     searchQuery,
     isUser,
     hasCode,
+    isThread,
 }: MessageRendererProps) {
     const { theme } = useTheme();
     setupMentionHandlers();
@@ -202,22 +204,30 @@ function MessageRenderer({
                 <MarkdownPreview
                     source={processedTextForCode}
                     components={components}
+                    // wrapperElement={{
+                    //     'data-color-mode': isUser
+                    //         ? 'dark'
+                    //         : theme === 'dark'
+                    //           ? 'dark'
+                    //           : 'light',
+                    // }}
+                    // className={`${
+                    //     isUser
+                    //         ? '!text-pure-white/80 dark:!text-pure-white/80'
+                    //         : '!text-gray dark:!text-pure-white/90'
+                    // }`}
                     wrapperElement={{
-                        'data-color-mode': isUser
-                            ? 'dark'
-                            : theme === 'dark'
-                              ? 'dark'
-                              : 'light',
+                        'data-color-mode': theme === 'dark' ? 'dark' : 'light',
                     }}
-                    className={`${
-                        isUser
-                            ? '!text-pure-white/80 dark:!text-pure-white/80'
-                            : '!text-gray dark:!text-pure-white/90'
-                    }`}
+                    className={`!text-gray dark:!text-pure-white/90`}
                 />
             ) : (
                 // For regular text, use our custom renderer
-                <CustomMarkdownPreview text={text} isUser={isUser} />
+                <CustomMarkdownPreview
+                    text={text}
+                    isUser={isUser}
+                    isThread={isThread}
+                />
             )}
 
             {searchQuery && (
