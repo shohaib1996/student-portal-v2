@@ -45,7 +45,7 @@ const CalendarFilter = () => {
     const [typeOpen, setTypeOpen] = useState(false);
 
     const isFilterActive = useCallback(
-        (type: 'event' | 'holiday' | 'todo' | 'type', value: string) => {
+        (type: 'event' | 'holiday' | 'todo', value: string) => {
             if (type === 'event') {
                 const exist = (eventFilter as string[]).find(
                     (f) => f === value,
@@ -71,16 +71,9 @@ const CalendarFilter = () => {
                 } else {
                     return false;
                 }
-            } else if (type === 'type') {
-                const exist = (typeFilter as string[]).find((f) => f === value);
-                if (exist) {
-                    return true;
-                } else {
-                    return false;
-                }
             }
         },
-        [eventFilter, todoFilter, priorityFilter, typeFilter],
+        [eventFilter, todoFilter, priorityFilter],
     );
 
     return (
@@ -340,22 +333,6 @@ const CalendarFilter = () => {
                                         className='text-gray'
                                     />
                                     <span className='ps-2'>Type</span>
-                                    <Checkbox
-                                        onClick={(e) => e.stopPropagation()}
-                                        className='ms-auto'
-                                        checked={typeFilter.length === 2}
-                                        onCheckedChange={(val) =>
-                                            dispatch(
-                                                setTypeFilter(
-                                                    val === true
-                                                        ? typeOptions.map(
-                                                              (op) => op.value,
-                                                          )
-                                                        : [],
-                                                ),
-                                            )
-                                        }
-                                    />
                                 </div>
                             </button>
                         </PopoverTrigger>
@@ -370,24 +347,10 @@ const CalendarFilter = () => {
                                             {item.label}
                                         </div>
                                         <Checkbox
-                                            checked={isFilterActive(
-                                                'type',
-                                                item.value,
-                                            )}
+                                            checked={typeFilter === item.value}
                                             onCheckedChange={(val) =>
                                                 dispatch(
-                                                    setTypeFilter(
-                                                        val === true
-                                                            ? [
-                                                                  ...typeFilter,
-                                                                  item.value,
-                                                              ]
-                                                            : typeFilter.filter(
-                                                                  (f) =>
-                                                                      f !==
-                                                                      item.value,
-                                                              ),
-                                                    ),
+                                                    setTypeFilter(item.value),
                                                 )
                                             }
                                         />
