@@ -354,6 +354,7 @@ const GlobalTable = <T,>({
                             {showAddColumn && (
                                 <div className='sticky right-0 top-0 flex justify-end w-full'>
                                     <Button
+                                        tooltip='Customize Columns'
                                         onClick={() => setCollumnSettings(true)}
                                         variant={'plain'}
                                         className='bg-background border-none rounded-none w-9 z-40 justify-center h-12 flex items-center'

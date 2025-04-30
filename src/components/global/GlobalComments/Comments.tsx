@@ -143,7 +143,7 @@ const Comments = ({
                             <textarea
                                 onFocus={(e) => handleFocus(e, text)}
                                 onInput={handleResize}
-                                className='text-black bg-background border-forground-border outline-none border rounded-md p-2 bg-foreground'
+                                className='text-black border-forground-border outline-none border rounded-md p-2 bg-foreground'
                                 defaultValue={text}
                                 autoFocus={true}
                                 onChange={(e) =>
@@ -201,7 +201,7 @@ const Comments = ({
                                 </button>
                             )}
                         </PopoverTrigger>
-                        <PopoverContent className='p-2 max-w-36'>
+                        <PopoverContent className='p-2 max-w-36 z-[99999]'>
                             <div className='flex flex-col items-start gap-1'>
                                 {!isReply && (
                                     <div
