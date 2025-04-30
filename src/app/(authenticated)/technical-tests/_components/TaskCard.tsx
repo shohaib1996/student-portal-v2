@@ -11,8 +11,8 @@ import {
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from './status-badge';
-import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
 import { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 
 export type TaskStatus =
     | 'not_answered'
@@ -138,20 +138,11 @@ export default function TaskCard({
                         <span
                             className={`text-black font-semibold ${isMobile ? '' : 'col-span-2'}`}
                         >
-                            {formatDateToCustomString(task.deadline, false)}
-                        </span>
-                    </p>
-                    <p
-                        className={`text-xs font-medium text-gray ${isMobile ? 'grid grid-cols-2' : 'grid grid-cols-3'} gap-2`}
-                    >
-                        <span className='flex items-center gap-1'>
-                            <User className='h-3.5 w-3.5' />
-                            Workshop:
-                        </span>
-                        <span
-                            className={`text-black font-semibold ${isMobile ? '' : 'col-span-2'}`}
-                        >
-                            {formatDateToCustomString(task.workshop, false)}
+                            {task?.deadline
+                                ? dayjs(task.deadline).format(
+                                      'MMM DD, YYYY [at] hh:mm A',
+                                  )
+                                : 'Not defined'}
                         </span>
                     </p>
                 </div>
