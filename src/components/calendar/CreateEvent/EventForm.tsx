@@ -621,7 +621,7 @@ const EventForm = ({ form, onSubmit, setCurrentDate, edit, event }: TProps) => {
                                         <AddNotification
                                             className={`${isFullScreen ? '' : 'grid-cols-1'}`}
                                             isFullScreen={isFullScreen}
-                                            disabled={edit}
+                                            // disabled={edit}
                                             setNotification={(val) =>
                                                 field.onChange([val])
                                             }

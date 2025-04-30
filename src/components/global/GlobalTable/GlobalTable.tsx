@@ -1,3 +1,4 @@
+// Updated GlobalTable.jsx
 'use client';
 import React, { useEffect, useState } from 'react';
 import {
@@ -149,7 +150,7 @@ interface GlobalTableProps<T> {
     isLoading?: boolean;
     limit?: number;
     actionsMinSize?: number;
-    showAddColumn?: boolean; // New prop to control the visibility of add column button
+    showAddColumn?: boolean;
 }
 
 const GlobalTable = <T,>({
@@ -160,7 +161,7 @@ const GlobalTable = <T,>({
     height,
     limit,
     actionsMinSize = 200,
-    showAddColumn = true, // Default to true for backward compatibility
+    showAddColumn = true,
 }: GlobalTableProps<T>) => {
     const [columnSettingsOpen, setCollumnSettings] = useState(false);
     const { tableSizeData } = useAppSelector((s) => s.table);
@@ -168,6 +169,19 @@ const GlobalTable = <T,>({
 
     const storeColumnSizing = tableSizeData.find(
         (d) => d.tableName === tableName,
+    );
+
+    // Create a unique key for the column definitions to force re-render
+    // when defaultColumns change (like when selectedEvents changes)
+    const columnsKey = React.useMemo(
+        () =>
+            JSON.stringify(
+                defaultColumns.map((col) => ({
+                    id: col.id,
+                    accessorKey: col.accessorKey,
+                })),
+            ),
+        [defaultColumns],
     );
 
     const mergedColumns = React.useMemo(() => {
@@ -179,19 +193,20 @@ const GlobalTable = <T,>({
             ]),
         );
 
-        // Map default columns, apply store settings, and filter out invisible ones
+        // Map default columns, apply store settings, but keep the current cell definitions
         return defaultColumns
             .map((col) => {
                 if (storeColumnsMap.has(col.id)) {
+                    const storedCol = storeColumnsMap.get(col.id);
                     return {
                         ...col,
-                        ...storeColumnsMap.get(col.id), // apply stored settings
+                        visible: storedCol?.visible ?? true, // Only take visibility from storage
                     };
                 }
                 return { ...col, visible: true }; // Ensure new columns are visible by default
             })
             .filter((col) => col.visible !== false); // Remove columns where visible is false
-    }, [storeColumnSizing, defaultColumns]);
+    }, [storeColumnSizing, defaultColumns, columnsKey]);
 
     const columnsWithCustomSizing = React.useMemo(() => {
         return mergedColumns.map((column) => {
@@ -225,7 +240,7 @@ const GlobalTable = <T,>({
                             : updater,
                     columns:
                         (storeColumnSizing?.columns as TCustomColumnDef<any>[]) ||
-                        [],
+                        defaultColumns,
                 }),
             );
         },
@@ -236,37 +251,30 @@ const GlobalTable = <T,>({
         debugColumns: true,
     });
 
+    // Update column settings in the store whenever defaultColumns changes
     useEffect(() => {
-        if (!storeColumnSizing) {
-            dispatch(
-                setColumnSizing({
-                    tableName,
-                    columnSizing: table.getState().columnSizing,
-                    columns: defaultColumns,
+        dispatch(
+            setColumnSizing({
+                tableName,
+                columnSizing:
+                    storeColumnSizing?.columnSizing ||
+                    table.getState().columnSizing,
+                columns: defaultColumns?.map((col) => {
+                    const found = storeColumnSizing?.columns?.find(
+                        (c) => c.id === col.id,
+                    );
+                    if (found) {
+                        return {
+                            ...col,
+                            visible: found.visible,
+                        };
+                    } else {
+                        return col;
+                    }
                 }),
-            );
-        } else {
-            dispatch(
-                setColumnSizing({
-                    tableName,
-                    columnSizing: storeColumnSizing.columnSizing,
-                    columns: defaultColumns?.map((col) => {
-                        const found = storeColumnSizing?.columns?.find(
-                            (c) => c.id === col.id,
-                        );
-                        if (found) {
-                            return {
-                                ...col,
-                                visible: found.visible,
-                            };
-                        } else {
-                            return col;
-                        }
-                    }),
-                }),
-            );
-        }
-    }, []);
+            }),
+        );
+    }, [columnsKey, dispatch, tableName, storeColumnSizing?.columnSizing]);
 
     const columnSizeVars = React.useMemo(() => {
         const headers = table?.getFlatHeaders();
@@ -343,7 +351,6 @@ const GlobalTable = <T,>({
                                 </div>
                             ))}
 
-                            {/* Only show the Add Column button if showAddColumn is true */}
                             {showAddColumn && (
                                 <div className='sticky right-0 top-0 flex justify-end w-full'>
                                     <Button
@@ -357,7 +364,6 @@ const GlobalTable = <T,>({
                             )}
                         </div>
                     </div>
-                    {/* When resizing any column we will render this special memoized version of our table body */}
 
                     <>
                         {!isLoading && table.getRowModel().rows.length === 0 ? (
@@ -383,7 +389,6 @@ const GlobalTable = <T,>({
                     </>
                 </div>
 
-                {/* Only render the column settings modal if showAddColumn is true */}
                 {showAddColumn && (
                     <ColumnSettingsModal
                         table={table}

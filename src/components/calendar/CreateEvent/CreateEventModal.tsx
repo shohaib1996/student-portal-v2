@@ -450,6 +450,7 @@ const CreateEventModal = () => {
                         <div className='flex gap-2'>
                             <Link href={'/calendar/availability'}>
                                 <Button
+                                    onClick={() => closePopover()}
                                     tooltip='My Availibility'
                                     size={'icon'}
                                     variant={'secondary'}

@@ -209,7 +209,7 @@ export function CalendarSidebar({
     const groupedWeekEvents = groupEventsByDay(events);
 
     const isFilterActive = useCallback(
-        (type: 'event' | 'holiday' | 'todo' | 'type', value: string) => {
+        (type: 'event' | 'holiday' | 'todo' | 'eventType', value: string) => {
             if (type === 'event') {
                 const exist = (eventFilter as string[]).find(
                     (f) => f === value,
@@ -235,7 +235,7 @@ export function CalendarSidebar({
                 } else {
                     return false;
                 }
-            } else if (type === 'type') {
+            } else if (type === 'eventType') {
                 const exist = (typeFilter as string[]).find((f) => f === value);
                 if (exist) {
                     return true;
@@ -244,7 +244,7 @@ export function CalendarSidebar({
                 }
             }
         },
-        [eventFilter, todoFilter, priorityFilter],
+        [eventFilter, todoFilter, priorityFilter, typeFilter],
     );
 
     return (
@@ -710,7 +710,10 @@ export function CalendarSidebar({
                                     {item.label}
                                 </div>
                                 <Checkbox
-                                    checked={isFilterActive('type', item.value)}
+                                    checked={isFilterActive(
+                                        'eventType',
+                                        item.value,
+                                    )}
                                     onCheckedChange={(val) =>
                                         dispatch(
                                             setTypeFilter(
