@@ -176,10 +176,22 @@ const VideoContent: React.FC<VideoContentProps> = ({
         <div
             className={`${videoData.isSideOpen && isModuleOpen ? 'lg:col-span-3 relative' : videoData.isSideOpen ? 'lg:col-span-2' : 'hidden'}`}
         >
-            {videoData.videoInfo?.url && (
+            {videoData.videoInfo?.url ? (
                 <div className='relative'>
                     <iframe
-                        src={videoData.videoInfo.url}
+                        src={
+                            videoData.videoInfo.url ||
+                            singleData?.chapter?.lesson?.url
+                        }
+                        title='Video Content'
+                        className='aspect-video w-full rounded-lg'
+                        allowFullScreen
+                    />
+                </div>
+            ) : (
+                <div className='relative'>
+                    <iframe
+                        src={singleData?.chapter?.lesson?.url}
                         title='Video Content'
                         className='aspect-video w-full rounded-lg'
                         allowFullScreen

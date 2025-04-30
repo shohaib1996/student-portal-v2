@@ -24,6 +24,7 @@ import {
     Clock,
     Brain,
     PanelLeft,
+    Link2,
 } from 'lucide-react';
 import LecturesSvg from '@/components/svgs/common/LecturesSvg';
 import MemoizedLoadingIndicator from '@/components/svgs/common/LoadingIndicator';
@@ -116,6 +117,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
     const [expandedChapters, setExpandedChapters] = useState<Set<string>>(
         new Set(),
     );
+
     const [treeData, setTreeData] = useState<TContent[]>([]);
     const [localCompletionState, setLocalCompletionState] = useState<
         Map<string, boolean>
@@ -447,25 +449,66 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                 >
                                     <div className='w-full'>
                                         <div className='flex items-center justify-between w-full p-2'>
-                                            <Link
-                                                href={
-                                                    item.lesson.url
-                                                        ? `/presentation-slides/${extractSlideId(item.lesson.url)}`
-                                                        : '#'
-                                                }
-                                                target='_blank'
-                                                className='flex items-center gap-3 grow-[1] w-full'
-                                            >
-                                                <div>
-                                                    <File className='h-5 w-5 stroke-gray' />
-                                                </div>
+                                            {item.lesson.type === 'link' ? (
+                                                <Link
+                                                    href={
+                                                        item?.lesson
+                                                            ?.url as string
+                                                    }
+                                                    target='_blank'
+                                                    className='flex items-center gap-3 grow-[1] w-full'
+                                                >
+                                                    <div>
+                                                        <Link2 className='h-5 w-5 stroke-gray' />
+                                                    </div>
 
-                                                <div>
-                                                    <p className='text-sm font-medium text-black'>
-                                                        {item.lesson.title}
-                                                    </p>
-                                                </div>
-                                            </Link>
+                                                    <div>
+                                                        <p className='text-sm font-medium text-black'>
+                                                            {item.lesson.title}
+                                                        </p>
+                                                    </div>
+                                                </Link>
+                                            ) : item.lesson.type === 'file' ? (
+                                                <Link
+                                                    href={
+                                                        item.lesson.url
+                                                            ? `/documents-and-labs?documentId=${item.lesson.url}&mode=view`
+                                                            : '#'
+                                                    }
+                                                    target='_blank'
+                                                    className='flex items-center gap-3 grow-[1] w-full'
+                                                >
+                                                    <div>
+                                                        <File className='h-5 w-5 stroke-gray' />
+                                                    </div>
+
+                                                    <div>
+                                                        <p className='text-sm font-medium text-black'>
+                                                            {item.lesson.title}
+                                                        </p>
+                                                    </div>
+                                                </Link>
+                                            ) : (
+                                                <Link
+                                                    href={
+                                                        item.lesson.url
+                                                            ? `/presentation-slides/${extractSlideId(item.lesson.url)}`
+                                                            : '#'
+                                                    }
+                                                    target='_blank'
+                                                    className='flex items-center gap-3 grow-[1] w-full'
+                                                >
+                                                    <div>
+                                                        <File className='h-5 w-5 stroke-gray' />
+                                                    </div>
+
+                                                    <div>
+                                                        <p className='text-sm font-medium text-black'>
+                                                            {item.lesson.title}
+                                                        </p>
+                                                    </div>
+                                                </Link>
+                                            )}
 
                                             <div className='flex items-center gap-3'>
                                                 <div className='flex gap-1'>
@@ -660,7 +703,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
             calculateProgressWithLocalState,
         ],
     );
-
+    console.log({ treeData });
     return (
         <>
             <div
@@ -674,12 +717,14 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                 )}
             >
                 <Accordion type='multiple' className='w-full'>
-                    <div
-                        onClick={() => setModuleOpen(!isModuleOpen)}
-                        className='sticky top-0  z-10 bg-foreground '
-                    >
-                        <PanelLeft className='h-5 w-5' />
-                    </div>
+                    {videoData?.isSideOpen && (
+                        <div
+                            onClick={() => setModuleOpen(!isModuleOpen)}
+                            className='sticky top-0  z-10 bg-foreground '
+                        >
+                            <PanelLeft className='h-5 w-5' />
+                        </div>
+                    )}
                     {option?.courseProgramsLoading ? (
                         <MemoizedLoadingIndicator />
                     ) : treeData && treeData.length > 0 ? (
