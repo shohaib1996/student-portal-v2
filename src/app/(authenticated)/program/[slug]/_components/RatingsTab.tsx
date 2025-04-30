@@ -27,6 +27,7 @@ import { Edit, Save, Trash, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GlobalBlockEditor from '@/components/editor/GlobalBlockEditor';
 import GlobalEditor from '@/components/editor/GlobalEditor';
+import { Badge } from '@/components/ui/badge';
 
 // Helper: Star rating UI component
 function StarRating({
@@ -355,11 +356,11 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                             />
                                         </div>
                                     </div>
-                                    {videoStarCount > 0 && (
+                                    {/* {videoStarCount > 0 && (
                                         <span className='ml-2 text-xs py-1 px-2 bg-primary text-white rounded-full'>
                                             {getRatingLabel(videoStarCount)}
                                         </span>
-                                    )}
+                                    )} */}
                                 </div>
 
                                 {/* Knowledge depth of Mentor */}
@@ -622,8 +623,8 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                 </div>
                             </div>
 
-                            <div className='flex flex-wrap gap-4 mb-3'>
-                                <div className='bg-background rounded-md p-2 flex items-center gap-2'>
+                            <div className='grid  xl:grid-cols-4 md:grid-cols-4 grid-cols-2 gap-4 mb-3'>
+                                <div className='bg-background rounded-md col-span-2 p-2 flex items-center gap-2'>
                                     <svg
                                         width='16'
                                         height='16'
@@ -646,9 +647,17 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                             strokeLinejoin='round'
                                         />
                                     </svg>
-                                    <div>
-                                        <div className='text-xs font-medium'>
+                                    <div className='w-full'>
+                                        <div className='text-xs font-medium flex justify-between'>
                                             Overall
+                                            <p>
+                                                <Badge className='px-1 py-0 text-[9px] font-medium rounded-full'>
+                                                    {getRatingLabel(
+                                                        newReview?.overallstarCount ||
+                                                            0,
+                                                    )}
+                                                </Badge>
+                                            </p>
                                         </div>
                                         <div className='flex items-center'>
                                             <StarRating
@@ -658,17 +667,11 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                                 }
                                                 readOnly={true}
                                             />
-                                            <span className='ml-1 text-xs font-medium'>
-                                                {getRatingLabel(
-                                                    newReview?.overallstarCount ||
-                                                        0,
-                                                )}
-                                            </span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className='bg-background rounded-md p-2 flex items-center gap-2'>
+                                <div className='bg-background rounded-md col-span-2 p-2 flex items-center gap-2'>
                                     <svg
                                         width='16'
                                         height='16'
@@ -684,9 +687,15 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                             strokeLinejoin='round'
                                         />
                                     </svg>
-                                    <div>
-                                        <div className='text-xs font-medium'>
+                                    <div className='w-full'>
+                                        <div className='text-xs font-medium flex justify-between'>
                                             Video
+                                            <Badge className=' px-1 py-0 text-[9px] font-medium rounded-full'>
+                                                {getRatingLabel(
+                                                    newReview?.additionalCount
+                                                        ?.videoStarCount || 0,
+                                                )}
+                                            </Badge>
                                         </div>
                                         <div className='flex items-center'>
                                             <StarRating
@@ -700,7 +709,7 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                     </div>
                                 </div>
 
-                                <div className='bg-background rounded-md p-2 flex items-center gap-2'>
+                                <div className='bg-background rounded-md col-span-2 p-2 flex items-center gap-2'>
                                     <svg
                                         width='16'
                                         height='16'
@@ -723,9 +732,16 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                             strokeLinejoin='round'
                                         />
                                     </svg>
-                                    <div>
-                                        <div className='text-xs font-medium'>
+                                    <div className='w-full'>
+                                        <div className='text-xs font-medium flex justify-between'>
                                             Knowledge
+                                            <Badge className=' px-1 py-0 text-[9px] font-medium rounded-full'>
+                                                {getRatingLabel(
+                                                    newReview?.additionalCount
+                                                        ?.KnowledgeDepthOfInstructor ||
+                                                        0,
+                                                )}
+                                            </Badge>
                                         </div>
                                         <div className='flex items-center'>
                                             <StarRating
@@ -740,7 +756,7 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                     </div>
                                 </div>
 
-                                <div className='bg-background rounded-md p-2 flex items-center gap-2'>
+                                <div className='bg-background rounded-md col-span-2 p-2 flex items-center gap-2'>
                                     <svg
                                         width='16'
                                         height='16'
@@ -756,9 +772,16 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                             strokeLinejoin='round'
                                         />
                                     </svg>
-                                    <div>
-                                        <div className='text-xs font-medium'>
+                                    <div className='w-full'>
+                                        <div className='text-xs font-medium flex justify-between'>
                                             Expression
+                                            <Badge className=' px-1 py-0 text-[9px] font-medium rounded-full'>
+                                                {getRatingLabel(
+                                                    newReview?.additionalCount
+                                                        ?.expressionCapabilityStarCount ||
+                                                        0,
+                                                )}
+                                            </Badge>
                                         </div>
                                         <div className='flex items-center'>
                                             <StarRating
@@ -773,7 +796,7 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                     </div>
                                 </div>
 
-                                <div className='bg-background rounded-md p-2 flex items-center gap-2'>
+                                <div className='bg-background col-span-full rounded-md p-2 flex items-center gap-2'>
                                     <svg
                                         width='16'
                                         height='16'
@@ -789,9 +812,16 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                             strokeLinejoin='round'
                                         />
                                     </svg>
-                                    <div>
-                                        <div className='text-xs font-medium'>
+                                    <div className='w-full'>
+                                        <div className='text-xs font-medium flex justify-between'>
                                             Interaction
+                                            <Badge className=' px-1 py-0 text-[9px] font-medium rounded-full'>
+                                                {getRatingLabel(
+                                                    newReview?.additionalCount
+                                                        ?.interactionStarCount ||
+                                                        0,
+                                                )}
+                                            </Badge>
                                         </div>
                                         <div className='flex items-center'>
                                             <StarRating
