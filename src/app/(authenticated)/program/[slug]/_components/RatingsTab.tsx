@@ -1,63 +1,183 @@
 'use client';
-import GlobalMarkDownEdit from '@/components/global/Community/MarkDown/GlobalMarkDownEdit';
-import GlobalMarkDownPreview from '@/components/global/Community/MarkDown/GlobalMarkDownPreview';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { useSubmitMyReviewMutation } from '@/redux/api/course/courseApi';
-import { useAppSelector } from '@/redux/hooks';
-import { Edit, Save, X } from 'lucide-react';
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-const RatingsTab = ({
-    myReview,
-    chapterId,
+import { useAppSelector } from '@/redux/hooks';
+import { useSubmitMyReviewMutation } from '@/redux/api/course/courseApi';
+
+import {
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import GlobalMarkDownEdit from '@/components/global/Community/MarkDown/GlobalMarkDownEdit';
+import GlobalMarkDownPreview from '@/components/global/Community/MarkDown/GlobalMarkDownPreview';
+
+import { Edit, Save, Trash, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import GlobalBlockEditor from '@/components/editor/GlobalBlockEditor';
+import GlobalEditor from '@/components/editor/GlobalEditor';
+
+// Helper: Star rating UI component
+function StarRating({
+    value,
+    onChange,
+    readOnly = false,
 }: {
+    value: number;
+    onChange?: (value: number) => void;
+    readOnly?: boolean;
+}) {
+    const [rating, setRating] = useState(value);
+    const [hoverRating, setHoverRating] = useState(0);
+
+    useEffect(() => {
+        setRating(value);
+    }, [value]);
+
+    const handleClick = (index: number) => {
+        if (readOnly) {
+            return;
+        }
+        const newRating = index + 1;
+        setRating(newRating);
+        onChange?.(newRating);
+    };
+
+    return (
+        <div className='flex'>
+            {Array.from({ length: 5 }).map((_, index) => {
+                const starValue = index + 1;
+                const filled = starValue <= (hoverRating || rating);
+                return (
+                    <button
+                        key={index}
+                        type='button'
+                        className={cn(
+                            'p-1',
+                            readOnly ? 'cursor-default' : 'cursor-pointer',
+                        )}
+                        onClick={() => handleClick(index)}
+                        onMouseEnter={() =>
+                            !readOnly && setHoverRating(starValue)
+                        }
+                        onMouseLeave={() => !readOnly && setHoverRating(0)}
+                        disabled={readOnly}
+                    >
+                        <svg
+                            width='24'
+                            height='24'
+                            viewBox='0 0 24 24'
+                            fill={filled ? '#FFC107' : 'none'}
+                            xmlns='http://www.w3.org/2000/svg'
+                            className={
+                                filled ? 'text-yellow-400' : 'text-gray-300'
+                            }
+                        >
+                            <path
+                                d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z'
+                                stroke='currentColor'
+                                strokeWidth='2'
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                            />
+                        </svg>
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
+
+// Helper: Convert numeric rating to label
+const getRatingLabel = (rating: number) => {
+    switch (rating) {
+        case 5:
+            return 'Excellent';
+        case 4:
+            return 'Very Good';
+        case 3:
+            return 'Good';
+        case 2:
+            return 'Fair';
+        case 1:
+            return 'Poor';
+        default:
+            return '';
+    }
+};
+
+interface RatingsTabProps {
     myReview: any;
     chapterId: string;
-}) => {
-    const [showAllReviews, setShowAllReviews] = useState(false);
+}
+
+const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
+    const { user } = useAppSelector((state) => state.auth);
+    const [submitReview] = useSubmitMyReviewMutation();
+
+    // Local state
+    const [newReview, setNewReview] = useState(myReview);
     const [feedbackText, setFeedbackText] = useState('');
     const [isEditing, setIsEditing] = useState(false);
-    const { user } = useAppSelector((state) => state?.auth);
-    // Add state for all star ratings
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [open, setOpen] = useState(false);
+
+    // Star ratings state
     const [videoStarCount, setVideoStarCount] = useState(0);
     const [knowledgeStarCount, setKnowledgeStarCount] = useState(0);
     const [expressionStarCount, setExpressionStarCount] = useState(0);
     const [interactionStarCount, setInteractionStarCount] = useState(0);
     const [overallStarCount, setOverallStarCount] = useState(0);
 
-    // Add loading state for submission
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const [submitReview] = useSubmitMyReviewMutation();
-
-    // Initialize form with existing review data if available
+    // Initialize form values when review changes
     useEffect(() => {
-        if (myReview) {
-            setFeedbackText(myReview?.feedback || '');
-            setVideoStarCount(myReview?.additionalCount?.videoStarCount || 0);
+        if (newReview) {
+            setFeedbackText(newReview.feedback || '');
+            setVideoStarCount(newReview.additionalCount?.videoStarCount || 0);
             setKnowledgeStarCount(
-                myReview?.additionalCount?.KnowledgeDepthOfInstructor || 0,
+                newReview.additionalCount?.KnowledgeDepthOfInstructor || 0,
             );
             setExpressionStarCount(
-                myReview?.additionalCount?.expressionCapabilityStarCount || 0,
+                newReview.additionalCount?.expressionCapabilityStarCount || 0,
             );
             setInteractionStarCount(
-                myReview?.additionalCount?.interactionStarCount || 0,
+                newReview.additionalCount?.interactionStarCount || 0,
             );
-            setOverallStarCount(myReview?.overallstarCount || 0);
+            setOverallStarCount(newReview.overallstarCount || 0);
         }
-    }, [myReview]);
+    }, [newReview]);
 
-    // Toggle edit mode
+    // Toggle between edit and view modes
     const toggleEditing = () => {
-        setIsEditing(!isEditing);
+        setFeedbackText(newReview.feedback || '');
+        setVideoStarCount(newReview.additionalCount?.videoStarCount || 0);
+        setKnowledgeStarCount(
+            newReview.additionalCount?.KnowledgeDepthOfInstructor || 0,
+        );
+        setExpressionStarCount(
+            newReview.additionalCount?.expressionCapabilityStarCount || 0,
+        );
+        setInteractionStarCount(
+            newReview.additionalCount?.interactionStarCount || 0,
+        );
+        setOverallStarCount(newReview.overallstarCount || 0);
+        setIsEditing((prev) => !prev);
     };
 
+    // Submit or update the review
     const handleSubmitReview = async () => {
-        // Validate if all star ratings are provided
+        // Validation
         if (
             !videoStarCount ||
             !knowledgeStarCount ||
@@ -68,46 +188,41 @@ const RatingsTab = ({
             toast.error('Please provide all ratings');
             return;
         }
-
-        // Validate if feedback is provided
         if (!feedbackText.trim()) {
             toast.error('Please provide your feedback');
             return;
         }
 
         setIsSubmitting(true);
-
         try {
-            // Prepare the data according to the required format
-            const data = {
-                action: myReview ? 'update' : 'submit',
+            const payload: any = {
+                action: 'submit',
                 feedback: feedbackText,
                 overallstarCount: overallStarCount,
                 additionalCount: {
                     KnowledgeDepthOfInstructor: knowledgeStarCount,
-                    videoStarCount: videoStarCount,
+                    videoStarCount,
                     expressionCapabilityStarCount: expressionStarCount,
-                    interactionStarCount: interactionStarCount,
+                    interactionStarCount,
                 },
-                chapter: chapterId || '', // Use the provided chapter ID
-                ...(myReview && { reviewId: myReview?._id || '' }),
+                chapter: chapterId,
             };
 
-            // Submit the review
-            const response = await submitReview(data).unwrap();
+            if (newReview?._id) {
+                payload.reviewId = newReview._id;
+            }
 
-            // Show success message
+            const response = await submitReview(payload).unwrap();
+            setNewReview(response.review);
             toast.success(
-                myReview
+                newReview
                     ? 'Review updated successfully!'
                     : 'Review submitted successfully!',
             );
 
-            // Reset edit mode if updating
-            if (myReview) {
+            if (newReview) {
                 setIsEditing(false);
             } else {
-                // Reset form after successful submission of new review
                 setFeedbackText('');
                 setVideoStarCount(0);
                 setKnowledgeStarCount(0);
@@ -123,97 +238,32 @@ const RatingsTab = ({
         }
     };
 
-    function StarRating({
-        value,
-        onChange,
-        readOnly = false,
-    }: {
-        value: number;
-        onChange?: (value: number) => void;
-        readOnly?: boolean;
-    }) {
-        const [rating, setRating] = useState(value);
-        const [hoverRating, setHoverRating] = useState(0);
+    // Delete existing review
+    const handleDeleteReview = async () => {
+        setIsSubmitting(true);
+        try {
+            const response = await submitReview({
+                action: 'remove',
+                chapter: chapterId,
+            }).unwrap();
+            setNewReview(null);
 
-        // Update internal rating when value prop changes
-        useEffect(() => {
-            setRating(value);
-        }, [value]);
+            toast.success('Review deleted successfully!');
 
-        const handleClick = (index: number) => {
-            if (readOnly) {
-                return;
-            }
-            const newRating = index + 1;
-            setRating(newRating);
-            if (onChange) {
-                onChange(newRating);
-            }
-        };
-
-        return (
-            <div className='flex'>
-                {[...Array(5)].map((_, index) => {
-                    const starValue = index + 1;
-                    return (
-                        <button
-                            key={index}
-                            type='button'
-                            className={`p-1 ${readOnly ? 'cursor-default' : 'cursor-pointer'}`}
-                            onClick={() => handleClick(index)}
-                            onMouseEnter={() =>
-                                !readOnly && setHoverRating(starValue)
-                            }
-                            onMouseLeave={() => !readOnly && setHoverRating(0)}
-                            disabled={readOnly}
-                        >
-                            <svg
-                                width='24'
-                                height='24'
-                                viewBox='0 0 24 24'
-                                fill={
-                                    starValue <= (hoverRating || rating)
-                                        ? '#FFC107'
-                                        : 'none'
-                                }
-                                xmlns='http://www.w3.org/2000/svg'
-                                className={`${starValue <= (hoverRating || rating) ? 'text-yellow-400' : 'text-gray-300'}`}
-                            >
-                                <path
-                                    d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z'
-                                    stroke='currentColor'
-                                    strokeWidth='2'
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
-                                />
-                            </svg>
-                        </button>
-                    );
-                })}
-            </div>
-        );
-    }
-
-    // Helper function to get rating label based on star count
-    const getRatingLabel = (rating: number) => {
-        if (rating === 5) {
-            return 'Excellent';
+            setFeedbackText('');
+            setVideoStarCount(0);
+            setKnowledgeStarCount(0);
+            setExpressionStarCount(0);
+            setInteractionStarCount(0);
+            setOverallStarCount(0);
+        } catch (error: any) {
+            toast.error(error.data?.error || 'Failed to delete review');
+        } finally {
+            setIsSubmitting(false);
         }
-        if (rating === 4) {
-            return 'Very Good';
-        }
-        if (rating === 3) {
-            return 'Good';
-        }
-        if (rating === 2) {
-            return 'Fair';
-        }
-        if (rating === 1) {
-            return 'Poor';
-        }
-        return '';
     };
 
+    console.log({ feedbackText });
     return (
         <>
             <div className='py-2'>
@@ -221,33 +271,43 @@ const RatingsTab = ({
                     <div className='flex justify-between items-center mb-2'>
                         <div>
                             <h2 className='text-xl font-medium text-black'>
-                                {myReview ? 'My Review' : 'Share Experience'}
+                                {newReview ? 'My Review' : 'Share Experience'}
                             </h2>
                             <p className='text-sm text-gray'>
-                                {myReview
+                                {newReview
                                     ? 'Your feedback for this course'
                                     : 'Help others by rating this course'}
                             </p>
                         </div>
-                        {myReview ? (
-                            <Button
-                                variant='outline'
-                                size='sm'
-                                onClick={toggleEditing}
-                                className='flex items-center gap-1'
-                            >
+                        {newReview ? (
+                            <div>
                                 {isEditing ? (
-                                    <>
+                                    <Button size='sm' onClick={toggleEditing}>
                                         <X className='w-4 h-4' />
                                         Cancel
-                                    </>
+                                    </Button>
                                 ) : (
-                                    <>
-                                        <Edit className='w-4 h-4' />
-                                        Edit Review
-                                    </>
+                                    <div className='gap-2 flex '>
+                                        <Button
+                                            variant='outline'
+                                            size='sm'
+                                            onClick={toggleEditing}
+                                        >
+                                            {' '}
+                                            <Edit className='w-4 h-4' />
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            size='sm'
+                                            variant={'danger_light'}
+                                            onClick={() => setOpen(true)}
+                                        >
+                                            <Trash className='w-4 h-4' />
+                                            Delete
+                                        </Button>
+                                    </div>
                                 )}
-                            </Button>
+                            </div>
                         ) : (
                             <Button
                                 variant='default'
@@ -260,7 +320,7 @@ const RatingsTab = ({
                     </div>
 
                     {/* Review Form */}
-                    {(!myReview || isEditing) && (
+                    {(!newReview || isEditing) && (
                         <>
                             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-2'>
                                 {/* Video Content */}
@@ -490,14 +550,22 @@ const RatingsTab = ({
                                         Your Feedback
                                     </span>
                                 </div>
-                                <GlobalMarkDownEdit
-                                    setValue={setFeedbackText}
-                                    value={feedbackText}
-                                ></GlobalMarkDownEdit>
+                                {/* <GlobalBlockEditor
+                                    value={feedbackText || ''}
+                                    onChange={(val) => setFeedbackText(val)}
+                                    className='min-h-[calc(100vh-300px)]'
+                                /> */}
+                                <GlobalEditor
+                                    className='bg-foreground border-border-primary-light'
+                                    placeholder='Write Task details'
+                                    value={feedbackText || ''}
+                                    onChange={(val) => setFeedbackText(val)}
+                                    autoFocus={false}
+                                />
                             </div>
 
                             {/* Submit/Update Button for Edit Mode */}
-                            {myReview && isEditing && (
+                            {newReview && isEditing && (
                                 <div className='flex justify-end'>
                                     <Button
                                         variant='default'
@@ -515,8 +583,8 @@ const RatingsTab = ({
                         </>
                     )}
 
-                    {/* View Mode - Only shown when myReview exists and not in edit mode */}
-                    {myReview && !isEditing && (
+                    {/* View Mode - Only shown when newReview exists and not in edit mode */}
+                    {newReview && !isEditing && (
                         <div className='bg-muted/30 rounded-lg p-4'>
                             <div className='flex items-center gap-3 mb-3'>
                                 <Avatar>
@@ -540,11 +608,11 @@ const RatingsTab = ({
                                         <span>•</span>
                                         <span>
                                             {new Date(
-                                                myReview?.createdAt,
+                                                newReview?.createdAt,
                                             ).toLocaleDateString()}{' '}
                                             at{' '}
                                             {new Date(
-                                                myReview?.createdAt,
+                                                newReview?.createdAt,
                                             ).toLocaleTimeString([], {
                                                 hour: '2-digit',
                                                 minute: '2-digit',
@@ -585,14 +653,14 @@ const RatingsTab = ({
                                         <div className='flex items-center'>
                                             <StarRating
                                                 value={
-                                                    myReview?.overallstarCount ||
+                                                    newReview?.overallstarCount ||
                                                     0
                                                 }
                                                 readOnly={true}
                                             />
                                             <span className='ml-1 text-xs font-medium'>
                                                 {getRatingLabel(
-                                                    myReview?.overallstarCount ||
+                                                    newReview?.overallstarCount ||
                                                         0,
                                                 )}
                                             </span>
@@ -623,7 +691,7 @@ const RatingsTab = ({
                                         <div className='flex items-center'>
                                             <StarRating
                                                 value={
-                                                    myReview?.additionalCount
+                                                    newReview?.additionalCount
                                                         ?.videoStarCount || 0
                                                 }
                                                 readOnly={true}
@@ -662,7 +730,7 @@ const RatingsTab = ({
                                         <div className='flex items-center'>
                                             <StarRating
                                                 value={
-                                                    myReview?.additionalCount
+                                                    newReview?.additionalCount
                                                         ?.KnowledgeDepthOfInstructor ||
                                                     0
                                                 }
@@ -695,7 +763,7 @@ const RatingsTab = ({
                                         <div className='flex items-center'>
                                             <StarRating
                                                 value={
-                                                    myReview?.additionalCount
+                                                    newReview?.additionalCount
                                                         ?.expressionCapabilityStarCount ||
                                                     0
                                                 }
@@ -728,7 +796,7 @@ const RatingsTab = ({
                                         <div className='flex items-center'>
                                             <StarRating
                                                 value={
-                                                    myReview?.additionalCount
+                                                    newReview?.additionalCount
                                                         ?.interactionStarCount ||
                                                     0
                                                 }
@@ -743,10 +811,11 @@ const RatingsTab = ({
                                 <h3 className='text-sm font-medium mb-2'>
                                     Feedback
                                 </h3>
+
                                 <GlobalMarkDownPreview
                                     className='text-sm text-muted-foreground whitespace-pre-line'
                                     text={
-                                        myReview?.feedback ||
+                                        newReview?.feedback ||
                                         'No feedback provided.'
                                     }
                                 ></GlobalMarkDownPreview>
@@ -755,6 +824,37 @@ const RatingsTab = ({
                     )}
                 </div>
             </div>
+            <>
+                {/* {open && <div className="fixed inset-0 bg-red-400/50 z-50" aria-hidden="true" />} */}
+                <AlertDialog open={open} onOpenChange={setOpen}>
+                    {/* <AlertDialogTrigger asChild></AlertDialogTrigger> */}
+                    <AlertDialogContent className='z-[99999]'>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle className='text-center text-red'>
+                                {'Are you absolutely sure?'}
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className='text-center'>
+                                {
+                                    'This action cannot be undone. This will permanently delete your item and remove your data from our servers.'
+                                }
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <div className='flex w-full justify-center'>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel className='bg-primary text-pure-white hover:bg-primary hover:text-pure-white'>
+                                    Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                    className='bg-danger/20 hover:bg-danger/25 text-danger '
+                                    onClick={handleDeleteReview}
+                                >
+                                    Delete
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </div>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </>
         </>
     );
 };
