@@ -8,6 +8,7 @@ import {
     Share,
     PinOff,
     Check,
+    PanelLeft,
 } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useCallback, useState } from 'react';
@@ -42,10 +43,21 @@ interface VideoContentProps {
         }>
     >;
     isPinnedEyeOpen: boolean;
+    isModuleOpen: boolean;
     setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
     // Add callback for progress updates
     onProgressUpdate?: (lessonId: string, isCompleted: boolean) => void;
+    setModuleOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+export type AttachmentsType = {
+    _id: string;
+    name: string;
+    size: number;
+    url: string;
+    type: string;
+    createdAt: string;
+};
 
 const VideoContent: React.FC<VideoContentProps> = ({
     videoData,
@@ -54,6 +66,8 @@ const VideoContent: React.FC<VideoContentProps> = ({
     isPinnedEyeOpen,
     setIsPinnedEyeOpen,
     onProgressUpdate,
+    isModuleOpen,
+    setModuleOpen,
 }) => {
     // Wait for required data
     if (!videoData || (!videoData.videoInfo && videoData.isSideOpen)) {
@@ -71,6 +85,8 @@ const VideoContent: React.FC<VideoContentProps> = ({
     const programData = data?.program;
 
     const tabData = singleData?.chapter?.lesson?.data;
+    const attachments: AttachmentsType[] = singleData?.chapter?.attachments;
+    const myReview = singleData?.myReview;
 
     const tabs = tabData
         ? Object.entries(tabData).map(([key, value]) => ({
@@ -157,7 +173,9 @@ const VideoContent: React.FC<VideoContentProps> = ({
     ]);
 
     return (
-        <div className={`${videoData.isSideOpen ? 'lg:col-span-2' : 'hidden'}`}>
+        <div
+            className={`${videoData.isSideOpen && isModuleOpen ? 'lg:col-span-3 relative' : videoData.isSideOpen ? 'lg:col-span-2' : 'hidden'}`}
+        >
             {videoData.videoInfo?.url && (
                 <div className='relative'>
                     <iframe
@@ -169,6 +187,14 @@ const VideoContent: React.FC<VideoContentProps> = ({
                 </div>
             )}
 
+            <div
+                onClick={() => setModuleOpen(!isModuleOpen)}
+                className={cn(
+                    isModuleOpen ? 'absolute top-0 right-0' : 'hidden',
+                )}
+            >
+                <PanelLeft className='h-5 w-5' />
+            </div>
             {/* Video Info */}
             <div className='p-4 border-b border-border flex flex-col md:flex-row justify-between items-start md:items-center gap-2'>
                 <div>
@@ -506,13 +532,16 @@ const VideoContent: React.FC<VideoContentProps> = ({
                         value='download'
                         className='p-0 m-0 data-[state=active]:border-0'
                     >
-                        <DownloadTab />
+                        <DownloadTab attachments={attachments} />
                     </TabsContent>
                     <TabsContent
                         value='ratings'
                         className='p-0 m-0 data-[state=active]:border-0'
                     >
-                        <RatingsTab />
+                        <RatingsTab
+                            myReview={myReview}
+                            chapterId={videoData.contentId as string}
+                        />
                     </TabsContent>
                 </Tabs>
             </div>

@@ -82,6 +82,8 @@ interface ContentDropDownProps {
     setLocalCompletionState?: React.Dispatch<
         React.SetStateAction<Map<string, boolean>>
     >;
+    setModuleOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    isModuleOpen: boolean;
 }
 
 interface QuizModalProps {
@@ -107,6 +109,8 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
     option,
     searchInput,
     filterOption,
+    isModuleOpen,
+    setModuleOpen,
 }) => {
     // State management
     const [expandedChapters, setExpandedChapters] = useState<Set<string>>(
@@ -657,24 +661,25 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         ],
     );
 
-    const [clopes, setClopas] = useState(false);
-    console.log({ clopes });
-
     return (
-        <div className='flex'>
-            <div onClick={() => setClopas(!clopes)}>
-                <PanelLeft className='h-5 w-5' />
-            </div>
+        <>
             <div
                 className={cn(
-                    clopes && 'hidden',
-                    'space-y-4',
+                    'relative transition-all duration-300 ease-in-out ',
+                    isModuleOpen && 'hidden',
+                    'space-y-4 transition-all duration-300 ease-in-out ',
                     videoData?.isSideOpen
-                        ? `no-scrollbar  lg:col-span-1 xl:sticky top-0 h-[607px] overflow-y-auto bottom-[20px]`
+                        ? `no-scrollbar  lg:col-span-1  top-0 h-[607px] overflow-y-auto bottom-[20px]`
                         : 'w-full ',
                 )}
             >
                 <Accordion type='multiple' className='w-full'>
+                    <div
+                        onClick={() => setModuleOpen(!isModuleOpen)}
+                        className='sticky top-0  z-10 bg-foreground '
+                    >
+                        <PanelLeft className='h-5 w-5' />
+                    </div>
                     {option?.courseProgramsLoading ? (
                         <MemoizedLoadingIndicator />
                     ) : treeData && treeData.length > 0 ? (
@@ -691,7 +696,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                     <QuizModalContent lesson={lesson as any} />
                 </GlobalModal>
             </div>
-        </div>
+        </>
     );
 };
 

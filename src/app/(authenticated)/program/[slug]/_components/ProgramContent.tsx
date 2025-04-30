@@ -64,6 +64,7 @@ const ProgramContent = ({
         item: {} as ChapterData,
         contentId: null,
     });
+    const [isModuleOpen, setModuleOpen] = useState<boolean>(false);
 
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
@@ -278,7 +279,7 @@ const ProgramContent = ({
                 </div>
 
                 <div
-                    className={`mt-common ${videoData?.isSideOpen ? 'relative grid grid-cols-1 xl:grid-cols-3 gap-common' : 'block'} `}
+                    className={`mt-common ${videoData?.isSideOpen ? 'relative grid grid-cols-1 lg:grid-cols-3 gap-common' : 'block'} `}
                 >
                     {videoData?.isSideOpen && (
                         <VideoContent
@@ -287,6 +288,8 @@ const ProgramContent = ({
                             isPinnedEyeOpen={isPinnedEyeOpen}
                             setIsPinnedEyeOpen={setIsPinnedEyeOpen}
                             refreshData={refreshData}
+                            isModuleOpen={isModuleOpen}
+                            setModuleOpen={setModuleOpen}
                         />
                     )}
 
@@ -330,6 +333,8 @@ const ProgramContent = ({
                             filterOption={filterOption}
                             localCompletionState={localCompletionState}
                             setLocalCompletionState={setLocalCompletionState}
+                            setModuleOpen={setModuleOpen}
+                            isModuleOpen={isModuleOpen}
                         />
                     )}
                 </div>
