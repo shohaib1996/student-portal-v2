@@ -40,7 +40,7 @@ import {
 } from '@/utils/tree-utils';
 
 // Import our enhanced search utility functions
-import { searchAndFilterContent, findItemById } from '@/utils/search-utils';
+// import { searchAndFilterContent, findItemById } from '@/utils/search-utils';
 
 // Types
 import {
@@ -55,6 +55,7 @@ import {
 import LessionActionMenu from './LessionActionMenu';
 import QuizModalContent from './QuizModalContent';
 import { useParams, useRouter } from 'next/navigation';
+import { searchByNameKeepDescendants } from '@/utils/search-utils';
 
 // Types definitions
 interface ContentDropDownProps {
@@ -117,9 +118,14 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
             return [];
         }
 
-        return searchAndFilterContent(fetchedData, searchInput, filterOption);
+        return searchByNameKeepDescendants(fetchedData, searchInput);
     }, [fetchedData, searchInput, filterOption]);
 
+    useEffect(() => {
+        // if (!searchInput.trim()) {
+        //     setExpandedChapters(new Set());
+        // }
+    }, [searchInput]);
     // Auto-expand chapters based on search results
     useEffect(() => {
         // If there's an active search, expand all chapters that contain search results

@@ -18,7 +18,7 @@ import VideoContent from './VideoContent';
 import FilterProgram from './FilterProgram';
 
 // Import the enhanced search utilities
-import { searchAndFilterContent } from '@/utils/search-utils';
+import { searchByNameKeepDescendants } from '@/utils/search-utils';
 import { toast } from 'sonner';
 import { buildContentTree } from '@/utils/tree-utils';
 
@@ -85,9 +85,10 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
         const timer = setTimeout(() => {
             setDebouncedSearchInput(searchInput);
         }, 300); // 300ms debounce
-
         return () => clearTimeout(timer);
     }, [searchInput]);
+
+    console.log({ treeData });
 
     // Initialize content tree with search and filter capabilities
     useEffect(() => {
@@ -119,10 +120,9 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
         }
 
         // Apply search and filters using our enhanced utility
-        return searchAndFilterContent(
+        return searchByNameKeepDescendants(
             treeData,
             debouncedSearchInput,
-            filterOption,
         ) as any;
     }, [treeData, debouncedSearchInput, filterOption]);
 
