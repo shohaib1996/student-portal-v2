@@ -45,13 +45,18 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
     const modalClose = useCallback(() => {
         close();
     }, [close]);
+    console.log(member?.notification?.dateUntil);
 
     // Initial states
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     const [dateUntil, setDateUntil] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [date, setDate] = useState<Date | undefined>();
-    const [timeValue, setTimeValue] = useState<Date | null>(null);
+    const [timeValue, setTimeValue] = useState<Date | null>(() => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 15);
+        return now;
+    });
     const [showDateTimePicker, setShowDateTimePicker] =
         useState<boolean>(false);
 
@@ -75,10 +80,17 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
                 } else {
                     const hourDifference = muteDate.diff(now, 'hour');
                     const dayDifference = muteDate.diff(now, 'day');
-
-                    if (hourDifference <= 1) {
+                    console.log({ hourDifference });
+                    console.log({ dayDifference });
+                    if (hourDifference <= 1 && hourDifference > 0.9) {
+                        console.log('1hr different');
                         setSelectedOption(1);
-                    } else if (dayDifference < 1) {
+                    } else if (
+                        dayDifference <= 1 &&
+                        hourDifference >= 24 &&
+                        dayDifference > 0.9
+                    ) {
+                        console.log('1day different');
                         setSelectedOption(2);
                     } else {
                         setSelectedOption(4);
@@ -285,14 +297,16 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
         if (!showDateTimePicker) {
             // Initialize date if not already set
             if (!date) {
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                setDate(tomorrow);
+                // const tomorrow = new Date();
+                // tomorrow.setDate(tomorrow.getDate() + 1);
+                // setDate(tomorrow);
+                setDate(new Date());
             }
 
             // Initialize time if not already set
             if (!timeValue) {
                 const now = new Date();
+                now.setMinutes(now.getMinutes() + 15);
                 setTimeValue(now);
             }
         }

@@ -97,6 +97,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     isChannel,
     chat,
 }) => {
+    const { user } = useAppSelector((state) => state.auth);
     const { drafts } = useAppSelector((state) => state.chat);
     const [typing, setTyping] = useState<boolean>(false);
     const mentionsInputRef = useRef<HTMLTextAreaElement>(null);
@@ -400,10 +401,11 @@ const TextEditor: React.FC<TextEditorProps> = ({
                     editorRef.current?.clearEditor();
                 })
                 .catch((err) => {
-                    toast.error(
-                        err?.response?.data?.error ||
-                            'Failed to update message',
-                    );
+                    console.log({ err });
+                    // toast.error(
+                    //     err?.response?.data?.error ||
+                    //         'Failed to update message',
+                    // );
                 });
         } else {
             const randomId = Math.floor(Math.random() * (999999 - 1111) + 1111);
@@ -494,13 +496,31 @@ const TextEditor: React.FC<TextEditorProps> = ({
             `/chat/members/${options?.chat}`,
             options,
         );
-        const data = res.data?.results;
-
+        console.log({ MentionedUserAfterFilter: res?.data?.results });
+        // const data = res.data?.results;
+        // Filter out the current user from the results
+        const data = res.data?.results
+            ?.filter(
+                (r: { user: { _id: string | number } }) =>
+                    r?.user?._id !== user?._id,
+            )
+            ?.reduce((acc: any[], curr: { user: { _id: string | number } }) => {
+                // Check if this user._id already exists in the accumulated array
+                const exists = acc.some(
+                    (item) => item?.user?._id === curr?.user?._id,
+                );
+                // Only add to accumulator if it doesn't exist already
+                if (!exists) {
+                    acc.push(curr);
+                }
+                return acc;
+            }, []);
+        console.log({ MentionedUserAfterFilter: data });
         const mappedData = data?.map(
             (x: { user: any; id: string | number; avatar: string }) => ({
                 value: `${x?.user?.firstName} ${x?.user?.lastName}`,
                 id: String(x?.user?._id),
-                avatar: x?.user?.profilePicture || `https://placehold.co/400`,
+                avatar: x?.user?.profilePicture || `/avatar.png`,
             }),
         );
 
@@ -508,7 +528,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
             {
                 value: 'everyone',
                 id: 'everyone',
-                avatar: 'https://placehold.co/400',
+                avatar: '/avatar.png',
             },
             ...mappedData,
         ];

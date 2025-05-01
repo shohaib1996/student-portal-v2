@@ -81,6 +81,7 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
     isChannel,
     sendTypingIndicator,
 }) => {
+    console.log('Editing in reply text editor...', selectedMessage);
     const [text, setText] = useState<string>('');
     const [typing, setTyping] = useState<boolean>(false);
     const photoVideoInputRef = useRef<HTMLInputElement>(null);
@@ -329,7 +330,7 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                 url: x?.url,
             }));
 
-        const messageText = text.replace(/\s+/g, ' ').trim();
+        const messageText = text.trim();
 
         if (!messageText && successFiles.length === 0) {
             setText('');

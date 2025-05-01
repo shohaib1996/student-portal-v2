@@ -317,6 +317,8 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const [voiceCount, setVoiceCount] = useState(0);
     const [fileCount, setFileCount] = useState(0);
     const [linksCount, setLinksCount] = useState(0);
+
+    console.log({ chat });
     // Add this useEffect to fetch all media counts when the component loads
     useEffect(() => {
         if (chat?._id) {
