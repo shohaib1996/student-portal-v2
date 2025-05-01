@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import {
     Play,
@@ -10,6 +10,7 @@ import {
     Check,
     Package,
     CirclePlay,
+    Filter,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -23,14 +24,21 @@ interface CourseSidebarProps {
     courseData: TProgram;
     onToggle?: () => void;
     fetchedData: ChapterData[] | undefined;
+    // Direct access to filter state to make filtering more explicit
+    filterOption?: Array<{ property: string; value: any }>;
+    setFilterOption?: React.Dispatch<
+        React.SetStateAction<Array<{ property: string; value: any }>>
+    >;
 }
 
 export function ProgramSidebar({
     courseData,
     onToggle,
     fetchedData,
+    filterOption = [],
+    setFilterOption,
 }: CourseSidebarProps) {
-    const [showCompleted, setShowCompleted] = useState(true);
+    const [showCompleted, setShowCompleted] = useState(false);
     const { data, isLoading, error } = useGetPortalDataQuery({ bootcamp: {} });
     const bootcamp: TBootcampResult[] = data?.data?.bootcamp?.results;
 
@@ -62,7 +70,7 @@ export function ProgramSidebar({
         ),
     };
 
-    // Alternatively, count all priorities in a single pass
+    // Count all priorities in a single pass
     const priorityCounts = fetchedData?.reduce(
         (acc, cur) => {
             if (cur.priority === 3) {
@@ -77,15 +85,103 @@ export function ProgramSidebar({
         { high: 0, medium: 0, low: 0 },
     ) || { high: 0, medium: 0, low: 0 };
 
+    // Check if a filter is active
+    const isFilterActive = (property: string, value: any): boolean => {
+        return filterOption.some(
+            (filter) => filter.property === property && filter.value === value,
+        );
+    };
+
+    // Handle filter click for prioritized and pinned items
+    const handleFilterClick = useCallback(
+        (property: string, value: any) => {
+            if (!setFilterOption) {
+                return;
+            }
+
+            // Check if this filter is already applied
+            const existingFilter = filterOption.find(
+                (filter) =>
+                    filter.property === property && filter.value === value,
+            );
+
+            if (existingFilter) {
+                // If filter exists, remove it (toggle off)
+                setFilterOption(
+                    filterOption.filter(
+                        (filter) =>
+                            !(
+                                filter.property === property &&
+                                filter.value === value
+                            ),
+                    ),
+                );
+            } else {
+                // Replace any existing sidebar filters with the new one
+                // First find and keep any filters that are NOT from sidebar (may be from dropdown)
+                const nonSidebarFilters = filterOption.filter(
+                    (filter) =>
+                        !(
+                            filter.property === 'isPinned' ||
+                            filter.property === 'priority'
+                        ),
+                );
+
+                // Then add the new sidebar filter
+                setFilterOption([...nonSidebarFilters, { property, value }]);
+            }
+        },
+        [filterOption, setFilterOption],
+    );
+
+    // Handle the show/hide completed toggle
+    const toggleShowCompleted = useCallback(() => {
+        const newValue = !showCompleted;
+        setShowCompleted(newValue);
+
+        if (setFilterOption) {
+            // First remove any existing isCompleted filter
+            const filtersWithoutCompleted = filterOption.filter(
+                (filter) => filter.property !== 'isCompleted',
+            );
+
+            // If we're now showing only completed items
+            if (newValue) {
+                setFilterOption([
+                    ...filtersWithoutCompleted,
+                    { property: 'isCompleted', value: true },
+                ]);
+            } else {
+                // If showing all, just remove the completed filter
+                setFilterOption(filtersWithoutCompleted);
+            }
+        }
+    }, [showCompleted, filterOption, setFilterOption]);
+
+    // Check if isCompleted filter is active and sync with showCompleted state
+    useEffect(() => {
+        const completedFilter = filterOption.find(
+            (filter) =>
+                filter.property === 'isCompleted' && filter.value === true,
+        );
+
+        // Only update if there's a mismatch to avoid infinite loop
+        if (completedFilter && !showCompleted) {
+            setShowCompleted(true);
+        } else if (!completedFilter && showCompleted) {
+            setShowCompleted(false);
+        }
+    }, [filterOption, showCompleted]);
+
     return (
-        <div className='w-full pr-2 '>
+        <div className='w-full pr-2'>
             <div className='flex items-center justify-between mb-4'>
                 <div className='flex items-center gap-1'>
                     <Check className='h-4 w-4 text-green-500' />
                     <span className='text-sm font-medium'>Show Completed</span>
                     <div
                         className={`w-10 h-5 rounded-full p-1 cursor-pointer ${showCompleted ? 'bg-blue-600' : 'bg-gray-300'}`}
-                        onClick={() => setShowCompleted(!showCompleted)}
+                        onClick={toggleShowCompleted}
                     >
                         <div
                             className={`w-3 h-3 rounded-full bg-white transform transition-transform ${
@@ -131,47 +227,15 @@ export function ProgramSidebar({
                     <p className='text-sm text-gray my-2'>
                         {courseData?.shortDetail}
                     </p>
-                    {/* <div className='flex items-center gap-1 text-[10px] text-dark-gray'>
-                        <div className='flex -space-x-2'>
-                            <Avatar className='h-6 w-6 border border-border'>
-                                <AvatarImage
-                                    src='/images/author.png'
-                                    alt='Student 1'
-                                />
-                                <AvatarFallback>S1</AvatarFallback>
-                            </Avatar>
-                            <Avatar className='h-6 w-6 border border-border'>
-                                <AvatarImage
-                                    src='/images/author.png'
-                                    alt='Student 2'
-                                />
-                                <AvatarFallback>S2</AvatarFallback>
-                            </Avatar>
-                            <Avatar className='h-6 w-6 border border-border'>
-                                <AvatarImage
-                                    src='/images/author.png'
-                                    alt='Student 3'
-                                />
-                                <AvatarFallback>S3</AvatarFallback>
-                            </Avatar>
-                            <Avatar className='h-6 w-6 border border-border'>
-                                <AvatarImage
-                                    src='/images/author.png'
-                                    alt='Student 4'
-                                />
-                                <AvatarFallback>S4</AvatarFallback>
-                            </Avatar>
-                        </div>
-                        <span>{10} + enrolled students</span>
-                    </div> */}
                 </div>
             </div>
             <Separator className='my-2 bg-border' />
-            {/* Pinned */}
 
-            {/* Priority Filters */}
+            {/* Priority Filters - With explicit filter buttons */}
             <div className='space-y-1.5'>
-                <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
+                <div
+                    className={`flex items-center justify-between p-2.5 border ${isFilterActive('isPinned', true) ? 'border-primary bg-primary-light/30' : 'border-border-primary-light'} rounded-sm group relative`}
+                >
                     <div className='flex items-center gap-1 text-sm text-dark-gray'>
                         <svg
                             xmlns='http://www.w3.org/2000/svg'
@@ -187,11 +251,22 @@ export function ProgramSidebar({
                         </svg>
                         <span>Pinned</span>
                     </div>
-                    <span className='text-sm text-black'>
-                        {newData?.totalPinned}
-                    </span>
+                    <div className='flex items-center gap-2'>
+                        <span className='text-sm text-black'>
+                            {newData?.totalPinned}
+                        </span>
+                        <button
+                            onClick={() => handleFilterClick('isPinned', true)}
+                            className={`p-1 rounded ${isFilterActive('isPinned', true) ? 'bg-primary text-white' : 'bg-gray-100 opacity-70 group-hover:opacity-100'}`}
+                            title='Filter pinned items'
+                        >
+                            <Filter size={14} />
+                        </button>
+                    </div>
                 </div>
-                <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
+                <div
+                    className={`flex items-center justify-between p-2.5 border ${isFilterActive('priority', 3) ? 'border-primary bg-primary-light/30' : 'border-border-primary-light'} rounded-sm group relative`}
+                >
                     <div className='flex items-center gap-1 text-sm text-dark-gray'>
                         <div>
                             <Image
@@ -203,11 +278,22 @@ export function ProgramSidebar({
                         </div>
                         <span className=''>High Priority</span>
                     </div>
-                    <span className='text-sm text-black'>
-                        {priorityCounts?.high || 0}
-                    </span>
+                    <div className='flex items-center gap-2'>
+                        <span className='text-sm text-black'>
+                            {priorityCounts?.high || 0}
+                        </span>
+                        <button
+                            onClick={() => handleFilterClick('priority', 3)}
+                            className={`p-1 rounded ${isFilterActive('priority', 3) ? 'bg-primary text-white' : 'bg-gray-100 opacity-70 group-hover:opacity-100'}`}
+                            title='Filter high priority items'
+                        >
+                            <Filter size={14} />
+                        </button>
+                    </div>
                 </div>
-                <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
+                <div
+                    className={`flex items-center justify-between p-2.5 border ${isFilterActive('priority', 2) ? 'border-primary bg-primary-light/30' : 'border-border-primary-light'} rounded-sm group relative`}
+                >
                     <div className='flex items-center gap-1 text-sm text-dark-gray'>
                         <div>
                             <Image
@@ -219,11 +305,22 @@ export function ProgramSidebar({
                         </div>
                         <span className=''>Medium Priority</span>
                     </div>
-                    <span className='text-sm text-black'>
-                        {priorityCounts?.medium || 0}
-                    </span>
+                    <div className='flex items-center gap-2'>
+                        <span className='text-sm text-black'>
+                            {priorityCounts?.medium || 0}
+                        </span>
+                        <button
+                            onClick={() => handleFilterClick('priority', 2)}
+                            className={`p-1 rounded ${isFilterActive('priority', 2) ? 'bg-primary text-white' : 'bg-gray-100 opacity-70 group-hover:opacity-100'}`}
+                            title='Filter medium priority items'
+                        >
+                            <Filter size={14} />
+                        </button>
+                    </div>
                 </div>
-                <div className='flex items-center justify-between p-2.5 border border-border-primary-light rounded-sm'>
+                <div
+                    className={`flex items-center justify-between p-2.5 border ${isFilterActive('priority', 1) ? 'border-primary bg-primary-light/30' : 'border-border-primary-light'} rounded-sm group relative`}
+                >
                     <div className='flex items-center gap-1 text-sm text-dark-gray'>
                         <div>
                             <Image
@@ -235,9 +332,18 @@ export function ProgramSidebar({
                         </div>
                         <span className=''>Low Priority</span>
                     </div>
-                    <span className='text-sm text-black'>
-                        {priorityCounts?.low || 0}
-                    </span>
+                    <div className='flex items-center gap-2'>
+                        <span className='text-sm text-black'>
+                            {priorityCounts?.low || 0}
+                        </span>
+                        <button
+                            onClick={() => handleFilterClick('priority', 1)}
+                            className={`p-1 rounded ${isFilterActive('priority', 1) ? 'bg-primary text-white' : 'bg-gray-100 opacity-70 group-hover:opacity-100'}`}
+                            title='Filter low priority items'
+                        >
+                            <Filter size={14} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -278,7 +384,6 @@ export function ProgramSidebar({
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center gap-2'>
                             <Clock className='h-4 w-4 text-amber-500' />
-                            {/* <Check className='h-4 w-4 text-green-500' /> */}
                             <span className='text-xs text-gray'>Progress</span>
                         </div>
                         <span className='text-xs font-medium text-black'>
@@ -304,63 +409,6 @@ export function ProgramSidebar({
                     </div>
                 </div>
             </div>
-
-            {/* Focused Lesson */}
-            {/* <div className='border border-border rounded-lg p-2.5 mt-2'>
-                <h3 className='font-medium text-black flex items-center gap-2'>
-                    <FocusedIcon />
-                    <span>Focused Lesson</span>
-                </h3>
-                <Separator className='my-2' />
-                <div className='bg-primary-light rounded-lg p-1.5'>
-                    <div className='flex items-start mb-2'>
-                        <div className='bg-primary mr-1.5 p-1.5 rounded-md'>
-                            <Play className='h-4 w-4 text-pure-white' />
-                        </div>
-                        <div className='space-y-1'>
-                            <h4 className='text-sm font-medium text-black'>
-                                {courseData?.focusedLesson?.title}dfdfd
-                            </h4>
-                            <div className='flex items-center gap-2 text-xs text-gray'>
-                                <div className='flex items-center gap-1'>
-                                    <Calendar className='h-4 w-4 text-dark-gray' />
-                                    <span>
-                                        {courseData?.focusedLesson?.date}xxx
-                                    </span>
-                                </div>
-                                <div className='flex items-center gap-1'>
-                                    <Clock className='h-4 w-4 text-dark-gray' />
-                                    <span>
-                                        {courseData?.focusedLesson?.time}xx
-                                    </span>
-                                </div>
-                                <span className=''>
-                                    {courseData?.focusedLesson?.duration}xxx
-                                </span>
-                            </div>
-                        </div>
-                        <Badge className='text-red-600 border-red-600 text-[10px] font-medium px-1 border bg-transparent'>
-                            {courseData?.focusedLesson?.tags[0]}xxx
-                        </Badge>
-                    </div>
-                    <Separator className='my-2.5' />
-                    <div className='mb-2'>
-                        <div className='flex items-center justify-between mb-1'>
-                            <span className='text-xs font-medium text-black'>
-                                Completion
-                            </span>
-                            <span className='text-xs font-medium text-primary'>
-                                {courseData?.focusedLesson?.completion}%
-                            </span>
-                        </div>
-                        <Progress
-                            value={courseData?.focusedLesson?.completion}
-                            className='h-2 bg-pure-black'
-                            indicatorClass='bg-primary rounded-full'
-                        />
-                    </div>
-                </div>
-            </div> */}
         </div>
     );
 }

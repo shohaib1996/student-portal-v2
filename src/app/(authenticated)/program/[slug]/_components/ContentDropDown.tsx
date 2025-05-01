@@ -29,6 +29,7 @@ import {
 import LecturesSvg from '@/components/svgs/common/LecturesSvg';
 import MemoizedLoadingIndicator from '@/components/svgs/common/LoadingIndicator';
 import MemoizedEmptyState from '@/components/svgs/common/EmptyState';
+// import List from 'react-virtualized';
 
 // Navigation and Utils
 import Link from 'next/link';
@@ -37,8 +38,10 @@ import {
     buildContentTree,
     getTotalDuration,
     countLessons,
-    searchContentTree,
 } from '@/utils/tree-utils';
+
+// Import our new search utility functions
+import { searchAndFilterContent } from '@/utils/search-utils';
 
 // Types
 import {
@@ -92,15 +95,6 @@ interface QuizModalProps {
     setOpenQuiz: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// Helper component for Quiz Modal
-// const QuizModalComponent: React.FC<QuizModalProps> = ({
-//     openQuiz,
-//     setOpenQuiz,
-// }) => {
-//     console.log({ openQuiz });
-//     return <GlobalModal open={openQuiz} setOpen={setOpenQuiz}></GlobalModal>;
-// };
-
 // Main component
 const ContentDropDown: React.FC<ContentDropDownProps> = ({
     fetchedData,
@@ -123,14 +117,21 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         Map<string, boolean>
     >(new Map());
     const [openQuiz, setOpenQuiz] = useState(false);
-
     const [lesson, setLesson] = useState({});
 
-    // Initialize content tree
+    // Initialize content tree with search and filter capabilities
     useEffect(() => {
         if (fetchedData && fetchedData.length > 0) {
             try {
-                const tree = buildContentTree(fetchedData);
+                // Apply search and filters before building tree
+                const filteredData = searchAndFilterContent(
+                    fetchedData,
+                    searchInput,
+                    filterOption,
+                );
+
+                // Build the content tree with the filtered data
+                const tree = buildContentTree(filteredData as any);
                 setTreeData(tree);
             } catch (error) {
                 console.error('Error building content tree:', error);
@@ -139,7 +140,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         } else {
             setTreeData([]);
         }
-    }, [fetchedData, searchInput]);
+    }, [fetchedData, searchInput, filterOption]);
 
     // Utility handlers and formatters
     const handleProgressUpdate = useCallback(
@@ -296,6 +297,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
     const handleQuizClose = () => {
         setOpenQuiz(false);
     };
+
     // Content rendering
     const renderContent = useCallback(
         (data: TContent[], parentIndex = ''): React.ReactNode => {
@@ -449,11 +451,12 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                 >
                                     <div className='w-full'>
                                         <div className='flex items-center justify-between w-full p-2'>
-                                            {item.lesson.type === 'link' ? (
+                                            {item?.lesson?.type === 'link' ? (
                                                 <Link
                                                     href={
-                                                        item?.lesson
-                                                            ?.url as string
+                                                        (item?.lesson
+                                                            ?.url as string) ||
+                                                        '#'
                                                     }
                                                     target='_blank'
                                                     className='flex items-center gap-3 grow-[1] w-full'
@@ -464,15 +467,18 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
                                                     <div>
                                                         <p className='text-sm font-medium text-black'>
-                                                            {item.lesson.title}
+                                                            {
+                                                                item?.lesson
+                                                                    ?.title
+                                                            }
                                                         </p>
                                                     </div>
                                                 </Link>
                                             ) : item.lesson.type === 'file' ? (
                                                 <Link
                                                     href={
-                                                        item.lesson.url
-                                                            ? `/documents-and-labs?documentId=${item.lesson.url}&mode=view`
+                                                        item?.lesson?.url
+                                                            ? `/documents-and-labs?documentId=${item?.lesson?.url}&mode=view`
                                                             : '#'
                                                     }
                                                     target='_blank'
@@ -484,15 +490,18 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
                                                     <div>
                                                         <p className='text-sm font-medium text-black'>
-                                                            {item.lesson.title}
+                                                            {
+                                                                item?.lesson
+                                                                    ?.title
+                                                            }
                                                         </p>
                                                     </div>
                                                 </Link>
                                             ) : (
                                                 <Link
                                                     href={
-                                                        item.lesson.url
-                                                            ? `/presentation-slides/${extractSlideId(item.lesson.url)}`
+                                                        item?.lesson?.url
+                                                            ? `/presentation-slides/${extractSlideId(item?.lesson?.url)}`
                                                             : '#'
                                                     }
                                                     target='_blank'
@@ -504,7 +513,10 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
                                                     <div>
                                                         <p className='text-sm font-medium text-black'>
-                                                            {item.lesson.title}
+                                                            {
+                                                                item?.lesson
+                                                                    ?.title
+                                                            }
                                                         </p>
                                                     </div>
                                                 </Link>
@@ -703,7 +715,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
             calculateProgressWithLocalState,
         ],
     );
-    console.log({ treeData });
+
     return (
         <>
             <div
@@ -712,7 +724,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                     isModuleOpen && 'hidden',
                     'space-y-4 transition-all duration-300 ease-in-out ',
                     videoData?.isSideOpen
-                        ? `no-scrollbar  lg:col-span-1  top-0 h-[607px] overflow-y-auto bottom-[20px]`
+                        ? `no-scrollbar lg:col-span-1 top-0 h-[607px] overflow-y-auto bottom-[20px]`
                         : 'w-full ',
                 )}
             >
@@ -720,7 +732,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                     {videoData?.isSideOpen && (
                         <div
                             onClick={() => setModuleOpen(!isModuleOpen)}
-                            className='sticky top-0  z-10 bg-foreground '
+                            className='sticky top-0 z-10 bg-foreground'
                         >
                             <PanelLeft className='h-5 w-5' />
                         </div>
