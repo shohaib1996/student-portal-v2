@@ -72,7 +72,6 @@ interface FileItemProps {
 function FileItem({ file, index, handleRemove }: FileItemProps) {
     const iconSrc = determineIconSrc(file.type || '', file?.url);
     const fileType = file.type?.split('/')[0] || '';
-
     return (
         <div
             className={`relative flex items-center p-1 rounded-md border ${file?.status === 'uploading' ? 'bg-muted/50' : 'bg-background'}`}
@@ -95,13 +94,34 @@ function FileItem({ file, index, handleRemove }: FileItemProps) {
                         ) : fileType === 'image' ? (
                             <img
                                 className='w-full h-full object-cover'
-                                src={iconSrc || '/placeholder.svg'}
+                                src={iconSrc || '/default_image.png'}
                                 alt='Image file'
                             />
+                        ) : fileType === 'application' ? (
+                            file?.type === 'application/pdf' ? (
+                                <img
+                                    className='w-full h-full object-cover'
+                                    src='/pdf.png'
+                                    alt='PDF file'
+                                />
+                            ) : file?.type &&
+                              file?.type.includes('presentation') ? (
+                                <img
+                                    className='w-full h-full object-cover'
+                                    src='/ppt.png'
+                                    alt='Presentation file'
+                                />
+                            ) : (
+                                <img
+                                    className='w-full h-full object-cover'
+                                    src='/file_icon.png'
+                                    alt='Application file'
+                                />
+                            )
                         ) : (
                             <img
                                 className='w-full object-cover'
-                                src='/file.png'
+                                src='/file_icon.png'
                                 alt='File'
                             />
                         )}

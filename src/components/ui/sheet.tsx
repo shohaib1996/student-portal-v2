@@ -53,23 +53,45 @@ interface SheetContentProps
 
 const SheetContent = React.forwardRef<
     React.ComponentRef<typeof SheetPrimitive.Content>,
-    SheetContentProps
->(({ side = 'right', className, children, ...props }, ref) => (
-    <SheetPortal>
-        <SheetOverlay />
-        <SheetPrimitive.Content
-            ref={ref}
-            className={cn(sheetVariants({ side }), className)}
-            {...props}
-        >
-            <SheetPrimitive.Close className='absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary'>
-                <X className='h-4 w-4' />
-                <span className='sr-only'>Close</span>
-            </SheetPrimitive.Close>
-            {children}
-        </SheetPrimitive.Content>
-    </SheetPortal>
-));
+    SheetContentProps & { PREVENT_CLOSE_IDS?: string[] }
+>(
+    (
+        { side = 'right', className, children, PREVENT_CLOSE_IDS, ...props },
+        ref,
+    ) => (
+        <SheetPortal>
+            <SheetOverlay />
+            <SheetPrimitive.Content
+                ref={ref}
+                className={cn(sheetVariants({ side }), className)}
+                onPointerDownOutside={(event) => {
+                    // Check if the clicked element is inside any of the prevent-close elements
+                    const target = event.target as Element;
+                    const shouldPreventClose = PREVENT_CLOSE_IDS?.some((id) => {
+                        const preventElement = document.getElementById(id);
+                        return (
+                            preventElement &&
+                            (preventElement.contains(target) ||
+                                preventElement === target)
+                        );
+                    });
+
+                    // If it is, prevent the default closing behavior
+                    if (shouldPreventClose) {
+                        event.preventDefault();
+                    }
+                }}
+                {...props}
+            >
+                <SheetPrimitive.Close className='absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary'>
+                    <X className='h-4 w-4' />
+                    <span className='sr-only'>Close</span>
+                </SheetPrimitive.Close>
+                {children}
+            </SheetPrimitive.Content>
+        </SheetPortal>
+    ),
+);
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 const SheetHeader = ({

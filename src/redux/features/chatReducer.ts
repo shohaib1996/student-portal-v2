@@ -445,7 +445,7 @@ const chatSlice = createSlice({
             const { message } = action.payload;
             const chatId = message.chat;
             const messagesArray = state.chatMessages[chatId] || [];
-
+            console.log({ message, chatId });
             if (message.parentMessage) {
                 const messageIndex = messagesArray.findIndex(
                     (m) => m._id === message.parentMessage,
@@ -481,6 +481,20 @@ const chatSlice = createSlice({
             }
 
             state.chatMessages[chatId] = messagesArray;
+            // ADD THIS NEW CODE: Update latestMessage in chat if this is the latest message
+            const chatIndex = state.chats.findIndex((x) => x._id === chatId);
+            if (chatIndex !== -1) {
+                const chat = state.chats[chatIndex];
+                if (
+                    chat.latestMessage &&
+                    chat.latestMessage._id === message._id
+                ) {
+                    state.chats[chatIndex].latestMessage = {
+                        ...chat.latestMessage,
+                        ...message,
+                    };
+                }
+            }
         },
         updateEmoji: (
             state,

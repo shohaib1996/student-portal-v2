@@ -88,8 +88,8 @@ export const MentionMenuItem = forwardRef<
                         className={cn(
                             'text-xs opacity-70',
                             selected
-                                ? 'text-accent-foreground'
-                                : 'text-muted-foreground',
+                                ? 'text-accent-foreground capitalize'
+                                : 'text-muted-foreground capitalize',
                         )}
                     >
                         {subtitle}

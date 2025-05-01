@@ -52,6 +52,7 @@ export function useMentionLookupService(options: MentionsLookupServiceOptions) {
                       .toLowerCase()
                       .includes(queryString.toLowerCase());
               });
+        console.log({ Result: result });
         setResults(result);
         setQuery(queryString);
     }, [items, trigger, queryString]);

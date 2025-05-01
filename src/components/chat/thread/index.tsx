@@ -153,7 +153,10 @@ const Thread: React.FC<ThreadProps> = ({
                     }
                 }}
             >
-                <SheetContent className='p-1 w-full sm:max-w-md md:max-w-lg lg:max-w-xl overflow-hidden flex flex-col bg-foreground'>
+                <SheetContent
+                    className='p-1 w-full sm:max-w-md md:max-w-lg lg:max-w-xl overflow-hidden flex flex-col bg-foreground'
+                    PREVENT_CLOSE_IDS={['global_modal']}
+                >
                     <SheetHeader className='border-b border-forground-border px-4 py-2'>
                         <div className='flex justify-between items-center'>
                             <SheetTitle className='text-dark-gray'>

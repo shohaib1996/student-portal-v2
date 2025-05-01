@@ -192,8 +192,10 @@ export function BeautifulMentionsPlugin(props: BeautifulMentionsPluginProps) {
         if (!trigger) {
             return [];
         }
+
         // add options from the lookup service
         let opt = results.map((result) => {
+            console.log({ result });
             if (typeof result === 'string') {
                 return new MentionOption(trigger, result, result);
             } else {
@@ -805,6 +807,7 @@ export function BeautifulMentionsPlugin(props: BeautifulMentionsPluginProps) {
                         anchorElementRef.current,
                     );
                 }
+                console.log({ options });
                 return anchorElementRef.current && open
                     ? ReactDOM.createPortal(
                           <MenuComponent
@@ -828,7 +831,7 @@ export function BeautifulMentionsPlugin(props: BeautifulMentionsPluginProps) {
                                           !IS_MOBILE && selectedIndex === i
                                       }
                                       ref={option.setRefElement}
-                                      role='menuitem'
+                                      role={'member'}
                                       aria-selected={
                                           !IS_MOBILE && selectedIndex === i
                                       }

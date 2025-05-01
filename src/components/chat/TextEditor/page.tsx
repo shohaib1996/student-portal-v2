@@ -517,10 +517,16 @@ const TextEditor: React.FC<TextEditorProps> = ({
             }, []);
         console.log({ MentionedUserAfterFilter: data });
         const mappedData = data?.map(
-            (x: { user: any; id: string | number; avatar: string }) => ({
+            (x: {
+                user: any;
+                id: string | number;
+                avatar: string;
+                role: string;
+            }) => ({
                 value: `${x?.user?.firstName} ${x?.user?.lastName}`,
                 id: String(x?.user?._id),
                 avatar: x?.user?.profilePicture || `/avatar.png`,
+                role: `${x?.role}`,
             }),
         );
 
@@ -584,7 +590,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                     className='hidden'
                     ref={photoVideoInputRef}
                     onChange={handleFileInputChange}
-                    accept='image/*,video/*'
+                    accept='image/*,video/*,application/*,audio/*'
                 />
 
                 <div className='border-border'>
@@ -664,7 +670,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
                                                     <DropdownMenuContent
                                                         side='top'
                                                         align='start'
-                                                        className='bg-background'
+                                                        className='bg-background z-[1000]'
                                                     >
                                                         <DropdownMenuItem
                                                             className='flex items-center gap-2 cursor-pointer'
