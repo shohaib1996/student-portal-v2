@@ -17,7 +17,10 @@ const TopTags = ({ tags, setTags }: ITopTagsProps) => {
     }
     const topTags: ITags[] = data?.tags || [];
     const handleTags = (tag: string) => {
-        setTags([...tags, tag]);
+        const exists = tags.find((t) => t === tag);
+        if (!exists) {
+            setTags([...tags, tag]);
+        }
     };
     return (
         <Card className='overflow-hidden border-border shadow-sm mt-2 mr-2'>

@@ -25,9 +25,6 @@ import { Card } from '../ui/card';
 import NotesSkeleton from './NotesSkeleton';
 import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
-import GlobalBlockEditor from '../editor/GlobalBlockEditor';
-
-const text = '';
 
 const NotesGridView = ({
     data,
@@ -193,143 +190,116 @@ const NotesGridView = ({
                 </div>
             </div>
             <div className='ps-2 lg:col-span-3 col-span-4 h-full overflow-y-auto'>
-                <Sheet>
-                    <GlobalHeader
-                        withTooltip={false}
-                        title={activeNote?.title}
-                        subTitle={
-                            <div className='flex gap-4 pt-1 text-dark-gray items-center'>
-                                {activeNote?.purpose && (
-                                    <div className='flex items-center gap-1'>
-                                        <div className='flex size-3 items-center justify-center rounded-full bg-[#F99D1C]'>
-                                            <CircleDot
-                                                size={10}
-                                                className='text-white'
-                                            />
-                                        </div>
-                                        <span
-                                            className={cn(
-                                                'text-xs text-dark-gray capitalize font-medium',
-                                            )}
-                                        >
-                                            {activeNote?.purpose?.category}
-                                        </span>
+                <GlobalHeader
+                    withTooltip={false}
+                    title={activeNote?.title}
+                    subTitle={
+                        <div className='flex gap-4 pt-1 text-dark-gray items-center'>
+                            {activeNote?.purpose && (
+                                <div className='flex items-center gap-1'>
+                                    <div className='flex size-3 items-center justify-center rounded-full bg-[#F99D1C]'>
+                                        <CircleDot
+                                            size={10}
+                                            className='text-white'
+                                        />
                                     </div>
-                                )}
-                                <div
-                                    className={cn(
-                                        'flex items-center gap-1 text-xs font-medium',
-                                    )}
-                                >
-                                    <CalendarIcon size={14} />
-                                    <span>
-                                        {dayjs(activeNote?.createdAt).format(
-                                            'MMM DD, YYYY | hh:mm A',
+                                    <span
+                                        className={cn(
+                                            'text-xs text-dark-gray capitalize font-medium',
                                         )}
+                                    >
+                                        {activeNote?.purpose?.category}
                                     </span>
                                 </div>
-                                {activeNote?.purpose && (
-                                    <div
-                                        className={cn(
-                                            'text-xs flex items-center gap-1 font-medium',
-                                        )}
-                                    >
-                                        <BookOpen size={14} />
-                                        <span className='capitalize'>
-                                            {activeNote?.purpose?.category}
-                                        </span>
-                                        :
-                                        <span>
-                                            {activeNote?.purpose?.category}
-                                        </span>
-                                    </div>
+                            )}
+                            <div
+                                className={cn(
+                                    'flex items-center gap-1 text-xs font-medium',
                                 )}
+                            >
+                                <CalendarIcon size={14} />
+                                <span>
+                                    {dayjs(activeNote?.createdAt).format(
+                                        'MMM DD, YYYY | hh:mm A',
+                                    )}
+                                </span>
                             </div>
-                        }
-                        buttons={
-                            <div className='flex items-center gap-2'>
-                                <Link
-                                    href={`/my-notes?mode=edit&detail=${activeNote?._id}`}
+                            {activeNote?.purpose && (
+                                <div
+                                    className={cn(
+                                        'text-xs flex items-center gap-1 font-medium',
+                                    )}
                                 >
-                                    <Button
-                                        className='h-8'
-                                        variant={'primary_light'}
-                                        icon={<Pencil size={16} />}
-                                    >
-                                        Edit
-                                    </Button>
-                                </Link>
-                                <GlobalDeleteModal
-                                    modalSubTitle='This action cannot be undone. This will permanently delete your note and remove your data from our servers.'
-                                    loading={isDeleting}
-                                    deleteFun={deleteNote}
-                                    _id={activeNote?._id}
+                                    <BookOpen size={14} />
+                                    <span className='capitalize'>
+                                        {activeNote?.purpose?.category}
+                                    </span>
+                                    :
+                                    <span>{activeNote?.purpose?.category}</span>
+                                </div>
+                            )}
+                        </div>
+                    }
+                    buttons={
+                        <div className='flex items-center gap-2'>
+                            <Link
+                                href={`/my-notes?mode=edit&detail=${activeNote?._id}`}
+                            >
+                                <Button
+                                    className='h-8'
+                                    variant={'primary_light'}
+                                    icon={<Pencil size={16} />}
                                 >
-                                    <Button
-                                        className='h-8'
-                                        variant={'danger_light'}
-                                        icon={<Trash size={16} />}
-                                    >
-                                        Delete
-                                    </Button>
-                                </GlobalDeleteModal>
-                                <SheetTrigger className='lg:hidden'>
-                                    <Button
-                                        tooltip='Open Notes List'
-                                        variant={'secondary'}
-                                        className='h-8 bg-background'
-                                        size={'icon'}
-                                    >
-                                        <PanelLeft size={18} />
-                                    </Button>
-                                </SheetTrigger>
-                            </div>
-                        }
-                    />
+                                    Edit
+                                </Button>
+                            </Link>
+                            <GlobalDeleteModal
+                                modalSubTitle='This action cannot be undone. This will permanently delete your note and remove your data from our servers.'
+                                loading={isDeleting}
+                                deleteFun={deleteNote}
+                                _id={activeNote?._id}
+                            >
+                                <Button
+                                    className='h-8'
+                                    variant={'danger_light'}
+                                    icon={<Trash size={16} />}
+                                >
+                                    Delete
+                                </Button>
+                            </GlobalDeleteModal>
+                        </div>
+                    }
+                />
 
-                    <SheetContent className='lg:hidden p-2 pt-4'>
-                        <div className='pe-2 border-r h-full border-forground-border'>
-                            <h2 className='text-black font-semibold border-b border-forground-border mb-2'>
-                                All Notes ({data.length})
-                            </h2>
-                            <div className='space-y-2 overflow-y-auto h-[calc(100vh-280px)]'>
-                                {data.map((note) => (
-                                    <div
-                                        key={note._id}
-                                        onClick={() => setActiveNote(note)}
-                                        className={cn(
-                                            'w-full cursor-pointer dark:bg-background dark:border-indigo-300/35 rounded-md p-2 shadow-sm bg-primary-light border border-indigo-300/70',
-                                            {
-                                                'bg-primary dark:bg-primary text-white':
-                                                    activeNote?._id ===
-                                                    note?._id,
-                                            },
-                                        )}
-                                    >
-                                        <div className='flex items-center justify-between'>
-                                            <div className='flex items-center gap-1'>
-                                                <div className='flex size-3 items-center justify-center rounded-full bg-[#F99D1C]'>
-                                                    <CircleDot
-                                                        size={10}
-                                                        className='text-white'
-                                                    />
-                                                </div>
-                                                <span
-                                                    className={cn(
-                                                        'text-xs text-dark-gray capitalize font-medium',
-                                                        {
-                                                            'text-pure-white':
-                                                                activeNote?._id ===
-                                                                note?._id,
-                                                        },
-                                                    )}
-                                                >
-                                                    {note?.purpose?.category}
-                                                </span>
+                <SheetContent className='lg:hidden p-2 pt-4'>
+                    <div className='pe-2 border-r h-full border-forground-border'>
+                        <h2 className='text-black font-semibold border-b border-forground-border mb-2'>
+                            All Notes ({data.length})
+                        </h2>
+                        <div className='space-y-2 overflow-y-auto h-[calc(100vh-280px)]'>
+                            {data.map((note) => (
+                                <div
+                                    key={note._id}
+                                    onClick={() => setActiveNote(note)}
+                                    className={cn(
+                                        'w-full cursor-pointer dark:bg-background dark:border-indigo-300/35 rounded-md p-2 shadow-sm bg-primary-light border border-indigo-300/70',
+                                        {
+                                            'bg-primary dark:bg-primary text-white':
+                                                activeNote?._id === note?._id,
+                                        },
+                                    )}
+                                >
+                                    <div className='flex items-center justify-between'>
+                                        <div className='flex items-center gap-1'>
+                                            <div className='flex size-3 items-center justify-center rounded-full bg-[#F99D1C]'>
+                                                <CircleDot
+                                                    size={10}
+                                                    className='text-white'
+                                                />
                                             </div>
-                                            <div
+                                            <span
                                                 className={cn(
-                                                    'flex items-center gap-1 text-xs text-dark-gray font-medium',
+                                                    'text-xs text-dark-gray capitalize font-medium',
                                                     {
                                                         'text-pure-white':
                                                             activeNote?._id ===
@@ -337,46 +307,12 @@ const NotesGridView = ({
                                                     },
                                                 )}
                                             >
-                                                <CalendarIcon size={14} />
-                                                <span>
-                                                    {dayjs(
-                                                        note?.createdAt,
-                                                    ).format(
-                                                        'MMM DD, YYYY | hh:mm A',
-                                                    )}
-                                                </span>
-                                            </div>
+                                                {note?.purpose?.category}
+                                            </span>
                                         </div>
-                                        <h1 className='mt-2 text-sm font-semibold'>
-                                            {note?.title}
-                                        </h1>
-                                        <p
-                                            className={cn(
-                                                'mt-2 text-xs font-normal text-dark-gray line-clamp-2',
-                                                {
-                                                    'text-pure-white':
-                                                        activeNote?._id ===
-                                                        note?._id,
-                                                },
-                                            )}
-                                        >
-                                            {renderPlainText({
-                                                text: note?.description || '',
-                                                textSize: 'text-xs',
-                                                textColor:
-                                                    activeNote?._id ===
-                                                    note?._id
-                                                        ? 'text-pure-white'
-                                                        : 'text-darkg-gray',
-                                                // truncate: true,
-                                                lineClamp: 2,
-                                                width: 'w-full',
-                                            })}
-                                        </p>
-
                                         <div
                                             className={cn(
-                                                'text-xs pt-2 flex items-center gap-1 font-medium text-black',
+                                                'flex items-center gap-1 text-xs text-dark-gray font-medium',
                                                 {
                                                     'text-pure-white':
                                                         activeNote?._id ===
@@ -384,25 +320,65 @@ const NotesGridView = ({
                                                 },
                                             )}
                                         >
-                                            <BookOpen size={14} />
-                                            <span className='capitalize'>
-                                                {note.purpose?.category}
-                                            </span>
-                                            :
+                                            <CalendarIcon size={14} />
                                             <span>
-                                                {note.purpose?.category}
+                                                {dayjs(note?.createdAt).format(
+                                                    'MMM DD, YYYY | hh:mm A',
+                                                )}
                                             </span>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                    </SheetContent>
+                                    <h1 className='mt-2 text-sm font-semibold'>
+                                        {note?.title}
+                                    </h1>
+                                    <p
+                                        className={cn(
+                                            'mt-2 text-xs font-normal text-dark-gray line-clamp-2',
+                                            {
+                                                'text-pure-white':
+                                                    activeNote?._id ===
+                                                    note?._id,
+                                            },
+                                        )}
+                                    >
+                                        {renderPlainText({
+                                            text: note?.description || '',
+                                            textSize: 'text-xs',
+                                            textColor:
+                                                activeNote?._id === note?._id
+                                                    ? 'text-pure-white'
+                                                    : 'text-darkg-gray',
+                                            // truncate: true,
+                                            lineClamp: 2,
+                                            width: 'w-full',
+                                        })}
+                                    </p>
 
-                    <div className='pt-2 text-dark-gray'>
-                        {renderText({ text: activeNote?.description || '' })}
+                                    <div
+                                        className={cn(
+                                            'text-xs pt-2 flex items-center gap-1 font-medium text-black',
+                                            {
+                                                'text-pure-white':
+                                                    activeNote?._id ===
+                                                    note?._id,
+                                            },
+                                        )}
+                                    >
+                                        <BookOpen size={14} />
+                                        <span className='capitalize'>
+                                            {note.purpose?.category}
+                                        </span>
+                                        :<span>{note.purpose?.category}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </Sheet>
+                </SheetContent>
+
+                <div className='pt-2 text-dark-gray'>
+                    {renderText({ text: activeNote?.description || '' })}
+                </div>
             </div>
         </div>
     );

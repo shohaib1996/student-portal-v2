@@ -1,9 +1,11 @@
 'use client';
 
 import DiagramComponent from '@/components/global/diagram/diagram-component';
+import { TdUser } from '@/components/global/TdUser';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { formatDateToCustomString } from '@/lib/formatDateToCustomString';
+import { TUser } from '@/types/auth';
 import { DiagramType } from '@/types/diagram';
 import { Eye } from 'lucide-react';
 import Image from 'next/image';
@@ -16,6 +18,7 @@ interface DiagramCardProps {
 }
 
 const DiagramCard = ({ diagram, onClick, index }: DiagramCardProps) => {
+    console.log(diagram);
     return (
         <div className='border rounded-lg overflow-hidden bg-foreground'>
             <div className='relative'>
@@ -39,7 +42,7 @@ const DiagramCard = ({ diagram, onClick, index }: DiagramCardProps) => {
                                 height={1080}
                                 className='w-full h-[150px] object-cover'
                                 src={
-                                    diagram?.attachments?.[0] ||
+                                    diagram?.thumbnail ||
                                     '/images/diagram-thumbnail.png'
                                 }
                                 alt={diagram?.title}
@@ -58,25 +61,7 @@ const DiagramCard = ({ diagram, onClick, index }: DiagramCardProps) => {
                     {diagram.title}
                 </h3>
                 <div className='flex items-center justify-between gap-2 my-2'>
-                    <div className='flex items-center gap-2'>
-                        <Avatar className='h-5 w-5'>
-                            <AvatarImage
-                                src={'/images/author.png'}
-                                alt='Author'
-                            />
-                            <AvatarFallback>A</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <p className='text-sm font-medium'>Author</p>
-                            <p className='text-xs text-muted-foreground'>
-                                Frontend Engineer
-                            </p>
-                        </div>
-                    </div>
-                    <div className='text-xs'>
-                        <p className='text-muted-foreground'>Uploaded Date</p>
-                        <p>{formatDateToCustomString(diagram?.createdAt)}</p>
-                    </div>
+                    <TdUser user={diagram?.createdBy as TUser} />
                 </div>
                 <div className='flex items-center justify-center'>
                     <Link

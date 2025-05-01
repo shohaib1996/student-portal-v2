@@ -1,4 +1,3 @@
-// Updated GlobalTable.jsx
 'use client';
 import React, { useEffect, useState } from 'react';
 import {
@@ -9,7 +8,6 @@ import {
     Table,
 } from '@tanstack/react-table';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { setColumnSizing } from '@/redux/features/tableReducer';
 import { cn } from '@/lib/utils';
 import { Button } from '../../ui/button';
 import ColumnSettingsModal from './ColumnSettingsModal';
@@ -17,6 +15,7 @@ import SimpleBar from 'simplebar-react';
 import { Settings } from 'lucide-react';
 
 import EmptyData from '../EmptyData';
+import { setColumnSizing } from '@/redux/features/tableReducer';
 
 function TableBody<T>({
     table,
@@ -150,7 +149,7 @@ interface GlobalTableProps<T> {
     isLoading?: boolean;
     limit?: number;
     actionsMinSize?: number;
-    showAddColumn?: boolean;
+    showAddColumn?: boolean; // New prop to control the visibility of add column button
 }
 
 const GlobalTable = <T,>({
@@ -161,7 +160,7 @@ const GlobalTable = <T,>({
     height,
     limit,
     actionsMinSize = 200,
-    showAddColumn = true,
+    showAddColumn = true, // Default to true for backward compatibility
 }: GlobalTableProps<T>) => {
     const [columnSettingsOpen, setCollumnSettings] = useState(false);
     const { tableSizeData } = useAppSelector((s) => s.table);
@@ -169,19 +168,6 @@ const GlobalTable = <T,>({
 
     const storeColumnSizing = tableSizeData.find(
         (d) => d.tableName === tableName,
-    );
-
-    // Create a unique key for the column definitions to force re-render
-    // when defaultColumns change (like when selectedEvents changes)
-    const columnsKey = React.useMemo(
-        () =>
-            JSON.stringify(
-                defaultColumns.map((col) => ({
-                    id: col.id,
-                    accessorKey: col.accessorKey,
-                })),
-            ),
-        [defaultColumns],
     );
 
     const mergedColumns = React.useMemo(() => {
@@ -193,20 +179,19 @@ const GlobalTable = <T,>({
             ]),
         );
 
-        // Map default columns, apply store settings, but keep the current cell definitions
+        // Map default columns, apply store settings, and filter out invisible ones
         return defaultColumns
             .map((col) => {
                 if (storeColumnsMap.has(col.id)) {
-                    const storedCol = storeColumnsMap.get(col.id);
                     return {
                         ...col,
-                        visible: storedCol?.visible ?? true, // Only take visibility from storage
+                        ...storeColumnsMap.get(col.id), // apply stored settings
                     };
                 }
                 return { ...col, visible: true }; // Ensure new columns are visible by default
             })
             .filter((col) => col.visible !== false); // Remove columns where visible is false
-    }, [storeColumnSizing, defaultColumns, columnsKey]);
+    }, [storeColumnSizing, defaultColumns]);
 
     const columnsWithCustomSizing = React.useMemo(() => {
         return mergedColumns.map((column) => {
@@ -240,7 +225,7 @@ const GlobalTable = <T,>({
                             : updater,
                     columns:
                         (storeColumnSizing?.columns as TCustomColumnDef<any>[]) ||
-                        defaultColumns,
+                        [],
                 }),
             );
         },
@@ -251,30 +236,37 @@ const GlobalTable = <T,>({
         debugColumns: true,
     });
 
-    // Update column settings in the store whenever defaultColumns changes
     useEffect(() => {
-        dispatch(
-            setColumnSizing({
-                tableName,
-                columnSizing:
-                    storeColumnSizing?.columnSizing ||
-                    table.getState().columnSizing,
-                columns: defaultColumns?.map((col) => {
-                    const found = storeColumnSizing?.columns?.find(
-                        (c) => c.id === col.id,
-                    );
-                    if (found) {
-                        return {
-                            ...col,
-                            visible: found.visible,
-                        };
-                    } else {
-                        return col;
-                    }
+        if (!storeColumnSizing) {
+            dispatch(
+                setColumnSizing({
+                    tableName,
+                    columnSizing: table.getState().columnSizing,
+                    columns: defaultColumns,
                 }),
-            }),
-        );
-    }, [columnsKey, dispatch, tableName, storeColumnSizing?.columnSizing]);
+            );
+        } else {
+            dispatch(
+                setColumnSizing({
+                    tableName,
+                    columnSizing: storeColumnSizing.columnSizing,
+                    columns: defaultColumns?.map((col) => {
+                        const found = storeColumnSizing?.columns?.find(
+                            (c) => c.id === col.id,
+                        );
+                        if (found) {
+                            return {
+                                ...col,
+                                visible: found.visible,
+                            };
+                        } else {
+                            return col;
+                        }
+                    }),
+                }),
+            );
+        }
+    }, []);
 
     const columnSizeVars = React.useMemo(() => {
         const headers = table?.getFlatHeaders();
@@ -351,8 +343,9 @@ const GlobalTable = <T,>({
                                 </div>
                             ))}
 
+                            {/* Only show the Add Column button if showAddColumn is true */}
                             {showAddColumn && (
-                                <div className='sticky right-0 top-0 flex justify-end w-full'>
+                                <div className='sticky right-0 items-center pr-1 top-0 flex justify-end w-full'>
                                     <Button
                                         tooltip='Customize Columns'
                                         onClick={() => setCollumnSettings(true)}
@@ -365,6 +358,7 @@ const GlobalTable = <T,>({
                             )}
                         </div>
                     </div>
+                    {/* When resizing any column we will render this special memoized version of our table body */}
 
                     <>
                         {!isLoading && table.getRowModel().rows.length === 0 ? (
@@ -390,6 +384,7 @@ const GlobalTable = <T,>({
                     </>
                 </div>
 
+                {/* Only render the column settings modal if showAddColumn is true */}
                 {showAddColumn && (
                     <ColumnSettingsModal
                         table={table}

@@ -25,7 +25,7 @@ import {
     ThumbsUp,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useState, forwardRef } from 'react';
+import { useState, forwardRef, Dispatch, SetStateAction } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import EditCommunityPost from './EditCommunityPost';
@@ -48,11 +48,12 @@ interface ICommunityPostProps {
     post: ICommunityPost;
     refetch: number;
     setRefetch: (value: number) => void;
+    setPosts: Dispatch<SetStateAction<ICommunityPost[]>>;
 }
 const emojies = ['❤️', '👍', '🙏', '😂', '🥰', '😯'];
 // Use forwardRef to allow attaching refs
 const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
-    ({ post, refetch, setRefetch }, ref) => {
+    ({ post, refetch, setRefetch, setPosts }, ref) => {
         const user: IAuthUser = useSelector((state: any) => state.auth.user);
         const [seeFullPost, setSeeFullPost] = useState(false);
         const [postId, setPostId] = useState<string>('');
@@ -79,14 +80,98 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
             const payload = {
                 symbol: emoji,
             };
+            const prevreactionsCount = post.reactionsCount;
+            const prevreactions = post.reactions;
+            const prevmyReaction = post.myReaction;
+
+            setPosts((prev) =>
+                prev.map((p) => {
+                    if (p._id === id) {
+                        // Case 1: User is clicking the same reaction they already have
+                        if (p.myReaction === emoji) {
+                            // Remove the reaction
+                            // Create a new reactions object without the zero-count emoji
+                            const updatedReactions = { ...p.reactions };
+                            if (updatedReactions[emoji] === 1) {
+                                delete updatedReactions[emoji];
+                            } else {
+                                updatedReactions[emoji] =
+                                    ((updatedReactions[emoji] as any) || 0) - 1;
+                            }
+
+                            return {
+                                ...p,
+                                reactionsCount: p.reactionsCount - 1,
+                                myReaction: '',
+                                reactions: updatedReactions,
+                            };
+                        }
+                        // Case 2: User already has a reaction but is changing to a different one
+                        else if (p.myReaction && p.myReaction !== emoji) {
+                            // Create a new reactions object
+                            const updatedReactions: any = { ...p.reactions };
+
+                            // Handle previous reaction removal
+                            if (updatedReactions[p.myReaction] === 1) {
+                                delete updatedReactions[p.myReaction];
+                            } else {
+                                updatedReactions[p.myReaction] =
+                                    (updatedReactions[p.myReaction] || 0) - 1;
+                            }
+
+                            // Add new reaction
+                            updatedReactions[emoji] =
+                                (updatedReactions[emoji] || 0) + 1;
+
+                            return {
+                                ...p,
+                                // Overall count stays the same (removing one, adding one)
+                                reactionsCount: p.reactionsCount,
+                                myReaction: emoji,
+                                reactions: updatedReactions,
+                            };
+                        }
+                        // Case 3: User had no reaction before and is adding one
+                        else {
+                            return {
+                                ...p,
+                                reactionsCount: p.reactionsCount + 1,
+                                myReaction: emoji,
+                                reactions: {
+                                    ...p.reactions,
+                                    [emoji]:
+                                        ((p.reactions?.[emoji] as any) || 0) +
+                                        1,
+                                },
+                            };
+                        }
+                    }
+                    return p;
+                }),
+            );
             try {
                 const response = await giveReaction({ payload, id }).unwrap();
-                if (response.success) {
-                    toast.success('Reaction given successfully');
-                    setShowEmojis(false);
-                    setRefetch(refetch + 1);
+                console.log(response);
+                if (!response.success) {
+                    setPosts((prev) =>
+                        prev.map((p) => {
+                            if (p._id === id) {
+                                return {
+                                    ...p,
+                                    reactionCount: prevreactionsCount,
+                                    myReaction: prevmyReaction,
+                                    reactions: prevreactions,
+                                };
+                            }
+                            return p;
+                        }),
+                    );
+                    toast.warning(
+                        'Sorry, reaction failed. please try again later',
+                    );
                 }
             } catch (error) {
+                console.log(error);
                 console.error(error);
             }
         };
@@ -138,7 +223,14 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     toast.success('Post saved successfully', { id: toastId });
                     setOpen(false);
                     setOpenEdit(false);
-                    setRefetch(refetch + 1);
+                    setPosts((prev) =>
+                        prev.map((p) => {
+                            if (p._id === post._id) {
+                                return { ...p, isSaved: true };
+                            }
+                            return p;
+                        }),
+                    );
                 }
             } catch (error) {
                 console.error(error);
@@ -158,7 +250,14 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     });
                     setOpen(false);
                     setOpenEdit(false);
-                    setRefetch(refetch + 1);
+                    setPosts((prev) =>
+                        prev.map((p) => {
+                            if (p._id === post._id) {
+                                return { ...p, isSaved: false };
+                            }
+                            return p;
+                        }),
+                    );
                 }
             } catch (error) {
                 console.error(error);
@@ -200,20 +299,6 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                 secondPart: description.slice(splitIndex + 1).trim(),
             };
         }
-
-        const handleCommentSubmit = async (content: string) => {
-            const res = await createComment({
-                contentId: post._id,
-                comment: content,
-            }).unwrap();
-            if (res.success) {
-                toast.success('Comment added successfully');
-                setRefetch(refetch + 1);
-                setShowComments(false);
-            } else {
-                toast.error('Failed to add comment');
-            }
-        };
 
         const confirmDelete = (id: string) => {
             setPostToDelete(id);
@@ -330,44 +415,6 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                         {post.title}
                     </h1>
 
-                    {/* {post?.attachments && (
-                        <div>
-                            {post?.attachments.map((attach) => (
-                                <Image
-                                    key={attach._id}
-                                    className='my-common w-full'
-                                    src={attach.url || "/placeholder.svg"}
-                                    alt={attach.name}
-                                    width={500}
-                                    height={500}
-                                />
-                            ))}
-                        </div>
-                    )}
-                    <div className='mt-common'>
-                        {seeFullPost ? (
-                            <GlobalMarkDownPreview text={post.description} />
-                        ) : (
-                            <GlobalMarkDownPreview
-                                text={post.description.slice(0, 300)}
-                            />
-                        )}
-                    </div>
-                    {seeFullPost ? (
-                        <Button
-                            onClick={() => setSeeFullPost(false)}
-                            className='mt-common w-full bg-transparent text-black'
-                        >
-                            See less
-                        </Button>
-                    ) : (
-                        <button
-                            onClick={() => setSeeFullPost(true)}
-                            className='absolute bottom-0.5 w-full bg-gradient-to-b from-transparent via-transparent via-60% to-primary-foreground/30 p-common backdrop-blur-[2px]'
-                        >
-                            See More
-                        </button>
-                    )} */}
                     {post?.attachments.length > 0 ? (
                         <div>
                             <p className='text-sm leading-[22px] text-gray'>
@@ -410,14 +457,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                 onMouseEnter={() => setShowEmojis(true)}
                                 onMouseLeave={() => setShowEmojis(false)}
                             >
-                                {isLoading ? (
-                                    <span className='flex items-center gap-1'>
-                                        <LoadingSpinner />{' '}
-                                        <SmilePlus className='h-4 w-4 text-gray' />
-                                    </span>
-                                ) : (
-                                    <SmilePlus className='h-4 w-4 text-gray' />
-                                )}
+                                <SmilePlus className='h-4 w-4 text-gray' />
 
                                 {showEmojis && (
                                     <div className='absolute left-28 top-[-50px] flex -translate-x-1/2 transform space-x-2 rounded-lg border bg-background p-2 shadow-lg'>
@@ -473,10 +513,14 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                         onMouseEnter={() => setShowLikesEmojis(true)}
                         onMouseLeave={() => setShowLikesEmojis(false)}
                     >
-                        <span className='flex gap-2'>
-                            <ThumbsUp className='h-5 w-5' />
-                            Like
-                        </span>
+                        {post.myReaction ? (
+                            <span className='text-lg'>{post.myReaction}</span>
+                        ) : (
+                            <span className='flex gap-2'>
+                                <ThumbsUp className='h-5 w-5' />
+                                Like
+                            </span>
+                        )}
                         {showLikesEmojis && (
                             <div className='absolute left-3/4 top-[-50px] flex -translate-x-1/2 transform space-x-2 rounded-lg border bg-background p-2 shadow-lg'>
                                 {emojies.map((emoji, index) => (
@@ -518,21 +562,6 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                 </div>
 
                 {showComments && <GlobalComment contentId={post._id} />}
-                {/* <div className='flex items-center gap-common-multiplied rounded-xl bg-background p-common'>
-                    <Image
-                        className='h-12 w-12 rounded-full object-cover'
-                        src={user.profilePicture || "/placeholder.svg"}
-                        alt={user.fullName}
-                        width={50}
-                        height={50}
-                    />
-                    <p
-                        onClick={() => setShowComments(true)}
-                        className='flex-1 cursor-pointer rounded-full bg-foreground p-common text-xs font-semibold sm:text-base'
-                    >
-                        What&apos;s on your mind, {user?.fullName}?
-                    </p>
-                </div> */}
 
                 {openEdit && (
                     <NewGlobalModal

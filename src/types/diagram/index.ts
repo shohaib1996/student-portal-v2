@@ -1,3 +1,5 @@
+import { TUser } from '../auth';
+
 export interface DiagramType {
     attachments?: string[];
     description: string[];
@@ -9,7 +11,8 @@ export interface DiagramType {
     _id: string;
     title: string;
     category: string;
-    createdBy: string;
+    createdBy: TUser;
     organization: string;
     createdAt: string;
+    thumbnail?: string;
 }

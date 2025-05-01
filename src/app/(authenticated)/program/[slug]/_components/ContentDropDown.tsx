@@ -56,6 +56,7 @@ import {
 import LessionActionMenu from './LessionActionMenu';
 
 import QuizModalContent from './QuizModalContent';
+import { useParams, useRouter } from 'next/navigation';
 
 // Types definitions
 interface ContentDropDownProps {
@@ -275,10 +276,14 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         [],
     );
 
+    const router = useRouter();
+    const params = useParams();
+
     const handleVideoClick = useCallback(
         (item: TContent, e: React.MouseEvent): void => {
             e.stopPropagation();
             setIsPinnedEyeOpen(item?.isPinned || false);
+            router.push(`/program/${params.slug}?content=${item._id}`);
             setVideoData({
                 videoInfo: {
                     ...(item?.lesson as TLessonInfo),
