@@ -172,10 +172,10 @@ export default function EnrollmentCard({ enrollment }: { enrollment: any }) {
             {/* Instructor Info */}
             <div className='flex items-center justify-between p-3 border-b border-border-primary-light/30'>
                 <div className='flex items-center gap-2'>
-                    <div className='h-10 w-10 relative rounded-full overflow-hidden bg-background border-2 border-white'>
+                    <div className='h-10 w-10 relative rounded-full bg-background border-2 border-white'>
                         <Image
                             src={
-                                enrollment?.program?.instructor?.avatar ||
+                                enrollment?.program?.instructor?.image ||
                                 '/avatar.png'
                             }
                             alt={
@@ -184,7 +184,7 @@ export default function EnrollmentCard({ enrollment }: { enrollment: any }) {
                             }
                             width={40}
                             height={40}
-                            className='h-full w-full object-cover'
+                            className='h-full w-full object-cover rounded-full'
                         />
                         <span className='h-3 w-3 bg-green-500 rounded-full absolute right-0 bottom-0 border-2 border-white'></span>
                     </div>

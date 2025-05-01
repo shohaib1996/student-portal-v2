@@ -126,7 +126,7 @@ const calendarApi = baseApi.injectEndpoints({
                 method: 'PATCH',
                 data: {
                     updateOption,
-                    changes,
+                    ...changes,
                 },
             }),
             invalidatesTags: (result, error, { id }) => [

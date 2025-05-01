@@ -263,11 +263,20 @@ const Community = () => {
                 <div className='no-scrollbar h-full flex-[2] overflow-y-auto overflow-x-hidden pr-2'>
                     {tags.length > 0 && (
                         <div className='bg-background rounded-xl p-2 shadow-sm border border-border-primary-light mb-2'>
-                            <div className='flex items-center gap-2 mb-3'>
-                                <Hash className='h-5 w-5 text-primary' />
-                                <h3 className='font-medium text-black'>
-                                    Filtered by Tags
-                                </h3>
+                            <div className='flex items-center justify-between gap-2 mb-3'>
+                                <div className='flex gap-1 items-center'>
+                                    <Hash className='h-5 w-5 text-primary' />
+                                    <h3 className='font-medium text-black'>
+                                        Filtered by Tags
+                                    </h3>
+                                </div>
+                                <Button
+                                    onClick={() => setTags([])}
+                                    size={'sm'}
+                                    variant={'danger_light'}
+                                >
+                                    Clear Tags
+                                </Button>
                             </div>
                             <div className='flex flex-wrap gap-2'>
                                 {tags.map((tag) => (
@@ -313,6 +322,7 @@ const Community = () => {
                             post={post}
                             refetch={refetch}
                             setRefetch={setRefetch}
+                            setPosts={setPosts}
                             ref={index === posts.length - 1 ? ref : null} // Attach ref to last post
                         />
                     ))}

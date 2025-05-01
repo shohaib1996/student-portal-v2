@@ -41,7 +41,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { toast } from 'sonner';
 
@@ -209,38 +209,7 @@ const MyInvitations = () => {
         }
     };
 
-    const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
-
     const defaultColumns: TCustomColumnDef<TEvent>[] = [
-        {
-            accessorKey: 'select',
-            header: 'Serial No',
-            cell: ({ row }) => {
-                return (
-                    <Checkbox
-                        checked={selectedEvents.includes(row.original._id)}
-                        onCheckedChange={(val) => {
-                            if (val === false) {
-                                setSelectedEvents((prev) =>
-                                    prev.filter(
-                                        (id) => id !== row.original._id,
-                                    ),
-                                );
-                            } else {
-                                setSelectedEvents((prev) => [
-                                    ...prev,
-                                    row.original._id,
-                                ]);
-                            }
-                        }}
-                    />
-                );
-            },
-            footer: (data) => data.column.id,
-            id: 'select',
-            visible: true,
-            canHide: false,
-        },
         {
             accessorKey: 'title',
             header: 'Meeting Title',
@@ -480,29 +449,6 @@ const MyInvitations = () => {
                 subTitle='Check out all your incoming invitations'
                 buttons={
                     <div className='flex items-center gap-2'>
-                        {selectedEvents.length > 0 && (
-                            <>
-                                <Button
-                                    onClick={() => setSelectedEvents([])}
-                                    variant={'primary_light'}
-                                >
-                                    {selectedEvents.length} Selected Events
-                                    <X size={18} />
-                                </Button>
-                                <Button
-                                    onClick={() => toast.info('Comming Soon')}
-                                    variant={'primary_light'}
-                                >
-                                    Accept All
-                                </Button>
-                                <Button
-                                    onClick={() => toast.info('Comming Soon')}
-                                    variant={'danger_light'}
-                                >
-                                    Reject All
-                                </Button>
-                            </>
-                        )}
                         <RangePickerCL value={date} onChange={setDate} />
                     </div>
                 }

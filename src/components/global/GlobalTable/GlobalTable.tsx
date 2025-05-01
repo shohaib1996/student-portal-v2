@@ -8,7 +8,6 @@ import {
     Table,
 } from '@tanstack/react-table';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { setColumnSizing } from '@/redux/features/tableReducer';
 import { cn } from '@/lib/utils';
 import { Button } from '../../ui/button';
 import ColumnSettingsModal from './ColumnSettingsModal';
@@ -16,6 +15,7 @@ import SimpleBar from 'simplebar-react';
 import { Settings } from 'lucide-react';
 
 import EmptyData from '../EmptyData';
+import { setColumnSizing } from '@/redux/features/tableReducer';
 
 function TableBody<T>({
     table,
@@ -345,8 +345,9 @@ const GlobalTable = <T,>({
 
                             {/* Only show the Add Column button if showAddColumn is true */}
                             {showAddColumn && (
-                                <div className='sticky right-0 top-0 flex justify-end w-full'>
+                                <div className='sticky right-0 items-center pr-1 top-0 flex justify-end w-full'>
                                     <Button
+                                        tooltip='Customize Columns'
                                         onClick={() => setCollumnSettings(true)}
                                         variant={'plain'}
                                         className='bg-background border-none rounded-none w-9 z-40 justify-center h-12 flex items-center'

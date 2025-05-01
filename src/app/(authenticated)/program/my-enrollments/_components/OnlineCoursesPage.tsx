@@ -102,17 +102,17 @@ const OnlineCoursesPage = () => {
             <GlobalHeader
                 title='My Enrollments'
                 subTitle='Learn, Grow, and Advance Your Career Online'
-                buttons={
-                    <div>
-                        <Button
-                            variant={'secondary'}
-                            className='flex items-center gap-2'
-                        >
-                            <BookOpenText size={18} />
-                            My Bootcamps
-                        </Button>
-                    </div>
-                }
+                // buttons={
+                //     <div>
+                //         <Button
+                //             variant={'secondary'}
+                //             className='flex items-center gap-2'
+                //         >
+                //             <BookOpenText size={18} />
+                //             My Bootcamps
+                //         </Button>
+                //     </div>
+                // }
             />
             <div>
                 <div className='space-y-3 bg-background p-3 rounded-lg'>

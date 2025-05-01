@@ -5,11 +5,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import GlobalBlockEditor from '@/components/editor/GlobalBlockEditor';
 import { Grip, Minus, X } from 'lucide-react';
+import { TagsInput } from '@/components/global/TagsInput';
 
 interface StickyNoteModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (title: string, description: string) => Promise<void>;
+    onSubmit: (
+        title: string,
+        description: string,
+        tags: string[],
+    ) => Promise<void>;
     initialTitle?: string;
     initialDescription?: string;
     isLoading?: boolean;
@@ -28,6 +33,7 @@ const StickyNoteModal = ({
     const [title, setTitle] = useState(initialTitle);
     const [description, setDescription] = useState(initialDescription);
     const [minimized, setMinimized] = useState(false);
+    const [tags, setTags] = useState<string[]>([]);
 
     // Validation: disable submit if title or description are empty or whitespace
     const isSubmitDisabled =
@@ -184,17 +190,6 @@ const StickyNoteModal = ({
         isDraggingRef.current = true;
     }, []);
 
-    const startResize = useCallback(
-        (e: React.MouseEvent, direction: string) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dragStartRef.current = { x: e.clientX, y: e.clientY };
-            isResizingRef.current = true;
-            resizeDirectionRef.current = direction;
-        },
-        [],
-    );
-
     const toggleMinimize = useCallback(() => {
         setMinimized((prev) => !prev);
     }, []);
@@ -206,7 +201,7 @@ const StickyNoteModal = ({
         if (!trimmedTitle || !trimmedDescription) {
             return;
         }
-        await onSubmit(trimmedTitle, trimmedDescription);
+        await onSubmit(trimmedTitle, trimmedDescription, tags);
     };
 
     if (!isOpen) {
@@ -221,7 +216,7 @@ const StickyNoteModal = ({
                 left: `${renderPosition.x}px`,
                 top: `${renderPosition.y}px`,
                 width: `${renderSize.width}px`,
-                height: minimized ? '40px' : `${renderSize.height}px`,
+                height: minimized ? '50px' : `${renderSize.height}px`,
                 transition: 'height 0.2s ease',
             }}
         >
@@ -266,11 +261,20 @@ const StickyNoteModal = ({
                         <div className='space-y-2'>
                             <Label htmlFor='note-title'>Title</Label>
                             <Input
+                                className='bg-foreground'
                                 id='note-title'
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 placeholder='Enter title'
                                 required
+                            />
+                        </div>
+                        <div className='space-y-2'>
+                            <Label htmlFor='note-title'>Tags</Label>
+                            <TagsInput
+                                tags={[]}
+                                selectedTags={tags}
+                                setSelectedTags={(val) => setTags(val)}
                             />
                         </div>
                         <div className='space-y-2'>

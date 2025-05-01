@@ -16,6 +16,7 @@ import { DiagramType } from '@/types/diagram';
 import { TConditions } from '@/components/global/FilterModal/QueryBuilder';
 import FilterModal from '@/components/global/FilterModal/FilterModal';
 import GlobalPagination from '@/components/global/GlobalPagination';
+import { TdUser } from '@/components/global/TdUser';
 export interface CreatedBy {
     profilePicture: string;
     lastName: string;
@@ -103,7 +104,7 @@ const DiagramComponent = () => {
                 header: 'Uploaded By',
                 cell: ({ row }) => {
                     const createdBy = row.original.createdBy;
-                    return <span>N/A</span>;
+                    return <TdUser user={createdBy} />;
                 },
                 footer: (data) => data.column.id,
                 id: 'uploadedBy',
@@ -165,6 +166,7 @@ const DiagramComponent = () => {
                     <div className='flex items-center gap-2'>
                         <Button
                             size={'icon'}
+                            tooltip='Grid view'
                             onClick={() => setViewMode('grid')}
                             variant={
                                 viewMode === 'grid'
@@ -174,6 +176,7 @@ const DiagramComponent = () => {
                             icon={<Grid3X3 size={18} />}
                         />
                         <Button
+                            tooltip='List view'
                             size={'icon'}
                             onClick={() => setViewMode('list')}
                             variant={
@@ -197,12 +200,6 @@ const DiagramComponent = () => {
                                 },
                             ]}
                         />
-                        {/* <Link href='/dashboard'>
-                            <Button size='sm' asChild>
-                                Go to Dashboard
-                                <ChevronRight className='h-4 w-4' />
-                            </Button>
-                        </Link> */}
                     </div>
                 }
             />

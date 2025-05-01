@@ -64,10 +64,15 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
         setSelectedNote(null);
     };
 
-    const handleSubmitNote = async (title: string, description: string) => {
+    const handleSubmitNote = async (
+        title: string,
+        description: string,
+        tags: string[],
+    ) => {
         const payload = {
             title,
             description,
+            tags,
             contentId,
             purpose: {
                 category: '',

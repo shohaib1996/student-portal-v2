@@ -141,6 +141,7 @@ const TechnicalTest = () => {
     });
 
     const assignments: Assignment[] = data?.assignments || [];
+    const stats = data?.stats;
     const totalItems = data?.count || 0;
 
     const handleTestNowClick = (item: Assignment, index: number) => {
@@ -682,7 +683,7 @@ const TechnicalTest = () => {
                         >
                             <FileText className='h-5 w-5' />
                             <span className={isMobile ? 'text-xs' : ''}>
-                                Technical Task
+                                Technical Task ({stats?.totalTechnicalTasks})
                             </span>
                         </TabsTrigger>
                         <TabsTrigger
@@ -691,7 +692,7 @@ const TechnicalTest = () => {
                         >
                             <ClipboardList className='h-5 w-5' />
                             <span className={isMobile ? 'text-xs' : ''}>
-                                Assignments
+                                Assignments ({stats?.totalTechnicalAssignments})
                             </span>
                         </TabsTrigger>
                         <TabsTrigger
@@ -700,13 +701,14 @@ const TechnicalTest = () => {
                         >
                             <MessageCircleQuestion className='h-5 w-5' />
                             <span className={isMobile ? 'text-xs' : ''}>
-                                Technical Question
+                                Technical Question (
+                                {stats?.totalTechnicalQuestions})
                             </span>
                         </TabsTrigger>
                     </TabsList>
 
                     <TechnicalMetrics
-                        stats={data?.stats}
+                        stats={stats}
                         assignments={data?.assignments || []}
                     />
 

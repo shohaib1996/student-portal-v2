@@ -17,15 +17,11 @@ import ContentDropDown from './ContentDropDown';
 import VideoContent from './VideoContent';
 import FilterProgram from './FilterProgram';
 
-const ProgramContent = ({
-    selectedTab,
-    option,
-    fetchedData,
-    courseContentData,
-    refetchCourseContent,
-    setFilterOption,
-    filterOption,
-}: {
+// Import the search utilities
+import { searchAndFilterContent } from '@/utils/search-utils';
+import { toast } from 'sonner';
+
+interface ProgramContentProps {
     option: {
         isLoading: boolean;
         isError: boolean;
@@ -39,6 +35,16 @@ const ProgramContent = ({
         React.SetStateAction<Array<{ property: string; value: any }>>
     >;
     filterOption: Array<{ property: string; value: any }>;
+}
+
+const ProgramContent: React.FC<ProgramContentProps> = ({
+    selectedTab,
+    option,
+    fetchedData,
+    courseContentData,
+    refetchCourseContent,
+    setFilterOption,
+    filterOption,
 }) => {
     const courseData = courseContentData?.course;
 
@@ -48,7 +54,7 @@ const ProgramContent = ({
     // State for search functionality
     const [searchInput, setSearchInput] = useState<string>('');
 
-    // NEW: Add local completion state for instant UI updates
+    // Add local completion state for instant UI updates
     const [localCompletionState, setLocalCompletionState] = useState<
         Map<string, boolean>
     >(new Map());
@@ -64,103 +70,32 @@ const ProgramContent = ({
         item: {} as ChapterData,
         contentId: null,
     });
+    const [isModuleOpen, setModuleOpen] = useState<boolean>(false);
 
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
     };
 
-    // In ProgramContent.tsx
+    // Refresh course content data
     const refreshData = useCallback(() => {
-        // If you're using React Query or RTK Query, use their refetch methods
         if (refetchCourseContent) {
             refetchCourseContent();
         }
     }, [refetchCourseContent]);
 
-    // Filter chapters based on search input
-    // const checkSearch = () => {
-    //     if (!fetchedData) {
-    //         return [];
-    //     }
-
-    //     // If search input is empty, return all
-    //     if (searchInput.trim() === '') {
-    //         return fetchedData;
-    //     }
-
-    //     const searchTerm = searchInput.toLowerCase().trim();
-
-    //     // Filter chapters that match the search term
-    //     const filteredChapters = fetchedData.filter((item) => {
-    //         if (item.type === 'chapter') {
-    //             return item.chapter?.name.toLowerCase().includes(searchTerm);
-    //         }
-    //         if (item.type === 'lesson') {
-    //             console.log(item);
-    //             return item?.lesson?.title?.toLowerCase().includes(searchTerm);
-    //         }
-    //         return false;
-    //     });
-
-    //     // Get the IDs of matched chapters
-    //     const matchedChapterIds = filteredChapters.map((item) => item._id);
-
-    //     // Find items whose parent ID matches one of the filtered chapter IDs
-    //     const relatedItems = fetchedData.filter(
-    //         (item) =>
-    //             item.myCourse &&
-    //             matchedChapterIds.includes(item.myCourse.parent),
-    //     );
-
-    //     // Combine the filtered chapters and their related items
-    //     const result = [...filteredChapters, ...relatedItems];
-
-    //     console.log({ filteredResults: result });
-    //     return result;
-    // };
-
-    // Call the function
-    // const searchResults = checkSearch();
-
-    const getFilteredChapters = useCallback(() => {
+    // Use our new search and filter utility with type safety
+    const getFilteredContent = useCallback(() => {
         if (!fetchedData) {
-            return [];
+            return [] as ChapterData[];
         }
 
-        // If search input is empty, return all
-        if (searchInput.trim() === '') {
-            return fetchedData;
-        }
-
-        const searchTerm = searchInput.toLowerCase().trim();
-
-        // Filter chapters that match the search term
-        const filteredChapters = fetchedData.filter((item) => {
-            if (item.type === 'chapter') {
-                return item.chapter?.name.toLowerCase().includes(searchTerm);
-            }
-            if (item.type === 'lesson') {
-                return item?.lesson?.title?.toLowerCase().includes(searchTerm);
-            }
-            return false;
-        });
-
-        // Get the IDs of matched chapters
-        const matchedChapterIds = filteredChapters.map((item) => item._id);
-
-        // Find items whose parent ID matches one of the filtered chapter IDs
-        const relatedItems = fetchedData.filter(
-            (item) =>
-                item.myCourse &&
-                matchedChapterIds.includes(item.myCourse.parent),
-        );
-
-        // Combine the filtered chapters and their related items
-        const result = [...filteredChapters, ...relatedItems];
-
-        // console.log({ filteredResults: result });
-        return result;
-    }, [fetchedData, searchInput]);
+        // Use the searchAndFilterContent function with correct types
+        return searchAndFilterContent(
+            fetchedData,
+            searchInput,
+            filterOption,
+        ) as ChapterData[];
+    }, [fetchedData, searchInput, filterOption]);
 
     useEffect(() => {
         if (videoData?.isSideOpen) {
@@ -168,8 +103,29 @@ const ProgramContent = ({
         }
     }, [videoData?.isSideOpen]);
 
-    // Get filtered chapters
-    const filteredChapters = getFilteredChapters();
+    // Get filtered content with Fuse.js search
+    const filteredContent = getFilteredContent();
+
+    // Clear a specific filter
+    const clearFilter = useCallback(
+        (property: string, value: any) => {
+            setFilterOption((prev) =>
+                prev.filter(
+                    (filter) =>
+                        !(
+                            filter.property === property &&
+                            filter.value === value
+                        ),
+                ),
+            );
+        },
+        [setFilterOption],
+    );
+
+    // Clear all filters
+    const clearAllFilters = useCallback(() => {
+        setFilterOption([]);
+    }, [setFilterOption]);
 
     return (
         <div className='p-2 flex relative bg-foreground'>
@@ -187,6 +143,8 @@ const ProgramContent = ({
                         courseData={courseData as any}
                         onToggle={toggleSidebar}
                         fetchedData={fetchedData}
+                        filterOption={filterOption}
+                        setFilterOption={setFilterOption}
                     />
                 )}
             </div>
@@ -198,7 +156,7 @@ const ProgramContent = ({
                     sidebarOpen ? 'lg:pl-2' : 'pl-0',
                 )}
             >
-                <div className='flex flex-col xl:flex-row justify-between items-start  mb-2 lg:gap-2 xl:gap-0'>
+                <div className='flex flex-col xl:flex-row justify-between items-start mb-2 lg:gap-2 xl:gap-0'>
                     {/* Desktop Sidebar Toggle */}
                     <div className='flex items-start lg:items-center gap-2'>
                         {/* Mobile Sidebar */}
@@ -223,6 +181,8 @@ const ProgramContent = ({
                                     <ProgramSidebar
                                         courseData={courseData as any}
                                         fetchedData={fetchedData}
+                                        filterOption={filterOption}
+                                        setFilterOption={setFilterOption}
                                     />
                                 </div>
                             </SheetContent>
@@ -252,7 +212,7 @@ const ProgramContent = ({
                         </div>
                     </div>
                     <div className='flex flex-row items-start md:items-center gap-3'>
-                        {/* Search Input */}
+                        {/* Search Input with Fuse.js */}
                         <div className='relative'>
                             <Search className='h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray' />
                             <Input
@@ -277,8 +237,46 @@ const ProgramContent = ({
                     </div>
                 </div>
 
+                {/* Active Filters Display */}
+                {filterOption.length > 0 && (
+                    <div className='flex flex-wrap gap-2 bg-primary-light/20 items-center  rounded-md'>
+                        <span className='text-xs text-gray'>
+                            Active filters:
+                        </span>
+                        {filterOption.map((filter, index) => (
+                            <div
+                                key={index}
+                                className='flex items-center gap-1 bg-primary-light px-2 py-1 rounded-full text-xs'
+                            >
+                                <span>
+                                    {filter.property === 'isPinned'
+                                        ? 'Pinned'
+                                        : filter.property === 'priority'
+                                          ? `${filter.value === 3 ? 'High' : filter.value === 2 ? 'Medium' : 'Low'} Priority`
+                                          : `${filter.property}: ${filter.value}`}
+                                </span>
+                                <X
+                                    className='h-3 w-3 cursor-pointer'
+                                    onClick={() =>
+                                        clearFilter(
+                                            filter.property,
+                                            filter.value,
+                                        )
+                                    }
+                                />
+                            </div>
+                        ))}
+                        <button
+                            className='text-xs text-primary underline'
+                            onClick={clearAllFilters}
+                        >
+                            Clear all
+                        </button>
+                    </div>
+                )}
+
                 <div
-                    className={`mt-common ${videoData?.isSideOpen ? 'relative grid grid-cols-1 xl:grid-cols-3 gap-common' : 'block'} `}
+                    className={`mt-common ${videoData?.isSideOpen ? 'relative grid grid-cols-1 lg:grid-cols-3 gap-common' : 'block'} `}
                 >
                     {videoData?.isSideOpen && (
                         <VideoContent
@@ -287,6 +285,8 @@ const ProgramContent = ({
                             isPinnedEyeOpen={isPinnedEyeOpen}
                             setIsPinnedEyeOpen={setIsPinnedEyeOpen}
                             refreshData={refreshData}
+                            isModuleOpen={isModuleOpen}
+                            setModuleOpen={setModuleOpen}
                         />
                     )}
 
@@ -315,13 +315,13 @@ const ProgramContent = ({
                                 ? 'No chapters match your search or filter criteria'
                                 : 'No chapters available for this section'}
                         </div>
-                    ) : filteredChapters.length === 0 ? (
+                    ) : filteredContent.length === 0 ? (
                         <div className='text-center py-8 text-dark-gray'>
                             No chapters match your search criteria
                         </div>
                     ) : (
                         <ContentDropDown
-                            fetchedData={filteredChapters as any}
+                            fetchedData={filteredContent as any}
                             option={option}
                             setVideoData={setVideoData as any}
                             setIsPinnedEyeOpen={setIsPinnedEyeOpen}
@@ -330,6 +330,8 @@ const ProgramContent = ({
                             filterOption={filterOption}
                             localCompletionState={localCompletionState}
                             setLocalCompletionState={setLocalCompletionState}
+                            setModuleOpen={setModuleOpen}
+                            isModuleOpen={isModuleOpen}
                         />
                     )}
                 </div>

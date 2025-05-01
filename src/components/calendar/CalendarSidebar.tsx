@@ -209,7 +209,7 @@ export function CalendarSidebar({
     const groupedWeekEvents = groupEventsByDay(events);
 
     const isFilterActive = useCallback(
-        (type: 'event' | 'holiday' | 'todo' | 'type', value: string) => {
+        (type: 'event' | 'holiday' | 'todo', value: string) => {
             if (type === 'event') {
                 const exist = (eventFilter as string[]).find(
                     (f) => f === value,
@@ -235,16 +235,9 @@ export function CalendarSidebar({
                 } else {
                     return false;
                 }
-            } else if (type === 'type') {
-                const exist = (typeFilter as string[]).find((f) => f === value);
-                if (exist) {
-                    return true;
-                } else {
-                    return false;
-                }
             }
         },
-        [eventFilter, todoFilter, priorityFilter],
+        [eventFilter, todoFilter, priorityFilter, typeFilter],
     );
 
     return (
@@ -682,20 +675,6 @@ export function CalendarSidebar({
                     <div className='flex items-center gap-1 w-full text-dark-gray'>
                         <CalendarFold className='text-gray' />
                         <span className='ps-2'>Type</span>
-                        <Checkbox
-                            onClick={(e) => e.stopPropagation()}
-                            className='ms-auto'
-                            checked={typeFilter.length === 2}
-                            onCheckedChange={(val) =>
-                                dispatch(
-                                    setTypeFilter(
-                                        val === true
-                                            ? typeOptions.map((op) => op.value)
-                                            : [],
-                                    ),
-                                )
-                            }
-                        />
                     </div>
                 </button>
 
@@ -710,19 +689,13 @@ export function CalendarSidebar({
                                     {item.label}
                                 </div>
                                 <Checkbox
-                                    checked={isFilterActive('type', item.value)}
+                                    checked={typeFilter === item.value}
                                     onCheckedChange={(val) =>
                                         dispatch(
                                             setTypeFilter(
                                                 val === true
-                                                    ? [
-                                                          ...typeFilter,
-                                                          item.value,
-                                                      ]
-                                                    : typeFilter.filter(
-                                                          (f) =>
-                                                              f !== item.value,
-                                                      ),
+                                                    ? item.value
+                                                    : undefined,
                                             ),
                                         )
                                     }

@@ -24,10 +24,12 @@ import {
     Clock,
     Brain,
     PanelLeft,
+    Link2,
 } from 'lucide-react';
 import LecturesSvg from '@/components/svgs/common/LecturesSvg';
 import MemoizedLoadingIndicator from '@/components/svgs/common/LoadingIndicator';
 import MemoizedEmptyState from '@/components/svgs/common/EmptyState';
+// import List from 'react-virtualized';
 
 // Navigation and Utils
 import Link from 'next/link';
@@ -36,8 +38,10 @@ import {
     buildContentTree,
     getTotalDuration,
     countLessons,
-    searchContentTree,
 } from '@/utils/tree-utils';
+
+// Import our new search utility functions
+import { searchAndFilterContent } from '@/utils/search-utils';
 
 // Types
 import {
@@ -52,6 +56,7 @@ import {
 import LessionActionMenu from './LessionActionMenu';
 
 import QuizModalContent from './QuizModalContent';
+import { useParams, useRouter } from 'next/navigation';
 
 // Types definitions
 interface ContentDropDownProps {
@@ -82,21 +87,14 @@ interface ContentDropDownProps {
     setLocalCompletionState?: React.Dispatch<
         React.SetStateAction<Map<string, boolean>>
     >;
+    setModuleOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    isModuleOpen: boolean;
 }
 
 interface QuizModalProps {
     openQuiz: boolean;
     setOpenQuiz: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
-// Helper component for Quiz Modal
-// const QuizModalComponent: React.FC<QuizModalProps> = ({
-//     openQuiz,
-//     setOpenQuiz,
-// }) => {
-//     console.log({ openQuiz });
-//     return <GlobalModal open={openQuiz} setOpen={setOpenQuiz}></GlobalModal>;
-// };
 
 // Main component
 const ContentDropDown: React.FC<ContentDropDownProps> = ({
@@ -107,24 +105,34 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
     option,
     searchInput,
     filterOption,
+    isModuleOpen,
+    setModuleOpen,
 }) => {
     // State management
     const [expandedChapters, setExpandedChapters] = useState<Set<string>>(
         new Set(),
     );
+
     const [treeData, setTreeData] = useState<TContent[]>([]);
     const [localCompletionState, setLocalCompletionState] = useState<
         Map<string, boolean>
     >(new Map());
     const [openQuiz, setOpenQuiz] = useState(false);
-
     const [lesson, setLesson] = useState({});
 
-    // Initialize content tree
+    // Initialize content tree with search and filter capabilities
     useEffect(() => {
         if (fetchedData && fetchedData.length > 0) {
             try {
-                const tree = buildContentTree(fetchedData);
+                // Apply search and filters before building tree
+                const filteredData = searchAndFilterContent(
+                    fetchedData,
+                    searchInput,
+                    filterOption,
+                );
+
+                // Build the content tree with the filtered data
+                const tree = buildContentTree(filteredData as any);
                 setTreeData(tree);
             } catch (error) {
                 console.error('Error building content tree:', error);
@@ -133,7 +141,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         } else {
             setTreeData([]);
         }
-    }, [fetchedData, searchInput]);
+    }, [fetchedData, searchInput, filterOption]);
 
     // Utility handlers and formatters
     const handleProgressUpdate = useCallback(
@@ -268,10 +276,14 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         [],
     );
 
+    const router = useRouter();
+    const params = useParams();
+
     const handleVideoClick = useCallback(
         (item: TContent, e: React.MouseEvent): void => {
             e.stopPropagation();
             setIsPinnedEyeOpen(item?.isPinned || false);
+            router.push(`/program/${params.slug}?content=${item._id}`);
             setVideoData({
                 videoInfo: {
                     ...(item?.lesson as TLessonInfo),
@@ -290,6 +302,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
     const handleQuizClose = () => {
         setOpenQuiz(false);
     };
+
     // Content rendering
     const renderContent = useCallback(
         (data: TContent[], parentIndex = ''): React.ReactNode => {
@@ -443,25 +456,76 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                 >
                                     <div className='w-full'>
                                         <div className='flex items-center justify-between w-full p-2'>
-                                            <Link
-                                                href={
-                                                    item.lesson.url
-                                                        ? `/presentation-slides/${extractSlideId(item.lesson.url)}`
-                                                        : '#'
-                                                }
-                                                target='_blank'
-                                                className='flex items-center gap-3 grow-[1] w-full'
-                                            >
-                                                <div>
-                                                    <File className='h-5 w-5 stroke-gray' />
-                                                </div>
+                                            {item?.lesson?.type === 'link' ? (
+                                                <Link
+                                                    href={
+                                                        (item?.lesson
+                                                            ?.url as string) ||
+                                                        '#'
+                                                    }
+                                                    target='_blank'
+                                                    className='flex items-center gap-3 grow-[1] w-full'
+                                                >
+                                                    <div>
+                                                        <Link2 className='h-5 w-5 stroke-gray' />
+                                                    </div>
 
-                                                <div>
-                                                    <p className='text-sm font-medium text-black'>
-                                                        {item.lesson.title}
-                                                    </p>
-                                                </div>
-                                            </Link>
+                                                    <div>
+                                                        <p className='text-sm font-medium text-black'>
+                                                            {
+                                                                item?.lesson
+                                                                    ?.title
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </Link>
+                                            ) : item.lesson.type === 'file' ? (
+                                                <Link
+                                                    href={
+                                                        item?.lesson?.url
+                                                            ? `/documents-and-labs?documentId=${item?.lesson?.url}&mode=view`
+                                                            : '#'
+                                                    }
+                                                    target='_blank'
+                                                    className='flex items-center gap-3 grow-[1] w-full'
+                                                >
+                                                    <div>
+                                                        <File className='h-5 w-5 stroke-gray' />
+                                                    </div>
+
+                                                    <div>
+                                                        <p className='text-sm font-medium text-black'>
+                                                            {
+                                                                item?.lesson
+                                                                    ?.title
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </Link>
+                                            ) : (
+                                                <Link
+                                                    href={
+                                                        item?.lesson?.url
+                                                            ? `/presentation-slides/${extractSlideId(item?.lesson?.url)}`
+                                                            : '#'
+                                                    }
+                                                    target='_blank'
+                                                    className='flex items-center gap-3 grow-[1] w-full'
+                                                >
+                                                    <div>
+                                                        <File className='h-5 w-5 stroke-gray' />
+                                                    </div>
+
+                                                    <div>
+                                                        <p className='text-sm font-medium text-black'>
+                                                            {
+                                                                item?.lesson
+                                                                    ?.title
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </Link>
+                                            )}
 
                                             <div className='flex items-center gap-3'>
                                                 <div className='flex gap-1'>
@@ -657,24 +721,27 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
         ],
     );
 
-    const [clopes, setClopas] = useState(false);
-    console.log({ clopes });
-
     return (
-        <div className='flex'>
-            <div onClick={() => setClopas(!clopes)}>
-                <PanelLeft className='h-5 w-5' />
-            </div>
+        <>
             <div
                 className={cn(
-                    clopes && 'hidden',
-                    'space-y-4',
+                    'relative transition-all duration-300 ease-in-out ',
+                    isModuleOpen && 'hidden',
+                    'space-y-4 transition-all duration-300 ease-in-out ',
                     videoData?.isSideOpen
-                        ? `no-scrollbar  lg:col-span-1 xl:sticky top-0 h-[607px] overflow-y-auto bottom-[20px]`
+                        ? `no-scrollbar lg:col-span-1 top-0 h-[607px] overflow-y-auto bottom-[20px]`
                         : 'w-full ',
                 )}
             >
                 <Accordion type='multiple' className='w-full'>
+                    {videoData?.isSideOpen && (
+                        <div
+                            onClick={() => setModuleOpen(!isModuleOpen)}
+                            className='sticky top-0 z-10 bg-foreground'
+                        >
+                            <PanelLeft className='h-5 w-5' />
+                        </div>
+                    )}
                     {option?.courseProgramsLoading ? (
                         <MemoizedLoadingIndicator />
                     ) : treeData && treeData.length > 0 ? (
@@ -691,7 +758,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                     <QuizModalContent lesson={lesson as any} />
                 </GlobalModal>
             </div>
-        </div>
+        </>
     );
 };
 

@@ -15,7 +15,7 @@ type TInitialState = {
         | 'inprogress'
         | 'completed'
     )[];
-    typeFilter: ('task' | 'event')[];
+    typeFilter?: 'task' | 'event';
     holidayFilter: string[];
     rolesFilter: ('organizer' | 'attendee')[];
     priorityFilter: ('low' | 'medium' | 'high')[];
@@ -28,7 +28,7 @@ const initialState: TInitialState = {
     todoFilter: [],
     holidayFilter: [],
     rolesFilter: [],
-    typeFilter: [],
+    typeFilter: undefined,
     priorityFilter: [],
     currentDate: null,
     query: '',

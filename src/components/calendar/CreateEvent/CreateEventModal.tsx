@@ -301,22 +301,36 @@ const CreateEventModal = () => {
                     values.attendees,
                 );
 
-                const { startTime, endTime, recurrence, ...rest } = data;
+                const {
+                    startTime,
+                    endTime,
+                    recurrence,
+                    permissions,
+                    attendees,
+                    ...rest
+                } = data;
 
                 const changes: any = {
-                    ...(event.recurrence?.isRecurring ? rest : data),
+                    ...(event.recurrence?.isRecurring
+                        ? rest
+                        : { startTime, endTime, recurrence, ...rest }),
+                };
+
+                const payload: any = {
+                    changes,
+                    permissions,
                 };
 
                 if (removed && removed.length > 0) {
-                    changes['attendeesToRemove'] = removed;
+                    payload['attendeesToRemove'] = removed;
                 }
                 if (added && added.length > 0) {
-                    changes['attendeesToAdd'] = removed;
+                    payload['attendeesToAdd'] = added;
                 }
 
                 const res = await updateEvent({
                     id: updateId,
-                    changes,
+                    changes: payload,
                     updateOption,
                 }).unwrap();
                 if (res) {
@@ -450,6 +464,7 @@ const CreateEventModal = () => {
                         <div className='flex gap-2'>
                             <Link href={'/calendar/availability'}>
                                 <Button
+                                    onClick={() => closePopover()}
                                     tooltip='My Availibility'
                                     size={'icon'}
                                     variant={'secondary'}

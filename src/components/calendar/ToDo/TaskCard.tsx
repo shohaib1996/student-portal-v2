@@ -52,6 +52,7 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { isBefore } from 'date-fns';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 interface TaskCardProps {
     task: TEvent;
@@ -90,9 +91,6 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
                 return 'text-gray-800 dark:text-gray-400';
         }
     };
-
-    const dueDate = 'Tuesday - Mar 04, 2025 at 10:30 AM';
-    const reminder = '30 min before';
 
     const handleSelect = (val: Date) => {
         handleUpdate(val.toISOString());
@@ -247,7 +245,11 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
                             <span className='text-black font-semibold'>
                                 Due:
                             </span>
-                            <span>{dueDate}</span>
+                            <span>
+                                {dayjs(task?.endTime).format(
+                                    'MMM DD, YYYY [at] hh:mm A',
+                                )}
+                            </span>
                         </div>
                         <div className='flex items-center gap-1'>
                             <span className='text-xs text-black font-semibold'>
@@ -272,19 +274,29 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
                         </div>
                     </div>
 
-                    <div>
+                    {/* <div>
                         <span className='text-xs font-semibold text-black'>
                             Purpose:{' '}
                         </span>
                         <span className='text-xs text-gray'>
                             {task.description}
                         </span>
-                    </div>
+                    </div> */}
 
-                    <div className='flex items-center gap-1 text-xs text-dark-gray'>
-                        <Bell className='h-4 w-4' />
-                        <span>{reminder}</span>
-                    </div>
+                    {task?.reminders && (
+                        <div className='flex items-center gap-1 text-xs text-dark-gray'>
+                            <Bell className='h-4 w-4' />
+                            <p>
+                                {task?.reminders?.map((r, i) => (
+                                    <span key={r.offsetMinutes}>
+                                        {r.offsetMinutes}
+                                        {i > task?.reminders!.length && ','}
+                                    </span>
+                                ))}{' '}
+                                minutes before
+                            </p>
+                        </div>
+                    )}
 
                     {/* Description */}
                     <div className='p-2 border border-forground-border rounded-md bg-foreground'>
@@ -293,8 +305,12 @@ const TaskCard = memo(({ task }: TaskCardProps) => {
                         </h3>
 
                         <p className='text-xs text-gray'>
-                            Lorem Ipsum is simply dummy text of the printing and
-                            typesetting industry...
+                            {task?.description
+                                ? renderPlainText({
+                                      text: task?.description,
+                                      lineClamp: 3,
+                                  })
+                                : 'N/A'}
                         </p>
                     </div>
 

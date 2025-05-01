@@ -120,6 +120,13 @@ const courseApi = baseApi.injectEndpoints({
                 data: payload,
             }),
         }),
+        submitMyReview: build.mutation({
+            query: (payload: any) => ({
+                url: `/course/chapter/review/submit`,
+                method: 'POST',
+                data: payload,
+            }),
+        }),
     }),
 });
 
@@ -136,4 +143,5 @@ export const {
     useGetSingleChapterQuery,
     useGetQuizForLessonQuery,
     useSubmitQuizForLessonQuery,
+    useSubmitMyReviewMutation,
 } = courseApi;

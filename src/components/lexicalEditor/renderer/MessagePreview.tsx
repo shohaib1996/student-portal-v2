@@ -155,7 +155,6 @@ function MessagePreview({
 
     // 1. Transform mentions and dates
     const processedText = transformDate(transformMessage(text));
-    console.log({ hasCode });
     return (
         <div className='message-preview'>
             {hasCode === true ? (
