@@ -6,7 +6,7 @@ import {
     TProgram,
     ChapterData,
 } from '@/types';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { ProgramSidebar } from './ProgramSidebar';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -17,9 +17,10 @@ import ContentDropDown from './ContentDropDown';
 import VideoContent from './VideoContent';
 import FilterProgram from './FilterProgram';
 
-// Import the search utilities
+// Import the enhanced search utilities
 import { searchAndFilterContent } from '@/utils/search-utils';
 import { toast } from 'sonner';
+import { buildContentTree } from '@/utils/tree-utils';
 
 interface ProgramContentProps {
     option: {
@@ -50,9 +51,12 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
 
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [isPinnedEyeOpen, setIsPinnedEyeOpen] = useState(false);
+    const [treeData, setTreeData] = useState<TContent[]>([]);
 
     // State for search functionality
     const [searchInput, setSearchInput] = useState<string>('');
+    const [debouncedSearchInput, setDebouncedSearchInput] =
+        useState<string>('');
 
     // Add local completion state for instant UI updates
     const [localCompletionState, setLocalCompletionState] = useState<
@@ -76,6 +80,31 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
         setSidebarOpen(!sidebarOpen);
     };
 
+    // Setup debounced search for better performance
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchInput(searchInput);
+        }, 300); // 300ms debounce
+
+        return () => clearTimeout(timer);
+    }, [searchInput]);
+
+    // Initialize content tree with search and filter capabilities
+    useEffect(() => {
+        if (fetchedData && fetchedData.length > 0) {
+            try {
+                // Build the content tree with the original data
+                const tree = buildContentTree(fetchedData as any);
+                setTreeData(tree);
+            } catch (error) {
+                console.error('Error building content tree:', error);
+                setTreeData([]);
+            }
+        } else {
+            setTreeData([]);
+        }
+    }, [fetchedData]);
+
     // Refresh course content data
     const refreshData = useCallback(() => {
         if (refetchCourseContent) {
@@ -83,28 +112,25 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
         }
     }, [refetchCourseContent]);
 
-    // Use our new search and filter utility with type safety
-    const getFilteredContent = useCallback(() => {
-        if (!fetchedData) {
-            return [] as ChapterData[];
+    // Use memoized filtered content to avoid unnecessary recalculations
+    const filteredContent = useMemo(() => {
+        if (!treeData || treeData.length === 0) {
+            return [];
         }
 
-        // Use the searchAndFilterContent function with correct types
+        // Apply search and filters using our enhanced utility
         return searchAndFilterContent(
-            fetchedData,
-            searchInput,
+            treeData,
+            debouncedSearchInput,
             filterOption,
-        ) as ChapterData[];
-    }, [fetchedData, searchInput, filterOption]);
+        ) as any;
+    }, [treeData, debouncedSearchInput, filterOption]);
 
     useEffect(() => {
         if (videoData?.isSideOpen) {
             setSidebarOpen(false);
         }
     }, [videoData?.isSideOpen]);
-
-    // Get filtered content with Fuse.js search
-    const filteredContent = getFilteredContent();
 
     // Clear a specific filter
     const clearFilter = useCallback(
@@ -125,6 +151,8 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
     // Clear all filters
     const clearAllFilters = useCallback(() => {
         setFilterOption([]);
+        setSearchInput('');
+        setDebouncedSearchInput('');
     }, [setFilterOption]);
 
     return (
@@ -224,7 +252,10 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
                             {searchInput?.length > 0 && (
                                 <X
                                     className='h-4 w-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray cursor-pointer'
-                                    onClick={() => setSearchInput('')}
+                                    onClick={() => {
+                                        setSearchInput('');
+                                        setDebouncedSearchInput('');
+                                    }}
                                 />
                             )}
                         </div>
@@ -238,11 +269,27 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
                 </div>
 
                 {/* Active Filters Display */}
-                {filterOption.length > 0 && (
-                    <div className='flex flex-wrap gap-2 bg-primary-light/20 items-center  rounded-md'>
+                {(filterOption.length > 0 || debouncedSearchInput) && (
+                    <div className='flex flex-wrap gap-2 bg-primary-light/20 items-center p-2 rounded-md'>
                         <span className='text-xs text-gray'>
                             Active filters:
                         </span>
+
+                        {/* Search filter badge */}
+                        {debouncedSearchInput && (
+                            <div className='flex items-center gap-1 bg-primary-light px-2 py-1 rounded-full text-xs'>
+                                <span>Search: {debouncedSearchInput}</span>
+                                <X
+                                    className='h-3 w-3 cursor-pointer'
+                                    onClick={() => {
+                                        setSearchInput('');
+                                        setDebouncedSearchInput('');
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        {/* Property filter badges */}
                         {filterOption.map((filter, index) => (
                             <div
                                 key={index}
@@ -253,7 +300,15 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
                                         ? 'Pinned'
                                         : filter.property === 'priority'
                                           ? `${filter.value === 3 ? 'High' : filter.value === 2 ? 'Medium' : 'Low'} Priority`
-                                          : `${filter.property}: ${filter.value}`}
+                                          : filter.property === 'chapter.isFree'
+                                            ? 'Free Chapter'
+                                            : filter.property ===
+                                                'lesson.isFree'
+                                              ? 'Free Lesson'
+                                              : filter.property ===
+                                                  'isCompleted'
+                                                ? 'Completed'
+                                                : `${filter.property}: ${filter.value}`}
                                 </span>
                                 <X
                                     className='h-3 w-3 cursor-pointer'
@@ -308,16 +363,16 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
                                 <path d='M21 12a9 9 0 1 1-6.219-8.56' />
                             </svg>
                         </div>
-                    ) : !fetchedData || fetchedData.length === 0 ? (
+                    ) : !treeData || treeData.length === 0 ? (
                         <div className='text-center py-8 text-dark-gray'>
                             {filterOption.length > 0 ||
-                            searchInput.trim() !== ''
+                            debouncedSearchInput !== ''
                                 ? 'No chapters match your search or filter criteria'
                                 : 'No chapters available for this section'}
                         </div>
                     ) : filteredContent.length === 0 ? (
                         <div className='text-center py-8 text-dark-gray'>
-                            No chapters match your search criteria
+                            No chapters match your search or filter criteria
                         </div>
                     ) : (
                         <ContentDropDown
@@ -326,7 +381,7 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
                             setVideoData={setVideoData as any}
                             setIsPinnedEyeOpen={setIsPinnedEyeOpen}
                             videoData={videoData as any}
-                            searchInput={searchInput}
+                            searchInput={debouncedSearchInput}
                             filterOption={filterOption}
                             localCompletionState={localCompletionState}
                             setLocalCompletionState={setLocalCompletionState}

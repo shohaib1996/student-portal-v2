@@ -1,8 +1,7 @@
 'use client';
 
-// React imports
 import type React from 'react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 // UI Components
 import {
@@ -25,11 +24,11 @@ import {
     Brain,
     PanelLeft,
     Link2,
+    Search,
 } from 'lucide-react';
 import LecturesSvg from '@/components/svgs/common/LecturesSvg';
 import MemoizedLoadingIndicator from '@/components/svgs/common/LoadingIndicator';
 import MemoizedEmptyState from '@/components/svgs/common/EmptyState';
-// import List from 'react-virtualized';
 
 // Navigation and Utils
 import Link from 'next/link';
@@ -40,8 +39,8 @@ import {
     countLessons,
 } from '@/utils/tree-utils';
 
-// Import our new search utility functions
-import { searchAndFilterContent } from '@/utils/search-utils';
+// Import our enhanced search utility functions
+import { searchAndFilterContent, findItemById } from '@/utils/search-utils';
 
 // Types
 import {
@@ -54,7 +53,6 @@ import {
 
 // Related Components
 import LessionActionMenu from './LessionActionMenu';
-
 import QuizModalContent from './QuizModalContent';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -91,11 +89,6 @@ interface ContentDropDownProps {
     isModuleOpen: boolean;
 }
 
-interface QuizModalProps {
-    openQuiz: boolean;
-    setOpenQuiz: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
 // Main component
 const ContentDropDown: React.FC<ContentDropDownProps> = ({
     fetchedData,
@@ -112,36 +105,89 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
     const [expandedChapters, setExpandedChapters] = useState<Set<string>>(
         new Set(),
     );
-
-    const [treeData, setTreeData] = useState<TContent[]>([]);
     const [localCompletionState, setLocalCompletionState] = useState<
         Map<string, boolean>
     >(new Map());
     const [openQuiz, setOpenQuiz] = useState(false);
     const [lesson, setLesson] = useState({});
 
-    // Initialize content tree with search and filter capabilities
-    useEffect(() => {
-        if (fetchedData && fetchedData.length > 0) {
-            try {
-                // Apply search and filters before building tree
-                const filteredData = searchAndFilterContent(
-                    fetchedData,
-                    searchInput,
-                    filterOption,
-                );
-
-                // Build the content tree with the filtered data
-                const tree = buildContentTree(filteredData as any);
-                setTreeData(tree);
-            } catch (error) {
-                console.error('Error building content tree:', error);
-                setTreeData([]);
-            }
-        } else {
-            setTreeData([]);
+    // Filter and search the content
+    const filteredContent = useMemo(() => {
+        if (!fetchedData) {
+            return [];
         }
+
+        return searchAndFilterContent(fetchedData, searchInput, filterOption);
     }, [fetchedData, searchInput, filterOption]);
+
+    // Auto-expand chapters based on search results
+    useEffect(() => {
+        // If there's an active search, expand all chapters that contain search results
+        if (searchInput && searchInput.trim() !== '') {
+            const chaptersToExpand = new Set<string>();
+
+            // Helper function to identify chapters that match the search or contain matches
+            const findMatchingChapters = (items: TContent[]) => {
+                items.forEach((item) => {
+                    if (item.type === ChapterType.CHAPTER) {
+                        // Check if this chapter's name or description matches the search
+                        const searchLower = searchInput.toLowerCase();
+                        const nameMatches = item.chapter?.name
+                            ?.toLowerCase()
+                            .includes(searchLower);
+                        const descMatches = item.chapter?.description
+                            ?.toLowerCase()
+                            .includes(searchLower);
+
+                        if (nameMatches || descMatches) {
+                            chaptersToExpand.add(item._id);
+                        }
+
+                        // Check if any children match
+                        if (item.children && item.children.length > 0) {
+                            const hasMatchingChild = item.children.some(
+                                (child) => {
+                                    if (child.type === ChapterType.CHAPTER) {
+                                        return (
+                                            child.chapter?.name
+                                                ?.toLowerCase()
+                                                .includes(searchLower) ||
+                                            child.chapter?.description
+                                                ?.toLowerCase()
+                                                .includes(searchLower)
+                                        );
+                                    } else if (
+                                        child.type === ChapterType.LESSON
+                                    ) {
+                                        return child.lesson?.title
+                                            ?.toLowerCase()
+                                            .includes(searchLower);
+                                    }
+                                    return false;
+                                },
+                            );
+
+                            if (hasMatchingChild) {
+                                chaptersToExpand.add(item._id);
+                            }
+
+                            // Continue checking in children
+                            findMatchingChapters(item.children as TContent[]);
+                        }
+                    }
+                });
+            };
+
+            findMatchingChapters(filteredContent);
+
+            // Update expanded chapters state
+            setExpandedChapters((prev) => {
+                const newSet = new Set(prev);
+                chaptersToExpand.forEach((id) => newSet.add(id));
+                return newSet;
+            });
+        }
+    }, [searchInput, filteredContent]);
 
     // Utility handlers and formatters
     const handleProgressUpdate = useCallback(
@@ -196,14 +242,14 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                             completedLessonsCount++;
                         }
                     } else if (item?.children && item?.children.length > 0) {
-                        countLessonsWithState(item?.children);
+                        countLessonsWithState(item?.children as TContent[]);
                     }
                 }
             };
 
             // Start counting from the chapter's children
             if (chapter?.children && chapter?.children.length > 0) {
-                countLessonsWithState(chapter.children);
+                countLessonsWithState(chapter.children as TContent[]);
             }
 
             // Calculate the progress percentage
@@ -293,15 +339,50 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                 item: item,
             });
         },
-        [setIsPinnedEyeOpen, setVideoData],
+        [setIsPinnedEyeOpen, setVideoData, router, params],
     );
 
     const handelQuizOpen = () => {
         setOpenQuiz(true);
     };
+
     const handleQuizClose = () => {
         setOpenQuiz(false);
     };
+
+    // Highlight matching text for search results
+    const highlightMatchingText = useCallback(
+        (text: string) => {
+            if (!searchInput || !text) {
+                return text;
+            }
+
+            const searchTerm = searchInput.toLowerCase();
+            if (!text.toLowerCase().includes(searchTerm)) {
+                return text;
+            }
+
+            const parts = text.split(new RegExp(`(${searchTerm})`, 'gi'));
+
+            return (
+                <>
+                    {parts.map((part, index) =>
+                        part.toLowerCase() === searchTerm ? (
+                            <span
+                                key={index}
+                                className='bg-yellow-100 text-yellow-800'
+                            >
+                                {part}
+                            </span>
+                        ) : (
+                            part
+                        ),
+                    )}
+                </>
+            );
+        },
+        [searchInput],
+    );
 
     // Content rendering
     const renderContent = useCallback(
@@ -323,11 +404,23 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
                     const status = isItemCompleted ? 'completed' : 'upcoming';
 
+                    // For search highlighting
+                    const isHighlighted =
+                        searchInput &&
+                        item.lesson?.title
+                            ?.toLowerCase()
+                            .includes(searchInput.toLowerCase());
+
                     return (
                         <AccordionItem
                             key={uniqueKey}
                             value={uniqueKey}
-                            className='mb-4 mt-4 rounded-lg border mr-4'
+                            className={cn(
+                                'mb-4 mt-4 rounded-lg border mr-4',
+                                isHighlighted
+                                    ? 'border-yellow-400 shadow-sm'
+                                    : '',
+                            )}
                         >
                             {item?.lesson?.type === 'video' ? (
                                 <AccordionTrigger
@@ -351,7 +444,9 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
                                             <div>
                                                 <p className='text-sm font-medium text-black'>
-                                                    {item.lesson.title}
+                                                    {highlightMatchingText(
+                                                        item.lesson.title || '',
+                                                    )}
                                                 </p>
                                                 <span className='text-xs text-gray'>
                                                     {formatSeconds(
@@ -397,7 +492,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                         <div className='w-full'>
                                             <div className='flex items-center justify-between w-full p-2'>
                                                 <div
-                                                    className='flex items-center gap-3 grow-[1]  '
+                                                    className='flex items-center gap-3 grow-[1]'
                                                     onClick={() => {
                                                         handelQuizOpen();
                                                         setLesson(item);
@@ -409,7 +504,11 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
                                                     <div>
                                                         <p className='text-sm font-medium text-black'>
-                                                            {item.lesson.title}
+                                                            {highlightMatchingText(
+                                                                item.lesson
+                                                                    .title ||
+                                                                    '',
+                                                            )}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -472,10 +571,11 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
                                                     <div>
                                                         <p className='text-sm font-medium text-black'>
-                                                            {
+                                                            {highlightMatchingText(
                                                                 item?.lesson
-                                                                    ?.title
-                                                            }
+                                                                    ?.title ||
+                                                                    '',
+                                                            )}
                                                         </p>
                                                     </div>
                                                 </Link>
@@ -495,10 +595,11 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
                                                     <div>
                                                         <p className='text-sm font-medium text-black'>
-                                                            {
+                                                            {highlightMatchingText(
                                                                 item?.lesson
-                                                                    ?.title
-                                                            }
+                                                                    ?.title ||
+                                                                    '',
+                                                            )}
                                                         </p>
                                                     </div>
                                                 </Link>
@@ -518,10 +619,11 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
 
                                                     <div>
                                                         <p className='text-sm font-medium text-black'>
-                                                            {
+                                                            {highlightMatchingText(
                                                                 item?.lesson
-                                                                    ?.title
-                                                            }
+                                                                    ?.title ||
+                                                                    '',
+                                                            )}
                                                         </p>
                                                     </div>
                                                 </Link>
@@ -575,13 +677,67 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                     // Get the total duration of all lessons (including nested ones)
                     const duration = getTotalDuration(item);
 
+                    // Check if this chapter should be expanded
                     const isExpanded = expandedChapters.has(item._id);
+
+                    // Check if this chapter or any of its children match the search
+                    const containsSearchMatches = Boolean(
+                        searchInput &&
+                            // Direct match on chapter name or description
+                            ((item.chapter?.name &&
+                                item.chapter.name
+                                    .toLowerCase()
+                                    .includes(searchInput.toLowerCase())) ||
+                                (item.chapter?.description &&
+                                    item.chapter.description
+                                        .toLowerCase()
+                                        .includes(searchInput.toLowerCase())) ||
+                                // Or has matching children
+                                (hasChildren &&
+                                    item.children?.some((child) => {
+                                        if (
+                                            child.type === ChapterType.CHAPTER
+                                        ) {
+                                            return (
+                                                (child.chapter?.name &&
+                                                    child.chapter.name
+                                                        .toLowerCase()
+                                                        .includes(
+                                                            searchInput.toLowerCase(),
+                                                        )) ||
+                                                (child.chapter?.description &&
+                                                    child.chapter.description
+                                                        .toLowerCase()
+                                                        .includes(
+                                                            searchInput.toLowerCase(),
+                                                        ))
+                                            );
+                                        } else if (
+                                            child.type === ChapterType.LESSON
+                                        ) {
+                                            return (
+                                                child.lesson?.title &&
+                                                child.lesson.title
+                                                    .toLowerCase()
+                                                    .includes(
+                                                        searchInput.toLowerCase(),
+                                                    )
+                                            );
+                                        }
+                                        return false;
+                                    }))),
+                    );
 
                     return (
                         <AccordionItem
                             key={uniqueKey}
                             value={uniqueKey}
-                            className='mb-2  mr-2 rounded-lg border border-border-primary-light overflow-hidden flex justify-between items-start'
+                            className={cn(
+                                'mb-2 mr-2 rounded-lg border border-border-primary-light overflow-hidden flex justify-between items-start',
+                                containsSearchMatches
+                                    ? 'border-yellow-400 shadow-sm'
+                                    : '',
+                            )}
                         >
                             <div className='flex-1'>
                                 <AccordionTrigger
@@ -598,7 +754,22 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                             </div>
                                             <div>
                                                 <h3 className='font-medium text-black'>
-                                                    {item.chapter.name}
+                                                    {highlightMatchingText(
+                                                        item.chapter.name || '',
+                                                    )}
+
+                                                    {/* Display a badge if this contains search matches */}
+                                                    {containsSearchMatches &&
+                                                        searchInput &&
+                                                        !item.chapter?.name
+                                                            ?.toLowerCase()
+                                                            .includes(
+                                                                searchInput.toLowerCase(),
+                                                            ) && (
+                                                            <Badge className='ml-2 bg-yellow-100 text-yellow-800 border-none text-xs font-normal'>
+                                                                Contains matches
+                                                            </Badge>
+                                                        )}
                                                 </h3>
                                                 <div className='flex items-center gap-4 text-sm text-gray'>
                                                     <span className='flex items-center gap-1 text-sm text-nowrap'>
@@ -657,7 +828,10 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                                         </div>
                                     </div>
                                 </AccordionTrigger>
-                                {isExpanded && (
+
+                                {/* Auto-expand chapter if it's marked as expanded or if it contains search matches */}
+                                {(isExpanded ||
+                                    (searchInput && containsSearchMatches)) && (
                                     <AccordionContent className='border-t border-border pb-0'>
                                         {hasChildren ? (
                                             <Accordion
@@ -718,8 +892,17 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
             localCompletionState,
             handleProgressUpdate,
             calculateProgressWithLocalState,
+            searchInput,
+            highlightMatchingText,
         ],
     );
+
+    // If we have search input but no results, show a message
+    const noSearchResults =
+        searchInput &&
+        searchInput.trim() !== '' &&
+        filteredContent &&
+        filteredContent.length === 0;
 
     return (
         <>
@@ -733,6 +916,31 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                         : 'w-full ',
                 )}
             >
+                {/* Search indicator */}
+                {searchInput && searchInput.trim() !== '' && (
+                    <div className='px-4 py-2 bg-primary-light/20 rounded-lg mb-2 flex items-center gap-2'>
+                        <Search className='h-4 w-4 text-primary' />
+                        <span className='text-sm text-primary'>
+                            Showing results for: <strong>{searchInput}</strong>
+                        </span>
+                    </div>
+                )}
+
+                {noSearchResults && (
+                    <div className='p-8 text-center'>
+                        <div className='mb-4'>
+                            <Search className='h-12 w-12 text-gray-400 mx-auto' />
+                        </div>
+                        <h3 className='text-lg font-medium mb-2'>
+                            No results found
+                        </h3>
+                        <p className='text-gray-500'>
+                            {`We couldnt find any content matching ${searchInput}
+                            . Try using different keywords or check for typos.`}
+                        </p>
+                    </div>
+                )}
+
                 <Accordion type='multiple' className='w-full'>
                     {videoData?.isSideOpen && (
                         <div
@@ -744,10 +952,10 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                     )}
                     {option?.courseProgramsLoading ? (
                         <MemoizedLoadingIndicator />
-                    ) : treeData && treeData.length > 0 ? (
-                        renderContent(treeData)
+                    ) : filteredContent && filteredContent?.length > 0 ? (
+                        renderContent(filteredContent)
                     ) : (
-                        <MemoizedEmptyState />
+                        !noSearchResults && <MemoizedEmptyState />
                     )}
                 </Accordion>
                 <GlobalModal
