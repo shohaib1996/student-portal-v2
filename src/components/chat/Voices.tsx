@@ -183,7 +183,7 @@ const Voices: React.FC<VoicesProps> = ({ chat }) => {
                             )}
 
                             {/* Audio player */}
-                            <div className='w-fit'>
+                            <div className=''>
                                 <AudioCard audioUrl={media.url} />
                             </div>
                         </div>

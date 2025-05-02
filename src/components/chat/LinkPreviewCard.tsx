@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { ExternalLink, Loader2 } from 'lucide-react';
 import { getLinkPreview } from 'link-preview-js';
 import { Card, CardContent } from '@/components/ui/card';
+import Link from 'next/link';
 
 interface LinkPreviewCardProps {
     url: string;
@@ -109,15 +110,15 @@ const LinkPreviewCard: React.FC<LinkPreviewCardProps> = ({ url }) => {
             >
                 <div className='p-3 bg-foreground'>
                     <div className='flex items-center gap-2'>
-                        <ExternalLink className='h-4 w-4 text-blue-600 truncate' />
-                        <a
+                        <ExternalLink className='h-6 w-6 min-w-6 min-h-6 text-primary-white truncate' />
+                        <Link
                             href={cleanUrl}
                             target='_blank'
                             rel='noopener noreferrer'
-                            className='text-blue-600 hover:underline text-sm truncate'
+                            className='text-primary-white hover:underline text-sm truncate'
                         >
                             {cleanUrl}
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -157,7 +158,7 @@ const LinkPreviewCard: React.FC<LinkPreviewCardProps> = ({ url }) => {
                                     className='rounded-sm'
                                 />
                             )}
-                            <span className='text-xs text-gray-500'>
+                            <span className='text-xs text-gray'>
                                 {previewData.siteName}
                             </span>
                         </div>
@@ -168,7 +169,7 @@ const LinkPreviewCard: React.FC<LinkPreviewCardProps> = ({ url }) => {
                     </h3>
 
                     {previewData.description && (
-                        <p className='text-xs text-gray-600 line-clamp-2 mb-2'>
+                        <p className='text-xs text-gray line-clamp-2 mb-2'>
                             {previewData.description}
                         </p>
                     )}

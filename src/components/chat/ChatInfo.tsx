@@ -318,7 +318,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const [fileCount, setFileCount] = useState(0);
     const [linksCount, setLinksCount] = useState(0);
 
-    console.log({ chat });
     // Add this useEffect to fetch all media counts when the component loads
     useEffect(() => {
         if (chat?._id) {
@@ -1100,7 +1099,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                                                   : chat
                                                                         ?.otherUser
                                                                         ?.profilePicture ||
-                                                                    '/chat/user.png'
+                                                                    '/avatar.png'
                                                         }
                                                         alt='Chat avatar'
                                                         className='w-full h-full object-cover'

@@ -96,7 +96,7 @@ const AudioCard = ({ audioUrl }: AudioCardProps) => {
     }, [waveform, isPlaying]);
 
     return (
-        <div className='w-full lg:min-w-[200px]'>
+        <div className='w-full lg:min-w-[200px] max-w-full'>
             <div className='flex items-center p-2 rounded-full bg-foreground'>
                 <Button
                     onClick={handlePlayPause}
@@ -120,12 +120,12 @@ const AudioCard = ({ audioUrl }: AudioCardProps) => {
                 <div
                     ref={waveFormRef}
                     className={cn(
-                        'flex-grow mr-4 max-w-[200px] w-full',
+                        'flex-grow mr-4 w-full',
                         (!audioUrl || isLoading) && 'opacity-50',
                     )}
                 />
 
-                <span className='text-xs text-primary'>
+                <span className='text-xs text-primary-white'>
                     {formatTime(remainingTime)}
                 </span>
             </div>

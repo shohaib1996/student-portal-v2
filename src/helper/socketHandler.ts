@@ -92,22 +92,13 @@ const setupSocketListeners = (api?: any): (() => void) => {
     });
 
     socket.on('newmessage', (data: MessageData) => {
-        console.log('newmessage', data);
         const isSoundOnOrOff = store.getState()?.notification?.isSoundOnOrOff;
         const selectedChat = store.getState()?.chat?.selectedChat;
-        console.log({ isSoundOnOrOff, selectedChat });
         // Get the myData notification setting for this specific chat
         const chatInState = store
             .getState()
             ?.chat?.chats.find((chat) => chat._id === data.message?.chat);
         const isNotificationOn = chatInState?.myData?.notification?.isOn;
-        console.log({ isSoundOnOrOff, selectedChat, isNotificationOn });
-        // Add this debug log
-        if (data.message?.text?.includes('everyone')) {
-            console.log(
-                'Found everyone mention - checking notification settings',
-            );
-        }
 
         if (data.message.forwardedFrom) {
             store.dispatch(
@@ -134,11 +125,10 @@ const setupSocketListeners = (api?: any): (() => void) => {
             const result = handleMessageNoti(data, user._id, isNotificationOn);
             const shouldPlaySound =
                 isSoundOnOrOff === 'on' &&
-                isNotificationOn !== false && // Use !== false to handle undefined as true
+                isNotificationOn !== false &&
                 (!selectedChat || selectedChat._id !== data.message.chat);
 
             if (result?.isSent && shouldPlaySound) {
-                console.log('Playing notification sound');
                 audio.play();
             } else {
                 console.log(

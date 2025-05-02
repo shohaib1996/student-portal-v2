@@ -47,7 +47,7 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(12);
+    const [itemsPerPage, setItemsPerPage] = useState(15);
     const divRef = useRef<HTMLDivElement>(null);
 
     // Set up debounced search query to prevent excessive API calls
@@ -205,9 +205,9 @@ const Links: React.FC<LinksProps> = ({ chat }) => {
                                 href={link.cleanedUrl || link.url}
                                 target='_blank'
                             >
-                                <u className='text-xs text-primary mt-1 flex items-center gap-1 cursor-pointer'>
-                                    <ExternalLink className='h-3 w-3 text-primary' />
-                                    <span className='text-xs text-primary truncate'>
+                                <u className='text-xs decoration-primary-white text-primary mt-1 flex items-center gap-1 cursor-pointer'>
+                                    <ExternalLink className='h-4 w-4 min-h-4 min-w-4 text-primary-white' />
+                                    <span className='text-xs text-primary-white truncate'>
                                         {link.cleanedUrl || link.url}
                                     </span>
                                 </u>

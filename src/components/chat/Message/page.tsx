@@ -118,7 +118,6 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
         } else {
             setDeleteMessage(msg);
             setChatDelOpened(true);
-            console.log({ msg });
         }
     };
     // Add this useEffect to fetch initial replies when the message loads

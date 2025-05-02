@@ -12,6 +12,7 @@ interface MessageData {
             fullName?: string;
         };
         chat?: any;
+        files?: any;
     };
     chat?: {
         name?: string;
@@ -151,18 +152,135 @@ export const handleMessageNoti = (
         return { isSent: false };
     }
 
-    if (!plainMessage) {
-        return { isSent: false };
+    // Check if the message contains files
+    const hasFiles = data?.message?.files && data.message.files.length > 0;
+
+    // For non-channel chats, show notification for both text and file messages
+    if (!data?.chat?.isChannel) {
+        const sender = data?.message?.sender?.fullName;
+
+        // Create appropriate message based on content
+        if (hasFiles) {
+            // File notification with specific file type information
+            const files = data?.message?.files || [];
+
+            // Count occurrences of each file type
+            const fileTypes = {
+                image: files.filter((file: any) =>
+                    file.type?.includes('image/'),
+                ).length,
+                video: files.filter((file: any) =>
+                    file.type?.includes('video/'),
+                ).length,
+                audio: files.filter((file: any) =>
+                    file.type?.includes('audio/'),
+                ).length,
+                other: files.filter(
+                    (file: any) =>
+                        !file.type?.includes('image/') &&
+                        !file.type?.includes('video/') &&
+                        !file.type?.includes('audio/'),
+                ).length,
+            };
+
+            let notificationText = '';
+
+            // Create descriptive message based on file types
+            if (files.length === 1) {
+                // Single file - be specific about type
+                if (fileTypes.image === 1) {
+                    notificationText = 'Sent you an image';
+                } else if (fileTypes.video === 1) {
+                    notificationText = 'Sent you a video';
+                } else if (fileTypes.audio === 1) {
+                    notificationText = 'Sent you an audio file';
+                } else {
+                    notificationText = 'Sent you a file';
+                }
+            } else {
+                // Multiple files - describe the mix
+                const fileDescriptions = [];
+
+                if (fileTypes.image > 0) {
+                    fileDescriptions.push(
+                        `${fileTypes.image} ${fileTypes.image === 1 ? 'image' : 'images'}`,
+                    );
+                }
+                if (fileTypes.video > 0) {
+                    fileDescriptions.push(
+                        `${fileTypes.video} ${fileTypes.video === 1 ? 'video' : 'videos'}`,
+                    );
+                }
+                if (fileTypes.audio > 0) {
+                    fileDescriptions.push(
+                        `${fileTypes.audio} ${fileTypes.audio === 1 ? 'audio file' : 'audio files'}`,
+                    );
+                }
+                if (fileTypes.other > 0) {
+                    fileDescriptions.push(
+                        `${fileTypes.other} ${fileTypes.other === 1 ? 'file' : 'files'}`,
+                    );
+                }
+
+                // Join with commas and "and"
+                if (fileDescriptions.length === 1) {
+                    notificationText = `Sent you ${fileDescriptions[0]}`;
+                } else if (fileDescriptions.length === 2) {
+                    notificationText = `Sent you ${fileDescriptions[0]} and ${fileDescriptions[1]}`;
+                } else {
+                    const lastDesc = fileDescriptions.pop();
+                    notificationText = `Sent you ${fileDescriptions.join(', ')}, and ${lastDesc}`;
+                }
+            }
+
+            // If there's also a message, mention it
+            if (plainMessage) {
+                toast.success(sender || 'New Message', {
+                    description: renderPlainText({
+                        text: plainMessage,
+                        lineClamp: 1,
+                    }),
+                    duration: 5000,
+                });
+            } else {
+                toast.success(sender || 'New Message', {
+                    description: notificationText,
+                    duration: 5000,
+                });
+            }
+
+            return { isSent: true };
+        } else if (plainMessage) {
+            // Text-only message
+            toast.success(sender || 'New Message', {
+                description: renderPlainText({
+                    text: plainMessage,
+                    lineClamp: 1,
+                }),
+                duration: 5000,
+            });
+            return { isSent: true };
+        } else {
+            // Fallback for empty messages (shouldn't happen)
+            toast.success(sender || 'New Message', {
+                description: 'Sent you a message',
+                duration: 5000,
+            });
+            return { isSent: true };
+        }
     }
-    if (!plainMessage) {
+
+    // Rest of the function for channel messages remains mostly the same
+    // Channel message handling
+    if (!plainMessage && !hasFiles) {
         return { isSent: false };
     }
 
     const message =
-        plainMessage.replace(mentionRegEx, notiMentionParser) || 'N/A';
+        plainMessage?.replace(mentionRegEx, notiMentionParser) || 'N/A';
     const sender = data?.message?.sender?.fullName;
-    const mentions = plainMessage.match(mentionRegEx);
-    console.log({ mentions });
+    const mentions = plainMessage?.match(mentionRegEx);
+
     if (data?.chat?.isChannel) {
         if (mentions && mentions.length > 0) {
             const ids = mentions.map((s) => {
@@ -175,13 +293,32 @@ export const handleMessageNoti = (
                 // matches[1] contains just the ID part without parentheses
                 return matches[1];
             });
-            console.log({ ids });
+
+            // Create better attachment description for channel messages
+            let attachmentText = '';
+            if (hasFiles) {
+                const files = data?.message?.files || [];
+                if (files.some((file: any) => file.type?.includes('image/'))) {
+                    attachmentText = 'Sent an image';
+                } else if (
+                    files.some((file: any) => file.type?.includes('video/'))
+                ) {
+                    attachmentText = 'Sent a video';
+                } else if (
+                    files.some((file: any) => file.type?.includes('audio/'))
+                ) {
+                    attachmentText = 'Sent an audio file';
+                } else {
+                    attachmentText = 'Sent an attachment';
+                }
+            }
+
             if (ids && ids.includes('everyone')) {
                 toast.success(
                     `${sender || 'Someone'} mentioned you and everyone in ${data?.chat?.name}`,
                     {
                         description: renderPlainText({
-                            text: plainMessage,
+                            text: plainMessage || attachmentText,
                             lineClamp: 1,
                         }),
                         duration: 5000,
@@ -189,12 +326,11 @@ export const handleMessageNoti = (
                 );
                 return { isSent: true };
             } else if (ids.includes(userId)) {
-                console.log({ userId });
                 toast.success(
                     `${sender || 'Someone'} mentioned you in ${data?.chat?.name}`,
                     {
                         description: renderPlainText({
-                            text: plainMessage,
+                            text: plainMessage || attachmentText,
                             lineClamp: 1,
                         }),
                         duration: 5000,
@@ -206,13 +342,10 @@ export const handleMessageNoti = (
         } else {
             return { isSent: false };
         }
-    } else {
-        toast.success(sender || 'New Message', {
-            description: renderPlainText({ text: plainMessage, lineClamp: 1 }),
-            duration: 5000,
-        });
-        return { isSent: true };
     }
+
+    // This should never be reached but added for completeness
+    return { isSent: false };
 };
 
 export const downloadFileWithLink = (href?: string): void => {

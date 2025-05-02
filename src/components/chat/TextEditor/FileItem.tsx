@@ -96,6 +96,50 @@ function FileItem({ file, index, handleRemove }: FileItemProps) {
                                 className='w-full h-full object-cover'
                                 src={iconSrc || '/default_image.png'}
                                 alt='Image file'
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    const currentSrc = target.src;
+
+                                    // Only apply special handling for AVIF images
+                                    if (
+                                        currentSrc
+                                            .toLowerCase()
+                                            .endsWith('.avif') ||
+                                        currentSrc
+                                            .toLowerCase()
+                                            .includes('.avif?')
+                                    ) {
+                                        // Alternative visualization for AVIF images
+                                        const imgContainer =
+                                            target.parentElement;
+                                        if (imgContainer) {
+                                            // Create a placeholder div with AVIF icon
+                                            const placeholder =
+                                                document.createElement('div');
+                                            placeholder.className =
+                                                'w-full h-full flex items-center justify-center bg-gray-100';
+                                            placeholder.innerHTML = `
+                                    <div class="flex flex-col items-center">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                        <polyline points="21 15 16 10 5 21"></polyline>
+                                      </svg>
+                                      <span class="mt-2 text-xs text-gray-600">AVIF Image</span>
+                                    </div>
+                                  `;
+
+                                            // Replace the image with our placeholder
+                                            imgContainer.replaceChild(
+                                                placeholder,
+                                                target,
+                                            );
+                                        }
+                                    } else {
+                                        // For other image types, just use the default fallback
+                                        target.src = '/default_image.png';
+                                    }
+                                }}
                             />
                         ) : fileType === 'application' ? (
                             file?.type === 'application/pdf' ? (
