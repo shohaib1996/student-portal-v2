@@ -421,8 +421,8 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                             <div className='flex flex-col w-full'>
                                 <div
                                     className={`rounded-lg p-2 ${
-                                        !hideAlign &&
-                                        !isThread &&
+                                        // !hideAlign &&
+                                        // !isThread &&
                                         message?.sender?._id === user?._id
                                             ? 'bg-primary text-pure-white'
                                             : 'bg-primary-light border border-blue-600/20'
@@ -446,7 +446,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                       'Bootcamps Hub user'}{' '}
                                             </p>
                                             <span
-                                                className={`text-xs ml-2 front-normal text-nowrap ${!hideAlign && !isThread && message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}
+                                                className={`text-xs ml-2 front-normal text-nowrap ${message?.sender?._id === user?._id ? 'text-pure-white/80' : 'text-gray'}`}
                                             >
                                                 {dayjs(
                                                     message?.createdAt,
@@ -584,12 +584,13 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                         )}
 
                                         <div
-                                            className={`flex justify-between items-center mt-2 text-xs ${isThread && 'text-dark-gray'}`}
+                                            className={`flex justify-between items-center mt-2 text-xs ${message?.sender?._id === user?._id ? 'text-dark-gray' : 'text-pure-white/80'}`}
                                         >
                                             {message?.type !== 'delete' && (
                                                 <div
                                                     className={`flex items-center gap-1 ${
-                                                        isThread
+                                                        message?.sender?._id !==
+                                                        user?._id
                                                             ? 'text-dark-gray'
                                                             : 'text-pure-white/80'
                                                     }`}
@@ -648,9 +649,9 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 <p
                                                     className={`ml-5 text-xs flex flex-row items-center ${
                                                         message?.sender?._id ===
-                                                            user?._id &&
-                                                        !isThread
-                                                            ? 'text-pure-white/80'
+                                                        user?._id
+                                                            ? // !isThread
+                                                              'text-pure-white/80'
                                                             : 'text-gray'
                                                     }`}
                                                 >
@@ -665,9 +666,9 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                 <span
                                                     className={`text-xs italic ${
                                                         message?.sender?._id ===
-                                                            user?._id &&
-                                                        !isThread
-                                                            ? 'text-pure-white/80'
+                                                        user?._id
+                                                            ? // !isThread
+                                                              'text-pure-white/80'
                                                             : 'text-gray'
                                                     }`}
                                                 >

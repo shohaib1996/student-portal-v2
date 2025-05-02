@@ -165,7 +165,7 @@ export const handleMessageNoti = (
                     `${sender || 'Someone'} mentioned you and everyone in ${data?.chat?.name}`,
                     {
                         description: renderPlainText({
-                            text: message,
+                            text: plainMessage,
                             lineClamp: 1,
                         }),
                         duration: 5000,
@@ -178,7 +178,7 @@ export const handleMessageNoti = (
                     `${sender || 'Someone'} mentioned you in ${data?.chat?.name}`,
                     {
                         description: renderPlainText({
-                            text: message,
+                            text: plainMessage,
                             lineClamp: 1,
                         }),
                         duration: 5000,
@@ -192,7 +192,7 @@ export const handleMessageNoti = (
         }
     } else {
         toast.success(sender || 'New Message', {
-            description: renderPlainText({ text: message, lineClamp: 1 }),
+            description: renderPlainText({ text: plainMessage, lineClamp: 1 }),
             duration: 5000,
         });
         return { isSent: true };

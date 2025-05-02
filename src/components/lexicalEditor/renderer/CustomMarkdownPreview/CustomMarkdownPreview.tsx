@@ -97,10 +97,12 @@ const preprocessText = (text?: string): string => {
     // First process text for dates
     processed = transformDates(processed);
 
-    // Convert URLs to anchor tags
-    const urlRegex =
-        // eslint-disable-next-line no-useless-escape
-        /(\b(https?:\/\/|www\.)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+    // FIRST remove backslash escaping
+    processed = processed.replace(/\\([_*])/g, '$1');
+
+    // THEN convert URLs to anchor tags with a more comprehensive regex that handles special characters
+    // eslint-disable-next-line no-useless-escape
+    const urlRegex = /(\b(https?:\/\/|www\.)[^\s<>\[\]{}()"'\\]+)/gi;
     processed = processed.replace(urlRegex, (url) => {
         const href = url.startsWith('www.') ? 'https://' + url : url;
         return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
@@ -114,7 +116,6 @@ const preprocessText = (text?: string): string => {
     processed = processed.replace(/^###\s+(.*?)$/gm, '<h3>$1</h3>');
     processed = processed.replace(/^##\s+(.*?)$/gm, '<h2>$1</h2>');
     processed = processed.replace(/^#\s+(.*?)$/gm, '<h1>$1</h1>');
-
     // Convert the text to handle the line breaks first
     const lines = processed.split('\n');
     const processedLines = [];

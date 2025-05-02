@@ -119,10 +119,21 @@ const setupSocketListeners = (api?: any): (() => void) => {
                 }),
             );
 
+            // const result = handleMessageNoti(data, user._id);
+
+            // if (result?.isSent && isSoundOnOrOff === 'on') {
+            //     audio.play();
+            // }
             const result = handleMessageNoti(data, user._id);
 
             if (result?.isSent && isSoundOnOrOff === 'on') {
+                console.log('Playing notification sound');
                 audio.play();
+            } else {
+                console.log(
+                    'Not playing sound because:',
+                    !result?.isSent ? 'notification not sent' : 'sound is off',
+                );
             }
         }
 
