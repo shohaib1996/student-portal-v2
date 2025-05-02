@@ -47,6 +47,7 @@ import {
     AnswerPayload,
     ChapterType,
     Interview,
+    TLesson,
     type TContent,
     type TLessonInfo,
 } from '@/types';
@@ -332,7 +333,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
     const params = useParams();
 
     const handleVideoClick = useCallback(
-        (item: TContent, e: React.MouseEvent): void => {
+        (item: TLesson, e: React.MouseEvent): void => {
             e.stopPropagation();
             setIsPinnedEyeOpen(item?.isPinned || false);
             router.push(`/program/${params.slug}?content=${item._id}`);

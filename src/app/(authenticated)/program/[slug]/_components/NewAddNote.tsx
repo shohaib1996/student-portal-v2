@@ -75,7 +75,7 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
             tags,
             contentId,
             purpose: {
-                category: '',
+                category: 'lesson',
                 resourceId: contentId,
             },
         };

@@ -24,6 +24,7 @@ export type TLessonInfo = {
     url: string | null;
     createdAt: string;
     updatedAt: string;
+    lesson: TLessonInfo;
 };
 
 export type TLesson = {
@@ -81,12 +82,28 @@ export type TChapter = {
     isLocked: boolean;
     isSpecial: boolean;
     createdAt?: string;
-    lesson?: string;
+
     courseId?: string;
     children?: TContent[]; // Updated to include nested children
 };
 
 export type TContent = TChapter | TLesson;
+export type TAllContent = {
+    _id: string;
+    type: ChapterType.CHAPTER | ChapterType.LESSON;
+    chapter?: TChapterInfo;
+    priority: number;
+    myCourse: TMyCourse;
+    isPinned: boolean;
+    isCompleted: boolean;
+    isFocused: boolean;
+    isLocked: boolean;
+    isSpecial: boolean;
+    createdAt?: string;
+    lesson?: TLessonInfo;
+    courseId?: string;
+    children?: TContent[];
+};
 
 export type TChaptersResponse = {
     chapters: TContent[];

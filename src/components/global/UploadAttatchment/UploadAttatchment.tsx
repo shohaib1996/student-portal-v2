@@ -207,39 +207,41 @@ const UploadAttatchment = ({
                 </div>
             )}
 
-            {attachments?.length > 0 && (
-                <ul className='space-y-2 pt-3'>
-                    {attachments?.map((attachment, index) => (
-                        <li
-                            key={index}
-                            onClick={(e) => e.stopPropagation()}
-                            className={cn(
-                                'flex bg-foreground items-center justify-between rounded-md border text-sm',
-                                itemClassName,
-                            )}
-                        >
-                            <div className='flex items-center gap-2 ps-2'>
-                                <Paperclip className='h-4 w-4 text-muted-foreground' />
-                                <span className='truncate'>
-                                    {attachment.name}
-                                </span>
-                            </div>
-                            <Button
-                                type='button'
-                                variant='ghost'
-                                size='icon'
-                                className='h-6 w-6'
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemoveFile(index);
-                                }}
+            <div className='w-auto '>
+                {attachments?.length > 0 && (
+                    <ul className='space-y-2 pt-3  overflow-hidden'>
+                        {attachments?.map((attachment, index) => (
+                            <li
+                                key={index}
+                                onClick={(e) => e.stopPropagation()}
+                                className={cn(
+                                    'flex bg-foreground  items-center justify-between rounded-md border text-sm',
+                                    itemClassName,
+                                )}
                             >
-                                <X className='h-3 w-3' />
-                            </Button>
-                        </li>
-                    ))}
-                </ul>
-            )}
+                                <div className='flex items-center gap-2 ps-2 text-wrap w-[250px] md:w-[300px]'>
+                                    <Paperclip className='h-4 w-4 text-muted-foreground' />
+                                    <span className='truncate'>
+                                        {attachment.name.slice(0, 45)}...
+                                    </span>
+                                </div>
+                                <Button
+                                    type='button'
+                                    variant='ghost'
+                                    size='icon'
+                                    className='h-6 w-6'
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRemoveFile(index);
+                                    }}
+                                >
+                                    <X className='h-3 w-3' />
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
         </div>
     );
 };

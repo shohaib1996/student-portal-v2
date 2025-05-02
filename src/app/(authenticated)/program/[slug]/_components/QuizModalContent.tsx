@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, XCircle } from 'lucide-react';
-import { TContent } from '@/types';
+import { TContent, TLesson } from '@/types';
 import {
     useGetQuizForLessonQuery,
     useSubmitQuizForLessonQuery,
@@ -61,7 +61,7 @@ interface QuizResult {
     };
 }
 
-export const QuizModalContent = ({ lesson }: { lesson: TContent }) => {
+export const QuizModalContent = ({ lesson }: { lesson: TLesson }) => {
     const { data, isLoading } = useGetQuizForLessonQuery<{
         data: Interview;
         isLoading: boolean;

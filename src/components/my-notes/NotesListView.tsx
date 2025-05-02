@@ -13,10 +13,12 @@ import { TNote } from '@/types';
 import GlobalDeleteModal from '../global/GlobalDeleteModal';
 import { useDeleteNoteMutation } from '@/redux/api/notes/notesApi';
 import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
+import { useAppSelector } from '@/redux/hooks';
 
 const NotesListView = ({ data }: { data: TNote[] }) => {
     const [limit, setLimit] = useState(20);
-
+    const { enrollment } = useAppSelector((state) => state.auth);
+    console.log(enrollment);
     const [deleteNote, { isLoading }] = useDeleteNoteMutation();
 
     const defaultColumns: TCustomColumnDef<TNote>[] = [
@@ -86,14 +88,26 @@ const NotesListView = ({ data }: { data: TNote[] }) => {
         {
             accessorKey: 'Link',
             header: 'Link',
-            cell: ({ row }) => (
-                <Link
-                    className='font-semibold text-primary-white truncate underline'
-                    href={'/my-notes'}
-                >
-                    {row.original?.purpose?.category}
-                </Link>
-            ),
+            cell: ({ row }) => {
+                console.log(row.original);
+                return (
+                    <>
+                        {row.original?.purpose?.category === 'lesson' ? (
+                            <Link
+                                className='font-semibold text-primary-white truncate underline'
+                                href={`/program/${
+                                    (enrollment as any)?.program?.slug
+                                }?content=${row.original?.purpose?.resourceId}`}
+                                target='_blank'
+                            >
+                                {row.original?.purpose?.category}
+                            </Link>
+                        ) : (
+                            row.original?.purpose?.category
+                        )}
+                    </>
+                );
+            },
             footer: (data) => data.column.id,
             id: 'Link',
             visible: true,

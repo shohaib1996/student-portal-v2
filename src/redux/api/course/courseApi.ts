@@ -23,6 +23,13 @@ const courseApi = baseApi.injectEndpoints({
                 method: 'GET',
             }),
         }),
+        getSingleChapterForNote: build.mutation({
+            query: (chapterID: string) => ({
+                url: `/course/chapterv2/get-single/chapter/${chapterID}   
+`,
+                method: 'GET',
+            }),
+        }),
 
         courseContent: build.query({
             query: (data: { slug: string }) => ({
@@ -144,4 +151,5 @@ export const {
     useGetQuizForLessonQuery,
     useSubmitQuizForLessonQuery,
     useSubmitMyReviewMutation,
+    useGetSingleChapterForNoteMutation,
 } = courseApi;

@@ -44,6 +44,7 @@ interface VideoContentProps {
     >;
     isPinnedEyeOpen: boolean;
     isModuleOpen: boolean;
+    content: string | null;
     setIsPinnedEyeOpen: React.Dispatch<React.SetStateAction<boolean>>;
     // Add callback for progress updates
     onProgressUpdate?: (lessonId: string, isCompleted: boolean) => void;
@@ -58,30 +59,61 @@ export type AttachmentsType = {
     type: string;
     createdAt: string;
 };
+export interface ChapterInfo {
+    chapter: {
+        _id: string;
+        type: string;
+        priority: number;
+        lesson: {
+            type: string;
+            isFree: boolean;
+            duration: number;
+            _id: string;
+            title: string;
+            url: string;
+            data: {
+                transcription: string;
+                summary: string;
+                interview: string;
+                behavioral: string;
+                implementation: string;
+            };
+            createdAt: string;
+            updatedAt: string;
+        };
+        attachments: {
+            _id: string;
+            name: string;
+            size: number;
+            url: string;
+            type: string;
+            createdAt: string;
+        }[];
+    };
+    myReview: any;
+}
 
 const VideoContent: React.FC<VideoContentProps> = ({
     videoData,
     refreshData,
     setVideoData,
     isPinnedEyeOpen,
+    content,
     setIsPinnedEyeOpen,
     onProgressUpdate,
     isModuleOpen,
     setModuleOpen,
 }) => {
     // Wait for required data
-    if (!videoData || (!videoData.videoInfo && videoData.isSideOpen)) {
-        return <div>Loading...</div>;
-    }
 
     // Retrieve program data using RTK Query
     const { data } = useMyProgramQuery<{ data: TProgramMain }>(undefined);
     const [trackChapter, { isLoading: isTracking }] = useTrackChapterMutation();
 
-    const { data: singleData } = useGetSingleChapterQuery(
-        videoData?.contentId as string,
-    );
-
+    const { data: singleData } = useGetSingleChapterQuery<{
+        data: ChapterInfo;
+    }>(content || (videoData?.contentId as string));
+    console.log({ singleData });
     const programData = data?.program;
 
     const tabData = singleData?.chapter?.lesson?.data;
@@ -211,7 +243,8 @@ const VideoContent: React.FC<VideoContentProps> = ({
             <div className='p-4 border-b border-border flex flex-col md:flex-row justify-between items-start md:items-center gap-2'>
                 <div>
                     <h1 className='text-xl font-semibold text-black'>
-                        {videoData.videoInfo?.title}
+                        {singleData?.chapter?.lesson?.title ||
+                            videoData.videoInfo?.title}
                     </h1>
                     <div className='flex items-center gap-4 mt-2'>
                         <div className='flex items-center gap-2'>
@@ -239,9 +272,10 @@ const VideoContent: React.FC<VideoContentProps> = ({
                             </div>
                         </div>
                         <div className='text-sm text-gray'>
-                            {dayjs(videoData.videoInfo?.updatedAt).format(
-                                'MMM DD, YYYY | hh:mm A',
-                            )}
+                            {dayjs(
+                                singleData?.chapter?.lesson?.createdAt ||
+                                    videoData.videoInfo?.updatedAt,
+                            ).format('MMM DD, YYYY | hh:mm A')}
                         </div>
                     </div>
                 </div>
@@ -408,7 +442,8 @@ const VideoContent: React.FC<VideoContentProps> = ({
                                     </h2>
                                 </div>
                                 <p className='text-dark-gray text-sm ml-6'>
-                                    {videoData.videoInfo?.title ||
+                                    {singleData?.chapter?.lesson?.title ||
+                                        videoData.videoInfo?.title ||
                                         'Bootcamps Hub is an all-in-one SaaS platform designed for high-ticket coaches and educators. It empowers you to launch, manage, and scale premium boot camps without relying on fragmented tools like Udemy or Skillshare.'}
                                 </p>
                             </div>
@@ -538,7 +573,12 @@ const VideoContent: React.FC<VideoContentProps> = ({
                         value='notes'
                         className='p-0 m-0 data-[state=active]:border-0'
                     >
-                        <NewAddNote contentId={videoData.contentId as string} />
+                        <NewAddNote
+                            contentId={
+                                singleData?.chapter?._id ||
+                                (videoData.contentId as string)
+                            }
+                        />
                     </TabsContent>
                     <TabsContent
                         value='download'
@@ -552,7 +592,10 @@ const VideoContent: React.FC<VideoContentProps> = ({
                     >
                         <RatingsTab
                             myReview={myReview}
-                            chapterId={videoData.contentId as string}
+                            chapterId={
+                                singleData?.chapter?._id ||
+                                (videoData.contentId as string)
+                            }
                         />
                     </TabsContent>
                 </Tabs>
