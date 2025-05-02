@@ -94,7 +94,14 @@ const setupSocketListeners = (api?: any): (() => void) => {
     socket.on('newmessage', (data: MessageData) => {
         console.log('newmessage', data);
         const isSoundOnOrOff = store.getState()?.notification?.isSoundOnOrOff;
-        console.log({ isSoundOnOrOff });
+        const selectedChat = store.getState()?.chat?.selectedChat;
+        console.log({ isSoundOnOrOff, selectedChat });
+        // Get the myData notification setting for this specific chat
+        const chatInState = store
+            .getState()
+            ?.chat?.chats.find((chat) => chat._id === data.message?.chat);
+        const isNotificationOn = chatInState?.myData?.notification?.isOn;
+        console.log({ isSoundOnOrOff, selectedChat, isNotificationOn });
         // Add this debug log
         if (data.message?.text?.includes('everyone')) {
             console.log(
@@ -124,15 +131,25 @@ const setupSocketListeners = (api?: any): (() => void) => {
             // if (result?.isSent && isSoundOnOrOff === 'on') {
             //     audio.play();
             // }
-            const result = handleMessageNoti(data, user._id);
+            const result = handleMessageNoti(data, user._id, isNotificationOn);
+            const shouldPlaySound =
+                isSoundOnOrOff === 'on' &&
+                isNotificationOn !== false && // Use !== false to handle undefined as true
+                (!selectedChat || selectedChat._id !== data.message.chat);
 
-            if (result?.isSent && isSoundOnOrOff === 'on') {
+            if (result?.isSent && shouldPlaySound) {
                 console.log('Playing notification sound');
                 audio.play();
             } else {
                 console.log(
                     'Not playing sound because:',
-                    !result?.isSent ? 'notification not sent' : 'sound is off',
+                    !result?.isSent
+                        ? 'notification not sent'
+                        : isSoundOnOrOff !== 'on'
+                          ? 'sound is off'
+                          : isNotificationOn === false
+                            ? 'chat notifications are off'
+                            : 'chat is currently selected',
                 );
             }
         }

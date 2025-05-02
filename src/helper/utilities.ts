@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { marked } from 'marked';
 import parse from 'html-react-parser';
 import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
+import { store } from '@/redux/store';
 
 interface MessageData {
     message?: {
@@ -10,6 +11,7 @@ interface MessageData {
         sender?: {
             fullName?: string;
         };
+        chat?: any;
     };
     chat?: {
         name?: string;
@@ -136,8 +138,22 @@ function convertMarkdownToHtml(markdownText?: string): string {
 export const handleMessageNoti = (
     data: MessageData,
     userId: string,
+    isNotificationOn?: boolean,
 ): NotificationResult => {
     const plainMessage = htmlToStr(data?.message?.text);
+    const selectedChat = store.getState()?.chat?.selectedChat;
+
+    // Don't show toast if notifications are disabled for this chat or if it's the selected chat
+    if (
+        isNotificationOn === false ||
+        (selectedChat && selectedChat._id === data.message?.chat)
+    ) {
+        return { isSent: false };
+    }
+
+    if (!plainMessage) {
+        return { isSent: false };
+    }
     if (!plainMessage) {
         return { isSent: false };
     }
