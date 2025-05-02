@@ -196,7 +196,7 @@ const NewAddNote = ({ contentId }: { contentId: string }) => {
                     </Card>
 
                     {/* Right side - Notes list */}
-                    <div className='w-full md:w-1/4 space-y-3 h-[200px] overflow-y-auto'>
+                    <div className='w-full md:w-1/4 p-1 space-y-3 h-[200px] overflow-y-auto border rounded-lg border-border-primary-light'>
                         {notes.map((note) => (
                             <div
                                 key={note._id}

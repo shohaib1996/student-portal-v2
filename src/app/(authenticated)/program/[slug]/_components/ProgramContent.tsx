@@ -88,8 +88,6 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
         return () => clearTimeout(timer);
     }, [searchInput]);
 
-    console.log({ treeData });
-
     // Initialize content tree with search and filter capabilities
     useEffect(() => {
         if (fetchedData && fetchedData.length > 0) {

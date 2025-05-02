@@ -1,3 +1,5 @@
+'use client';
+
 import type React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
@@ -36,6 +38,7 @@ const StickyNoteModal = ({
     const [tags, setTags] = useState<string[]>([]);
 
     // Validation: disable submit if title or description are empty or whitespace
+
     const isSubmitDisabled =
         isLoading ||
         title.trim().length === 0 ||
@@ -63,9 +66,78 @@ const StickyNoteModal = ({
 
     // Reset form values when props change
     useEffect(() => {
+        // Reset form values when props change
         setTitle(initialTitle);
         setDescription(initialDescription);
+
+        // Center the modal on open, with mobile-responsive positioning
+        if (isOpen) {
+            const isMobile = window.innerWidth < 768;
+
+            if (isMobile) {
+                // On mobile, center the modal with fixed dimensions
+                const mobileWidth = Math.min(window.innerWidth - 32, 600);
+                const mobileHeight = Math.min(window.innerHeight - 64, 500);
+
+                positionRef.current = {
+                    x: (window.innerWidth - mobileWidth) / 2,
+                    y: (window.innerHeight - mobileHeight) / 2,
+                };
+                sizeRef.current = { width: mobileWidth, height: mobileHeight };
+            } else {
+                // On desktop, use the existing dimensions
+                positionRef.current = {
+                    x: window.innerWidth / 2 - 300,
+                    y: window.innerHeight / 2 - 250,
+                };
+                sizeRef.current = { width: 600, height: 500 };
+            }
+
+            setRenderPosition({ ...positionRef.current });
+            setRenderSize({ ...sizeRef.current });
+        }
     }, [initialTitle, initialDescription, isOpen]);
+
+    // Add a window resize handler to keep the modal properly positioned:
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (isOpen) {
+                const isMobile = window.innerWidth < 768;
+
+                if (isMobile) {
+                    // On mobile, center the modal with fixed dimensions
+                    const mobileWidth = Math.min(window.innerWidth - 32, 600);
+                    const mobileHeight = Math.min(window.innerHeight - 64, 500);
+
+                    positionRef.current = {
+                        x: (window.innerWidth - mobileWidth) / 2,
+                        y: (window.innerHeight - mobileHeight) / 2,
+                    };
+                    sizeRef.current = {
+                        width: mobileWidth,
+                        height: mobileHeight,
+                    };
+
+                    setRenderPosition({ ...positionRef.current });
+                    setRenderSize({ ...sizeRef.current });
+
+                    // Update the DOM element directly for immediate effect
+                    if (noteRef.current) {
+                        noteRef.current.style.left = `${positionRef.current.x}px`;
+                        noteRef.current.style.top = `${positionRef.current.y}px`;
+                        noteRef.current.style.width = `${sizeRef.current.width}px`;
+                        noteRef.current.style.height = minimized
+                            ? '50px'
+                            : `${sizeRef.current.height}px`;
+                    }
+                }
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [isOpen, minimized]);
 
     // Handle mouse move for dragging and resizing
     const handleMouseMove = useCallback(
@@ -211,7 +283,7 @@ const StickyNoteModal = ({
     return (
         <div
             ref={noteRef}
-            className='fixed z-50 shadow-lg rounded-md bg-background border border-border overflow-hidden'
+            className='fixed z-50 shadow-lg rounded-md bg-background border border-border overflow-hidden max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]'
             style={{
                 left: `${renderPosition.x}px`,
                 top: `${renderPosition.y}px`,
@@ -309,9 +381,111 @@ const StickyNoteModal = ({
 
             {!minimized && (
                 <>
-                    {' '}
-                    {/* resize handles as before */}
-                    {/* ...handles omitted for brevity, unchanged... */}
+                    {/* Resize handles */}
+                    <div
+                        className='absolute w-3 h-3 bottom-0 right-0 cursor-se-resize'
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dragStartRef.current = {
+                                x: e.clientX,
+                                y: e.clientY,
+                            };
+                            isResizingRef.current = true;
+                            resizeDirectionRef.current = 'se';
+                        }}
+                    />
+                    <div
+                        className='absolute w-3 h-3 bottom-0 left-0 cursor-sw-resize'
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dragStartRef.current = {
+                                x: e.clientX,
+                                y: e.clientY,
+                            };
+                            isResizingRef.current = true;
+                            resizeDirectionRef.current = 'sw';
+                        }}
+                    />
+                    <div
+                        className='absolute w-3 h-3 top-0 right-0 cursor-ne-resize'
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dragStartRef.current = {
+                                x: e.clientX,
+                                y: e.clientY,
+                            };
+                            isResizingRef.current = true;
+                            resizeDirectionRef.current = 'ne';
+                        }}
+                    />
+                    <div
+                        className='absolute w-3 h-3 top-0 left-0 cursor-nw-resize'
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dragStartRef.current = {
+                                x: e.clientX,
+                                y: e.clientY,
+                            };
+                            isResizingRef.current = true;
+                            resizeDirectionRef.current = 'nw';
+                        }}
+                    />
+                    <div
+                        className='absolute w-1 h-full top-0 right-0 cursor-e-resize'
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dragStartRef.current = {
+                                x: e.clientX,
+                                y: e.clientY,
+                            };
+                            isResizingRef.current = true;
+                            resizeDirectionRef.current = 'e';
+                        }}
+                    />
+                    <div
+                        className='absolute w-1 h-full top-0 left-0 cursor-w-resize'
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dragStartRef.current = {
+                                x: e.clientX,
+                                y: e.clientY,
+                            };
+                            isResizingRef.current = true;
+                            resizeDirectionRef.current = 'w';
+                        }}
+                    />
+                    <div
+                        className='absolute w-full h-1 bottom-0 left-0 cursor-s-resize'
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dragStartRef.current = {
+                                x: e.clientX,
+                                y: e.clientY,
+                            };
+                            isResizingRef.current = true;
+                            resizeDirectionRef.current = 's';
+                        }}
+                    />
+                    <div
+                        className='absolute w-full h-1 top-0 left-0 cursor-n-resize'
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dragStartRef.current = {
+                                x: e.clientX,
+                                y: e.clientY,
+                            };
+                            isResizingRef.current = true;
+                            resizeDirectionRef.current = 'n';
+                        }}
+                    />
                 </>
             )}
         </div>

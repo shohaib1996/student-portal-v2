@@ -356,11 +356,11 @@ const RatingsTab: React.FC<RatingsTabProps> = ({ myReview, chapterId }) => {
                                             />
                                         </div>
                                     </div>
-                                    {/* {videoStarCount > 0 && (
+                                    {videoStarCount > 0 && (
                                         <span className='ml-2 text-xs py-1 px-2 bg-primary text-white rounded-full'>
                                             {getRatingLabel(videoStarCount)}
                                         </span>
-                                    )} */}
+                                    )}
                                 </div>
 
                                 {/* Knowledge depth of Mentor */}

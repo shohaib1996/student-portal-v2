@@ -951,7 +951,7 @@ const ContentDropDown: React.FC<ContentDropDownProps> = ({
                     {videoData?.isSideOpen && (
                         <div
                             onClick={() => setModuleOpen(!isModuleOpen)}
-                            className='sticky top-0 z-10 bg-foreground'
+                            className='sticky top-0 z-10 bg-foreground hidden lg:block'
                         >
                             <PanelLeft className='h-5 w-5' />
                         </div>
