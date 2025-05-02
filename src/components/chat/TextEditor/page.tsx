@@ -97,6 +97,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     isChannel,
     chat,
 }) => {
+    console.log('Editing in text editor...', selectedMessage);
     const { user } = useAppSelector((state) => state.auth);
     const { drafts } = useAppSelector((state) => state.chat);
     const [typing, setTyping] = useState<boolean>(false);
@@ -488,7 +489,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     ) => {
         const options = {
             query: query?.toLowerCase() || '',
-            limit: 15,
+            limit: 50,
             chat: chatId as string,
         };
 
@@ -496,7 +497,6 @@ const TextEditor: React.FC<TextEditorProps> = ({
             `/chat/members/${options?.chat}`,
             options,
         );
-        console.log({ MentionedUserAfterFilter: res?.data?.results });
         // const data = res.data?.results;
         // Filter out the current user from the results
         const data = res.data?.results
@@ -541,7 +541,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
 
         return finalMentionData;
     };
-
+    console.log('Message editor');
     return (
         <>
             {/* Pasted Files Modal */}

@@ -171,7 +171,7 @@ const Files: React.FC<FilesProps> = ({ chat }) => {
     return (
         <div className='w-full'>
             {/* Search bar for filename and text filtering */}
-            <div className='pb-2 mb-2'>
+            <div className='pb-2 mb-2 pt-[2px]'>
                 <div className='relative flex flex-row items-center gap-2'>
                     <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray' />
                     <Input

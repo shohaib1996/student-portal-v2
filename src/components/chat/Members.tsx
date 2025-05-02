@@ -245,7 +245,7 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
         setSelectedRole(null);
         setChatRoleOpened(false);
     }, []);
-
+    const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
     const handleOpenRole = useCallback((member: ChatMember) => {
         setSelectedRole(member);
         setChatRoleOpened(true);
@@ -497,7 +497,24 @@ const Members: React.FC<MembersProps> = ({ chat }) => {
                                         member?.user?._id !==
                                             chat?.myData?.user &&
                                         member?.role !== 'owner' && (
-                                            <DropdownMenu>
+                                            <DropdownMenu
+                                                open={
+                                                    openDropdownId ===
+                                                    member._id
+                                                }
+                                                onOpenChange={(open) => {
+                                                    if (open) {
+                                                        setOpenDropdownId(
+                                                            member._id,
+                                                        );
+                                                    } else if (
+                                                        openDropdownId ===
+                                                        member._id
+                                                    ) {
+                                                        setOpenDropdownId(null);
+                                                    }
+                                                }}
+                                            >
                                                 <DropdownMenuTrigger asChild>
                                                     <Button
                                                         variant='ghost'

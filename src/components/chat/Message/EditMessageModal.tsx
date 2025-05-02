@@ -39,7 +39,7 @@ const EditMessageModal: React.FC<EditMessageModalProps> = ({
                 }
             }}
             title='Edit Message'
-            className='edit-message-modal max-w-[600px]'
+            className='edit-message-modal max-w-[600px] -z-1'
             allowFullScreen={false}
         >
             <div className='inbox-container pt-4'>

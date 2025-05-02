@@ -247,7 +247,7 @@ function OnlineSidebar() {
     return (
         <div className='flex flex-col h-full'>
             {/* Search input */}
-            <div className='pb-2 border-b'>
+            <div className='pb-2 border-b pt-[2px]'>
                 <div className='relative flex flex-row items-center gap-2'>
                     <Input
                         className='pl-8 bg-background'
@@ -321,14 +321,14 @@ function OnlineSidebar() {
                                     )}
                                 </div>
                             ) : (
-                                <div className='h-[calc(100vh-162px)] overflow-y-auto'>
+                                <div className='h-[calc(100vh-163px)] overflow-y-auto'>
                                     {filteredOnlineUsers.map((user) => (
                                         <div
                                             key={user._id}
                                             className={`block border-l-[2px] ${
                                                 selectedUserId === user._id
-                                                    ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
-                                                    : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
+                                                    ? 'bg-blue-700/20 border-l-[2px] border-blue-800 cursor-pointer'
+                                                    : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800 cursor-pointer'
                                             }`}
                                             onClick={() =>
                                                 setSelectedUserId(user._id)
@@ -434,7 +434,7 @@ function OnlineSidebar() {
                             </p>
                         </div>
                     ) : (
-                        <div className='h-[calc(100vh-162px)] overflow-y-auto'>
+                        <div className='h-[calc(100vh-163px)] overflow-y-auto'>
                             {filteredChats.map((chat) => {
                                 const isRead =
                                     chat?.latestMessage?.sender?._id ===
@@ -446,8 +446,8 @@ function OnlineSidebar() {
                                         key={chat._id}
                                         className={`block border-l-[2px] ${
                                             selectedChatId === chat._id
-                                                ? 'bg-blue-700/20 border-l-[2px] border-blue-800'
-                                                : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800'
+                                                ? 'bg-blue-700/20 border-l-[2px] border-blue-800 cursor-pointer'
+                                                : 'hover:bg-blue-700/20 border-b hover:border-b-0 hover:border-l-[2px] hover:border-blue-800 cursor-pointer'
                                         }`}
                                         onClick={() =>
                                             handleNavigateToChat(chat._id)

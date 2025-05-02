@@ -184,7 +184,7 @@ function UnRead() {
     return (
         <>
             {/* Search input - Fixed */}
-            <div className='pb-2 border-b'>
+            <div className='pb-2 border-b pt-[2px]'>
                 <div className='relative flex flex-row items-center gap-2'>
                     <Input
                         className='pl-8 bg-background'
@@ -202,7 +202,7 @@ function UnRead() {
                     <Loader2 className='h-8 w-8 animate-spin text-primary' />
                 </div>
             ) : (
-                <div className='h-[calc(100vh-162px)] overflow-y-auto'>
+                <div className='h-[calc(100vh-163px)] overflow-y-auto'>
                     {/* {isChatsLoading &&
                         Array.from({ length: 10 }).map((_, index) => (
                             <ChatSkeletonList key={index} />

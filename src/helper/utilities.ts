@@ -2,6 +2,7 @@ import React from 'react';
 import { toast } from 'sonner';
 import { marked } from 'marked';
 import parse from 'html-react-parser';
+import { renderPlainText } from '@/components/lexicalEditor/renderer/renderPlainText';
 
 interface MessageData {
     message?: {
@@ -34,7 +35,8 @@ function notiMentionParser(
     return `@${name}`;
 }
 
-const mentionRegEx = /((.)\[([^[]*)]$$([^(^)]*)$$)/gi;
+// const mentionRegEx = /((.)\[([^[]*)]$$([^(^)]*)$$)/gi;
+const mentionRegEx = /@\[.*?\]\((.*?)\)/g;
 
 function editReplacer(
     fullMatch: string,
@@ -144,32 +146,44 @@ export const handleMessageNoti = (
         plainMessage.replace(mentionRegEx, notiMentionParser) || 'N/A';
     const sender = data?.message?.sender?.fullName;
     const mentions = plainMessage.match(mentionRegEx);
-
+    console.log({ mentions });
     if (data?.chat?.isChannel) {
         if (mentions && mentions.length > 0) {
             const ids = mentions.map((s) => {
-                const matches = s.match(/$$([^()]*)$$/g);
-                if (!matches || matches.length === 0) {
+                // Extract ID from the format "@[name](id)"
+                const matches = s.match(/\(([^)]+)\)/);
+
+                if (!matches || matches.length < 2) {
                     return '';
                 }
-                return matches[0].replace(/[{()}]/g, '');
+                // matches[1] contains just the ID part without parentheses
+                return matches[1];
             });
-
-            if (ids && ids.includes('all_member')) {
-                toast.success(`${data?.chat?.name}: ${sender || ''}`, {
-                    description: parse(
-                        convertMarkdownToHtml(message.slice(0, 200)),
-                    ) as React.ReactNode,
-                    duration: 5000,
-                });
+            console.log({ ids });
+            if (ids && ids.includes('everyone')) {
+                toast.success(
+                    `${sender || 'Someone'} mentioned you and everyone in ${data?.chat?.name}`,
+                    {
+                        description: renderPlainText({
+                            text: message,
+                            lineClamp: 1,
+                        }),
+                        duration: 5000,
+                    },
+                );
                 return { isSent: true };
             } else if (ids.includes(userId)) {
-                toast.success(`${data?.chat?.name}: ${sender || ''}`, {
-                    description: parse(
-                        convertMarkdownToHtml(message.slice(0, 200)),
-                    ) as React.ReactNode,
-                    duration: 5000,
-                });
+                console.log({ userId });
+                toast.success(
+                    `${sender || 'Someone'} mentioned you in ${data?.chat?.name}`,
+                    {
+                        description: renderPlainText({
+                            text: message,
+                            lineClamp: 1,
+                        }),
+                        duration: 5000,
+                    },
+                );
                 return { isSent: true };
             }
             return { isSent: false };
@@ -178,9 +192,7 @@ export const handleMessageNoti = (
         }
     } else {
         toast.success(sender || 'New Message', {
-            description: parse(
-                convertMarkdownToHtml(message.slice(0, 200)),
-            ) as React.ReactNode,
+            description: renderPlainText({ text: message, lineClamp: 1 }),
             duration: 5000,
         });
         return { isSent: true };

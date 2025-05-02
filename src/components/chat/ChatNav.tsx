@@ -524,7 +524,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                             {active === 'chats' || active === 'ai' ? (
                                 <>
                                     {/* Search input - Fixed */}
-                                    <div className='pb-2 border-b'>
+                                    <div className='pb-2 border-b pt-[2px]'>
                                         <div className='relative flex flex-row items-center gap-2'>
                                             <Input
                                                 className='pl-8 bg-background'
@@ -676,7 +676,7 @@ const ChatNav: FC<ChatNavProps> = ({ reloading }) => {
                                             </DropdownMenu>
                                         </div>
                                     </div>
-                                    <div className='h-[calc(100vh-162px)] overflow-y-auto'>
+                                    <div className='h-[calc(100vh-163px)] overflow-y-auto'>
                                         {/* {isChatsLoading &&
                                             Array.from({ length: 10 }).map(
                                                 (_, index) => (

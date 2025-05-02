@@ -599,7 +599,7 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
             editorRef.current?.clearEditor();
         }
     };
-
+    console.log('Reply editor');
     return (
         <>
             {/* Pasted Files Modal */}
@@ -709,8 +709,13 @@ const TextEditorReply: React.FC<TextEditorReplyProps> = ({
                                                     >
                                                         <Button
                                                             className='bg-transparent hover:bg-transparent text-gray hover:!text-primary-white h-8 w-8 min-h-8 rounded-full shadow-none'
-                                                            tooltip='Send attachment'
                                                             size={'icon'}
+                                                            tooltip='Send attachment'
+                                                            onClick={
+                                                                isEdit
+                                                                    ? handleMenuItemClick
+                                                                    : undefined
+                                                            }
                                                         >
                                                             <Paperclip className='h-5 w-5' />
                                                         </Button>

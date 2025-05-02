@@ -235,7 +235,7 @@ function BlockedUser() {
                         <ChatSkeletonList key={index} />
                     ))
                 ) : records.length > 0 ? (
-                    <div className='h-[calc(100vh-162px)] overflow-y-auto'>
+                    <div className='h-[calc(100vh-163px)] overflow-y-auto'>
                         {sortByLatestMessage(records)?.map((chat, i) => (
                             <Link
                                 key={i}

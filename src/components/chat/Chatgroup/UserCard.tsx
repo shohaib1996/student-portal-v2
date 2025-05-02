@@ -110,7 +110,7 @@ function UserCard({
 
     return (
         <div className='flex items-center justify-between w-full'>
-            <div className='flex items-center space-x-3'>
+            <div className='flex items-center space-x-3 max-w-[calc(100%-50px)]'>
                 <div className='relative inline-block'>
                     <div className='w-12 h-12 rounded-full overflow-hidden'>
                         <Image
@@ -142,9 +142,9 @@ function UserCard({
                         </div>
                     )}
                 </div>
-                <div>
+                <div className='max-w-[calc(100%-50px)]'>
                     <h3 className='font-medium'>{user.fullName}</h3>
-                    <p className='text-sm'>
+                    <p className='text-sm w-full truncate'>
                         {user.isBlocked ? (
                             <span className='text-red-500'>
                                 You blocked this contact

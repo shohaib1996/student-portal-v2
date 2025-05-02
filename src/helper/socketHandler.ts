@@ -94,6 +94,13 @@ const setupSocketListeners = (api?: any): (() => void) => {
     socket.on('newmessage', (data: MessageData) => {
         console.log('newmessage', data);
         const isSoundOnOrOff = store.getState()?.notification?.isSoundOnOrOff;
+        console.log({ isSoundOnOrOff });
+        // Add this debug log
+        if (data.message?.text?.includes('everyone')) {
+            console.log(
+                'Found everyone mention - checking notification settings',
+            );
+        }
 
         if (data.message.forwardedFrom) {
             store.dispatch(
