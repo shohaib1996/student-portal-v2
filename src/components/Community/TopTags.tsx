@@ -41,7 +41,7 @@ const TopTags = ({ tags, setTags }: ITopTagsProps) => {
                             <div className='flex items-center gap-2'>
                                 <Badge
                                     variant='secondary'
-                                    className='bg-primary-light text-sm text-primary'
+                                    className='bg-primary-light text-sm text-primary-white'
                                 >
                                     #{tag.name}
                                 </Badge>

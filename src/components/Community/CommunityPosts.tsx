@@ -43,6 +43,7 @@ import GlobalComment from '../global/GlobalComments/GlobalComment';
 import Repost from '../global/Community/Repost/Repost';
 import { Button } from '../ui/button';
 import { renderText } from '@/components/lexicalEditor/renderer/renderText';
+import GlobalModal from '../global/GlobalModal';
 
 interface ICommunityPostProps {
     post: ICommunityPost;
@@ -245,7 +246,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
             try {
                 const response = await savePost({ payload }).unwrap();
                 if (response.success) {
-                    toast.success('Post is Un saved successfully', {
+                    toast.success('Post is Unsaved successfully', {
                         id: toastId,
                     });
                     setOpen(false);
@@ -451,7 +452,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                 </div>
                             ),
                         )}
-                        <div className='flex items-center gap-1 rounded-2xl bg-background p-1'>
+                        {/* <div className='flex items-center gap-1 rounded-2xl bg-background p-1'>
                             <div
                                 className='relative inline-block cursor-pointer'
                                 onMouseEnter={() => setShowEmojis(true)}
@@ -478,7 +479,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                     <div className='flex items-center gap-8'>
                         <div
@@ -490,7 +491,7 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                                 {post?.commentsCount} comments
                             </span>
                         </div>
-                        <div className='flex items-center gap-1'>
+                        {/* <div className='flex items-center gap-1'>
                             <div
                                 onClick={() => handleShare(post)}
                                 className='cursor-pointer'
@@ -500,21 +501,21 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                             <span className='text-sm text-dark-gray'>
                                 share
                             </span>
-                        </div>
+                        </div> */}
                     </div>
                 </CardFooter>
                 {/* Action Buttons */}
                 <div className='grid grid-cols-4 border-t border-forground-border pt-2'>
                     <div
                         className={cn(
-                            'flex items-center justify-center gap-2 py-2 text-sm font-medium hover:bg-foreground relative cursor-pointer',
+                            'flex items-center  rounded transition-all duration-300  justify-center gap-2 py-2 text-sm font-medium hover:bg-primary-foreground relative cursor-pointer',
                             'text-dark-gray',
                         )}
                         onMouseEnter={() => setShowLikesEmojis(true)}
                         onMouseLeave={() => setShowLikesEmojis(false)}
                     >
                         {post.myReaction ? (
-                            <span className='text-lg'>{post.myReaction}</span>
+                            <span className='text-xs'>{post.myReaction}</span>
                         ) : (
                             <span className='flex gap-2'>
                                 <ThumbsUp className='h-5 w-5' />
@@ -540,21 +541,21 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
 
                     <button
                         onClick={() => setShowComments(!showComments)}
-                        className='hidden md:flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-foreground'
+                        className='hidden md:flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-primary-foreground  rounded transition-all duration-300 '
                     >
                         <MessageCircle className='h-5 w-5' />
                         <span>Comment</span>
                     </button>
                     <button
                         onClick={() => setOpenRepost(true)}
-                        className='flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-foreground'
+                        className='flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-primary-foreground  rounded transition-all duration-300 '
                     >
                         <RefreshCw className='h-5 w-5' />
                         <span>Repost</span>
                     </button>
                     <button
                         onClick={() => setShowSendModal(true)}
-                        className='flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-foreground'
+                        className='flex items-center justify-center gap-2 py-2 text-sm font-medium text-dark-gray hover:bg-primary-foreground rounded transition-all duration-300 '
                     >
                         <Send className='h-5 w-5' />
                         <span>Send</span>
@@ -655,21 +656,19 @@ const CommunityPosts = forwardRef<HTMLDivElement, ICommunityPostProps>(
                     />
                 )}
                 {openRepost && (
-                    <NewGlobalModal
-                        ngClass='hidden'
-                        modalTitle='Repost'
+                    <GlobalModal
                         triggerText=''
+                        title='Repost'
                         open={openRepost}
                         setOpen={setOpenRepost}
-                        modalContent={
-                            <Repost
-                                post={post}
-                                setOpen={setOpenRepost}
-                                refetch={refetch}
-                                setRefetch={setRefetch}
-                            />
-                        }
-                    />
+                    >
+                        <Repost
+                            post={post}
+                            setOpen={setOpenRepost}
+                            refetch={refetch}
+                            setRefetch={setRefetch}
+                        />
+                    </GlobalModal>
                 )}
                 {showSendModal && (
                     <NewGlobalModal

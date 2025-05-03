@@ -1,3 +1,4 @@
+'use client';
 import Image from 'next/image';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -76,7 +77,7 @@ const Comments = ({
     const [groupedComments, setGroupedComments] = useState<Record<string, any>>(
         {},
     );
-
+    const [open, setOpen] = useState(false);
     useEffect(() => {
         const groupedComments: Record<string, CommentType[]> = comments.reduce(
             (acc: Record<string, CommentType[]>, comment) => {

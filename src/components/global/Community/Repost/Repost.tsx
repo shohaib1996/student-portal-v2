@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSelector } from 'react-redux';
 import GlobalMarkDownEdit from '../MarkDown/GlobalMarkDownEdit';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
+import GlobalEditor from '@/components/editor/GlobalEditor';
 
 interface RepostProps {
     post: ICommunityPost;
@@ -24,7 +25,7 @@ const Repost = ({ post, setOpen, refetch, setRefetch }: RepostProps) => {
     const handleRepost = async () => {
         try {
             // Format the repost content with attribution in bold and the original post content
-            const repostDescription = `${comment ? comment + '\n\n' : ''}🔄 REPOSTED FROM @${post.createdBy.fullName} 🔄\n\n${post.description}`;
+            const repostDescription = `${comment ? comment + '\n\n' : ''} REPOSTED FROM @${post.createdBy.fullName} \n\n${post.description}`;
 
             // Extract hashtags from both the comment and original post
             const extractedTags = (
@@ -69,7 +70,7 @@ const Repost = ({ post, setOpen, refetch, setRefetch }: RepostProps) => {
     };
 
     return (
-        <div className='space-y-4 p-2'>
+        <div className='space-y-4 p-2 w-full'>
             <div className='flex items-center justify-between mb-4'>
                 <div className='flex items-center gap-2'>
                     <Avatar className='h-8 w-8'>
@@ -88,14 +89,6 @@ const Repost = ({ post, setOpen, refetch, setRefetch }: RepostProps) => {
                         </p>
                     </div>
                 </div>
-                <Button
-                    variant='ghost'
-                    size='sm'
-                    className='h-8 w-8 p-0 rounded-full'
-                    onClick={() => setOpen(false)}
-                >
-                    <X className='h-4 w-4' />
-                </Button>
             </div>
 
             {/* Original post preview */}
@@ -128,10 +121,12 @@ const Repost = ({ post, setOpen, refetch, setRefetch }: RepostProps) => {
                 <label className='text-sm font-medium'>
                     Add your comment (optional)
                 </label>
-                <GlobalMarkDownEdit
-                    value={comment}
-                    setValue={setComment}
-                    label=''
+                <GlobalEditor
+                    className='bg-foreground border-border-primary-light w-auto'
+                    placeholder='Write Task details'
+                    value={comment || ''}
+                    onChange={(val) => setComment(val)}
+                    autoFocus={false}
                 />
             </div>
 
