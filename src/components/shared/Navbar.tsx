@@ -215,7 +215,7 @@ const Navbar = () => {
 
     if (navigations.technicalTest) {
         permissions.push({
-            route: '/dashboard/technical-tests',
+            route: '/technical-tests',
             label: 'Technical Test',
             id: 'technicalTest',
         });

@@ -57,7 +57,7 @@ const configureAxiosHeader = async (storage: Storage): Promise<void> => {
 
     const activeCompanyFromCookie = Cookies.get('activeCompany');
     const activeEnrollmentFromCookie = Cookies.get('activeEnrolment');
-    Cookies.set('sss', 'sjhsj');
+    // Cookies.set('sss', 'sjhsj');
 
     if (activeEnrollmentFromCookie) {
         axios.defaults.headers.common['enrollment'] =
@@ -164,7 +164,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
                     setIsLoading(false);
                 }, 200);
 
-                // window.location.href = `${process.env.NEXT_PUBLIC_REDIRECT_URL as string}/auth/login`;
+                window.location.href = `${process.env.NEXT_PUBLIC_REDIRECT_URL as string}/auth/login`;
             }
         };
 
