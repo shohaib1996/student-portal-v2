@@ -217,7 +217,7 @@ const EditCommunityPost = ({
                             </>
                         ) : (
                             <>
-                                <Navigation /> Edit
+                                <Navigation /> Republished
                             </>
                         )}
                     </Button>

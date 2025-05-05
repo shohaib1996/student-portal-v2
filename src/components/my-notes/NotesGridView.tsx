@@ -15,7 +15,7 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import GlobalHeader from '../global/GlobalHeader';
 import MessagePreview from '../lexicalEditor/renderer/MessagePreview';
 import { Button } from '../ui/button';
-import { TNote } from '@/types';
+import { TAllContent, TChapter, TContent, TNote } from '@/types';
 import LexicalJsonRenderer from '../lexicalEditor/renderer/JsonRenderer';
 import { renderText } from '@/components/lexicalEditor/renderer/renderText';
 import GlobalDeleteModal from '../global/GlobalDeleteModal';
@@ -25,7 +25,11 @@ import { Card } from '../ui/card';
 import NotesSkeleton from './NotesSkeleton';
 import { renderPlainText } from '../lexicalEditor/renderer/renderPlainText';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import { useGetSingleChapterForNoteMutation } from '@/redux/api/course/courseApi';
 
+interface NewTNote extends TNote {
+    chapterInfo?: TAllContent | undefined | null; // Replace `any` with the appropriate type if known
+}
 const NotesGridView = ({
     data,
     isLoading,
@@ -35,13 +39,43 @@ const NotesGridView = ({
     isLoading: boolean;
     setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
-    const [activeNote, setActiveNote] = useState<TNote>(data[0]);
+    const [activeNote, setActiveNote] = useState<NewTNote | null>(null);
+
+    const [newNote, setNewNote] = useState<TNote[]>(data);
 
     const [deleteNote, { isLoading: isDeleting }] = useDeleteNoteMutation();
+    const [getChapter, { isLoading: isChapter }] =
+        useGetSingleChapterForNoteMutation();
+
+    async function getNoteWithChapterInfo(note: TNote): Promise<NewTNote> {
+        if (!note?.purpose?.resourceId) {
+            return note;
+        }
+        try {
+            const result = await getChapter(note.purpose.resourceId).unwrap();
+            return {
+                ...note,
+                chapterInfo: result?.chapter,
+            };
+        } catch (error) {
+            console.error('Error fetching chapter info:', error);
+            return note;
+        }
+    }
 
     useEffect(() => {
-        if (data) {
-            setActiveNote(data[0]);
+        async function fetchNotesWithChapters() {
+            const updatedNotes = await Promise.all(
+                data.map(getNoteWithChapterInfo),
+            );
+            setNewNote(updatedNotes);
+            if (updatedNotes.length > 0) {
+                setActiveNote(updatedNotes[0]);
+            }
+        }
+
+        if (data && data.length > 0) {
+            fetchNotesWithChapters();
         }
     }, [data]);
 
@@ -94,7 +128,7 @@ const NotesGridView = ({
                     All Notes ({data.length})
                 </h2>
                 <div className='space-y-2 h-[calc(100%-32px)]'>
-                    {data.map((note) => (
+                    {newNote?.map((note: NewTNote) => (
                         <div
                             key={note._id}
                             onClick={() => setActiveNote(note)}
@@ -124,7 +158,8 @@ const NotesGridView = ({
                                             },
                                         )}
                                     >
-                                        {note?.purpose?.category}
+                                        {note?.purpose?.category ||
+                                            'No category'}
                                     </span>
                                 </div>
                                 <div
@@ -183,7 +218,12 @@ const NotesGridView = ({
                                 <span className='capitalize'>
                                     {note.purpose?.category}
                                 </span>
-                                :<span>{note.purpose?.category}</span>
+                                :
+                                <span>
+                                    {note.chapterInfo?.lesson?.title ||
+                                        note.chapterInfo?.chapter?.name ||
+                                        'No Leson or Chaper Seleced'}
+                                </span>
                             </div>
                         </div>
                     ))}
@@ -235,7 +275,14 @@ const NotesGridView = ({
                                         {activeNote?.purpose?.category}
                                     </span>
                                     :
-                                    <span>{activeNote?.purpose?.category}</span>
+                                    <span>
+                                        {' '}
+                                        {activeNote.chapterInfo?.lesson
+                                            ?.title ||
+                                            activeNote.chapterInfo?.chapter
+                                                ?.name ||
+                                            'No Leson or Chaper Seleced'}
+                                    </span>
                                 </div>
                             )}
                         </div>
@@ -257,7 +304,7 @@ const NotesGridView = ({
                                 modalSubTitle='This action cannot be undone. This will permanently delete your note and remove your data from our servers.'
                                 loading={isDeleting}
                                 deleteFun={deleteNote}
-                                _id={activeNote?._id}
+                                _id={activeNote?._id as string}
                             >
                                 <Button
                                     className='h-8'

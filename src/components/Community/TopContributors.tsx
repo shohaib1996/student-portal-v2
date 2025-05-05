@@ -26,7 +26,12 @@ const TopContributors = ({
     if (isLoading) {
         return <TopContributorsSkeleton />;
     }
-    const topContributors: IUserWithCount[] = data?.users || [];
+    console.log({ data });
+    const topContributors: IUserWithCount[] =
+        data.users.filter(
+            (entry: IUserWithCount) =>
+                typeof entry.user === 'object' && entry.user !== null,
+        ) || [];
 
     // Handler for user selection
     const handleUserSelect = (userId: string) => {
@@ -52,7 +57,7 @@ const TopContributors = ({
             setHasMore(true);
         }
     };
-
+    // console.log({ user, topContributors });
     return (
         <Card className='overflow-hidden border-border bg-foreground shadow-sm mt-2 mr-2'>
             <CardHeader className='bg-foreground pb-3 pt-4 px-4 border-b border-border'>
@@ -93,7 +98,9 @@ const TopContributors = ({
                                     </AvatarFallback>
                                 </Avatar>
 
-                                <div className='absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-500 ring-1 ring-background'></div>
+                                {/* <div
+                                    className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full  bg-green-500 ring-1 ring-background`}
+                                ></div> */}
                             </div>
                             <div className='flex-1'>
                                 <h3

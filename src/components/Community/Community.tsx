@@ -72,6 +72,7 @@ const Community = () => {
 
         try {
             const response = await getPosts({ payload }).unwrap();
+            console.log({ response });
             if (response.success) {
                 setTotalPosts(response.count || 0);
 
@@ -131,6 +132,14 @@ const Community = () => {
         setPage,
         setPosts,
         setHasMore,
+    };
+
+    const multiClick = (filter: string) => {
+        if (selectedFilter === filter) {
+            handleClear();
+        } else {
+            selectFilter(filter, resetFunctions);
+        }
     };
 
     return (
@@ -240,9 +249,7 @@ const Community = () => {
                                 {filters.map(({ label, filter }) => (
                                     <DropdownMenuItem
                                         key={filter}
-                                        onClick={() =>
-                                            selectFilter(filter, resetFunctions)
-                                        }
+                                        onClick={() => multiClick(filter)}
                                         className={
                                             selectedFilter === filter
                                                 ? 'bg-primary text-white'

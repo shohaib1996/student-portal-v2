@@ -21,6 +21,7 @@ import FilterProgram from './FilterProgram';
 import { searchByNameKeepDescendants } from '@/utils/search-utils';
 import { toast } from 'sonner';
 import { buildContentTree } from '@/utils/tree-utils';
+import { useSearchParams } from 'next/navigation';
 
 interface ProgramContentProps {
     option: {
@@ -52,6 +53,8 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [isPinnedEyeOpen, setIsPinnedEyeOpen] = useState(false);
     const [treeData, setTreeData] = useState<TContent[]>([]);
+    const searchParams = useSearchParams();
+    const content = searchParams.get('content');
 
     // State for search functionality
     const [searchInput, setSearchInput] = useState<string>('');
@@ -70,7 +73,7 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
         contentId: string | null;
     }>({
         videoInfo: null,
-        isSideOpen: false,
+        isSideOpen: content ? true : false,
         item: {} as ChapterData,
         contentId: null,
     });
@@ -340,6 +343,7 @@ const ProgramContent: React.FC<ProgramContentProps> = ({
                             refreshData={refreshData}
                             isModuleOpen={isModuleOpen}
                             setModuleOpen={setModuleOpen}
+                            content={content}
                         />
                     )}
 
