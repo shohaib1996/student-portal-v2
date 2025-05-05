@@ -57,6 +57,7 @@ import {
     removeChat,
     setSelectedChat,
     updateChats,
+    updateMyData,
 } from '@/redux/features/chatReducer';
 import UpdateChannelModal from './UpdateChannelModal';
 import { useAppSelector } from '@/redux/hooks';
@@ -505,10 +506,10 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
     const [archiveChannel] = useArchiveChannelMutation();
 
     const handleArchive = useCallback(() => {
-        // if(user?.role !== 'admin' || user?.role !== 'owner') {
-        //     toast.error('You do not have permission to archive this channel');
-        //     return;
-        // }
+        if (chat?.myData?.role !== 'admin' && chat?.myData?.role !== 'owner') {
+            toast.error('You do not have permission to archive this channel');
+            return;
+        }
         if (chat?._id) {
             archiveChannel({
                 chatId: chat._id,
@@ -526,7 +527,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
 
                     setArchivedConfirmOpened(false);
                     toast.success(
-                        `The group has been successfully ${chat.isArchived ? 'retrieved' : 'archived'}.`,
+                        `The group has been successfully ${chat.isArchived ? 'unarchived' : 'archived'}.`,
                     );
                 })
                 .catch((error) => {
@@ -977,20 +978,21 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                             <Info size={16} className='mr-1' />
                                             About
                                         </TabsTrigger>
-                                        {chat?.isChannel && (
-                                            <TabsTrigger
-                                                value='members'
-                                                className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
-                                            >
-                                                <Users
-                                                    size={16}
-                                                    className='mr-1'
-                                                />
-                                                Members (
-                                                {chat?.membersCount || 0})
-                                                {/* Members */}
-                                            </TabsTrigger>
-                                        )}
+                                        {chat?.isChannel &&
+                                            !chat?.myData?.isBlocked && (
+                                                <TabsTrigger
+                                                    value='members'
+                                                    className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
+                                                >
+                                                    <Users
+                                                        size={16}
+                                                        className='mr-1'
+                                                    />
+                                                    Members (
+                                                    {chat?.membersCount || 0})
+                                                    {/* Members */}
+                                                </TabsTrigger>
+                                            )}
                                         <TabsTrigger
                                             value='images'
                                             className='flex-1 !bg-transparent shadow-none rounded-none border-b-2 border-b-border data-[state=active]:border-b-blue-600 data-[state=active]:shadow-none data-[state=active]:text-blue-600'
@@ -1238,7 +1240,10 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                                     className='!p-2'
                                                     onClick={() => handleNoti()}
                                                 >
-                                                    Mute Notification
+                                                    {chat?.myData?.notification
+                                                        ?.isOn
+                                                        ? 'Mute Notification'
+                                                        : 'Unmute Notification'}
                                                 </Button>
                                             </div>
                                         </div>
@@ -1625,7 +1630,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                                                     className='text-start text-gray bg-background'
                                                 >
                                                     {chat?.isArchived
-                                                        ? 'Retrieve Crowd'
+                                                        ? 'Unarchive Crowd'
                                                         : 'Archive Crowd'}
                                                 </Button>
                                                 <Button
@@ -1732,16 +1737,16 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                 confirmIcon={<LogOut />}
             />
             <ConfirmModal
-                text={`Do you want to ${chat?.isArchived ? 'Retrieve' : 'Archive'} this crowd?`}
+                text={`Do you want to ${chat?.isArchived ? 'Unarchive' : 'Archive'} this crowd?`}
                 subtitle={
                     chat?.isArchived
-                        ? `Retrieving this crowd will restore your access to its messages and activities.`
+                        ? `Unarchiving this crowd will restore your access to its messages and activities.`
                         : `Archiving this crowd will remove your access to its messages and activities.`
                 }
                 opened={archivedConfirmOpened}
                 close={() => setArchivedConfirmOpened(false)}
                 handleConfirm={handleArchive}
-                confirmText={chat?.isArchived ? 'Retrieve' : 'Archive'}
+                confirmText={chat?.isArchived ? 'Unarchive' : 'Archive'}
                 cancelText='Cancel'
                 icon={
                     <div className='p-5 bg-red-500/20 rounded-full'>
@@ -1757,12 +1762,33 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ handleToggleInfo, chatId }) => {
                 isLoading={isSubmitting}
             />
             <Suspense fallback={null}>
-                <NotificationOptionModal
-                    chatId={chat?._id}
-                    opened={notificationOption.isVisible}
-                    close={closeNotificationModal}
-                    member={chat?.myData}
-                />
+                {/* Notification Modal - Positioned in the center of the chatbox */}
+                {notificationOption.isVisible && (
+                    <div className='fixed inset-0 flex items-center justify-center z-50'>
+                        <div
+                            className='absolute inset-0 bg-black opacity-65'
+                            onClick={closeNotificationModal}
+                        ></div>
+                        <div className='relative z-10 bg-background rounded-md shadow-lg max-w-md w-full mx-auto'>
+                            <NotificationOptionModal
+                                chatId={chat?._id}
+                                opened={notificationOption.isVisible}
+                                close={closeNotificationModal}
+                                member={chat?.myData}
+                                handleUpdateCallback={(updatedMember) => {
+                                    // Also dispatch to update the redux store directly
+                                    dispatch(
+                                        updateMyData({
+                                            _id: chat?._id,
+                                            field: 'notification',
+                                            value: updatedMember.notification,
+                                        }),
+                                    );
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
             </Suspense>
         </>
     );

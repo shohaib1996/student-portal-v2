@@ -921,6 +921,7 @@ export const chatApi = baseApi.injectEndpoints({
             providesTags: (result, error, { chatId, type }) =>
                 result
                     ? [
+                          // Keep existing Message tags
                           ...result.medias.map(({ _id }) => ({
                               type: 'Messages' as const,
                               id: _id,
@@ -929,11 +930,34 @@ export const chatApi = baseApi.injectEndpoints({
                               type: 'Messages' as const,
                               id: `${chatId}-${type || 'all'}`,
                           },
+                          // Add chatMedia tags using your enum
+                          ...result.medias.map(({ _id }) => ({
+                              type: tagTypes.chatMedia,
+                              id: _id,
+                          })),
+                          {
+                              type: tagTypes.chatMedia,
+                              id: `${chatId}-${type || 'all'}`,
+                          },
+                          // Add a general tag for the chat
+                          {
+                              type: tagTypes.chatMedia,
+                              id: chatId,
+                          },
                       ]
                     : [
                           {
                               type: 'Messages' as const,
                               id: `${chatId}-${type || 'all'}`,
+                          },
+                          // Add ChatMedia tag for empty results
+                          {
+                              type: tagTypes.chatMedia,
+                              id: `${chatId}-${type || 'all'}`,
+                          },
+                          {
+                              type: tagTypes.chatMedia,
+                              id: chatId,
                           },
                       ],
         }),

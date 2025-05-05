@@ -10,6 +10,7 @@ export enum tagTypes {
     course = 'course',
     members = 'members',
     mediaCounts = 'mediaCounts',
+    chatMedia = 'chatMedia',
 }
 
 export const tagTypesList = [
@@ -24,4 +25,5 @@ export const tagTypesList = [
     tagTypes.course,
     tagTypes.members,
     tagTypes.mediaCounts,
+    tagTypes.chatMedia,
 ];

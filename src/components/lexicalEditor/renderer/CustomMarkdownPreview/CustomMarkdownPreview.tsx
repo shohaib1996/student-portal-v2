@@ -312,10 +312,10 @@ const preprocessText = (text?: string): string => {
         /(?<!\n)(?<!<\/li>)(?<!<\/h[1-6]>)(?<!<\/blockquote>)(?<!<\/pre>)\n(?!\n)(?!<(ol|ul|li|h[1-6]|blockquote|pre))/g,
         '<br />',
     );
-
+    // Add this line after the emphasis/italic formatting (right after processing the * for italic)
+    processed = processed.replace(/~~(.*?)~~/g, '<del>$1</del>');
     // Replace double newlines with paragraph breaks
     processed = processed.replace(/\n\n+/g, '</p><p>');
-
     // Wrap content in paragraphs
     processed = '<p>' + processed + '</p>';
 
@@ -467,6 +467,10 @@ const GlobalStyles = () => (
             padding-left: 2rem;
             margin-bottom: 1rem;
         }
+        .custom-text::selection {
+            background: #a1c4ff;
+            color: #3c0ce9;
+        }
         .custom-text ul {
             list-style-type: disc;
             padding-left: 2rem;
@@ -578,6 +582,7 @@ const GlobalStyles = () => (
 
         /* Links */
         .custom-text a {
+            color: #f3ca14 !important;
             text-decoration: none;
             font-weight: 500;
             transition: all 0.2s ease;

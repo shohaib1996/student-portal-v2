@@ -1043,179 +1043,191 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                             {/* -------------- X replies tree ------------------------ */}
                         </div>
 
-                        {!hideOptions && message?.type !== 'delete' && (
-                            <div className='mt-2 self-start flex items-center'>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <div className='h-4 w-4 cursor-pointer'>
-                                            <MoreVertical className='h-4 w-4 cursor-pointer' />
-                                            <span className='sr-only'>
-                                                Open menu
-                                            </span>
-                                        </div>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent
-                                        align={
-                                            !hideAlign &&
-                                            message?.sender?._id === user?._id
-                                                ? 'start'
-                                                : 'end'
-                                        }
-                                        className='bg-background'
-                                    >
-                                        <div className='flex flex-wrap gap-1 border-b pb-1'>
-                                            {emojies?.map((x, i) => {
-                                                // Assume reactions[emoji] is a count; check if user reacted via server or state
-                                                const isSelected =
-                                                    message?.reactions?.[x] &&
-                                                    message?.reactions[x] > 0; // Adjust based on actual logic
-                                                return (
-                                                    <div
-                                                        key={i}
-                                                        className={`cursor-pointer h-8 w-8 flex items-center justify-center hover:bg-foreground hover:border rounded-full ${x === '❤' ? 'text-red-500' : ''} ${isSelected ? 'bg-foreground border' : ''}`}
+                        {!hideOptions &&
+                            message?.type !== 'delete' &&
+                            !isAi && (
+                                <div className='mt-2 self-start flex items-center'>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <div className='h-4 w-4 cursor-pointer'>
+                                                <MoreVertical className='h-4 w-4 cursor-pointer' />
+                                                <span className='sr-only'>
+                                                    Open menu
+                                                </span>
+                                            </div>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent
+                                            align={
+                                                !hideAlign &&
+                                                message?.sender?._id ===
+                                                    user?._id
+                                                    ? 'start'
+                                                    : 'end'
+                                            }
+                                            className='bg-background'
+                                        >
+                                            <div className='flex flex-wrap gap-1 border-b pb-1'>
+                                                {emojies?.map((x, i) => {
+                                                    // Assume reactions[emoji] is a count; check if user reacted via server or state
+                                                    const isSelected =
+                                                        message?.reactions?.[
+                                                            x
+                                                        ] &&
+                                                        message?.reactions[x] >
+                                                            0; // Adjust based on actual logic
+                                                    return (
+                                                        <div
+                                                            key={i}
+                                                            className={`cursor-pointer h-8 w-8 flex items-center justify-center hover:bg-foreground hover:border rounded-full ${x === '❤' ? 'text-red-500' : ''} ${isSelected ? 'bg-foreground border' : ''}`}
+                                                            onClick={() =>
+                                                                handleReaction(
+                                                                    x,
+                                                                    message._id,
+                                                                    message.chat,
+                                                                )
+                                                            }
+                                                        >
+                                                            {x}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                            {source !== 'thread' && !isAi && (
+                                                <DropdownMenuItem
+                                                    className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
+                                                    onClick={
+                                                        handleThreadMessage
+                                                    }
+                                                >
+                                                    <Reply className='h-4 w-4' />
+                                                    Reply
+                                                </DropdownMenuItem>
+                                            )}
+                                            {!hideAlign &&
+                                                message?.sender?._id ===
+                                                    user?._id &&
+                                                (message?.text ||
+                                                    (message?.files?.length >
+                                                        0 &&
+                                                        !(
+                                                            message?.files
+                                                                ?.length ===
+                                                                1 &&
+                                                            message?.files[0]?.type?.startsWith(
+                                                                'audio/',
+                                                            )
+                                                        ))) && (
+                                                    <DropdownMenuItem
+                                                        className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
+                                                        onClick={() => {
+                                                            if (
+                                                                setEditMessage
+                                                            ) {
+                                                                setEditMessage(
+                                                                    message,
+                                                                );
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Pencil className='h-4 w-4' />
+                                                        Edit
+                                                    </DropdownMenuItem>
+                                                )}
+                                            {message?.files?.length === 0 && (
+                                                <DropdownMenuItem
+                                                    className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
+                                                    onClick={handleCopyClick}
+                                                >
+                                                    <Copy className='h-4 w-4' />
+                                                    Copy
+                                                </DropdownMenuItem>
+                                            )}
+
+                                            <DropdownMenuItem
+                                                className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
+                                                onClick={() =>
+                                                    toast.info('Coming soon!')
+                                                }
+                                            >
+                                                <Clock className='h-4 w-4' />
+                                                History
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
+                                                onClick={() => {
+                                                    handlePin(message);
+                                                }}
+                                            >
+                                                <Pin className='h-4 w-4 rotate-45' />
+                                                {message.pinnedBy
+                                                    ? 'Unpin Message'
+                                                    : 'Pin Message'}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
+                                                onClick={() =>
+                                                    toast.info('Coming soon!')
+                                                }
+                                            >
+                                                <Star className='h-4 w-4' />
+                                                Star
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
+                                                onClick={handleForward}
+                                            >
+                                                <Forward className='h-4 w-4' />
+                                                Forward
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
+                                                onClick={() =>
+                                                    toast.info('Coming soon!')
+                                                }
+                                            >
+                                                <Share2 className='h-4 w-4' />
+                                                Share
+                                            </DropdownMenuItem>
+
+                                            {!hideAlign &&
+                                                message?.sender?._id ===
+                                                    user?._id &&
+                                                !isAi && (
+                                                    <DropdownMenuItem
+                                                        className='flex items-center gap-2 hover:!bg-foreground !text-red-500'
                                                         onClick={() =>
-                                                            handleReaction(
-                                                                x,
-                                                                message._id,
-                                                                message.chat,
+                                                            handleDeleteMessage(
+                                                                message,
                                                             )
                                                         }
                                                     >
-                                                        {x}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                        {source !== 'thread' && !isAi && (
+                                                        <Trash className='h-4 w-4 !text-red-500' />
+                                                        Delete
+                                                    </DropdownMenuItem>
+                                                )}
                                             <DropdownMenuItem
-                                                className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
-                                                onClick={handleThreadMessage}
+                                                className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white border-t'
+                                                onClick={() =>
+                                                    toast.info('Coming soon!')
+                                                }
                                             >
-                                                <Reply className='h-4 w-4' />
-                                                Reply
+                                                <Info className='h-4 w-4' />
+                                                Info
                                             </DropdownMenuItem>
-                                        )}
-                                        {!hideAlign &&
-                                            message?.sender?._id ===
-                                                user?._id &&
-                                            (message?.text ||
-                                                (message?.files?.length > 0 &&
-                                                    !(
-                                                        message?.files
-                                                            ?.length === 1 &&
-                                                        message?.files[0]?.type?.startsWith(
-                                                            'audio/',
-                                                        )
-                                                    ))) && (
-                                                <DropdownMenuItem
-                                                    className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
-                                                    onClick={() => {
-                                                        if (setEditMessage) {
-                                                            setEditMessage(
-                                                                message,
-                                                            );
-                                                        }
-                                                    }}
-                                                >
-                                                    <Pencil className='h-4 w-4' />
-                                                    Edit
-                                                </DropdownMenuItem>
-                                            )}
-                                        {message?.files?.length === 0 && (
-                                            <DropdownMenuItem
-                                                className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
-                                                onClick={handleCopyClick}
-                                            >
-                                                <Copy className='h-4 w-4' />
-                                                Copy
-                                            </DropdownMenuItem>
-                                        )}
-
-                                        <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
-                                            onClick={() =>
-                                                toast.info('Coming soon!')
-                                            }
-                                        >
-                                            <Clock className='h-4 w-4' />
-                                            History
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
-                                            onClick={() => {
-                                                handlePin(message);
-                                            }}
-                                        >
-                                            <Pin className='h-4 w-4 rotate-45' />
-                                            {message.pinnedBy
-                                                ? 'Unpin Message'
-                                                : 'Pin Message'}
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
-                                            onClick={() =>
-                                                toast.info('Coming soon!')
-                                            }
-                                        >
-                                            <Star className='h-4 w-4' />
-                                            Star
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
-                                            onClick={handleForward}
-                                        >
-                                            <Forward className='h-4 w-4' />
-                                            Forward
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white'
-                                            onClick={() =>
-                                                toast.info('Coming soon!')
-                                            }
-                                        >
-                                            <Share2 className='h-4 w-4' />
-                                            Share
-                                        </DropdownMenuItem>
-
-                                        {!hideAlign &&
-                                            message?.sender?._id ===
-                                                user?._id &&
-                                            !isAi && (
-                                                <DropdownMenuItem
-                                                    className='flex items-center gap-2 hover:!bg-foreground !text-red-500'
-                                                    onClick={() =>
-                                                        handleDeleteMessage(
-                                                            message,
-                                                        )
-                                                    }
-                                                >
-                                                    <Trash className='h-4 w-4 !text-red-500' />
-                                                    Delete
-                                                </DropdownMenuItem>
-                                            )}
-                                        <DropdownMenuItem
-                                            className='cursor-pointer flex items-center gap-2 hover:!bg-foreground hover:text-primary-white border-t'
-                                            onClick={() =>
-                                                toast.info('Coming soon!')
-                                            }
-                                        >
-                                            <Info className='h-4 w-4' />
-                                            Info
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                                {message.pinnedBy && (
-                                    <GlobalTooltip tooltip='Click to Unpin this message'>
-                                        <Pin
-                                            className='h-4 w-4 text-dark-gray rotate-45 cursor-pointer'
-                                            onClick={() => {
-                                                handlePin(message);
-                                            }}
-                                        />
-                                    </GlobalTooltip>
-                                )}
-                            </div>
-                        )}
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                    {message.pinnedBy && (
+                                        <GlobalTooltip tooltip='Click to Unpin this message'>
+                                            <Pin
+                                                className='h-4 w-4 text-dark-gray rotate-45 cursor-pointer'
+                                                onClick={() => {
+                                                    handlePin(message);
+                                                }}
+                                            />
+                                        </GlobalTooltip>
+                                    )}
+                                </div>
+                            )}
                     </div>
                 </div>
             )}

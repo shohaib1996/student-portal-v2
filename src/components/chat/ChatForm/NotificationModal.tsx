@@ -54,7 +54,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
     const [date, setDate] = useState<Date | undefined>();
     const [timeValue, setTimeValue] = useState<Date | null>(() => {
         const now = new Date();
-        now.setMinutes(now.getMinutes() + 15);
+        now.setMinutes(now.getMinutes() + 1);
         return now;
     });
     const [showDateTimePicker, setShowDateTimePicker] =
@@ -306,7 +306,7 @@ const NotificationOptionModal: React.FC<NotificationOptionModalProps> = (
             // Initialize time if not already set
             if (!timeValue) {
                 const now = new Date();
-                now.setMinutes(now.getMinutes() + 15);
+                now.setMinutes(now.getMinutes() + 1);
                 setTimeValue(now);
             }
         }

@@ -255,6 +255,8 @@ const Inbox: React.FC<InboxProps> = ({
                                         dayjs(
                                             chat?.otherUser?.lastActive,
                                         ).fromNow()
+                                    ) : isAi ? (
+                                        'Online'
                                     ) : (
                                         'Offline'
                                     )}

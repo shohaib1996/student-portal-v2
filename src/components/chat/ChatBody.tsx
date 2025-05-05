@@ -763,10 +763,11 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                             )}
 
                             {error && !selectedChat?.isArchived ? (
-                                <Alert variant='destructive'>
-                                    <AlertTitle>Error</AlertTitle>
-                                    <AlertDescription>{error}</AlertDescription>
-                                </Alert>
+                                // <Alert variant='destructive'>
+                                //     <AlertTitle>Error</AlertTitle>
+                                //     <AlertDescription>{error}</AlertDescription>
+                                // </Alert>
+                                <></>
                             ) : (
                                 <>
                                     {messages?.map(
@@ -888,7 +889,8 @@ const ChatBody: React.FC<ChatBodyProps> = ({
                 </div>
             )}
 
-            {!showPinnedMessages &&
+            {chat &&
+                !showPinnedMessages &&
                 !(chat?.myData?.isBlocked || selectedChat?.isArchived) && (
                     <ChatFooter
                         chat={chat as ChatData}

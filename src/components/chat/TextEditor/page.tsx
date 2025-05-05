@@ -33,7 +33,7 @@ import {
 import FileItem from './FileItem';
 import CaptureAudio from './CaptureAudio';
 import { instance } from '@/lib/axios/axiosInstance';
-import { useAppSelector } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 
 import {
     MentionMenu,
@@ -45,6 +45,8 @@ import {
 } from '@/components/lexicalEditor/chateditor/editor';
 import GlobalTooltip from '@/components/global/GlobalTooltip';
 import { Button } from '@/components/ui/button';
+import { chatApi } from '@/redux/api/chats/chatApi';
+import { tagTypes } from '@/redux/api/tagType/tagTypes';
 
 // Dynamically import EmojiPicker to prevent blocking the main bundle
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
@@ -97,7 +99,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     isChannel,
     chat,
 }) => {
-    console.log('Editing in text editor...', selectedMessage);
+    const dispatch = useAppDispatch();
     const { user } = useAppSelector((state) => state.auth);
     const { drafts } = useAppSelector((state) => state.chat);
     const [typing, setTyping] = useState<boolean>(false);
@@ -393,6 +395,23 @@ const TextEditor: React.FC<TextEditorProps> = ({
                     store.dispatch(updateMessage(res?.data?.message));
                     setLocalText('');
                     toast.success('Message updated successfully');
+
+                    // Invalidate tags using the enum
+                    dispatch(
+                        chatApi.util.invalidateTags([
+                            { type: 'Messages', id: chat?._id },
+                            { type: tagTypes.chatMedia, id: chat?._id },
+                            {
+                                type: tagTypes.chatMedia,
+                                id: `${chat?._id}-voice`,
+                            }, // For voice messages
+                            {
+                                type: tagTypes.chatMedia,
+                                id: `${chat?._id}-all`,
+                            }, // For all media
+                        ]),
+                    );
+
                     if (onSentCallback) {
                         onSentCallback({
                             action: 'create',
@@ -443,7 +462,21 @@ const TextEditor: React.FC<TextEditorProps> = ({
                             trackingId: String(randomId),
                         }),
                     );
-
+                    // Invalidate tags using the enum
+                    dispatch(
+                        chatApi.util.invalidateTags([
+                            { type: 'Messages', id: chat?._id },
+                            { type: tagTypes.chatMedia, id: chat?._id },
+                            {
+                                type: tagTypes.chatMedia,
+                                id: `${chat?._id}-voice`,
+                            }, // For voice messages
+                            {
+                                type: tagTypes.chatMedia,
+                                id: `${chat?._id}-all`,
+                            }, // For all media
+                        ]),
+                    );
                     if (!parentMessage && onSentCallback) {
                         onSentCallback({
                             action: 'create',
