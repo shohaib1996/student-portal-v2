@@ -62,13 +62,6 @@ export function WeekView({ currentDate, hoursView }: WeekViewProps) {
         i: number,
     ) => {
         const dateTime = dayjs(day).hour(hour).minute(0).second(0).toDate();
-
-        if (isBefore(dateTime, new Date())) {
-            toast.warning('Please select a future date and time');
-            e.stopPropagation();
-            return;
-        }
-
         dispatch(setCurrentDate(dateTime));
         openPopover(
             e.currentTarget.getBoundingClientRect(),

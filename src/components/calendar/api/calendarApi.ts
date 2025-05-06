@@ -288,7 +288,13 @@ const calendarApi = baseApi.injectEndpoints({
                 method: 'POST',
                 data,
             }),
-            invalidatesTags: [tagTypes.calendar],
+            invalidatesTags: (result, error, data) =>
+                result
+                    ? [
+                          tagTypes.calendar,
+                          { type: tagTypes.singleEvent, id: data.id },
+                      ]
+                    : [],
         }),
 
         addNewSchedule: build.mutation({

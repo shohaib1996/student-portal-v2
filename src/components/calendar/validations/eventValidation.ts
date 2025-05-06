@@ -24,12 +24,7 @@ export const EventFormSchema = z
                 }),
             )
             .min(1, 'Please add at least one guest.'),
-        startTime: z.date().refine(
-            (data) => {
-                return dayjs(data).isAfter(dayjs(), 'minute');
-            },
-            { message: 'Please select a future date' },
-        ),
+        startTime: z.date(),
         endTime: z.date(),
         isAllDay: z.boolean().default(false),
         recurrence: z
@@ -132,6 +127,13 @@ export const EventFormSchema = z
                     code: z.ZodIssueCode.custom,
                 });
             }
+        }
+        if (dayjs(data.endTime).isBefore(dayjs(data.startTime), 'minute')) {
+            ctx.addIssue({
+                path: ['endDate'],
+                message: 'End date cannot be before start date',
+                code: z.ZodIssueCode.custom,
+            });
         }
     });
 

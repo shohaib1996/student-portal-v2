@@ -47,9 +47,6 @@ export function DayView({ currentDate, onChange, onModal }: DayViewProps) {
         // You can implement custom logic here, like opening a modal to add an event
         const date = dayjs(currentDate);
         const updatedDate = date.hour(hour).minute(0).second(0).millisecond(0);
-        if (dayjs(updatedDate).isBefore(dayjs(), 'minute')) {
-            return toast.warning('Please select future date and time');
-        }
 
         const dateTime = dayjs(currentDate)
             .hour(hour)

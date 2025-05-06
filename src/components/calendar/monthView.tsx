@@ -132,13 +132,6 @@ export function MonthView({ currentDate }: MonthViewProps) {
                                     !isCurrentMonth && 'bg-muted/30',
                                 )}
                                 onClick={(e) => {
-                                    if (isBefore(day, startOfDay(new Date()))) {
-                                        toast.warning(
-                                            'Please select a future date',
-                                        );
-                                        e.stopPropagation();
-                                        return;
-                                    }
                                     handleDayClick(day);
                                 }}
                             >

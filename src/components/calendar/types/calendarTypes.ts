@@ -198,7 +198,11 @@ export type TEvent = {
         _id?: string;
     };
     attendeeCount?: number;
-    myResponseStatus?: 'accepted' | 'needsAction' | 'denied' | 'finished';
+    myResponseStatus?:
+        | 'accepted'
+        | 'needsAction'
+        | 'declined'
+        | 'proposedNewTime';
     status: 'todo' | 'inprogress' | 'completed' | 'cancelled';
 };
 
