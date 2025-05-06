@@ -364,12 +364,14 @@ const CreateEventModal = () => {
                     id: updateId,
                     updateOption,
                     changes: {
-                        ...(event.recurrence?.isRecurring ? rest : data),
+                        changes: {
+                            ...(event.recurrence?.isRecurring ? rest : data),
+                        },
                     },
                 }).unwrap();
                 if (res) {
                     todoForm.reset(todoForm.formState.defaultValues);
-                    toast.success('Successfully added a new event');
+                    toast.success('Successfully added a new task');
                     handleClose();
                 }
             } else {
@@ -380,13 +382,13 @@ const CreateEventModal = () => {
                 }).unwrap();
                 if (res) {
                     todoForm.reset(todoForm.formState.defaultValues);
-                    toast.success('Successfully added a new event');
+                    toast.success('Successfully updated task');
                     handleClose();
                 }
             }
         } catch (err) {
             toast.error(
-                `Failed to ${updateId ? 'update' : 'add'} todo. Please try again later`,
+                `Failed to ${updateId ? 'update' : 'add'} task. Please try again later`,
             );
         }
     }

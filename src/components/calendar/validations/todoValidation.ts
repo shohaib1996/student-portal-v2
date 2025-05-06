@@ -13,12 +13,7 @@ export const TodoFormSchema = z
                 resourceId: z.string(),
             })
             .optional(),
-        startTime: z.date().refine(
-            (data) => {
-                return dayjs(data).isAfter(dayjs(), 'minute');
-            },
-            { message: 'Please select a future date' },
-        ),
+        startTime: z.date(),
         endTime: z.date(),
         recurrence: z
             .object({
@@ -111,6 +106,13 @@ export const TodoFormSchema = z
                     code: z.ZodIssueCode.custom,
                 });
             }
+        }
+        if (dayjs(data.endTime).isBefore(dayjs(data.startTime), 'minute')) {
+            ctx.addIssue({
+                path: ['endDate'],
+                message: 'End date cannot be before start date',
+                code: z.ZodIssueCode.custom,
+            });
         }
     });
 
