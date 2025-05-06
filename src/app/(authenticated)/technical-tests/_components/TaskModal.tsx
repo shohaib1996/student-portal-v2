@@ -22,6 +22,7 @@ type TAttatchment = {
 
 interface TaskModalProps {
     isOpen: boolean;
+    activeTab: 'assignments' | 'tasks' | 'questions';
     onClose: () => void;
     mode: 'test' | 'result';
     taskData: {
@@ -54,6 +55,7 @@ export default function TaskModal({
     handleprevious,
     current = 0,
     assignments = [],
+    activeTab,
 }: TaskModalProps) {
     const [answerText, setAnswerText] = useState('');
     const [comment, setComment] = useState('');
@@ -106,11 +108,12 @@ export default function TaskModal({
         return 'application/octet-stream';
     };
 
+    console.log({ id: taskData?.id, taskData });
     const handleSubmit = () => {
         const data = {
             answer: answerText,
             attachments: attachments.map((attachment) => attachment.url),
-            assignment: taskData.id,
+            assignment: taskData?.id,
         };
 
         instance
@@ -179,7 +182,13 @@ export default function TaskModal({
                         <ChevronLeft className='h-5 w-5' />
                     </button>
                     <div>
-                        <h2 className='font-medium text-lg'>Technical Test</h2>
+                        <h2 className='font-medium text-lg'>
+                            {activeTab === 'tasks'
+                                ? 'Technical Task'
+                                : activeTab === 'assignments'
+                                  ? 'Assignments Test'
+                                  : 'Technical Question'}
+                        </h2>
                         <p className='text-sm text-gray'>
                             {mode === 'test'
                                 ? 'Get Ready to Begin Your Technical Test'
@@ -251,7 +260,7 @@ export default function TaskModal({
                         {taskData.title}
                     </h3>
                     <div className='flex items-center gap-1.5'>
-                        <p className='text-nowrap'>ID: #{taskData.id}</p>
+                        {/* <p className='text-nowrap'>ID: #{taskData.id}</p> */}
                         {assignments.length > 0 && (
                             <p className='text-nowrap bg-foreground rounded-full text-base px-2.5 py-1'>
                                 {(current || 0) + 1} of {assignments.length}
