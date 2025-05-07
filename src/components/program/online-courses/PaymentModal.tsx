@@ -182,6 +182,18 @@ export function PaymentModal({
                     setCreatedTrx(res?.transaction);
                     if (selectedMethod?.provider === 'paypal') {
                         setCurrentScreen('paypal');
+                    } else if (selectedMethod?.provider === 'square') {
+                        if (res?.redirectUrl) {
+                            onOpenChange(false);
+                            window.open(res?.redirectUrl, '_blank');
+                        } else {
+                            onOpenChange(false);
+                            toast.error('Something went wrong!');
+                            setSelectedMethod(null);
+                            setAmount('');
+                            setUploadFiles([]);
+                            setNote('');
+                        }
                     } else {
                         onOpenChange(false);
                         toast.success('Payment added successfully!');
@@ -475,23 +487,7 @@ export function PaymentModal({
             subTitle='Fill out the form to add new payment'
             customFooter={
                 <div className='p-5 bg-background'>
-                    {selectedMethod?.provider === 'square' ? (
-                        <Button
-                            className='w-full bg-primary hover:bg-primary/90'
-                            onClick={() => {
-                                toast.error('Coming Soon');
-                                // onOpenChange(false);
-                                // setSelectedMethod(null);
-                                // setAmount('');
-                                // setUploadFiles([]);
-                                // setNote('');
-                            }}
-                            disabled={!selectedMethod || !amount || isLoading}
-                        >
-                            Coming Soon
-                            <ArrowRight className='ml-2 h-4 w-4' />
-                        </Button>
-                    ) : currentScreen === 'payment' ? (
+                    {currentScreen === 'payment' ? (
                         <Button
                             className='w-full bg-primary hover:bg-primary/90'
                             onClick={submitPayment}
