@@ -13,6 +13,7 @@ import {
     LogOut,
     BookOpenText,
     MessageCircleMore,
+    CircleDollarSign,
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -84,18 +85,18 @@ const Navbar = () => {
                 </Link>
             ),
         },
-        // {
-        //     id: 3,
-        //     content: (
-        //         <Link
-        //             href='/payment-history'
-        //             className='flex gap-2 text-dark-gray items-center cursor-pointer'
-        //         >
-        //             <CircleDollarSign size={18} />
-        //             Payments
-        //         </Link>
-        //     ),
-        // },
+        {
+            id: 3,
+            content: (
+                <Link
+                    href='/payment-history'
+                    className='flex gap-2 text-dark-gray items-center cursor-pointer'
+                >
+                    <CircleDollarSign size={18} />
+                    Payments
+                </Link>
+            ),
+        },
         {
             id: 343,
             content: (
