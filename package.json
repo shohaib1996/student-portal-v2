@@ -40,6 +40,7 @@
         "@lexical/text": "^0.29.0",
         "@lexical/utils": "^0.29.0",
         "@mdxeditor/editor": "^3.28.0",
+        "@paypal/react-paypal-js": "^8.8.3",
         "@pjsalita/react-mouse-trail": "^1.0.8",
         "@radix-ui/react-accordion": "^1.2.3",
         "@radix-ui/react-alert-dialog": "^1.1.6",

@@ -2,8 +2,7 @@
 
 import { usePaymentHistoryApiQuery } from '@/redux/api/payment-history/paymentHistory';
 
-export default function TransactionsStatistics() {
-    const { data, isLoading, error } = usePaymentHistoryApiQuery({});
+export default function TransactionsStatistics({ data, isLoading }: any) {
     const paidAmount = data?.transactions
         ?.filter((t: any) => t.status === 'approved')
         ?.reduce((a: any, b: any) => a + (b.amount || 0), 0);

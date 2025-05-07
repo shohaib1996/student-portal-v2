@@ -12,12 +12,12 @@ import dayjs from 'dayjs';
 import GlobalModal from '@/components/global/GlobalModal';
 import { Badge } from '@/components/ui/badge';
 
-const TransactionTable = () => {
+const TransactionTable = ({ data, isLoading }: any) => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
     const [item, setItem] = useState<any>(null);
     const [open, setOpen] = useState<boolean>(false);
-    const { data, isLoading, error } = usePaymentHistoryApiQuery(undefined);
+
     const transactions = data?.transactions;
 
     // Calculate total pages

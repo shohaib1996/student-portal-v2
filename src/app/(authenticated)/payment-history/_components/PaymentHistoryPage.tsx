@@ -8,10 +8,11 @@ import { useState } from 'react';
 import { PaymentModal } from '@/components/program/online-courses/PaymentModal';
 import TransactionsStatistics from './TransactionsStatistics';
 import TransactionTable from './TransactionTable';
+import { usePaymentHistoryApiQuery } from '@/redux/api/payment-history/paymentHistory';
 
 export default function PaymentHistoryPage() {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
+    const { data, isLoading, error, refetch } = usePaymentHistoryApiQuery({});
     const handleOpenModal = () => {
         setIsModalOpen(true);
     };
@@ -46,10 +47,17 @@ export default function PaymentHistoryPage() {
                 }
             />
 
-            <TransactionsStatistics />
-            <TransactionTable />
+            <TransactionsStatistics data={data} isLoading={isLoading} />
+            <TransactionTable data={data} isLoading={isLoading} />
 
-            <PaymentModal open={isModalOpen} onOpenChange={handleCloseModal} />
+            <PaymentModal
+                availableMethods={data?.availableMethods || []}
+                open={isModalOpen}
+                onOpenChange={() => {
+                    handleCloseModal();
+                    refetch();
+                }}
+            />
         </section>
     );
 }
