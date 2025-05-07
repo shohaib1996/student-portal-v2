@@ -37,15 +37,19 @@ interface TaskCardProps {
     task: Task;
     onTestNow?: () => void;
     onSeeResult?: () => void;
+    activeTab: 'assignments' | 'tasks' | 'questions';
 }
 
 export default function TaskCard({
     task,
     onTestNow,
     onSeeResult,
+    activeTab,
 }: TaskCardProps) {
     const [isMobile, setIsMobile] = useState(false);
-
+    const isDeadlinePassed = task.deadline
+        ? dayjs(task.deadline).isBefore(dayjs())
+        : false;
     // Check for mobile screen size
     useEffect(() => {
         const checkForMobile = () => {
@@ -175,7 +179,7 @@ export default function TaskCard({
                         <Button
                             disabled={task.status === 'not_answered'}
                             onClick={onSeeResult}
-                            variant='ghost'
+                            variant='outline'
                             className={`rounded-md px-3 py-2 h-auto flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-black ${
                                 isMobile ? 'w-full' : ''
                             }`}

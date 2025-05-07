@@ -87,7 +87,7 @@ export default function TechnicalMetrics({
     ];
 
     return (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 lg:gap-4 gap-2'>
             {firstRowMetrics.map((metric, index) => (
                 <MetricCard key={index} metric={metric} />
             ))}
@@ -100,7 +100,7 @@ function MetricCard({ metric }: { metric: Metric }) {
     const Icon = metric.icon;
 
     return (
-        <Card className='shadow-none my-2 bg-foreground'>
+        <Card className='shadow-none  lg::my-2 bg-foreground'>
             <CardContent className='flex flex-col p-2 h-full justify-center'>
                 <div className='flex items-center gap-3'>
                     <div className='h-12 w-12 rounded-full bg-blue-500/20 flex items-center justify-center'>

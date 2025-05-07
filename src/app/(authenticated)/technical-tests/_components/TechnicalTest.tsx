@@ -610,6 +610,7 @@ const TechnicalTest = () => {
                                 variant={!isGridView ? 'outline' : 'default'}
                                 onClick={() => toggleViewMode(true)}
                                 className={isMobile ? 'px-2' : ''}
+                                tooltip='Grid View'
                             >
                                 <LayoutGrid size={16} />
                             </Button>
@@ -617,6 +618,7 @@ const TechnicalTest = () => {
                                 variant={isGridView ? 'outline' : 'default'}
                                 onClick={() => toggleViewMode(false)}
                                 className={isMobile ? 'px-2' : ''}
+                                tooltip='List View'
                             >
                                 <List size={16} />
                             </Button>
@@ -723,6 +725,7 @@ const TechnicalTest = () => {
                             <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3'>
                                 {assignments.map((task, index) => (
                                     <TaskCard
+                                        activeTab={activeTab}
                                         key={task._id}
                                         task={{
                                             id: task.id?.toString(),
@@ -771,6 +774,7 @@ const TechnicalTest = () => {
                             <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3'>
                                 {assignments.map((assignment, index) => (
                                     <TaskCard
+                                        activeTab={activeTab}
                                         key={assignment._id}
                                         task={{
                                             id: assignment.id?.toString(),
@@ -827,6 +831,7 @@ const TechnicalTest = () => {
                             <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3'>
                                 {assignments.map((question, index) => (
                                     <TaskCard
+                                        activeTab={activeTab}
                                         key={question._id}
                                         task={{
                                             id: question.id?.toString(),
@@ -887,6 +892,7 @@ const TechnicalTest = () => {
                         setModalOpen(false);
                         setSelectedItem(null);
                     }}
+                    activeTab={activeTab}
                     mode={modalMode}
                     taskData={{
                         id: selectedItem?.id?.toString(),
