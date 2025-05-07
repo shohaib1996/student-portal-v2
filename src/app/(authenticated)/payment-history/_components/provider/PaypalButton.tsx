@@ -24,7 +24,7 @@ function PaypalButton({
         'client-id': paypalConfig.clientId,
         'enable-funding': 'venmo',
         'disable-funding': '',
-        'buyer-country': 'US',
+        // 'buyer-country': 'US',
         currency: 'USD',
         'data-page-type': 'product-details',
         components: 'buttons',
