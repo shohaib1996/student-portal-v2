@@ -192,9 +192,8 @@ const TransactionTable = ({ data, isLoading }: any) => {
     ];
 
     return (
-        <div className='pt-2 h-[calc(100vh-210px)] flex flex-col justify-between'>
+        <div className='flex h-[calc(100vh-210px)] flex-col justify-between'>
             <GlobalTable
-                height='max-h-[calc(100vh-290px)]'
                 isLoading={isLoading}
                 limit={limit}
                 data={paginatedTransactions}

@@ -59,6 +59,7 @@ import {
     CircleX,
     CloudUpload,
     Loader,
+    UploadIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -67,8 +68,13 @@ import { DatePicker } from '@/components/global/DatePicket';
 import dayjs from 'dayjs';
 import { instance } from '@/lib/axios/axiosInstance';
 import { setUser } from '@/redux/features/auth/authReducer';
-import { useUpdateUserInfoMutation } from '@/redux/api/user/userApi';
+import {
+    useUpdateUserInfoMutation,
+    useUploadImageMutation,
+} from '@/redux/api/user/userApi';
 import { useRouter } from 'next/navigation';
+import LoadingSpinner from '@/components/global/Community/LoadingSpinner/LoadingSpinner';
+import GlobalTooltip from '@/components/global/GlobalTooltip';
 
 // Form validation schema
 const FormSchema = z.object({
@@ -187,12 +193,15 @@ const FormSchema = z.object({
     }),
 });
 
+const allowedImageExtensions = ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG'];
+
 export default function UserProfileForm() {
     const dispatch = useAppDispatch();
     const { user } = useAppSelector((state) => state.auth);
     const [updateUserInfo, { isLoading: isUpdating }] =
         useUpdateUserInfoMutation();
     const router = useRouter();
+    const [uploadImage, { isLoading }] = useUploadImageMutation();
     // Form state
     const [date, setDate] = useState(new Date(2000, 0, 1));
     const [memberSince, setMemberSince] = useState(
@@ -441,6 +450,30 @@ export default function UserProfileForm() {
     const getAboutCharCount = () =>
         maxAboutChars - (form.watch('about')?.length || 0);
 
+    const handleUploadImage = async (image: File) => {
+        if (image) {
+            const fileExtention = image.name?.split('.').pop();
+            if (
+                fileExtention &&
+                !allowedImageExtensions.includes(fileExtention)
+            ) {
+                return toast.error(
+                    'Invalid file type. Upload jpg, jpeg, or png only.',
+                );
+            }
+        }
+        const formData = new FormData();
+        formData.append('image', image);
+        console.log(formData);
+        try {
+            const response = await uploadImage(formData).unwrap();
+            dispatch(setUser(response?.user));
+            toast.success(response?.message);
+        } catch (error: any) {
+            toast.error(error.data.error);
+        }
+    };
+
     return (
         <div className='max-w-[1200px] mx-auto'>
             <style jsx global>{`
@@ -478,7 +511,7 @@ export default function UserProfileForm() {
 
             <div className='flex flex-col'>
                 <div className='flex items-center my-3 bg-foreground p-4 gap-2 rounded-lg'>
-                    <div className='relative'>
+                    <div className='relative group'>
                         <div className='w-10 h-10 rounded-full bg-gray-300 overflow-hidden'>
                             <Image
                                 src={user?.profilePicture || ''}
@@ -488,6 +521,30 @@ export default function UserProfileForm() {
                                 className='w-full h-full object-cover'
                             />
                         </div>
+                        <Label className='absolute bottom-0 right-0 cursor-pointer p-2 bg-primary rounded-full hidden group-hover:block z-10'>
+                            <Input
+                                type='file'
+                                className='hidden'
+                                disabled={isLoading}
+                                onChange={(e) => {
+                                    if (
+                                        e.target.files &&
+                                        e.target.files.length > 0
+                                    ) {
+                                        handleUploadImage(e.target.files[0]);
+                                    }
+                                }}
+                            />
+                            {isLoading ? (
+                                <LoadingSpinner />
+                            ) : (
+                                <UploadIcon
+                                    size={24}
+                                    strokeWidth={2}
+                                    className='text-white'
+                                />
+                            )}
+                        </Label>
                     </div>
                     <div>
                         <h2 className='text-lg font-medium'>
@@ -495,12 +552,21 @@ export default function UserProfileForm() {
                         </h2>
                         <p className='text-sm text-gray-500'>
                             {user?.email || 'johndoe123@gmail.com'}{' '}
-                            <span
+                            {/* <span
                                 className='text-blue-600 cursor-pointer hover:underline'
                                 onClick={commingSoon}
                             >
                                 Change Email
-                            </span>
+                            </span> */}
+                            {user?.isEmailVerified?.status === true ? (
+                                <span className='text-green-500 text-xs'>
+                                    (Verified)
+                                </span>
+                            ) : (
+                                <span className='text-danger/50 text-xs'>
+                                    (Not Verified)
+                                </span>
+                            )}
                         </p>
                     </div>
                 </div>
@@ -515,7 +581,9 @@ export default function UserProfileForm() {
                                     <h3 className='text-lg font-medium'>
                                         Personal Information
                                     </h3>
-                                    <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                    <GlobalTooltip tooltip='This information will be used to create your profile and will be visible to other users.'>
+                                        <Info className='h-4 w-4 ml-2 text-gray-400 cursor-pointer' />
+                                    </GlobalTooltip>
                                 </div>
 
                                 <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
@@ -696,9 +764,16 @@ export default function UserProfileForm() {
                                                     <span className='text-red-500 ml-1'>
                                                         *
                                                     </span>{' '}
-                                                    <span className='text-red-500 ml-1 text-xs md:hidden lg:block'>
-                                                        (Not Verified)
-                                                    </span>
+                                                    {user?.isEmailVerified
+                                                        ?.status === true ? (
+                                                        <span className='text-green-500 text-xs'>
+                                                            (Verified)
+                                                        </span>
+                                                    ) : (
+                                                        <span className='text-red-500 ml-1 text-xs md:hidden lg:block'>
+                                                            (Not Verified)
+                                                        </span>
+                                                    )}
                                                 </FormLabel>
                                                 <FormControl>
                                                     <Input
@@ -875,7 +950,9 @@ export default function UserProfileForm() {
                                     <h3 className='text-lg font-medium'>
                                         Address
                                     </h3>
-                                    <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                    <GlobalTooltip tooltip='Provide your current address. This will help personalize your experience and may be used for location-based features.'>
+                                        <Info className='h-4 w-4 ml-2 text-gray-400 cursor-pointer' />
+                                    </GlobalTooltip>
                                 </div>
 
                                 <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
@@ -1021,7 +1098,9 @@ export default function UserProfileForm() {
                                     <h3 className='text-lg font-medium'>
                                         About
                                     </h3>
-                                    <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                    <GlobalTooltip tooltip='Write a short bio to introduce yourself to other users. This appears on your public profile.'>
+                                        <Info className='h-4 w-4 ml-2 text-gray-400 cursor-pointer' />
+                                    </GlobalTooltip>
                                 </div>
 
                                 <div className='space-y-4'>
@@ -1135,7 +1214,9 @@ export default function UserProfileForm() {
                                     <h3 className='text-lg font-medium'>
                                         Social Links
                                     </h3>
-                                    <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                    <GlobalTooltip tooltip='Add links to your social media accounts to let others connect with you easily.'>
+                                        <Info className='h-4 w-4 ml-2 text-gray-400 cursor-pointer' />
+                                    </GlobalTooltip>
                                 </div>
 
                                 <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
@@ -1236,7 +1317,9 @@ export default function UserProfileForm() {
                                     <h3 className='text-lg font-medium'>
                                         Others Links
                                     </h3>
-                                    <Info className='h-4 w-4 ml-2 text-gray-400' />
+                                    <GlobalTooltip tooltip='Include any additional relevant links, such as a personal website, portfolio, or blog.'>
+                                        <Info className='h-4 w-4 ml-2 text-gray-400 cursor-pointer' />
+                                    </GlobalTooltip>
                                 </div>
 
                                 <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>

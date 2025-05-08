@@ -264,7 +264,7 @@ export function AppSidebar() {
                                                                     </SidebarMenuSubItem>
                                                                 )}
 
-                                                                {navigations?.myProgram && (
+                                                                {/* {navigations?.myProgram && (
                                                                     <SidebarMenuSubItem>
                                                                         <SidebarMenuButton
                                                                             asChild
@@ -278,7 +278,7 @@ export function AppSidebar() {
                                                                             </Link>
                                                                         </SidebarMenuButton>
                                                                     </SidebarMenuSubItem>
-                                                                )}
+                                                                )} */}
 
                                                                 {/* {navigations?.myE2eProgramAgenda && (
                                                                     <SidebarMenuSubItem>

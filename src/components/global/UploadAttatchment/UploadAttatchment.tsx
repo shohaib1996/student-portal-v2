@@ -6,7 +6,7 @@ import { Loader, Paperclip, X } from 'lucide-react';
 import React, { useState, useRef, DragEvent } from 'react';
 import { toast } from 'sonner';
 
-type TAttatchment = {
+export type TAttatchment = {
     name: string;
     type: string;
     size: number;
