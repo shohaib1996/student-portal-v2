@@ -1,11 +1,9 @@
 'use client';
 import Image from 'next/image';
 import React, { ReactNode, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { CommentType } from './GlobalComment';
 import { useAppSelector } from '@/redux/hooks';
 import { Button } from '@/components/ui/button';
-import GlobalDropdown from '@/components/global/GlobalDropdown';
 import {
     EllipsisVertical,
     MessageCircleReply,
@@ -185,7 +183,7 @@ const Comments = ({
                             <p className='whitespace-pre-wrap'>{text}</p>
                         </div>
                     )}
-                    <Popover>
+                    <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger>
                             {!isReply && (
                                 <button
@@ -209,6 +207,7 @@ const Comments = ({
                                         onClick={() => {
                                             setCurrentReply(id);
                                             setUpdate('');
+                                            setOpen(false);
                                         }}
                                         className='flex items-center w-full bg-background py-1 px-3 text-dark-gray hover:bg-primary-light cursor-pointer gap-2 border border-forground-border rounded-md'
                                     >

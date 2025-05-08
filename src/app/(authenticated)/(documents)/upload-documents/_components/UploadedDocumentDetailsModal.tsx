@@ -32,6 +32,7 @@ import {
 } from '@/redux/api/documents/documentsApi';
 import { TdUser } from '@/components/global/TdUser';
 import DocumentList from '../../my-documents/_components/documentsList';
+import { on } from 'events';
 
 export interface DocumentContent {
     title: string;
@@ -254,6 +255,17 @@ export function UploadedDocumentDetailsModal({
         return null;
     }
 
+    const handleDelete = () => {
+        deleteUserDocument(id || '')
+            .unwrap()
+            .then(() => {
+                toast.success('Document deleted successfully!');
+                onClose();
+            })
+            .catch((error) => {
+                toast.error(`Error deleting document: ${error}`);
+            });
+    };
     return (
         <>
             <GlobalDocumentDetailsModal isOpen={isOpen} onClose={onClose}>
@@ -285,6 +297,7 @@ export function UploadedDocumentDetailsModal({
                             </Button>
                             <GlobalDeleteModal
                                 deleteFun={deleteUserDocument}
+                                customDelete={handleDelete}
                                 _id={id || ''}
                                 itemTitle='Document'
                                 loading={isDeleting}
@@ -383,7 +396,7 @@ export function UploadedDocumentDetailsModal({
                                                                 <Badge
                                                                     key={index}
                                                                     variant='secondary'
-                                                                    className='text-sm bg-background bg-purple-100/20 text-purple-600 rounded-full'
+                                                                    className='text-sm bg-purple-100/20 text-purple-600 rounded-full'
                                                                 >
                                                                     {tag}
                                                                 </Badge>
@@ -499,7 +512,10 @@ export function UploadedDocumentDetailsModal({
                                                             doc.imageUrl ||
                                                             '/default_image.png'
                                                         }
-                                                        alt={doc.title}
+                                                        alt={
+                                                            doc.title ||
+                                                            'Document'
+                                                        }
                                                         width={400}
                                                         height={200}
                                                         className='h-36 w-full object-cover'

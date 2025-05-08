@@ -19,7 +19,7 @@ export default function TransactionsStatistics({ data, isLoading }: any) {
                         Total Amount
                     </h3>
                     <p className='text-white text-2xl font-bold'>
-                        ${data?.totalAmount || 0}
+                        ${data?.totalAmount?.toFixed(2) || 0}
                     </p>
                 </div>
             </div>
@@ -32,7 +32,7 @@ export default function TransactionsStatistics({ data, isLoading }: any) {
                         Due Amount
                     </h3>
                     <p className='text-white text-2xl font-bold'>
-                        ${dueAmount || 0}
+                        ${dueAmount?.toFixed(2) || 0}
                     </p>
                 </div>
             </div>
@@ -45,7 +45,7 @@ export default function TransactionsStatistics({ data, isLoading }: any) {
                         Paid Amount
                     </h3>
                     <p className='text-white text-2xl font-bold'>
-                        ${paidAmount || 0}
+                        ${paidAmount?.toFixed(2) || 0}
                     </p>
                 </div>
             </div>

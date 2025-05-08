@@ -261,12 +261,14 @@ export default function UploadDocumentComponent() {
                 buttons={
                     <div className='ml-auto flex items-center gap-2'>
                         <Button
+                            tooltip='Grid View'
                             variant={!isGridView ? 'outline' : 'default'}
                             onClick={() => setViewMode('grid')}
                         >
                             <LayoutGrid size={16} />
                         </Button>
                         <Button
+                            tooltip='List View'
                             variant={isGridView ? 'outline' : 'default'}
                             onClick={() => setViewMode('list')}
                         >

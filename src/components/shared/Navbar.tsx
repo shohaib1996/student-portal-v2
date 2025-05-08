@@ -90,7 +90,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/payment-history'
-                    className='flex gap-2 text-dark-gray items-center cursor-pointer'
+                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
                 >
                     <CircleDollarSign size={18} />
                     Payments
@@ -102,7 +102,7 @@ const Navbar = () => {
             content: (
                 <Link
                     href='/aggrements'
-                    className='flex gap-2 text-dark-gray items-center cursor-pointer hover:underline hover:bg-background hover:rounded-lg'
+                    className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
                 >
                     <ScrollText size={18} />
                     Aggrements

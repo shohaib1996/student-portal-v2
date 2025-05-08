@@ -5,18 +5,21 @@ import GlobalTable, {
 } from '@/components/global/GlobalTable/GlobalTable';
 import GlobalPagination from '@/components/global/GlobalPagination';
 import { Button } from '@/components/ui/button';
-import { BadgeCheck, CircleDot, Eye, Paperclip } from 'lucide-react';
+import { BadgeCheck, CircleDot, CircleX, Eye, Paperclip } from 'lucide-react';
 
 import { usePaymentHistoryApiQuery } from '@/redux/api/payment-history/paymentHistory';
 import dayjs from 'dayjs';
 import GlobalModal from '@/components/global/GlobalModal';
 import { Badge } from '@/components/ui/badge';
+import FileCard from '@/components/chat/FileCard';
 
 const TransactionTable = ({ data, isLoading }: any) => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(10);
     const [item, setItem] = useState<any>(null);
     const [open, setOpen] = useState<boolean>(false);
+    const [viewerOpen, setViewerOpen] = useState(false);
+    const [selectedImage, setSelectedImage] = useState('');
 
     const transactions = data?.transactions;
 
@@ -41,6 +44,10 @@ const TransactionTable = ({ data, isLoading }: any) => {
         }
     };
 
+    const handleImageClick = (attachment: string) => {
+        setSelectedImage(attachment);
+        setViewerOpen(true);
+    };
     // Column definitions
     const transactionColumns: TCustomColumnDef<any>[] = [
         {
@@ -109,9 +116,10 @@ const TransactionTable = ({ data, isLoading }: any) => {
                 if (extension && imageExtensions.includes(extension)) {
                     return (
                         <img
+                            onClick={() => handleImageClick(attachment)}
                             src={attachment}
                             alt='Attachment'
-                            className='max-w-[100px] max-h-[100px] object-contain'
+                            className='max-w-[100px] max-h-[100px] object-contain cursor-pointer'
                         />
                     );
                 }
@@ -154,8 +162,13 @@ const TransactionTable = ({ data, isLoading }: any) => {
                             <CircleDot className='text-danger' size={16} />{' '}
                             Pending
                         </span>
+                    ) : row.original.status === 'rejected' ? (
+                        <span className='flex items-center gap-1'>
+                            <CircleX className='text-danger' size={16} />{' '}
+                            Rejected
+                        </span>
                     ) : (
-                        <span>
+                        <span className='flex items-center gap-1'>
                             {' '}
                             <BadgeCheck
                                 className='text-green-500'
@@ -332,7 +345,7 @@ const TransactionTable = ({ data, isLoading }: any) => {
                                                 className='text-primary hover:underline flex items-center gap-1'
                                             >
                                                 <Paperclip className='h-4 w-4' />
-                                                View Attachment
+                                                Download Attachment
                                             </a>
                                         </div>
                                     )}
@@ -353,6 +366,29 @@ const TransactionTable = ({ data, isLoading }: any) => {
                     </div>
                 )}
             </GlobalModal>
+
+            {viewerOpen && selectedImage && (
+                <div
+                    className='fixed inset-0 z-50 flex items-center justify-center bg-pure-black/80'
+                    onClick={() => setViewerOpen(false)}
+                >
+                    <div
+                        className='relative max-w-full lg:max-w-[80vw] max-h-full lg:max-h-[95vh]'
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <FileCard
+                            file={{
+                                url: selectedImage,
+                                name: 'Payment',
+                                type: 'image/jpeg',
+                                size: 123200,
+                            }}
+                            index={0}
+                            key={1}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

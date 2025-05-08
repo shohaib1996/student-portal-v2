@@ -337,7 +337,7 @@ const GlobalComment: React.FC<GlobalCommentProps> = ({
                         bgColor={bgColor}
                     />
                     {comments.length === 0 && (
-                        <p className='not-available textBlack'>
+                        <p className='not-available text-gray text-center'>
                             No comments available
                         </p>
                     )}

@@ -212,7 +212,12 @@ export default function MyDocumentsPage() {
         {
             accessorKey: 'createdBy',
             header: 'Created By',
-            cell: ({ row }) => <TdUser user={row.original.createdBy} />,
+            cell: ({ row }) =>
+                row.original.createdBy ? (
+                    <TdUser user={row.original.createdBy} />
+                ) : (
+                    <span>N/A</span>
+                ),
             footer: (data) => data.column.id,
             id: 'createdBy',
             visible: true,
@@ -349,12 +354,14 @@ export default function MyDocumentsPage() {
                     <div className='flex items-center gap-2'>
                         {/* View mode toggles */}
                         <Button
+                            tooltip='Grid View'
                             variant={!isGridView ? 'outline' : 'default'}
                             onClick={() => toggleViewMode(true)}
                         >
                             <LayoutGrid size={16} />
                         </Button>
                         <Button
+                            tooltip='List View'
                             variant={isGridView ? 'outline' : 'default'}
                             onClick={() => toggleViewMode(false)}
                         >
@@ -477,11 +484,9 @@ export default function MyDocumentsPage() {
                 {/* Update the GlobalPagination component call */}
                 {allDocuments.length > 0 && (
                     <GlobalPagination
-                        currentPage={
-                            data?.pagination?.currentPage || currentPage
-                        }
-                        totalItems={data?.pagination?.total || 0}
-                        itemsPerPage={data?.pagination?.limit || limit}
+                        currentPage={currentPage}
+                        totalItems={data?.count || 0}
+                        itemsPerPage={limit}
                         onPageChange={handlePageChange}
                     />
                 )}

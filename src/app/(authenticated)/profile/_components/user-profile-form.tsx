@@ -436,10 +436,6 @@ export default function UserProfileForm() {
         }
     };
 
-    const commingSoon = () => {
-        toast.success('Coming Soon...');
-    };
-
     const uploadRef = useRef<HTMLInputElement>(null);
 
     // Calculate character counts just when rendering
