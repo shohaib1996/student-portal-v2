@@ -37,6 +37,10 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import dayjs from 'dayjs';
 import PaypalButton from '@/app/(authenticated)/payment-history/_components/provider/PaypalButton';
+import { DatePicker } from '@/components/global/DatePicket';
+import UploadAttatchment, {
+    TAttatchment,
+} from '@/components/global/UploadAttatchment/UploadAttatchment';
 
 type PaymentMethod = {
     id: string | number;
@@ -67,7 +71,7 @@ export function PaymentModal({
     );
     const [amount, setAmount] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [uploadFiles, setUploadFiles] = useState<string[]>([]);
+    const [uploadFiles, setUploadFiles] = useState<TAttatchment[]>([]);
     const [uploadingFiles, setUploadingFiles] = useState(false);
     const [note, setNote] = useState('');
     const [current, setCurrent] = useState<Date | undefined>(new Date());
@@ -302,51 +306,6 @@ export function PaymentModal({
                                 </div>
                             </div>
                         )}
-                    {/* {selectedMethod === 'bank' && (
-                        <div className='space-y-4 border rounded-md p-4 bg-foreground'>
-                            <h3 className='font-medium'>
-                                Bank Transfer Information
-                            </h3>
-                            <div className='grid grid-cols-2 gap-4'>
-                                <div>
-                                    <label className='block text-sm mb-1'>
-                                        Bank Name:
-                                    </label>
-                                    <Input defaultValue='IFIC Bank' />
-                                </div>
-                                <div>
-                                    <label className='block text-sm mb-1'>
-                                        Account Name:
-                                    </label>
-                                    <Input defaultValue='ACME Corporation' />
-                                </div>
-                                <div>
-                                    <label className='block text-sm mb-1'>
-                                        Account Number:
-                                    </label>
-                                    <Input defaultValue='1234567890' />
-                                </div>
-                                <div>
-                                    <label className='block text-sm mb-1'>
-                                        Routing Number:
-                                    </label>
-                                    <Input defaultValue='987654321' />
-                                </div>
-                            </div>
-                            <div>
-                                <label className='block text-sm mb-1'>
-                                    Reference:
-                                </label>
-                                <div className='text-sm text-muted-foreground'>
-                                    Include your name and invoice number
-                                </div>
-                                <div className='text-xs text-muted-foreground mt-1'>
-                                    Please allow 2-3 business days for the
-                                    transfer to be processed.
-                                </div>
-                            </div>
-                        </div>
-                    )} */}
 
                     {/* Amount */}
                     <div>
@@ -381,87 +340,13 @@ export function PaymentModal({
                     </div>
 
                     {/* File Attachment */}
-                    <div>
-                        <div className='flex justify-between items-center mb-2'>
-                            <span className='text-sm font-medium'>
-                                {uploadFiles.length > 0
-                                    ? `Attached Files (${uploadFiles.length})`
-                                    : ''}
-                            </span>
-                        </div>
-
-                        {uploadFiles.length > 0 && (
-                            <div className='space-y-2 mb-4'>
-                                {uploadFiles.map((url, index) => (
-                                    <div
-                                        key={index}
-                                        className='flex items-center justify-between border rounded-md p-2'
-                                    >
-                                        <div className='flex items-center gap-2'>
-                                            <div className='bg-muted w-8 h-8 rounded flex items-center justify-center'>
-                                                <Image
-                                                    src={url}
-                                                    width={32}
-                                                    height={80}
-                                                    alt='Payment Proves'
-                                                ></Image>
-                                            </div>
-                                            <div>
-                                                <div className='text-sm truncate max-w-[200px]'>
-                                                    {getFileNameFromUrl(url)}
-                                                </div>
-                                                {/* <div className='text-xs text-muted-foreground'>
-                                                    {Math.round(
-                                                        file.size / 1024,
-                                                    )}{' '}
-                                                    KB
-                                                </div> */}
-                                            </div>
-                                        </div>
-                                        <button
-                                            className='text-[#f34141] hover:bg-red-50 p-1 rounded-full'
-                                            onClick={() =>
-                                                handleRemoveFile(index)
-                                            }
-                                        >
-                                            <Trash2 className='h-4 w-4' />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {uploadingFiles ? (
-                            <div className='flex items-center justify-center space-x-2 text-gray text-sm'>
-                                <LoadingSpinner size={20} /> Please wait,
-                                Uploading...
-                            </div>
-                        ) : (
-                            <div
-                                className='border border-dashed rounded-md p-4 flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors'
-                                onClick={triggerFileInput}
-                            >
-                                <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-                                    <Paperclip className='h-4 w-4' />
-                                    <span>Attach or drag & drop</span>
-                                    <span className='text-xs'>
-                                        .JPG, .PNG, .PDF, .DOC, .XLSX, .MP4
-                                    </span>
-                                </div>
-                                <input
-                                    type='file'
-                                    ref={fileInputRef}
-                                    className='hidden'
-                                    onChange={(e) =>
-                                        e.target.files &&
-                                        handleUpload(e.target.files[0])
-                                    }
-                                    multiple
-                                    disabled={uploadingFiles}
-                                />
-                            </div>
-                        )}
-                    </div>
+                    <UploadAttatchment
+                        uploadClassName='bg-background'
+                        itemClassName='bg-background'
+                        className='bg-foreground'
+                        attachments={uploadFiles}
+                        onChange={setUploadFiles}
+                    />
                 </div>
             </div>
         </div>
@@ -471,16 +356,15 @@ export function PaymentModal({
         <GlobalModal
             className='bg-background'
             open={open}
-            setOpen={onOpenChange}
+            setOpen={() => {
+                onOpenChange(false);
+                setCurrentScreen('payment');
+            }}
             title={
                 <div>
-                    <Button
-                        variant='ghost'
-                        className='p-0'
-                        onClick={() => onOpenChange(false)}
-                    >
+                    <button className='p-0' onClick={() => onOpenChange(false)}>
                         <ArrowLeft className='h-4 w-4' />
-                    </Button>
+                    </button>
                     <span className='ml-1'>Add Payment</span>
                 </div>
             }
@@ -509,23 +393,13 @@ export function PaymentModal({
                 </div>
             }
             buttons={
-                <div className='bg-foreground border rounded-md px-3 py-1 text-sm flex items-center gap-1'>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <div className='flex items-center gap-2 cursor-pointer'>
-                                <CalendarIcon size={16} />{' '}
-                                {dayjs(current).format('MMM D, YYYY')}
-                            </div>
-                        </PopoverTrigger>
-                        <PopoverContent className='w-auto p-0 z-[999]'>
-                            <Calendar
-                                mode='single'
-                                selected={current}
-                                onSelect={(date) => setCurrent(date)}
-                                initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
+                <div className='flex items-center gap-1'>
+                    <DatePicker
+                        yearSelection
+                        className='w-40 bg-foreground'
+                        value={dayjs(current)}
+                        onChange={(val) => setCurrent(val?.toDate())}
+                    />
                 </div>
             }
         >
