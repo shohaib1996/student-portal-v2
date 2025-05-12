@@ -25,7 +25,7 @@ interface Message {
         profilePicture?: string;
     };
     text?: string;
-    createdAt: string | number;
+    createdAt: string;
     [key: string]: any;
 }
 
@@ -48,9 +48,6 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
     // In DeleteMessage.tsx, modify the handleDeleteMsg function:
 
     const handleDeleteMsg = () => {
-        if (onDelete) {
-            onDelete();
-        }
         if (!selectedMessage) {
             return;
         }
@@ -61,7 +58,32 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
             .then((res) => {
                 console.log({ DeleteMessageResponse: res?.data?.message });
 
-                // First update the message in the thread
+                // Check if this is a reply message
+                if (selectedMessage.parentMessage) {
+                    // If it's a reply, update the parent message to reflect the deletion in its replies
+                    dispatch(
+                        updateMessage({
+                            message: {
+                                _id: selectedMessage.parentMessage,
+                                chat: selectedMessage.chat,
+                                createdAt: selectedMessage.createdAt,
+                                // Add the updated reply to the parent's replies
+                                replies: [
+                                    {
+                                        ...selectedMessage,
+                                        chat: selectedMessage.chat,
+                                        type: 'delete',
+                                        text: '',
+                                        status: 'sent',
+                                        createdAt: selectedMessage.createdAt,
+                                    },
+                                ],
+                            },
+                        }),
+                    );
+                }
+
+                // Always update the message itself
                 dispatch(
                     updateMessage({
                         message: {
@@ -75,21 +97,27 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
                     }),
                 );
 
-                // Also update the latest message in the chat to ensure it's reflected in the inbox
-                dispatch(
-                    updateLatestMessage({
-                        chatId: selectedMessage.chat,
-                        latestMessage: {
-                            ...selectedMessage,
-                            type: 'delete',
-                            text: '',
-                            status: 'sent',
-                            _id: selectedMessage._id,
-                            chat: selectedMessage.chat,
-                            createdAt: String(selectedMessage.createdAt),
-                        },
-                    }),
-                );
+                // Update the latest message in the chat if needed
+                if (!selectedMessage.parentMessage) {
+                    dispatch(
+                        updateLatestMessage({
+                            chatId: selectedMessage.chat,
+                            latestMessage: {
+                                ...selectedMessage,
+                                type: 'delete',
+                                text: '',
+                                status: 'sent',
+                                _id: selectedMessage._id,
+                                chat: selectedMessage.chat,
+                                createdAt: String(selectedMessage.createdAt),
+                            },
+                        }),
+                    );
+                }
+
+                if (onDelete) {
+                    onDelete();
+                }
 
                 toast.success('Message deleted successfully');
                 setIsDeleting(false);

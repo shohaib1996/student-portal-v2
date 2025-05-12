@@ -63,7 +63,7 @@ type MessageComponent = React.ForwardRefExoticComponent<
 >;
 
 const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
-    const { chats } = useAppSelector((state) => state.chat);
+    const { chats, chatMessages } = useAppSelector((state) => state.chat);
     const params = useParams();
     const pinnedMessages = useAppSelector(
         (state) =>
@@ -74,7 +74,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     const [chatDelOpened, setChatDelOpened] = useState(false);
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
     // Add these new state variables at the beginning of the Message component:
-    const [initialReplies, setInitialReplies] = useState([]);
+    const [initialReplies, setInitialReplies] = useState<{ _id: string }[]>([]);
     const [loadingReplies, setLoadingReplies] = useState(false);
     // Inside your component function, add these state variables
     const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
@@ -144,6 +144,41 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
         }
     }, [message?._id, message?.replyCount, source, isReplyDeleted]);
 
+    useEffect(() => {
+        if (message?._id && message?.replyCount > 0 && source !== 'thread') {
+            // Get the updated message from Redux store to check for updated replies
+            const currentStoreState = store.getState();
+            const currentChatMessages =
+                currentStoreState.chat.chatMessages[message.chat] || [];
+            const updatedMessage = currentChatMessages.find(
+                (msg) => msg._id === message._id,
+            );
+
+            // If the message has replies in Redux that we can use, use those instead of fetching
+            if (updatedMessage?.replies && updatedMessage.replies.length > 0) {
+                // Filter out deleted replies first
+                const nonDeletedReplies = updatedMessage.replies.filter(
+                    (reply) => reply.type !== 'delete',
+                );
+
+                // Sort non-deleted replies by createdAt
+                const sortedReplies = [...nonDeletedReplies].sort(
+                    (a, b) =>
+                        new Date(b.createdAt).getTime() -
+                        new Date(a.createdAt).getTime(),
+                );
+
+                // If there are non-deleted replies, show the first one
+                if (sortedReplies.length > 0) {
+                    setInitialReplies(sortedReplies.slice(0, 1));
+                } else {
+                    // If all replies are deleted, show nothing
+                    setInitialReplies([]);
+                }
+            }
+        }
+    }, [chatMessages, message?._id, message?.chat]);
+
     const handleCopyClick = () => {
         if ((message?.files ?? []).length > 0) {
             // for files
@@ -200,6 +235,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
     };
 
     // handle reaction
+    // handle reaction
     const handleReaction = (
         emoji: string,
         messageId: string,
@@ -210,14 +246,68 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                 symbol: emoji,
             })
             .then((res) => {
-                dispatch(
-                    updateEmoji({
-                        message: {
-                            ...res.data.message,
-                            chat: chatId,
-                        },
-                    }),
-                );
+                const responseMessage = res.data.message;
+
+                // Case 1: Reaction to a reply in thread view
+                if (source === 'thread' && message.parentMessage) {
+                    // Update the reply message directly
+                    dispatch(
+                        updateEmoji({
+                            message: {
+                                ...responseMessage,
+                                chat: chatId,
+                                parentMessage: message.parentMessage,
+                            },
+                        }),
+                    );
+                }
+                // Case 2: Reaction to a reply preview in main chat view
+                else if (
+                    initialReplies.some((reply) => reply._id === messageId)
+                ) {
+                    // This is a reaction on a reply in the main chat preview
+                    // We need to update both the reply itself and its parent's replies collection
+
+                    // First, update the reply directly
+                    dispatch(
+                        updateEmoji({
+                            message: {
+                                ...responseMessage,
+                                chat: chatId,
+                                parentMessage: message._id, // The current message is the parent
+                            },
+                        }),
+                    );
+
+                    // Then update the parent message's replies collection
+                    const updatedReplies = initialReplies.map((reply) =>
+                        reply._id === messageId
+                            ? { ...reply, ...responseMessage }
+                            : reply,
+                    );
+
+                    dispatch(
+                        updateMessage({
+                            message: {
+                                _id: message._id,
+                                chat: chatId,
+                                replies: updatedReplies,
+                                createdAt: message.createdAt,
+                            },
+                        }),
+                    );
+                }
+                // Case 3: Reaction to a regular message
+                else {
+                    dispatch(
+                        updateEmoji({
+                            message: {
+                                ...responseMessage,
+                                chat: chatId,
+                            },
+                        }),
+                    );
+                }
             })
             .catch((error) => {
                 console.error(
@@ -817,7 +907,7 @@ const Message = forwardRef<HTMLDivElement, Message>((props, ref) => {
                                                         />
                                                         <div className='flex-1 flex flex-col'>
                                                             <div
-                                                                className={`rounded-lg p-2 ${
+                                                                className={`rounded-lg p-2 w-fit ${
                                                                     reply
                                                                         ?.sender
                                                                         ?._id ===

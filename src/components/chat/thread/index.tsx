@@ -77,7 +77,9 @@ const Thread: React.FC<ThreadProps> = ({
             const findMessage = chatMessages[chat?._id]?.find(
                 (x: any) => x._id === message?._id,
             );
-            setReplies(findMessage?.replies || []);
+            if (findMessage?.replies) {
+                setReplies(findMessage.replies || []);
+            }
         }
     }, [chatMessages, chat?._id, message?._id]);
 
