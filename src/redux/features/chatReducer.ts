@@ -505,6 +505,34 @@ const chatSlice = createSlice({
             const { message } = action.payload;
             const chatId = message.chat;
             const messagesArray = state.chatMessages[chatId] || [];
+
+            if (message.parentMessage) {
+                // This is a reply message - update it in its parent's replies array
+                const parentMsgIndex = messagesArray.findIndex(
+                    (m) => m._id === message.parentMessage,
+                );
+
+                if (
+                    parentMsgIndex !== -1 &&
+                    messagesArray[parentMsgIndex]?.replies
+                ) {
+                    const replyIndex = messagesArray[
+                        parentMsgIndex
+                    ].replies.findIndex((r) => r._id === message._id);
+
+                    if (replyIndex !== -1) {
+                        // Update the specific reply in the parent's replies array
+                        messagesArray[parentMsgIndex].replies[replyIndex] = {
+                            ...messagesArray[parentMsgIndex].replies[
+                                replyIndex
+                            ],
+                            ...message,
+                        };
+                    }
+                }
+            }
+
+            // Also update the message directly (for thread view)
             const messageIndex = messagesArray.findIndex(
                 (m) => m._id === message._id,
             );

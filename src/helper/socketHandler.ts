@@ -10,6 +10,7 @@ import {
     removeOnlineUser,
     setTyping,
     updateChats,
+    updateEmoji,
     updateLatestMessage,
     updateMessage,
     updateRepliesCount,
@@ -179,13 +180,80 @@ const setupSocketListeners = (api?: any): (() => void) => {
     });
 
     socket.on('updatemessage', (data: MessageData) => {
+        // First handle the direct message update to ensure thread view gets updated
         store.dispatch(
             updateMessage({
-                // chat:
-                //     typeof data.chat === 'string' ? data.chat : data.chat?._id,
                 message: data.message,
             }),
         );
+
+        // If this is a reply message, we need to update the parent's replies collection as well
+        if (data.message.parentMessage) {
+            const state = store.getState();
+            const chatMessages =
+                state.chat.chatMessages[data.message.chat] || [];
+            const parentMessage = chatMessages.find(
+                (m) => m._id === data.message.parentMessage,
+            );
+
+            if (parentMessage) {
+                // Get current replies or empty array if none
+                const currentReplies = parentMessage.replies || [];
+
+                // Find if this reply already exists in the collection
+                const existingReplyIndex = currentReplies.findIndex(
+                    (r) => r._id === data.message._id,
+                );
+
+                let updatedReplies;
+
+                if (existingReplyIndex !== -1) {
+                    // Update existing reply
+                    updatedReplies = currentReplies.map((reply) =>
+                        reply._id === data.message._id
+                            ? { ...reply, ...data.message }
+                            : reply,
+                    );
+                } else if (data.message.type !== 'delete') {
+                    // Add new reply if it doesn't exist yet and isn't a delete operation
+                    updatedReplies = [...currentReplies, data.message];
+                } else {
+                    // For any other case, keep replies as is
+                    updatedReplies = currentReplies;
+                }
+
+                // Special handling for reactions - update using updateEmoji if reactions property exists
+                if (data.message.reactions !== undefined) {
+                    // For reactions, use updateEmoji which has specific handling for nested replies
+                    store.dispatch(
+                        updateEmoji({
+                            message: data.message,
+                        }),
+                    );
+                }
+
+                // Always update the parent message with the updated replies collection
+                store.dispatch(
+                    updateMessage({
+                        message: {
+                            _id: data.message.parentMessage,
+                            chat: data.message.chat,
+                            replies: updatedReplies,
+                            createdAt:
+                                parentMessage.createdAt ||
+                                new Date().toISOString(),
+                        },
+                    }),
+                );
+            }
+        } else if (data.message.reactions !== undefined) {
+            // For reactions on regular messages, also dispatch updateEmoji
+            store.dispatch(
+                updateEmoji({
+                    message: data.message,
+                }),
+            );
+        }
     });
 
     socket.on('updatechat', (data: ChatEventData) => {
