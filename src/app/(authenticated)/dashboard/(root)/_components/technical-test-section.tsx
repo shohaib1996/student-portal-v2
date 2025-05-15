@@ -49,10 +49,10 @@ export function TechnicalTestSection() {
                 }).unwrap();
                 const results = response.data.assignment.results;
                 setTestData({
-                    totalItems: results.totalItems,
-                    pendingItems: results.pendingItems,
-                    acceptedItems: results.acceptedItems,
-                    rejectedItems: results.rejectedItems,
+                    totalItems: 2,
+                    pendingItems: 2,
+                    acceptedItems: 2,
+                    rejectedItems: 2,
                 });
                 // If API provides chart data, update setChartData here
                 // e.g., setChartData(response.data.chartData || defaultChartData);

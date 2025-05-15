@@ -13,7 +13,7 @@ interface DocumentItemProps {
 
 export function DocumentItem({ document, type }: DocumentItemProps) {
     return (
-        <div className='flex flex-col md:flex-row items-center gap-3 p-2 border rounded-lg bg-background'>
+        <div className='flex flex-col md:flex-col items-center gap-3 p-2 border rounded-lg bg-background'>
             {/* Wrapper for thumbnail and details to stay in a row on mobile */}
             <div className='flex w-full gap-3'>
                 <div className='rounded-md'>
