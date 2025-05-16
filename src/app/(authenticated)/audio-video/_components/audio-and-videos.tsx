@@ -145,7 +145,6 @@ const AudioAndVideos = () => {
                         type='text'
                         placeholder='Search media...'
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
                         className='pl-8 bg-foreground'
                     />
                     <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
@@ -179,7 +178,7 @@ const AudioAndVideos = () => {
                         currentPage={currentPage}
                         totalItems={totalItems || 0}
                         itemsPerPage={limit}
-                        onPageChange={handlePageChange}
+                        onPageChange={() => {}}
                     />
                 )}
             </div>

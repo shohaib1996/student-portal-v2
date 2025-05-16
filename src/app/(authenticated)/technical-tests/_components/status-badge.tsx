@@ -25,7 +25,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
         not_answered: {
             label: 'Not Answer',
             icon: MessageSquare,
-            className: 'bg-blue-50 text-blue-700 border-blue-100',
+            className: ' text-blue-700 border-blue-100',
         },
         rejected: {
             label: 'Rejected',
