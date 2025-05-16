@@ -70,7 +70,7 @@ export default function TaskCard({
         <Card className='rounded-lg border border-foreground shadow-none p-2.5 bg-foreground'>
             <div>
                 <div className='flex justify-between gap-2'>
-                    <h3 className='flex-1 text-lg font-semibold text-black leading-normal line-clamp-2'>
+                    <h3 className='flex-1 text-lg font-semibold text-[#000] leading-normal line-clamp-2'>
                         {task.title}
                     </h3>
                     <div className=''>
@@ -78,7 +78,7 @@ export default function TaskCard({
                     </div>
                 </div>
 
-                <p className='font-medium text-black my-2 text-sm'>
+                <p className='font-medium text-[#000] my-2 text-sm'>
                     ID:{' '}
                     <span className='text-gray font-normal'>#{task.id}</span>
                 </p>
@@ -92,7 +92,7 @@ export default function TaskCard({
                             Total Marks:
                         </span>
                         <span
-                            className={`text-black font-semibold ${isMobile ? '' : 'col-span-2'}`}
+                            className={`text-[#000] font-semibold ${isMobile ? '' : 'col-span-2'}`}
                         >
                             {task.marks}
                         </span>
@@ -108,7 +108,7 @@ export default function TaskCard({
                                 Obtained:
                             </span>
                             <span
-                                className={`text-black font-semibold ${isMobile ? '' : 'col-span-2'}`}
+                                className={`text-[#000] font-semibold ${isMobile ? '' : 'col-span-2'}`}
                             >
                                 {task.obtainedMark}
                             </span>
@@ -125,7 +125,7 @@ export default function TaskCard({
                                 Attachments:
                             </span>
                             <span
-                                className={`text-black font-semibold ${isMobile ? '' : 'col-span-2'}`}
+                                className={`text-[#000] font-semibold ${isMobile ? '' : 'col-span-2'}`}
                             >
                                 {task.attachments}
                             </span>
@@ -140,7 +140,7 @@ export default function TaskCard({
                             Deadline:
                         </span>
                         <span
-                            className={`text-black font-semibold ${isMobile ? '' : 'col-span-2'}`}
+                            className={`text-[#000] font-semibold ${isMobile ? '' : 'col-span-2'}`}
                         >
                             {task?.deadline
                                 ? dayjs(task.deadline).format(
@@ -177,10 +177,9 @@ export default function TaskCard({
                             <span className='ml-1'>→</span>
                         </Button>
                         <Button
-                            disabled={task.status === 'not_answered'}
                             onClick={onSeeResult}
                             variant='outline'
-                            className={`rounded-md px-3 py-2 h-auto flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-black ${
+                            className={`rounded-md px-3 py-2 h-auto flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-[#000] ${
                                 isMobile ? 'w-full' : ''
                             }`}
                         >

@@ -120,7 +120,7 @@ function MetricCard({ metric }: { metric: Metric }) {
                             className='text-xl font-semibold'
                             style={{ color: metric.color }}
                         >
-                            {metric.value}
+                            {50}
                         </p>
                     </div>
                 </div>

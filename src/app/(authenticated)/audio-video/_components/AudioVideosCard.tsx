@@ -162,8 +162,7 @@ const AudioVideosCard = ({ media, isAudio }: TAudioVideosCardProps) => {
                         </div>
                         <div className='mt-2 pt-2 border-t'>
                             <Button
-                                variant='primary_light'
-                                className='w-full text-primary hover:text-primary/90 hover:bg-primary/5 border-blue-700/50'
+                                className='w-full hover:text-primary/90 hover:bg-primary/5 border-blue-700/50'
                                 onClick={handleMedia}
                             >
                                 <Eye className='h-4 w-4 mr-2' />

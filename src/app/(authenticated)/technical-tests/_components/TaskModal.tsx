@@ -272,7 +272,7 @@ export default function TaskModal({
                 {/* Task Info */}
                 <div className=''>
                     <div className='flex items-center gap-2 my-2'>
-                        <span className='bg-primary-light text-primary-white border border-primary rounded-full px-2 py-1 text-sm font-medium'>
+                        <span className='bg-primary-light text-[#000] border border-primary rounded-full px-2 py-1 text-sm font-medium'>
                             Technical {taskData.category || 'Test'}
                         </span>
                         <span className='bg-amber-200 dark:bg-background rounded-full border border-amber-400 px-2 py-1 text-amber-600 dark:text-white font-medium text-sm'>
