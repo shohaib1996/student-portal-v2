@@ -318,12 +318,7 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
     const customTitle = (
         <div className='flex items-center justify-between border-b border-forground-border px-5 py-3 pb-2 sticky top-0 rounded-tr-lg rounded-tl-lg'>
             <div className='flex items-center gap-2'>
-                <Button
-                    variant='ghost'
-                    size='icon'
-                    className='h-8 w-8'
-                    onClick={() => setShowModal(false)}
-                >
+                <Button variant='ghost' size='icon' className='h-8 w-8'>
                     <ArrowLeft className='h-5 w-5' />
                 </Button>
                 <div>
@@ -396,13 +391,7 @@ const MediaModal = ({ showModal, setShowModal, media }: TMediaModalProps) => {
                         <div className='p-2'>
                             {currentMedia.url ? (
                                 isValidUrl(currentMedia.url) ? (
-                                    <iframe
-                                        className='aspect-video w-full rounded-lg -mt-5'
-                                        src={currentMedia?.url}
-                                        sandbox='allow-same-origin allow-scripts'
-                                        referrerPolicy='no-referrer'
-                                        loading='lazy'
-                                    ></iframe>
+                                    <></>
                                 ) : (
                                     <div className='aspect-video w-full rounded-lg flex items-center justify-center bg-gray-900'>
                                         <div className='text-center p-4'>
