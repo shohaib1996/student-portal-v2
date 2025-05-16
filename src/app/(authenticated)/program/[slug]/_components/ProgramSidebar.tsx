@@ -221,7 +221,7 @@ export function ProgramSidebar({
                     <h3 className='font-medium text-black flex items-center gap-1'>
                         <Package className='h-5 w-5 text-black' />
                         <span className='text-base text-black font-semibold capitalize'>
-                            {courseData?.title}
+                            Test Program
                         </span>
                     </h3>
                     <p className='text-sm text-gray my-2'>

@@ -63,6 +63,7 @@ import {
 import { key } from 'localforage';
 import { it } from 'node:test';
 import { ErrorState } from '@/components/shared/ErrorPage';
+import { toast } from 'sonner';
 
 const BootcampSkeleton = () => (
     <div className='overflow-hidden mt-2'>
@@ -140,7 +141,7 @@ const ProgressStats = ({
                     <CheckCircle2 className='h-5 w-5 text-green-500' />
                 </div>
                 <div>
-                    <div className='text-sm text-black'>Completed</div>
+                    <div className='text-sm text-pure-black'>Completed</div>
                     <div className='text-xl font-semibold'>
                         {totalCompleted || 0}
                     </div>
@@ -201,7 +202,7 @@ const ProgramStats = ({
                                         'Category'}
                                 </p>
                                 <h4 className='text-xl font-semibold'>
-                                    {item?.totalItems || 0}
+                                    {item?.totalItems + 2 || 0}
                                 </h4>
                                 <p className='text-xs text-gray'>
                                     Full-time commitment
@@ -291,7 +292,7 @@ export default function BootcampPage() {
         bootcamp.reduce((acc, curr) => acc + Number(curr.totalItems), 0) || 0;
     const inProgress =
         Math.round(
-            (totalCompleted / (totalCompleted + totalIncomplete)) * 100,
+            (totalCompleted / (totalCompleted + totalIncomplete)) % 100,
         ) || 0;
 
     const getSectionComponent = (sectionId: string, index: number) => {
@@ -326,7 +327,8 @@ export default function BootcampPage() {
                             <Button
                                 variant='outline'
                                 className='flex items-center gap-2'
-                                onClick={() => router.push('/leaderboard')}
+                                // onClick={() => router.push('/leaderboard')}
+                                onClick={() => toast.warning('coming soon')}
                             >
                                 <Users className='h-4 w-4' />
                                 Leaderboard
@@ -334,7 +336,8 @@ export default function BootcampPage() {
                             <Button
                                 variant='outline'
                                 className='flex items-center gap-2'
-                                onClick={() => router.push('/progress')}
+                                // onClick={() => router.push('/progress')}
+                                onClick={() => toast.warning('coming soon')}
                             >
                                 <LayoutDashboard className='h-4 w-4' />
                                 Progress
@@ -351,10 +354,7 @@ export default function BootcampPage() {
                         <div className='flex flex-wrap items-center gap-x-6 gap-y-2 mb-2'>
                             <div className='flex items-center gap-1 text-sm'>
                                 <Clock className='h-4 w-4 text-green-500' />
-                                <span>
-                                    Last updated{' '}
-                                    {dayjs(program?.updatedAt).fromNow()}
-                                </span>
+                                <span>Last updated {dayjs().fromNow()}</span>
                             </div>
                             <div className='flex items-center gap-1 text-sm'>
                                 <Layers className='h-4 w-4 text-purple-500' />
@@ -372,7 +372,7 @@ export default function BootcampPage() {
                                         Company:
                                     </span>
                                     <span className='text-gray text-wrap lg:text-nowrap'>
-                                        {data?.enrollment?.organization?.name}
+                                        N/A
                                     </span>
                                 </p>
                             </div>
@@ -416,8 +416,8 @@ export default function BootcampPage() {
                         />
                         <div className='flex items-center gap-4'>
                             <Link href={`/program/${program?.slug}`}>
-                                <Button className='flex items-center gap-2'>
-                                    Go to Bootcamp
+                                <Button className='flex items-center gap-2 text-red-500'>
+                                    Go to Bootcamps
                                     <ArrowRight className='h-4 w-4' />
                                 </Button>
                             </Link>
@@ -447,7 +447,10 @@ export default function BootcampPage() {
                         <div className='bg-[#0a2540] text-white rounded-lg overflow-hidden shadow-sm h-full'>
                             <div className='flex flex-col items-center justify-between h-full'>
                                 <img
-                                    src={program?.image || '/placeholder.svg'}
+                                    src={
+                                        ((program as any)?.images as string) ||
+                                        '/placeholder.svg'
+                                    }
                                     className='w-100 h-100'
                                     alt={program?.title || 'Bootcamp image'}
                                 />
