@@ -616,7 +616,7 @@ const TechnicalTest = () => {
                             </Button>
                             <Button
                                 variant={isGridView ? 'outline' : 'default'}
-                                onClick={() => toggleViewMode(false)}
+                                onClick={() => toggleViewMode(true)}
                                 className={isMobile ? 'px-2' : ''}
                                 tooltip='List View'
                             >
@@ -881,7 +881,7 @@ const TechnicalTest = () => {
                     totalItems={totalItems}
                     currentPage={currentPage}
                     itemsPerPage={limit}
-                    onPageChange={handlePageChange}
+                    onPageChange={() => {}}
                 />
             </div>
 
