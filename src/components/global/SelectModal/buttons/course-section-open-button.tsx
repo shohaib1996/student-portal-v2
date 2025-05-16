@@ -41,6 +41,7 @@ export default function CourseSectionOpenButton({ title, icon }: Props) {
     return (
         <>
             <Button
+                tooltip='Select a course to view'
                 variant='outline'
                 onClick={handleOpenCourse}
                 className='rounded-full font-semibold text-muted-foreground size-9 md:size-auto '

@@ -77,7 +77,7 @@ const Navbar = () => {
             id: 743,
             content: (
                 <Link
-                    href='/chat'
+                    href='profile?tab=change-password'
                     className='flex gap-2 text-dark-gray items-center hover:underline hover:bg-background hover:rounded-lg'
                 >
                     <BookOpenText size={18} />

@@ -9,15 +9,43 @@ import { useGetAllPortalChartDataMutation } from '@/redux/api/myprogram/myprogra
 import { MessageCircle } from 'lucide-react';
 
 export function ChatsSection() {
+    const [getChatData] = useGetAllPortalChartDataMutation();
     const [chatData, setChatData] = useState({
-        totalChat: 20,
-        totalMessage: 20,
-        totalUnreadChat: 20,
-        totalReadChat: 20,
-        totalPinnedMessages: 20,
-        totalUnreadCrowd: 20,
-        totalUnreadDirect: 20,
+        totalChat: 0,
+        totalMessage: 0,
+        totalUnreadChat: 0,
+        totalReadChat: 0,
+        totalPinnedMessages: 0,
+        totalUnreadCrowd: 0,
+        totalUnreadDirect: 0,
     });
+
+    useEffect(() => {
+        const fetchChatData = async () => {
+            try {
+                const response = await getChatData({ message: {} }).unwrap();
+                console.log('response', response);
+
+                // Access the correct nested path for the data
+                if (response?.data?.message?.results) {
+                    const results = response.data.message.results;
+
+                    setChatData({
+                        totalChat: results.totalChat || 0,
+                        totalMessage: results.totalMessage || 0,
+                        totalUnreadChat: results.totalUnreadChat || 0,
+                        totalReadChat: results.totalReadChat || 0,
+                        totalPinnedMessages: results.totalPinnedMessages || 0,
+                        totalUnreadCrowd: results.totalUnreadCrowd || 0,
+                        totalUnreadDirect: results.totalUnreadDirect || 0,
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching chat data:', error);
+            }
+        };
+        fetchChatData();
+    }, [getChatData]);
 
     // Calculate progress percentages
     const readProgress = chatData.totalChat

@@ -6,7 +6,9 @@ export function DashboardTitle() {
         <div className='flex justify-between items-center border-b'>
             <div>
                 <h1 className='text-2xl font-bold'>Dashboard</h1>
-                <p className='text-muted-foreground text-sm'>Monitor your...</p>
+                <p className='text-muted-foreground text-sm'>
+                    Monitor your progress and stay on track with your goals.
+                </p>
             </div>
             {/* <div className='flex items-center gap-2'>
                 <Button variant='outline' size='icon'>

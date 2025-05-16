@@ -90,7 +90,7 @@ export function CalendarSection() {
 
     return (
         <Card className='p-2 rounded-lg shadow-none bg-foreground'>
-            <CardHeader className='p-2 flex flex-row flex-wrap items-center border-b'>
+            <CardHeader className='p-2 flex flex-row flex-wrap justify-between items-center border-b'>
                 <div>
                     <h3 className='text-md font-medium'>Calendar</h3>
                     <p className='text-xs text-muted-foreground'>
@@ -98,7 +98,7 @@ export function CalendarSection() {
                     </p>
                 </div>
                 <div className='flex items-center gap-2'>
-                    <ViewMoreLink href='/' />
+                    <ViewMoreLink href='/calendar' />
                     {/* <Select defaultValue='this-month'>
                         <SelectTrigger className='w-[140px] h-9'>
                             <SelectValue placeholder='Select period' />
